@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FCM 0→1 — Master Brief</title>
+<style>
+  :root{
+    --bg:#ffffff; --panel:#ffffff; --panel2:#f5f7fa;
+    --ink:#1a2230; --muted:#52606d; --faint:#8896a5;
+    --accent:#2563eb; --accent-soft:#eaf0fe;
+    --bad:#d64545; --bad-soft:#fbeaea;
+    --line:#e4e9f0; --chip:#eef1f5;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    line-height:1.5;font-size:15px;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1180px;margin:0 auto;padding:32px 28px 80px}
+  h1{font-size:32px;margin:0 0 4px;letter-spacing:-.5px}
+  h2{font-size:13px;text-transform:uppercase;letter-spacing:1.5px;color:var(--accent);
+    margin:50px 0 16px;padding-bottom:8px;border-bottom:2px solid var(--accent-soft)}
+  h3{font-size:17px;margin:0 0 2px}
+  p{margin:0 0 10px;color:var(--muted)}
+  .sub{color:var(--faint);font-size:13px;margin-bottom:4px}
+  .lead{font-size:16px;color:var(--ink);max-width:880px}
+  .grid{display:grid;gap:14px}
+  .g2{grid-template-columns:1fr 1fr}
+  .g3{grid-template-columns:repeat(3,1fr)}
+  .g4{grid-template-columns:repeat(4,1fr)}
+  @media(max-width:900px){.g2,.g3,.g4{grid-template-columns:1fr}}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px 20px;
+    box-shadow:0 1px 2px rgba(26,34,48,.04)}
+  .card.tight{padding:14px 16px}
+  .pill{display:inline-block;font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px;
+    background:var(--chip);color:var(--muted);margin:0 4px 4px 0}
+  .pill.ac{background:var(--accent-soft);color:var(--accent)}
+  .pill.hi{background:var(--bad-soft);color:var(--bad)}
+  .tag{font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--faint)}
+  ul{margin:6px 0 0;padding-left:18px}
+  li{margin:4px 0;color:var(--muted)}
+  li b{color:var(--ink);font-weight:600}
+  table{width:100%;border-collapse:collapse;font-size:13px;margin-top:6px}
+  th,td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{color:var(--faint);font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.5px}
+  td:first-child{color:var(--ink);font-weight:600}
+  .y{color:var(--accent);font-weight:700}.n{color:var(--bad);font-weight:700}.m{color:var(--faint);font-weight:700}
+  .risk-hi{color:var(--bad);font-weight:700}.risk-md{color:var(--accent);font-weight:700}.risk-lo{color:var(--faint);font-weight:700}
+  .callout{border-left:3px solid var(--accent);background:var(--panel2);padding:12px 16px;border-radius:0 8px 8px 0;margin:4px 0 0}
+  .num{display:inline-flex;align-items:center;justify-content:center;min-width:22px;height:22px;padding:0 6px;
+    border-radius:6px;background:var(--accent);color:#fff;font-weight:700;font-size:12px;margin-right:8px;flex-shrink:0}
+  .num.alt{background:#fff;color:var(--accent);border:1.5px solid var(--accent)}
+  .kv{display:flex;gap:8px;margin:5px 0;font-size:13.5px}
+  .kv .k{color:var(--faint);min-width:90px;flex-shrink:0}.kv .v{color:var(--ink)}
+  .stat{font-size:26px;font-weight:700;color:var(--ink);line-height:1}
+  .stat small{display:block;font-size:12px;font-weight:400;color:var(--faint);margin-top:6px}
+  .hdr-row{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px}
+  .score{font-size:12px;color:var(--faint)}
+  .ai-row{display:flex;gap:10px;align-items:flex-start;margin:8px 0}
+  .toc{columns:2;column-gap:30px;font-size:14px}
+  .toc a{display:block;margin:4px 0;color:var(--muted)}
+  .toc a:hover{color:var(--accent)}
+  .legend{font-size:12px;color:var(--faint);margin-top:8px}
+  .meta{color:var(--faint);font-size:12px;margin-top:40px;border-top:1px solid var(--line);padding-top:14px}
+  .phase{display:flex;gap:14px;margin:0 0 14px}.phase .num{margin-top:2px}.phase .body{flex:1}
+  .badge{font-size:11px;font-weight:700;color:var(--accent);background:var(--accent-soft);padding:2px 8px;border-radius:5px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="sub">FACTS Childcare Management (FCM) · 0→1 Master Brief · June 2026</div>
+  <h1>FCM 0→1: the complete brief</h1>
+  <p class="lead">Everything needed to take FACTS Childcare Management from zero to one — the competitive landscape, the insights and action items that fall out of it, the unsolved problems, the AI strategy, the users to validate, and the research plan that de-risks the bet. Built to run through a product pipeline as a single source of truth.</p>
+
+  <!-- TOC -->
+  <div class="card" style="margin-top:18px">
+    <span class="tag">Contents</span>
+    <div class="toc" style="margin-top:8px">
+      <a href="#thesis">1 · Product thesis</a>
+      <a href="#insights">2 · Insights from competitive research</a>
+      <a href="#actions">3 · Action items (prioritized)</a>
+      <a href="#market">4 · Market &amp; user pain</a>
+      <a href="#landscape">5 · Competitive landscape</a>
+      <a href="#whitespace">6 · White space &amp; FCM edge</a>
+      <a href="#ai">7 · AI strategy</a>
+      <a href="#personas">8 · Personas to validate</a>
+      <a href="#build">9 · 0→1 build priorities</a>
+      <a href="#research">10 · Research plan &amp; assumption map</a>
+      <a href="#metrics">11 · Success metrics</a>
+    </div>
+  </div>
+
+  <!-- 1 THESIS -->
+  <h2 id="thesis">1 · Product thesis</h2>
+  <div class="callout">
+    <b>The bet:</b> FACTS-SIS schools with attached early-learning programs feel enough operational pain — especially billing/subsidy and family communication — to adopt a second FACTS module rather than bolt on a standalone competitor like Brightwheel. FCM wins not by out-featuring incumbents but by being the only product that lives <i>inside</i> the school's existing system of record.<br><br>
+    <b>The one-liner:</b> Don't out-feature Brightwheel — out-integrate it.
+  </div>
+  <div class="grid g4" style="margin-top:14px">
+    <div class="card tight"><div class="stat">3<small>incumbents: Brightwheel (engagement), Procare (operations), Lillio (pedagogy)</small></div></div>
+    <div class="card tight"><div class="stat">30–65%<small>annual staff turnover — the #1 unsolved operational pain</small></div></div>
+    <div class="card tight"><div class="stat">~$21–31<small>per child/mo going rate; per-child pricing is widely resented</small></div></div>
+    <div class="card tight"><div class="stat">1<small>true AI agent shipped (Procare RoomRunner); category wide open</small></div></div>
+  </div>
+
+  <!-- 2 INSIGHTS -->
+  <h2 id="insights">2 · Insights from competitive research</h2>
+  <div class="grid g2">
+    <div class="card">
+      <h3>What the landscape tells us</h3>
+      <ul>
+        <li><b>No one owns "pedagogy + money."</b> Lillio owns learning, Procare owns billing, Brightwheel owns comms. The union is empty — and FCM already holds the money side via FACTS.</li>
+        <li><b>Billing is the deepest moat and the loudest pain.</b> Subsidy/CCAP reconciliation is the most-cited unmet need; only Procare is close, and it's clunky.</li>
+        <li><b>Per-child pricing is the shared soft spot.</b> Challengers are winning purely on flat/transparent pricing — a wedge against all three leaders.</li>
+        <li><b>AI is shallow everywhere.</b> Mostly automation + marketing. The "AI-native childcare OS" doesn't exist yet.</li>
+        <li><b>Adoption dies in the classroom.</b> Teacher daily-logging is the failure point — products parents love but teachers abandon.</li>
+        <li><b>Switching is friction-heavy.</b> Brightwheel's no-online-cancel backlash shows trust + transparency is itself a differentiator.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Where that points FCM</h3>
+      <ul>
+        <li>Lead with <b>SIS-native billing + subsidy</b> as the headline, not parent comms (which is table stakes).</li>
+        <li>Treat the <b>teacher logging loop</b> as the make-or-break adoption surface — design it for speed and one hand.</li>
+        <li>Price as a <b>predictable bundle</b>, never per-child — neutralizes the challengers' best attack.</li>
+        <li>Ship <b>one sharp AI agent</b>, not scattered "AI" — the window to be AI-native is open in 2026.</li>
+        <li>Make <b>trust/COPPA + Nelnet security reputation</b> a visible promise competitors are too cautious to lead with.</li>
+        <li>Sell the <b>birth→K-12 lifecycle</b> — a story no standalone competitor can tell.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- 3 ACTIONS -->
+  <h2 id="actions">3 · Action items (prioritized)</h2>
+  <div class="card" style="padding:8px 14px 14px">
+    <table>
+      <tr><th>#</th><th>Action</th><th>Owner</th><th>Why it matters</th><th>When</th></tr>
+      <tr><td>1</td><td>Pull install-base data: count SIS schools with eligible (Premier + shared tax ID) early-learning programs</td><td>Data / PM</td><td>Sizes the market; clears a MED-risk assumption with zero fieldwork</td><td><span class="badge">Now</span></td></tr>
+      <tr><td>2</td><td>Mine support tickets, churn reasons &amp; sales-loss notes for childcare pain</td><td>Research</td><td>Free generative signal before any interview</td><td><span class="badge">Now</span></td></tr>
+      <tr><td>3</td><td>Run discovery: 8–12 contextual inquiries + interviews across director/teacher/parent</td><td>Research</td><td>Tests the 4 HIGH-risk assumptions; ranks real pain</td><td>Wk 2–4</td></tr>
+      <tr><td>4</td><td>Prototype + usability-test the SIS-native billing/subsidy flow</td><td>Design</td><td>Validates the moat before eng invests</td><td>Wk 6–8</td></tr>
+      <tr><td>5</td><td>Prototype + test the teacher daily-logging loop</td><td>Design</td><td>The adoption killer — must be fast &amp; one-handed</td><td>Wk 6–8</td></tr>
+      <tr><td>6</td><td>Lock baseline metrics (mins/report, reconciliation time, on-time payment %)</td><td>Research</td><td>Makes post-launch impact provable</td><td>Wk 2–9</td></tr>
+      <tr><td>7</td><td>Decide pricing model (flat/bundle) &amp; test sensitivity</td><td>PM</td><td>Avoids the per-child trap; defends vs. challengers</td><td>Wk 6–8</td></tr>
+      <tr><td>8</td><td>Pick &amp; scope the first AI agent (report narration or subsidy copilot)</td><td>PM / Eng</td><td>Establishes AI-native positioning early</td><td>Wk 5+</td></tr>
+      <tr><td>9</td><td>Write COPPA / privacy-by-design + human-in-the-loop principles</td><td>PM / Legal</td><td>Turns the category's third rail into a differentiator</td><td>Wk 5+</td></tr>
+    </table>
+    <p class="legend"><span class="badge">Now</span> = startable this week with no recruiting</p>
+  </div>
+
+  <!-- 4 MARKET PAIN -->
+  <h2 id="market">4 · Market &amp; user pain</h2>
+  <div class="grid g3">
+    <div class="card"><h3>Revenue leaks</h3><ul>
+      <li><b>Empty slots</b> cost $700–$1,500/mo each</li>
+      <li><b>10–20% of families pay late</b>, breaking payroll cash flow</li>
+      <li>Directors pulled to cover classrooms = lost admin time</li></ul></div>
+    <div class="card"><h3>Subsidy &amp; compliance</h3><ul>
+      <li>Federal shift: <b>reimbursement tied to actual attendance</b> → auditable daily records required</li>
+      <li>CCAP / DHS vouchers have bespoke formats → <b>manual monthly reconciliation</b></li>
+      <li>Ratio violations &amp; licensing visits are existential</li></ul></div>
+    <div class="card"><h3>Staffing</h3><ul>
+      <li>Median wage ~$13/hr; <b>turnover 30–65%/yr</b></li>
+      <li>$3k–$5k to replace each hire</li>
+      <li>80%+ of centers report shortages → scheduling &amp; ratio chaos</li></ul></div>
+  </div>
+
+  <!-- 5 LANDSCAPE -->
+  <h2 id="landscape">5 · Competitive landscape</h2>
+  <div class="grid g3">
+    <div class="card">
+      <div class="hdr-row"><h3>Brightwheel</h3><span class="score">#1 · ~$600M</span></div>
+      <div class="sub">All-in-one, parent-experience-first</div>
+      <div class="kv"><span class="k">Wins on</span><span class="v">Comms, parent app, ease, billing UX</span></div>
+      <div class="kv"><span class="k">Pricing</span><span class="v">$36–$1,800/mo by capacity + card fees</span></div>
+      <div style="margin-top:8px"><span class="tag">Gaps</span><ul>
+        <li>Weak subsidy/CCAP on low tiers</li>
+        <li>Billing rigidity; no online cancel (Trustpilot 1.8★)</li>
+        <li>Assessments disconnected from lesson plans</li></ul></div>
+      <div style="margin-top:8px"><span class="pill ac">AI: photo→standards tagging, auto reports/comms</span></div>
+    </div>
+    <div class="card">
+      <div class="hdr-row"><h3>Procare</h3><span class="score">40k+ · 30 yrs</span></div>
+      <div class="sub">Operations &amp; billing powerhouse</div>
+      <div class="kv"><span class="k">Wins on</span><span class="v">Complex billing, subsidy, reporting, multi-site</span></div>
+      <div class="kv"><span class="k">Pricing</span><span class="v">Flat monthly; ~$85+/mo entry</span></div>
+      <div style="margin-top:8px"><span class="tag">Gaps</span><ul>
+        <li>Legacy desktop↔Connect sync; double entry</li>
+        <li>Dated UX, weak Mac, Android instability</li>
+        <li>Thin curriculum; support waits</li></ul></div>
+      <div style="margin-top:8px"><span class="pill ac">AI: RoomRunner enrollment agent (1st in category)</span></div>
+    </div>
+    <div class="card">
+      <div class="hdr-row"><h3>Lillio <span style="font-weight:400;color:var(--faint)">(HiMama)</span></h3><span class="score">92% sat.</span></div>
+      <div class="sub">Educator &amp; child-development platform</div>
+      <div class="kv"><span class="k">Wins on</span><span class="v">Daily reports, portfolios, milestones</span></div>
+      <div class="kv"><span class="k">Pricing</span><span class="v">Per-child, opaque; pricey past 30–40 kids</span></div>
+      <div style="margin-top:8px"><span class="tag">Gaps</span><ul>
+        <li>Immature billing vs. peers</li>
+        <li>Clunky UI, slow/crashes on old devices</li>
+        <li>Weaker US subsidy fit (Canadian roots)</li></ul></div>
+      <div style="margin-top:8px"><span class="pill">AI: limited / not a public differentiator</span></div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:14px">
+    <div class="hdr-row"><h3>Challenger tier</h3><span class="score">flat pricing + "AI-native" marketing</span></div>
+    <div class="grid g4" style="margin-top:10px">
+      <div><span class="tag">Kangarootime</span><p style="font-size:13px;margin-top:4px">1–3 classrooms; strong billing automation + scheduling.</p></div>
+      <div><span class="tag">Playground</span><p style="font-size:13px;margin-top:4px">Mid-size; enrollment/waitlist focus, transparent pricing.</p></div>
+      <div><span class="tag">Illumine</span><p style="font-size:13px;margin-top:4px">"Fully AI-based"; strong comms + automated reports.</p></div>
+      <div><span class="tag">ChildPilot / MyKidReports</span><p style="font-size:13px;margin-top:4px">Value players using AI comms + flat pricing to undercut.</p></div>
+    </div>
+  </div>
+
+  <!-- Matrix -->
+  <div class="card" style="margin-top:14px;padding:8px 14px 14px">
+    <table>
+      <tr><th>Capability</th><th>Brightwheel</th><th>Procare</th><th>Lillio</th><th>Challengers</th><th>FCM angle</th></tr>
+      <tr><td>Parent comms / app</td><td class="y">Best</td><td class="m">Ok</td><td class="y">Strong</td><td class="y">Strong</td><td class="m">Table stakes</td></tr>
+      <tr><td>Check-in/out &amp; attendance</td><td class="y">Yes</td><td class="y">Yes</td><td class="y">Yes</td><td class="y">Yes</td><td class="y">SIS-linked</td></tr>
+      <tr><td>Activity logging</td><td class="y">Yes</td><td class="y">Yes</td><td class="y">Best</td><td class="y">Yes</td><td class="y">Planned</td></tr>
+      <tr><td>Complex / subsidy billing</td><td class="n">Weak</td><td class="y">Best</td><td class="n">Weak</td><td class="m">Varies</td><td class="y"><b>Real edge</b></td></tr>
+      <tr><td>SIS / student record</td><td class="m">Built-in</td><td class="m">Built-in</td><td class="n">Limited</td><td class="n">Limited</td><td class="y"><b>Native FACTS</b></td></tr>
+      <tr><td>Curriculum / assessment</td><td class="m">Disconnected</td><td class="n">Thin</td><td class="y">Best</td><td class="m">Varies</td><td class="n">Gap to fill</td></tr>
+      <tr><td>Staff scheduling / ratio</td><td class="m">Alerts</td><td class="y">Yes</td><td class="n">Thin</td><td class="m">Varies</td><td class="n">Opportunity</td></tr>
+      <tr><td>AI features</td><td class="m">Several</td><td class="m">1 agent</td><td class="n">None</td><td class="m">Marketing</td><td class="y"><b>Leapfrog</b></td></tr>
+      <tr><td>Pricing model</td><td class="m">Capacity</td><td class="y">Flat</td><td class="n">Per-child</td><td class="y">Flat</td><td class="m">Bundle</td></tr>
+    </table>
+    <p class="legend"><span class="y">blue</span> = strength · <span class="m">gray</span> = partial · <span class="n">red</span> = weak/absent</p>
+  </div>
+
+  <!-- 6 WHITESPACE -->
+  <h2 id="whitespace">6 · White space &amp; FCM edge</h2>
+  <div class="grid g2">
+    <div class="card"><h3>Gaps every incumbent leaves open</h3><ul>
+      <li><b>Subsidy billing that just works</b> — loudest unmet need; only Procare close, and clunky.</li>
+      <li><b>Flat, transparent pricing</b> — per-child is universally resented.</li>
+      <li><b>Pedagogy + billing in one</b> — the union is empty.</li>
+      <li><b>Staffing/scheduling depth</b> — #1 pain, barely addressed.</li>
+      <li><b>One record, zero double-entry</b> — clean-data opening FCM already owns.</li></ul></div>
+    <div class="card"><h3>Why FCM can take them</h3><ul>
+      <li><b>SIS holds the truth</b> — student, family, billing, tax-ID inherited clean.</li>
+      <li><b>Premier Integration + shared tax ID</b> = daycare &amp; school are one financial entity → subsidy done right.</li>
+      <li><b>Distribution for free</b> — sell into installed base, near-zero CAC.</li>
+      <li><b>Birth→K-12 lifecycle</b> — no competitor can match it.</li></ul></div>
+  </div>
+
+  <!-- 7 AI -->
+  <h2 id="ai">7 · AI strategy</h2>
+  <div class="callout"><b>State of play:</b> AI here is shallow — Brightwheel automates reports/tagging, Procare shipped one agent, Lillio has none, challengers use "AI" as marketing. No AI-native childcare OS exists yet. The window is open in 2026; child-data privacy/COPPA is the constraint everyone fears.</div>
+  <div class="grid g2" style="margin-top:14px">
+    <div class="card"><h3>AI opportunities — ranked for FCM</h3>
+      <div class="ai-row"><span class="num">1</span><div><b>Auto daily-report &amp; photo narration.</b> Teacher snaps a photo, AI drafts the parent note + tags milestones. Highest-frequency time sink → fastest delight.</div></div>
+      <div class="ai-row"><span class="num">2</span><div><b>Subsidy/billing copilot.</b> Reconciles CCAP/voucher claims against attendance, flags mismatches pre-audit. Owns the #1 pain + leverages FACTS billing.</div></div>
+      <div class="ai-row"><span class="num">3</span><div><b>Ratio &amp; scheduling agent.</b> Predicts coverage gaps, suggests subs, keeps ratios legal in real time.</div></div>
+      <div class="ai-row"><span class="num">4</span><div><b>Director revenue copilot.</b> Enrollment forecasting + late-payment prediction + empty-slot alerts (beats RoomRunner by tying to real billing).</div></div>
+      <div class="ai-row"><span class="num">5</span><div><b>Developmental insight.</b> Pattern-spot milestones/behavior; surface "talk to this family" nudges.</div></div>
+      <div class="ai-row"><span class="num">6</span><div><b>Multilingual comms.</b> Instant translation of messages/reports; inclusion play.</div></div>
+    </div>
+    <div class="card"><h3>Principles</h3><ul>
+      <li><b>One sharp agent first</b> — pick #1 or #2, ship it excellently. No "AI" sprinkled everywhere.</li>
+      <li><b>Quiet automation</b> over chatbots — winning AI works behind the scenes, keeps kids' day human.</li>
+      <li><b>Human-in-the-loop</b> — recommendations require approval (Procare's RoomRunner model).</li>
+      <li><b>Privacy-by-design + COPPA</b> as a visible feature — Nelnet's security reputation is an asset competitors lack.</li></ul>
+      <div class="callout" style="margin-top:10px"><b>Recommended first agent:</b> auto daily-report narration (broadest, lowest-risk delight) <i>or</i> subsidy copilot (highest-value, ties to the moat). Validate which in discovery.</div>
+    </div>
+  </div>
+
+  <!-- 8 PERSONAS -->
+  <h2 id="personas">8 · Personas to validate <span style="font-size:12px;font-weight:400;color:var(--faint);text-transform:none;letter-spacing:0">— hypotheses, not yet evidence</span></h2>
+  <div class="grid g3">
+    <div class="card"><h3>Dana — the Director</h3><div class="sub">Buyer · decision-maker</div><ul>
+      <li><b>Goals:</b> fill seats, get paid on time, pass licensing, keep staff</li>
+      <li><b>Pain:</b> subsidy reconciliation, late payments, covering classrooms</li>
+      <li><b>Wins if FCM:</b> makes billing/subsidy effortless &amp; shows revenue risk early</li>
+      <li><b>JTBD:</b> "Run a compliant, full, financially healthy center without living in spreadsheets."</li></ul></div>
+    <div class="card"><h3>Tara — the Teacher</h3><div class="sub">Daily user · adoption gatekeeper</div><ul>
+      <li><b>Goals:</b> care for kids, keep parents happy, get through the day</li>
+      <li><b>Pain:</b> logging eats time; phone in one hand, child in the other</li>
+      <li><b>Wins if FCM:</b> logging is seconds, one-handed, AI-assisted</li>
+      <li><b>JTBD:</b> "Capture the day for parents without taking time from the kids."</li></ul></div>
+    <div class="card"><h3>Priya — the Parent</h3><div class="sub">Judge · engagement driver</div><ul>
+      <li><b>Goals:</b> reassurance, connection, easy payment</li>
+      <li><b>Pain:</b> not knowing how the day went; clunky payment</li>
+      <li><b>Wins if FCM:</b> rich real-time updates + frictionless pay</li>
+      <li><b>JTBD:</b> "Feel confident my child is safe, learning, and cared for."</li></ul></div>
+  </div>
+  <div class="callout" style="margin-top:14px"><b>The tension to design around:</b> Dana buys it, Tara has to live in it, Priya judges it. Optimizing for one can hurt another — the classic failure is a product parents love but teachers quietly abandon. Validate the buyer/user split in discovery.</div>
+
+  <!-- 9 BUILD -->
+  <h2 id="build">9 · 0→1 build priorities</h2>
+  <div class="grid g2">
+    <div class="card"><h3><span class="num">P0</span>Win on integration, not features</h3><p>Ship the table-stakes parent loop (check-in/out, logging, photos, messaging, daily reports, mobile) — but make <b>zero-double-entry with FACTS SIS + billing</b> the headline. The one thing no competitor can copy.</p></div>
+    <div class="card"><h3><span class="num">P0</span>Make billing/subsidy the moat</h3><p>Use shared-tax-ID + Premier Integration to deliver <b>subsidy reconciliation + attendance-based billing</b> that just works — the loudest unmet need and your structural advantage.</p></div>
+    <div class="card"><h3><span class="num alt">P1</span>Ship one sharp AI agent</h3><p>Auto daily-report narration or the subsidy copilot. Do one extremely well.</p></div>
+    <div class="card"><h3><span class="num alt">P1</span>Price as a bundle</h3><p>Avoid per-child. Position as a predictable FACTS add-on — neutralizes the challengers' best attack.</p></div>
+    <div class="card"><h3><span class="num alt">P2</span>Own staffing &amp; ratios</h3><p>Turnover is the biggest pain and barely addressed. Ratio-aware scheduling + coverage prediction is a future moat.</p></div>
+    <div class="card"><h3><span class="num alt">P2</span>Lead with trust</h3><p>COPPA/privacy + human-in-the-loop AI as a visible promise — Nelnet brand &amp; security are credibility assets.</p></div>
+  </div>
+
+  <!-- 10 RESEARCH -->
+  <h2 id="research">10 · Research plan &amp; assumption map</h2>
+  <p>0→1 research de-risks the bet — it answers "is this real, for whom, and what's the one flow we cannot get wrong" before the team commits.</p>
+  <div class="card" style="padding:8px 14px 14px">
+    <table>
+      <tr><th>Assumption</th><th>If wrong…</th><th>Risk</th><th>How to test</th></tr>
+      <tr><td>Centers adopt a 2nd FACTS module vs. standalone</td><td>No demand; dead on arrival</td><td class="risk-hi">HIGH</td><td>Director interviews + willingness signals</td></tr>
+      <tr><td>SIS-native billing is a real differentiator</td><td>The moat isn't a moat</td><td class="risk-hi">HIGH</td><td>Concept test of billing flow vs. status quo</td></tr>
+      <tr><td>Subsidy reconciliation is a top pain for the base</td><td>Over-invest in a niche</td><td class="risk-hi">HIGH</td><td>Field observation + frequency sizing</td></tr>
+      <tr><td>Teachers log activities daily</td><td>Parent value collapses</td><td class="risk-hi">HIGH</td><td>Contextual inquiry; logging-loop test</td></tr>
+      <tr><td>Director is the buyer/decision-maker</td><td>Design for the wrong person</td><td class="risk-md">MED</td><td>Map decision process in interviews</td></tr>
+      <tr><td>Parents judge centers on the app</td><td>Engagement lower-value than assumed</td><td class="risk-md">MED</td><td>Parent interviews + enrollment probing</td></tr>
+      <tr><td>Eligible install base is large enough</td><td>Market too small</td><td class="risk-md">MED</td><td>Pull internal data (no fieldwork)</td></tr>
+      <tr><td>Bundled pricing beats per-child here</td><td>Pricing wedge misses</td><td class="risk-lo">LOW</td><td>Sensitivity in concept tests</td></tr>
+    </table>
+    <p class="legend"><span class="risk-hi">HIGH</span> = test before building · <span class="risk-md">MED</span> = test during discovery · <span class="risk-lo">LOW</span> = confirm only</p>
+  </div>
+  <div class="card" style="margin-top:14px">
+    <div class="phase"><span class="num">1</span><div class="body"><h3>Internal mining &amp; framing <span style="font-weight:400;color:var(--faint);font-size:13px">· wk 1 · no fieldwork</span></h3><ul><li>Pull eligible install-base count</li><li>Mine support tickets, churn, sales-loss notes</li><li>Lock the riskiest-assumptions list with PM + eng</li></ul></div></div>
+    <div class="phase"><span class="num">2</span><div class="body"><h3>Generative discovery <span style="font-weight:400;color:var(--faint);font-size:13px">· wk 2–4</span></h3><ul><li>8–12 contextual inquiries in real FACTS-SIS centers</li><li>Interviews across director / teacher / parent</li><li>Capture baseline metrics; probe the switching trigger</li></ul></div></div>
+    <div class="phase"><span class="num">3</span><div class="body"><h3>Synthesis → artifacts <span style="font-weight:400;color:var(--faint);font-size:13px">· wk 5</span></h3><ul><li>Ranked pain/opportunity list with evidence</li><li>Validated personas + buyer/user split</li><li>Journey maps of the two make-or-break flows</li></ul></div></div>
+    <div class="phase"><span class="num">4</span><div class="body"><h3>Concept &amp; usability testing <span style="font-weight:400;color:var(--faint);font-size:13px">· wk 6–8</span></h3><ul><li>Prototype + test SIS-native billing/subsidy flow (the moat)</li><li>Prototype + test teacher daily-logging loop (adoption)</li><li>Test the integration value prop directly</li></ul></div></div>
+    <div class="phase"><span class="num alt">5</span><div class="body"><h3>Decision &amp; baseline lock <span style="font-weight:400;color:var(--faint);font-size:13px">· wk 9</span></h3><ul><li>Go / refine / pivot tied to the assumption map</li><li>Locked baselines; prioritized opportunity backlog</li></ul></div></div>
+  </div>
+
+  <!-- 11 METRICS -->
+  <h2 id="metrics">11 · Success metrics</h2>
+  <div class="grid g3">
+    <div class="card tight"><h3 style="font-size:15px">Adoption</h3><p style="font-size:13px;margin:0">% teachers logging daily · activated centers · DAU/parent · time-to-first-value</p></div>
+    <div class="card tight"><h3 style="font-size:15px">Value delivered</h3><p style="font-size:13px;margin:0">Mins saved/report · reconciliation time ↓ · on-time payment % ↑ · empty-slot fill rate</p></div>
+    <div class="card tight"><h3 style="font-size:15px">Business</h3><p style="font-size:13px;margin:0">Attach rate within FACTS base · retention/churn · expansion revenue · CAC vs. standalone</p></div>
+  </div>
+
+  <div class="meta">
+    Compiled from FCM competitive &amp; market research, June 2026. Sources: Brightwheel, Procare, Lillio, Capterra, G2, Software Advice, Playground, Neztio, ChildPilot, PR Newswire (RoomRunner), Berkeley CSCCE, Research.com, eSchoolNews. Personas, pain rankings, and switching triggers are <b>hypotheses to validate in discovery</b>. Validate pricing/specs directly before strategic commitments.
+  </div>
+
+</div>
+</body>
+</html>
