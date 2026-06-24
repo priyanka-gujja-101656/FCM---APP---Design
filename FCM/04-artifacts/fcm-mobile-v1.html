@@ -1473,8 +1473,8 @@ button:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
 .cop-typing span:nth-child(2){animation-delay:.2s}
 .cop-typing span:nth-child(3){animation-delay:.4s}
 @keyframes blink{0%,80%,100%{opacity:.25}40%{opacity:1}}
-.cop-chips{display:flex;gap:6px;padding:8px 16px;overflow-x:auto;border-top:1px solid var(--border-soft);background:var(--surface)}
-.cop-chip{flex-shrink:0;padding:6px 12px;border-radius:16px;border:1px solid var(--border);background:var(--surface);font-size:12px;font-weight:500;color:var(--brand);cursor:pointer;white-space:nowrap}
+.cop-chips{display:flex;flex-direction:column;gap:8px;padding:8px 16px;border-top:1px solid var(--border-soft);background:var(--surface)}
+.cop-chip{width:100%;padding:10px 14px;border-radius:12px;border:1px solid var(--border);background:var(--surface);font-size:13px;font-weight:500;color:var(--brand);cursor:pointer;white-space:normal;text-align:left}
 .cop-input-row{display:flex;gap:8px;padding:10px 12px;border-top:1px solid var(--border-soft);background:var(--surface)}
 .cop-input{flex:1;height:40px;border:1px solid var(--border);border-radius:20px;padding:0 14px;font-size:14px;font-family:inherit;color:var(--text-primary);background:var(--bg);outline:none}
 .cop-input:focus{border-color:var(--brand)}
