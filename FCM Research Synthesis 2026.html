@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FCM Research Synthesis 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --brand:        #037aa7;
+  --brand-soft:   #cae7fa;
+  --brand-bg:     #eaf5fc;
+  --brand-deep:   #034f6f;
+  --surface:      #ffffff;
+  --surface-alt:  #f8f8f9;
+  --surface-muted:#f1f2f4;
+  --border:       #c3c7ce;
+  --border-soft:  #e1e2e6;
+  --text:         #2e3136;
+  --text-2:       #5a5f68;
+  --text-3:       #6d727e;
+  --pos:          #0d8259;
+  --pos-soft:     #c1edd3;
+  --notice:       #ca8a04;
+  --notice-soft:  #fef9c3;
+  --neg:          #d33737;
+  --neg-soft:     #f7dcd8;
+  --r-sm: 4px; --r-md: 8px; --r-lg: 12px; --r-xl: 16px; --r-pill: 999px;
+  --shadow-sm: 0 1px 2px rgba(14,23,38,.04);
+  --shadow-md: 0 2px 12px rgba(26,28,31,.10);
+  --shadow-lg: 0 4px 24px rgba(26,28,31,.10);
+  --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body {
+  background: var(--surface-alt);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 15px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── NAV ── */
+.toc-nav {
+  position: sticky; top: 0; z-index: 100;
+  background: var(--brand-deep);
+  padding: 0 48px;
+  display: flex; align-items: center;
+  overflow-x: auto; scrollbar-width: none;
+  box-shadow: var(--shadow-md);
+}
+.toc-nav::-webkit-scrollbar { display: none; }
+.toc-nav a {
+  display: inline-block;
+  padding: 13px 13px;
+  font-size: 11px; font-weight: 600; letter-spacing: .3px;
+  color: rgba(255,255,255,.55);
+  text-decoration: none; white-space: nowrap;
+  border-bottom: 2px solid transparent;
+  transition: color .15s, border-color .15s;
+}
+.toc-nav a:hover { color: #fff; border-bottom-color: var(--brand-soft); }
+
+/* ── HERO ── */
+.hero {
+  background: linear-gradient(135deg, var(--brand) 0%, var(--brand-deep) 100%);
+  color: #fff;
+  padding: 56px 64px 64px;
+  position: relative; overflow: hidden;
+}
+.hero::before {
+  content: '';
+  position: absolute; top: -80px; right: -80px;
+  width: 360px; height: 360px;
+  background: radial-gradient(circle, rgba(255,255,255,.07), transparent);
+  border-radius: 50%;
+}
+.hero-badge {
+  position: relative;
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 6px 14px;
+  background: rgba(255,255,255,.16);
+  border-radius: var(--r-pill);
+  font-size: 11px; font-weight: 600; letter-spacing: .5px; text-transform: uppercase;
+  margin-bottom: 22px;
+}
+.hero h1 {
+  position: relative;
+  font-size: 48px; font-weight: 800; letter-spacing: -1.5px; line-height: 1.08;
+  margin-bottom: 16px;
+}
+.hero .lede {
+  position: relative;
+  font-size: 17px; line-height: 1.55;
+  color: rgba(255,255,255,.88);
+  max-width: 780px; margin-bottom: 36px;
+}
+.hero-meta {
+  position: relative;
+  display: flex; gap: 36px; flex-wrap: wrap;
+  font-size: 13px; color: rgba(255,255,255,.75);
+}
+.hero-meta div b { display: block; color: #fff; font-weight: 600; margin-bottom: 2px; }
+
+/* ── WRAP ── */
+.wrap { max-width: 1080px; margin: 0 auto; padding: 48px 40px 96px; }
+
+/* ── SECTION ── */
+.sec { margin-bottom: 64px; scroll-margin-top: 56px; }
+.sec-num {
+  display: inline-block;
+  font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
+  color: var(--brand); background: var(--brand-bg);
+  padding: 4px 12px; border-radius: var(--r-pill); margin-bottom: 14px;
+}
+.sec h2 {
+  font-size: 30px; font-weight: 800; letter-spacing: -.6px; line-height: 1.2;
+  margin-bottom: 12px; color: var(--text);
+}
+.sec-lede {
+  font-size: 16px; color: var(--text-2); max-width: 760px;
+  margin-bottom: 28px; line-height: 1.55;
+}
+h3 { font-size: 19px; font-weight: 700; margin: 32px 0 14px; letter-spacing: -.2px; color: var(--text); }
+h4 { font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; color: var(--text-3); margin: 24px 0 12px; }
+
+/* ── CALLOUTS ── */
+.callout {
+  background: var(--brand-bg);
+  border-left: 4px solid var(--brand);
+  padding: 16px 22px; border-radius: 0 var(--r-md) var(--r-md) 0;
+  margin: 20px 0; font-size: 14.5px; line-height: 1.6; color: var(--text);
+}
+.callout.pos { background: var(--pos-soft); border-left-color: var(--pos); }
+.callout.notice { background: var(--notice-soft); border-left-color: var(--notice); }
+.callout b { font-weight: 700; }
+.callout.brand b { color: var(--brand); }
+
+/* ── GRIDS ── */
+.g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.g3 { display: grid; grid-template-columns: repeat(3,1fr); gap: 20px; }
+.g4 { display: grid; grid-template-columns: repeat(4,1fr); gap: 16px; }
+
+/* ── CARDS ── */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--r-lg);
+  padding: 24px; box-shadow: var(--shadow-sm);
+}
+.card .eyebrow {
+  font-size: 11px; font-weight: 700; letter-spacing: .8px; text-transform: uppercase;
+  color: var(--text-3); margin-bottom: 8px;
+}
+.card h4 { font-size: 17px; font-weight: 700; text-transform: none; letter-spacing: -.2px; color: var(--text); margin: 0 0 8px; }
+.card p { font-size: 14px; color: var(--text-2); margin: 0; line-height: 1.6; }
+.card ul { margin: 10px 0 0 18px; }
+.card li { font-size: 13.5px; color: var(--text-2); margin: 5px 0; line-height: 1.5; }
+.card li b { color: var(--text); }
+
+/* ── STAT TILES ── */
+.metric {
+  background: var(--surface);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--r-lg);
+  padding: 22px; box-shadow: var(--shadow-sm);
+}
+.metric .label { font-size: 11px; font-weight: 600; color: var(--text-3); text-transform: uppercase; letter-spacing: .4px; margin-bottom: 8px; }
+.metric .value { font-size: 36px; font-weight: 800; color: var(--brand); letter-spacing: -1px; line-height: 1; }
+.metric .unit { font-size: 13px; color: var(--text-2); margin-top: 6px; line-height: 1.4; }
+
+/* ── HERO STATS STRIP ── */
+.stat-strip {
+  display: grid; grid-template-columns: repeat(4,1fr);
+  gap: 2px; border-radius: var(--r-lg); overflow: hidden;
+  background: rgba(255,255,255,.14); margin-top: 32px;
+}
+.stat-cell { background: rgba(255,255,255,.08); padding: 22px 24px; }
+.stat-cell .num { font-size: 38px; font-weight: 800; color: #fff; line-height: 1; letter-spacing: -1px; margin-bottom: 6px; }
+.stat-cell .num span { color: var(--brand-soft); font-size: 28px; }
+.stat-cell .lbl { font-size: 12px; color: rgba(255,255,255,.60); line-height: 1.45; }
+
+/* ── PILLS ── */
+.pill {
+  display: inline-block; padding: 2px 9px; border-radius: var(--r-pill);
+  font-size: 11px; font-weight: 600;
+  background: var(--surface-muted); color: var(--text-2); margin: 2px 3px 2px 0;
+}
+.pill.win  { background: var(--pos-soft); color: var(--pos); }
+.pill.gap  { background: var(--neg-soft); color: var(--neg); }
+.pill.brand{ background: var(--brand-bg); color: var(--brand); }
+
+/* ── COMPARE TABLE ── */
+.compare-wrap { background: var(--surface); border: 1px solid var(--border-soft); border-radius: var(--r-lg); overflow: hidden; box-shadow: var(--shadow-sm); margin-bottom: 20px; }
+.compare-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+.compare-table th { padding: 13px 18px; text-align: left; font-size: 11px; font-weight: 700; letter-spacing: .5px; text-transform: uppercase; color: var(--text-3); background: var(--surface-alt); border-bottom: 1px solid var(--border-soft); }
+.compare-table td { padding: 15px 18px; border-bottom: 1px solid var(--border-soft); vertical-align: top; color: var(--text-2); line-height: 1.5; }
+.compare-table tr:last-child td { border-bottom: none; }
+.compare-table td.comp-name { font-weight: 700; color: var(--text); }
+.compare-table .win-txt { color: var(--pos); }
+.compare-table .gap-txt { color: var(--neg); }
+.compare-table tr.fcm-row td { background: var(--brand-bg); }
+.compare-table tr.fcm-row td.comp-name { color: var(--brand); font-weight: 700; }
+
+/* ── PRODUCT SNAPSHOT GRID ── */
+.snap-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 2px; background: var(--border-soft); border-radius: var(--r-lg); overflow: hidden; margin-bottom: 20px; }
+.snap-cell { background: var(--surface); padding: 24px 22px; }
+.snap-label { font-size: 10px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--text-3); margin-bottom: 10px; }
+.snap-cell h4 { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 6px; text-transform: none; letter-spacing: 0; }
+.snap-cell p { font-size: 13px; color: var(--text-2); line-height: 1.55; margin: 0; }
+
+/* ── PILLAR CARDS ── */
+.pillar {
+  background: var(--surface); border: 1px solid var(--border-soft);
+  border-radius: var(--r-lg); padding: 24px; position: relative; overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+.pillar-num { position: absolute; top: -14px; right: 18px; font-size: 64px; font-weight: 800; color: var(--brand-bg); line-height: 1; }
+.pillar h4 { position: relative; font-size: 13px; font-weight: 700; color: var(--brand); margin: 0 0 5px; letter-spacing: 0; text-transform: none; }
+.pillar h5 { position: relative; font-size: 17px; font-weight: 700; margin: 0 0 8px; color: var(--text); letter-spacing: -.2px; }
+.pillar p { position: relative; font-size: 14px; color: var(--text-2); margin: 0; line-height: 1.6; }
+.pillar.accent { background: var(--brand-bg); border-color: var(--brand-soft); }
+
+/* ── PERSONAS ── */
+.persona {
+  display: flex; gap: 20px; align-items: flex-start;
+  background: var(--surface); border: 1px solid var(--border-soft);
+  border-radius: var(--r-lg); padding: 22px; box-shadow: var(--shadow-sm);
+}
+.persona-avatar {
+  width: 52px; height: 52px; border-radius: 50%;
+  background: var(--brand-soft); color: var(--brand-deep);
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 20px; flex-shrink: 0;
+}
+.persona-body { flex: 1; }
+.persona h4 { font-size: 18px; letter-spacing: -.2px; text-transform: none; color: var(--text); margin: 0 0 3px; }
+.persona .role { font-size: 12px; color: var(--text-3); margin-bottom: 10px; font-weight: 600; }
+.persona p { font-size: 14px; color: var(--text-2); margin: 0 0 7px; }
+.persona .jtbd { font-size: 14px; color: var(--text); background: var(--brand-bg); padding: 10px 14px; border-radius: var(--r-md); margin-top: 8px; }
+.persona .jtbd b { color: var(--brand); }
+
+/* ── JOURNEY MOMENTS ── */
+.moment { background: var(--surface); border: 1px solid var(--border-soft); border-radius: var(--r-lg); padding: 22px; box-shadow: var(--shadow-sm); }
+.moment .eyebrow { font-size: 11px; font-weight: 700; letter-spacing: .8px; text-transform: uppercase; color: var(--text-3); margin-bottom: 8px; }
+.moment h4 { font-size: 17px; font-weight: 700; text-transform: none; letter-spacing: -.2px; color: var(--text); margin: 0 0 8px; }
+.moment p { font-size: 14px; color: var(--text-2); margin: 0; line-height: 1.6; }
+
+/* ── FLOWS ── */
+.flow { background: var(--surface); border: 1px solid var(--border-soft); border-radius: var(--r-lg); padding: 24px; box-shadow: var(--shadow-sm); margin-bottom: 14px; }
+.flow-head { display: flex; align-items: flex-start; gap: 16px; margin-bottom: 14px; }
+.flow-num { width: 40px; height: 40px; border-radius: 50%; background: var(--brand); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 16px; flex-shrink: 0; }
+.flow-head h4 { font-size: 18px; font-weight: 700; letter-spacing: -.2px; text-transform: none; color: var(--text); margin: 0 0 3px; }
+.flow-head .who { font-size: 12px; color: var(--text-3); font-weight: 500; }
+.flow-body { font-size: 14px; color: var(--text-2); line-height: 1.6; }
+.flow-body b { color: var(--text); }
+.flow-impact { margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border-soft); font-size: 13px; color: var(--text-2); }
+.flow-impact b { color: var(--pos); }
+
+/* ── FEATURE MAP ── */
+.feature-map { background: var(--surface); border: 1px solid var(--border-soft); border-radius: var(--r-lg); overflow: hidden; box-shadow: var(--shadow-sm); }
+.feature-map table { width: 100%; border-collapse: collapse; font-size: 14px; }
+.feature-map th { padding: 12px 16px; background: var(--surface-alt); border-bottom: 1px solid var(--border-soft); text-align: left; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; color: var(--text-3); }
+.feature-map td { padding: 14px 16px; border-bottom: 1px solid var(--border-soft); vertical-align: top; }
+.feature-map tr:last-child td { border-bottom: none; }
+.feature-map .f-name { font-weight: 600; color: var(--text); width: 30%; }
+.feature-map .f-gap { color: var(--text-2); width: 38%; font-size: 13.5px; }
+.feature-map .f-evidence { font-size: 12.5px; color: var(--text-3); width: 32%; font-style: italic; }
+
+/* ── COPILOT ── */
+.AI assistant-vis {
+  background: linear-gradient(135deg, var(--brand-bg), var(--surface));
+  border: 1px solid var(--brand-soft);
+  border-radius: var(--r-lg); padding: 28px;
+  display: flex; gap: 24px; align-items: center; margin-bottom: 24px;
+}
+.AI assistant-icon {
+  width: 72px; height: 72px; border-radius: 18px;
+  background: var(--brand); color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; font-size: 32px;
+}
+.AI assistant-vis h4 { margin: 0 0 6px; font-size: 19px; color: var(--text); letter-spacing: -.2px; text-transform: none; font-weight: 700; }
+.AI assistant-vis p { margin: 0; font-size: 15px; color: var(--text-2); }
+
+.principle { background: var(--surface); border: 1px solid var(--border-soft); border-radius: var(--r-lg); padding: 20px; }
+.principle h5 { margin: 0 0 8px; font-size: 15px; font-weight: 700; color: var(--text); }
+.principle p { margin: 0; font-size: 13.5px; color: var(--text-2); line-height: 1.55; }
+
+/* ── PRICING FLOW ── */
+.pricing-flow {
+  display: grid; grid-template-columns: repeat(4,1fr);
+  gap: 0; border: 1px solid var(--border-soft);
+  border-radius: var(--r-lg); overflow: hidden; margin-bottom: 24px;
+  background: var(--surface); box-shadow: var(--shadow-sm);
+}
+.pricing-step { padding: 26px 22px; }
+.pricing-step:not(:last-child) { border-right: 1px solid var(--border-soft); }
+.pricing-step:nth-child(even) { background: var(--surface-alt); }
+.step-num {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 28px; height: 28px; border-radius: 50%;
+  background: var(--brand); color: #fff;
+  font-size: 13px; font-weight: 700; margin-bottom: 14px;
+}
+.pricing-step h4 { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 8px; text-transform: none; letter-spacing: 0; }
+.pricing-step p { font-size: 13px; color: var(--text-2); line-height: 1.6; margin: 0; }
+
+.rate-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; margin-bottom: 20px; }
+.rate-card { background: var(--surface); border: 1px solid var(--border-soft); border-radius: var(--r-lg); padding: 22px; box-shadow: var(--shadow-sm); }
+.rate-card.highlight { background: var(--brand-bg); border-color: var(--brand-soft); }
+.rate-tag { font-size: 10px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--text-3); margin-bottom: 8px; }
+.rate-card.highlight .rate-tag { color: var(--brand); }
+.rate-card h4 { font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 6px; text-transform: none; letter-spacing: 0; }
+.rate-card.highlight h4 { color: var(--brand); }
+.rate-card p { font-size: 13px; color: var(--text-2); margin: 0; line-height: 1.6; }
+.rate-card ul { margin: 10px 0 0 16px; }
+.rate-card li { font-size: 12.5px; color: var(--text-2); margin: 4px 0; }
+
+/* ── OPP ITEMS ── */
+.opp-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+.opp-item { display: grid; grid-template-columns: auto 1fr; gap: 14px; align-items: start; padding: 18px 20px; border: 1px solid var(--border-soft); border-radius: var(--r-lg); background: var(--surface); box-shadow: var(--shadow-sm); }
+.opp-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--brand); margin-top: 5px; }
+.opp-item h4 { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 4px; text-transform: none; letter-spacing: 0; }
+.opp-item p { font-size: 13px; color: var(--text-2); line-height: 1.55; margin: 0; }
+
+/* ── STRATEGIC BETS ── */
+.bet { border: 1px solid var(--border-soft); border-radius: var(--r-lg); overflow: hidden; margin-bottom: 16px; display: grid; grid-template-columns: 1fr 1fr; box-shadow: var(--shadow-sm); }
+.bet-left { padding: 28px 30px; background: var(--surface); }
+.bet-right { padding: 28px 30px; background: var(--brand-deep); }
+.bet-num { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; background: var(--brand); color: #fff; border-radius: 8px; font-size: 12px; font-weight: 700; margin-bottom: 12px; }
+.bet-status { display: inline-block; font-size: 9px; font-weight: 700; letter-spacing: .5px; color: var(--text-3); background: var(--surface-muted); border: 1px solid var(--border-soft); padding: 2px 8px; border-radius: var(--r-pill); margin-bottom: 12px; }
+.bet-left h3 { font-size: 19px; font-weight: 700; color: var(--text); margin: 0 0 8px; }
+.bet-left p { font-size: 14px; color: var(--text-2); line-height: 1.65; margin: 0; }
+.bet-right-label { font-size: 10px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--brand-soft); margin-bottom: 10px; }
+.bet-right p { font-size: 14px; color: rgba(255,255,255,.85); line-height: 1.65; margin: 0; }
+
+/* ── RISKS ── */
+.risk-list { background: var(--surface); border: 1px solid var(--border-soft); border-radius: var(--r-lg); box-shadow: var(--shadow-sm); overflow: hidden; }
+.risk-item { display: flex; gap: 16px; padding: 18px 24px; border-bottom: 1px solid var(--border-soft); }
+.risk-item:last-child { border-bottom: none; }
+.risk-icon { width: 32px; height: 32px; border-radius: 50%; background: var(--notice-soft); color: var(--notice); display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 15px; font-weight: 700; }
+.risk-body h5 { margin: 0 0 5px; font-size: 15px; font-weight: 700; color: var(--text); }
+.risk-body p { margin: 0; font-size: 13.5px; color: var(--text-2); line-height: 1.55; }
+
+/* ── METRICS ── */
+.metrics-hero { display: grid; grid-template-columns: repeat(4,1fr); gap: 2px; background: var(--border-soft); border-radius: var(--r-lg); overflow: hidden; margin-bottom: 28px; }
+.mh-cell { background: var(--surface); padding: 28px 22px; text-align: center; }
+.mh-cell:nth-child(1) { background: var(--brand-deep); }
+.mh-cell:nth-child(2) { background: var(--brand); }
+.mh-num { font-size: 44px; font-weight: 800; color: var(--brand); line-height: 1; letter-spacing: -2px; margin-bottom: 8px; }
+.mh-cell:nth-child(1) .mh-num,
+.mh-cell:nth-child(2) .mh-num { color: #fff; }
+.mh-label { font-size: 12px; font-weight: 600; color: var(--text-2); line-height: 1.4; }
+.mh-cell:nth-child(1) .mh-label,
+.mh-cell:nth-child(2) .mh-label { color: rgba(255,255,255,.75); }
+
+.metric-group { background: var(--surface); border: 1px solid var(--border-soft); border-radius: var(--r-lg); overflow: hidden; box-shadow: var(--shadow-sm); }
+.mg-header { padding: 13px 20px; background: var(--surface-alt); border-bottom: 1px solid var(--border-soft); font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--brand); }
+.metric-row { display: flex; align-items: center; justify-content: space-between; padding: 13px 20px; border-bottom: 1px solid var(--border-soft); gap: 14px; }
+.metric-row:last-child { border-bottom: none; }
+.metric-name { font-size: 14px; color: var(--text); font-weight: 500; }
+.metric-target { font-size: 13px; font-weight: 700; color: var(--brand); background: var(--brand-bg); padding: 4px 12px; border-radius: var(--r-pill); white-space: nowrap; }
+.metric-target.dark { color: #fff; background: var(--brand-deep); }
+
+/* ── FOOTER ── */
+footer { background: var(--surface-alt); border-top: 1px solid var(--border-soft); padding: 22px 48px; display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: var(--text-3); }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 860px) {
+  .g2,.g3,.g4,.bet,.opp-row,.pricing-flow,.rate-grid,.metrics-hero { grid-template-columns: 1fr; }
+  .stat-strip { grid-template-columns: 1fr 1fr; }
+  .snap-grid { grid-template-columns: 1fr; }
+  .wrap { padding: 32px 20px 72px; }
+  .hero { padding: 40px 28px 48px; }
+  .hero h1 { font-size: 34px; }
+  .toc-nav { padding: 0 20px; }
+  footer { flex-direction: column; gap: 8px; text-align: center; padding: 18px 20px; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="toc-nav">
+  <a href="#summary">Summary</a>
+  <a href="#market">Market</a>
+  <a href="#product">Current Product</a>
+  <a href="#problem">Problem</a>
+  <a href="#landscape">Competitive</a>
+  <a href="#design">Design Direction</a>
+  <a href="#research">Research</a>
+  <a href="#flows">Critical Flows</a>
+  <a href="#framework">Framework</a>
+  <a href="#opportunity">Opportunity</a>
+  <a href="#metrics">Metrics</a>
+  <a href="#nextsteps">Next Steps</a>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <span class="hero-badge">FACTS Child Care Management · Research Synthesis</span>
+  <h1>How FCM Wins the<br>Childcare Management Market</h1>
+  <p class="lede">A ground-up redesign of FACTS Child Care Management: more native, more intuitive, and built around the people who use it every day. This document makes the case for why the revamp matters, what we learned, and how we build it piece by piece.</p>
+  <div class="hero-meta">
+    <div><b>Prepared by</b>Priyanka Gujja · Product Design</div>
+    <div><b>Stage</b>Prototype built</div>
+    <div><b>Date</b>June 2026</div>
+  </div>
+  <div class="stat-strip">
+    <div class="stat-cell"><div class="num">2</div><div class="lbl">Surfaces specified: Admin, Teacher</div></div>
+    <div class="stat-cell"><div class="num">5</div><div class="lbl">Critical flows that win against competitors</div></div>
+    <div class="stat-cell"><div class="num">$3B<span>+</span></div><div class="lbl">US childcare software Total Addressable Market</div></div>
+  </div>
+</div>
+
+<div class="wrap">
+
+<!-- 01 EXECUTIVE SUMMARY -->
+<section id="summary" class="sec">
+  <span class="sec-num">01 · Executive Summary</span>
+  <h2>The opportunity in one paragraph.</h2>
+  <div class="callout brand">
+    Childcare management software is dominated by three aging market leaders, each strong in exactly one area, each leaving the other four wide open. <b>Our bet is a single product that is excellent on all five reinforcing pillars at once: subsidy reconciliation, the teacher loop, center customization, flat predictable pricing, and visible trust.</b>
+  </div>
+  <div class="g4" style="margin-top: 24px;">
+    <div class="metric"><div class="label">Surfaces specified</div><div class="value">2</div><div class="unit">Admin · Teacher</div></div>
+    <div class="metric"><div class="label">Critical flows</div><div class="value">5</div><div class="unit">That win against competitors</div></div>
+    <div class="metric"><div class="label">Winning pillars</div><div class="value">5</div><div class="unit">Reinforcing, not one moat</div></div>
+  </div>
+</section>
+
+<!-- 02 MARKET SIZE -->
+<section id="market" class="sec">
+  <span class="sec-num">02 · Market Size</span>
+  <h2>A $3B+ market with no clear winner</h2>
+  <p class="sec-lede">60,000+ licensed US childcare centers, each spending $40-80/month on software that still forces directors to reconcile subsidies in spreadsheets.</p>
+  <div class="g3">
+    <div class="metric"><div class="label">Total Addressable Market</div><div class="value">$3B+</div><div class="unit">US childcare management software</div></div>
+    <div class="metric"><div class="label">Licensed US Centers</div><div class="value">60k+</div><div class="unit">Each a potential FCM account</div></div>
+    <div class="metric"><div class="label">Distribution Advantage</div><div class="value">Built-in</div><div class="unit">FACTS SIS customers as natural first accounts</div></div>
+  </div>
+  <div class="callout" style="margin-top: 24px;">
+    <b>The distribution advantage:</b> FACTS already has the SIS rails that competitors would need years to build. The natural go-to-market starts with FACTS-connected centersan existing customer base with established trustfollowed by standalone expansion into the broader market.
+  </div>
+</section>
+
+<!-- 03 CURRENT PRODUCT -->
+<section id="product" class="sec">
+  <span class="sec-num">03 · Current Product Snapshot</span>
+  <h2>Solid foundation. Critical gaps ahead.</h2>
+  <p class="sec-lede">FCM is live at factsmgt.com/childcare-early-access with 178 visitors and approximately 50 active accounts. The product is a strong parent-engagement and attendance platform. The differentiating featuressubsidy depth, customization, and AIare entirely unbuilt.</p>
+  <div class="snap-grid">
+    <div class="snap-cell">
+      <div class="snap-label">Live Today</div>
+      <h4>Parent Engagement Core</h4>
+      <p>Check-in/out, activity logging, daily reports, photo/video sharing, push notifications, parent mobile app (Expo upgrade in progress).</p>
+    </div>
+    <div class="snap-cell">
+      <div class="snap-label">Ready for Development</div>
+      <h4>Billing + Basic Subsidy</h4>
+      <p>Full billing engine with invoices, payments, and reports. Basic subsidy management. Both are scoped and ready for dev kickoff.</p>
+    </div>
+    <div class="snap-cell">
+      <div class="snap-label">In Discovery</div>
+      <h4>Enrollment + Scheduling</h4>
+      <p>Online enrollment pipeline in active discovery. Multi-site administration and FACTS SIS sync available in live product today.</p>
+    </div>
+  </div>
+  <div class="g2">
+    <div class="card">
+      <div class="eyebrow">Working well</div>
+      <h4>Strengths to build on</h4>
+      <ul>
+        <li>Parent app engagement is strong: photos and daily updates drive retention</li>
+        <li>FACTS SIS sync eliminates double-entry for the existing install base</li>
+        <li>Attendance tracking supports compliance reporting needs</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="eyebrow">Critical gaps</div>
+      <h4>What must be built to win</h4>
+      <ul>
+        <li>Subsidy reconciliation is basic only, not best-in-class</li>
+        <li>No center customization: workflows, forms, rate plan configuration</li>
+        <li>Teacher logging requires too many steps, no one-handed or offline mode</li>
+        <li>No visible COPPA/consent surface for parents or directors</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- 04 PROBLEM -->
+<section id="problem" class="sec">
+  <span class="sec-num">04 · The Market Problem</span>
+  <h2>Childcare administration is brokenno one has fixed it end to end</h2>
+  <p class="sec-lede">Directors spend hours each month reconciling subsidies in spreadsheets. Teachers log activities on phones that were not built for one-handed use. Parents pay tuition across multiple apps. Everyone tolerates it because the alternatives are worse.</p>
+  <div class="g3">
+    <div class="card">
+      <div class="eyebrow">Director pain</div>
+      <h4>Subsidy reconciliation eats 6+ hours per month</h4>
+      <p>CCAP/DHS claims vs. attendance is manual and error-prone. A single missed mismatch costs $100–$500.</p>
+    </div>
+    <div class="card">
+      <div class="eyebrow">Teacher pain</div>
+      <h4>Daily logging eats 30–45 minutes per day</h4>
+      <p>20+ activities logged daily. At 32–50 seconds per entry, that's up to 45 minutes of classroom time lost. Most teachers log in batches after hours.</p>
+    </div>
+    <div class="card">
+      <div class="eyebrow">Parent pain</div>
+      <h4>The "is my kid okay?" loop is leaky</h4>
+      <p>Parents check the app 6–10 times a day. Slow updates and fragmented payment flows are the #1 reason families switch centers.</p>
+    </div>
+  </div>
+  <div class="callout notice" style="margin-top: 24px;">
+    <b>The structural insight:</b> these three pains share a single root causefragmented data and incomplete feature coverage on every existing product. Fix the data spine and the workflow, and all three roles win at the same time.
+  </div>
+</section>
+
+<!-- 05 COMPETITIVE LANDSCAPE -->
+<section id="landscape" class="sec">
+  <span class="sec-num">05 · Competitive Landscape</span>
+  <h2>Three established players, each strong in one place</h2>
+  <p class="sec-lede">The market is mature enough that everyone knows where each player is weak. FCM can pick its battles.</p>
+  <div class="compare-wrap">
+    <table class="compare-table">
+      <thead>
+        <tr>
+          <th style="width:16%">Competitor</th>
+          <th style="width:24%">Where they win</th>
+          <th style="width:32%">Where the door is open</th>
+          <th style="width:28%">How FCM beats them</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="comp-name">Brightwheel</td>
+          <td><b>Parent app, comms, ease of use</b><br><span class="pill win">Parent UX</span></td>
+          <td><span class="gap-txt">Weak subsidy/CCAP · Rigid billing · Per-capacity pricing (unpredictable cost) · 1.8-star Trustpilot</span></td>
+          <td>Match parent UX. Outperform on subsidy. Modern, intuitive UI built natively for mobile.</td>
+        </tr>
+        <tr>
+          <td class="comp-name">Procare</td>
+          <td><b>Complex billing, subsidy, multi-site scale</b><br><span class="pill win">Billing depth</span></td>
+          <td><span class="gap-txt">Legacy desktop sync · Dated UX · Weak Mac/Android · Thin curriculum</span></td>
+          <td>Match billing depth on a modern, native UI. Zero double-entry via SIS. AI-assisted workflows they cannot catch up to.</td>
+        </tr>
+        <tr>
+          <td class="comp-name">Lillio</td>
+          <td><b>Daily reports, portfolios, pedagogy</b><br><span class="pill win">Teacher loop</span></td>
+          <td><span class="gap-txt">Immature billing · Per-child pricing · Clunky UI · Weak US subsidy</span></td>
+          <td>Match pedagogy depth. Faster, more intuitive mobile. AI-assisted daily reports.</td>
+        </tr>
+        <tr>
+          <td class="comp-name">Challenger tier</td>
+          <td><b>Flat pricing, "AI" marketing</b><br><span class="pill win">Price</span></td>
+          <td><span class="gap-txt">Shallow billing · Thin student record · "AI" is marketing · Small scale</span></td>
+          <td>Match pricing and real AI at platform scale with real billing behind it.</td>
+        </tr>
+        <tr class="fcm-row">
+          <td class="comp-name">FCM Target</td>
+          <td colspan="2">First to be strong on all five pillars simultaneously. The five-pillar platform no competitor has claimed.</td>
+          <td><span class="pill brand">Category lead</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="callout pos">
+    <b>The asymmetric advantage:</b> existing players are trapped by their architecture, their pricing model, or their scale. FCM carries none of that baggage, and FACTS already has the SIS rails competitors would need years to build.
+  </div>
+</section>
+
+
+<!-- 06 DESIGN DIRECTION -->
+<section id="design" class="sec">
+  <span class="sec-num">06 · The Design Direction</span>
+  <h2>A ground-up redesignbuilt for how people actually work</h2>
+  <p class="sec-lede">The current product works. The new design makes it feel effortless. Every decision in the revamp traces back to one principle: the software should adapt to the user, not the other way around.</p>
+
+  <div class="g3" style="margin-bottom: 24px;">
+    <div class="pillar">
+      <div class="pillar-num">1</div>
+      <h4>Design principle</h4>
+      <h5>Native &amp; modern</h5>
+      <p>Designed for how people actually use phones and tabletsnot a desktop app shrunk to fit a screen. Gestures, spacing, and tap targets built for real classroom conditions.</p>
+    </div>
+    <div class="pillar">
+      <div class="pillar-num">2</div>
+      <h4>Design principle</h4>
+      <h5>Intuitive from day one</h5>
+      <p>Directors and teachers get started without a training session. Every flow is scoped to a single task. The most common action is always one tap away.</p>
+    </div>
+    <div class="pillar">
+      <div class="pillar-num">3</div>
+      <h4>Design principle</h4>
+      <h5>Customizable to each center</h5>
+      <p>Centers configure the app to match their workflowclassrooms, schedules, activity typeswithout calling support. No two centers are the same; the product flexes to fit.</p>
+    </div>
+    <div class="pillar">
+      <div class="pillar-num">4</div>
+      <h4>Design principle</h4>
+      <h5>AI that reduces friction</h5>
+      <p>The AI assistant surfaces the right information at the right momentdraft a daily report, flag a subsidy gap, remind about an expiring certification. It does the repetitive work so people can focus on the kids.</p>
+    </div>
+    <div class="pillar">
+      <div class="pillar-num">5</div>
+      <h4>Design principle</h4>
+      <h5>Built for teachers first</h5>
+      <p>If the logging experience isn't fast and frictionless, nothing else works. One-handed, offline-capable, under 10 seconds. The teacher experience is the foundation the whole product stands on.</p>
+    </div>
+    <div class="pillar accent">
+      <div class="pillar-num">+</div>
+      <h4>Design principle</h4>
+      <h5>Features that earn trust</h5>
+      <p>Privacy controls parents can see and manage. Consent that follows the child across every touchpoint. COPPA isn't a legal footnote, it's a visible product feature that builds confidence in FCM.</p>
+    </div>
+  </div>
+
+  <div class="callout brand">
+    <b>The shift:</b> existing childcare software was built to store data. The FCM revamp is built to <b>reduce decisions</b> for the director, the teacher, and eventually the parent. Less time in the app means more time with the kids, which is the entire point.
+  </div>
+</section>
+
+<!-- 07 RESEARCH FOUNDATION -->
+<section id="research" class="sec">
+  <span class="sec-num">07 · Research Foundation</span>
+  <h2>What we learned from the people who actually use it</h2>
+  <p class="sec-lede">Every feature in the prototype traces back to at least one of these three personas. Where research was thin, it is flagged.</p>
+  <div class="g3" style="margin-bottom: 28px;">
+    <div class="persona">
+      <div class="persona-avatar">D</div>
+      <div class="persona-body">
+        <h4>Dana, Director</h4>
+        <div class="role">Buyer · decision-maker</div>
+        <p><b>Goals:</b> fill seats, get paid on time, pass licensing, keep staff.</p>
+        <p><b>Pain:</b> subsidy reconciliation, late payments, covering classrooms personally.</p>
+        <div class="jtbd"><b>JTBD:</b> "Run a compliant, full, financially healthy center without living in spreadsheets."</div>
+      </div>
+    </div>
+    <div class="persona">
+      <div class="persona-avatar">T</div>
+      <div class="persona-body">
+        <h4>Tara, Lead Teacher</h4>
+        <div class="role">Daily user · adoption gatekeeper</div>
+        <p><b>Goals:</b> care for kids, keep parents happy, get through the day.</p>
+        <p><b>Pain:</b> logging eats classroom time; phone in one hand, child in the other.</p>
+        <div class="jtbd"><b>JTBD:</b> "Capture the day for parents without taking time from the kids."</div>
+      </div>
+    </div>
+    <div class="persona" style="border-color: var(--notice); background: var(--notice-soft);">
+      <div class="persona-avatar" style="background: var(--notice-soft); color: var(--notice);">P</div>
+      <div class="persona-body">
+        <h4>Priya, Parent <span style="font-size:11px; font-weight:600; color:var(--notice); background:rgba(202,138,4,.15); padding:2px 8px; border-radius:99px; margin-left:6px;">To be explored</span></h4>
+        <div class="role">Judge · engagement driver</div>
+        <p><b>Goals:</b> reassurance, connection, easy payment.</p>
+        <p><b>Pain:</b> not knowing how the day went; clunky payment across multiple portals.</p>
+        <div class="jtbd" style="background: rgba(202,138,4,.10);"><b>JTBD:</b> "Feel confident my child is safe, learning, and cared for."</div>
+      </div>
+    </div>
+  </div>
+  <h3>What the journey work surfaced</h3>
+  <div class="g2">
+    <div class="moment">
+      <div class="eyebrow">Dana's morning</div>
+      <h4>The 11:14 AM subsidy moment</h4>
+      <p>Dana arrives at 7:30 AM. By 11:14 AM the AI assistant has surfaced four things: an overdue family, an expiring certification, a subsidy gap, an inbox question. The dashboard's job is to land her on the highest-leverage decision in under 10 seconds.</p>
+    </div>
+    <div class="moment">
+      <div class="eyebrow">Tara's classroom</div>
+      <h4>The under-10-second activity log</h4>
+      <p>Tara logs a meal for 8 children one-handed while supervising play. Current tools take 35–50 seconds per entry. FCM targets under 10 by collapsing student, activity, and photo into one screen with smart defaults.</p>
+    </div>
+    <div class="moment">
+      <div class="eyebrow">Cross-role</div>
+      <h4>Consent that follows the child</h4>
+      <p>Privacy is not a settings page, it is a feature. Parents adjust what data is shared. The toggle is honored at every capture point: camera, daily report, family directory. It follows the child without re-asking at each touchpoint.</p>
+    </div>
+  </div>
+  <div class="callout" style="margin-top: 24px;">
+    <b>Adoption cascade:</b> if Tara stops logging, parents get no updates, and the center loses its best retention tool. Tara's adoption is the keystone; everything else depends on it.
+  </div>
+</section>
+
+<!-- 08 FIVE FLOWS -->
+<section id="flows" class="sec">
+  <span class="sec-num">08 · Five Flows That Win</span>
+  <h2>One differentiating flow per pillar</h2>
+  <p class="sec-lede">If FCM does these five things measurably better than any competitor, the rest of the product is leverage.</p>
+
+  <div class="flow">
+    <div class="flow-head">
+      <div class="flow-num">1</div>
+      <div>
+        <h4>Subsidy reconciliation</h4>
+        <div class="who">Dana · once a month · 6+ hours saved</div>
+      </div>
+    </div>
+    <div class="flow-body">
+      The AI assistant scans attendance against claims and surfaces mismatches as per-child cards: Accept, Edit, or Decline. <b>No spreadsheet. No manual math.</b>
+      <div class="flow-impact"><b>Beats Procare</b> on UX. <b>Beats Brightwheel</b> on existing at all.</div>
+    </div>
+  </div>
+
+  <div class="flow">
+    <div class="flow-head">
+      <div class="flow-num">2</div>
+      <div>
+        <h4>Under-10-second activity log</h4>
+        <div class="who">Tara · 20+ times per day · 30 minutes per day saved</div>
+      </div>
+    </div>
+    <div class="flow-body">
+      One-handed, offline-capable, smart defaults. Student, activity type, done. Current tools average 32–50 seconds per entry. FCM targets under 10.
+      <div class="flow-impact"><b>The adoption surface every competitor loses on.</b> FCM wins this or doesn't win.</div>
+    </div>
+  </div>
+
+  <div class="flow">
+    <div class="flow-head">
+      <div class="flow-num">3</div>
+      <div>
+        <h4>AI daily-report compose and approve</h4>
+        <div class="who">Tara · end of day · 12 reports in under 3 minutes</div>
+      </div>
+    </div>
+    <div class="flow-body">
+      The AI assistant drafts a per-child summary from the day's log. Tara reviews, edits, approves in batch. Consistent, warm reports without the manual writing time.
+      <div class="flow-impact"><b>Lillio's home turf.</b> Match this and FCM takes their primary differentiator off the table.</div>
+    </div>
+  </div>
+
+  <div class="flow">
+    <div class="flow-head">
+      <div class="flow-num">4</div>
+      <div>
+        <h4>Visible consent management</h4>
+        <div class="who">Priya · once at enrollment, reviewable anytime</div>
+      </div>
+    </div>
+    <div class="flow-body">
+      Parents see exactly what is captured about their child and control it with a toggle. Changes are enforced at every capture point. <b>COPPA is not a footer link.</b>
+      <div class="flow-impact"><b>No competitor does this.</b> A Nelnet-grade trust position that turns privacy into a reason to choose FCM.</div>
+    </div>
+  </div>
+</section>
+
+
+<!-- 11 STRATEGIC FRAMEWORK -->
+<section id="framework" class="sec">
+  <span class="sec-num">11 · Strategic Framework</span>
+  <h2>Strong on five pillars at onceno single moat, mutual reinforcement</h2>
+  <p class="sec-lede">A competitor who beats FCM on any one pillar still loses on the other four. That is the strategic shape.</p>
+  <div class="g3">
+    <div class="pillar">
+      <div class="pillar-num">1</div>
+      <h4>Billing &amp; subsidy</h4>
+      <h5>Money that just works</h5>
+      <p>Native CCAP/DHS reconciliation, attendance-based billing, refunds and credits done right. The loudest unmet need in the categoryand the clearest moat against Brightwheel.</p>
+    </div>
+    <div class="pillar">
+      <div class="pillar-num">2</div>
+      <h4>Teacher loop</h4>
+      <h5>Logging that gets used</h5>
+      <p>Daily logging in under 10 seconds, one-handed, offline-capable, AI-drafted. The adoption surface every competitor loses on. Get this right or nothing else matters.</p>
+    </div>
+    <div class="pillar">
+      <div class="pillar-num">3</div>
+      <h4>Center customization</h4>
+      <h5>Workflows that fit the center</h5>
+      <p>Rate plans, classroom configurations, custom forms, and workflow options that directors configure without calling support. Every center runs differentlythe product must flex to match.</p>
+    </div>
+    <div class="pillar">
+      <div class="pillar-num">4</div>
+      <h4>Pricing</h4>
+      <h5>Flat, predictable bundle</h5>
+      <p>Per-center, never per-child. Enrollment-driven rate plans, signed proposals, automated billing. Neutralizes the loudest customer complaint about every competitor in the category.</p>
+    </div>
+    <div class="pillar">
+      <div class="pillar-num">5</div>
+      <h4>Trust</h4>
+      <h5>COPPA, made visible</h5>
+      <p>Privacy-by-design, consent surfaced as a product feature, Nelnet-grade security posture as a buyer promise. The category's third rail becomes FCM's visible differentiator.</p>
+    </div>
+    <div class="pillar accent">
+      <div class="pillar-num">+</div>
+      <h4>Accelerator</h4>
+      <h5>FACTS SIS integration</h5>
+      <p>For the install base: accelerates billing, eliminates double-entry, seeds AI with clean data. Not a prerequisite. FCM must win standalone on merit too. But the beachhead is near-zero CAC.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 12 OPPORTUNITY -->
+<section id="opportunity" class="sec">
+  <span class="sec-num">12 · Opportunity Assessment</span>
+  <h2>The conditions for winning are present now</h2>
+  <div class="opp-row">
+    <div class="opp-item"><div class="opp-dot"></div><div><h4>Problem worth solving?</h4><p>Yes. Directors, teachers, and parents all have real unmet pain. Centers are already paying for software that doesn't fully solve it.</p></div></div>
+    <div class="opp-item"><div class="opp-dot"></div><div><h4>Market size?</h4><p>Large. 60k+ US licensed childcare centers, $3B+ software TAM, with FACTS SIS customers as a natural starting point.</p></div></div>
+    <div class="opp-item"><div class="opp-dot"></div><div><h4>Differentiation?</h4><p>Strong. The five-pillar combination is unmatchedeach pillar beats the weakest competitor on that dimension.</p></div></div>
+    <div class="opp-item"><div class="opp-dot"></div><div><h4>Technical feasibility?</h4><p>High. FCM is live with active accounts. FACTS billing and SIS exist. AI capabilities are accessible today.</p></div></div>
+    <div class="opp-item"><div class="opp-dot"></div><div><h4>Time-to-market risk?</h4><p>Medium. The challenger tier is growing fast. Speed matters.</p></div></div>
+    <div class="opp-item"><div class="opp-dot"></div><div><h4>Go-to-market motion?</h4><p>Two-track: FACTS-connected centers first, then standalone expansion into the broader market.</p></div></div>
+  </div>
+</section>
+
+
+<!-- 14 METRICS -->
+<section id="metrics" class="sec">
+  <span class="sec-num">14 · Success Metrics</span>
+  <h2>How we will know we are winning</h2>
+  <p class="sec-lede">Per pillar. Tracked from Pendo on day one. If these are not moving in 90 days, something is wrong.</p>
+
+  <div class="metrics-hero">
+    <div class="mh-cell"><div class="mh-num">85%</div><div class="mh-label">Teachers logging daily within 60 days of activation</div></div>
+    <div class="mh-cell"><div class="mh-num">+15%</div><div class="mh-label">Subsidy recovery rate vs. pre-AI assistant baseline</div></div>
+    <div class="mh-cell"><div class="mh-num">8 hrs</div><div class="mh-label">Director time saved per month on admin tasks</div></div>
+    <div class="mh-cell"><div class="mh-num">NPS 60</div><div class="mh-label">Family NPS target vs. Brightwheel benchmark of approximately 45</div></div>
+  </div>
+
+  <div class="g2">
+    <div class="metric-group">
+      <div class="mg-header">Adoption: Leading Indicators</div>
+      <div class="metric-row"><span class="metric-name">Teacher daily-log rate (60 days post-activation)</span><span class="metric-target">Target: 85%+</span></div>
+      <div class="metric-row"><span class="metric-name">Average log time per activity entry</span><span class="metric-target">Target: under 10 sec</span></div>
+      <div class="metric-row"><span class="metric-name">Parent activity views per child per week</span><span class="metric-target">Target: 3x per week</span></div>
+      <div class="metric-row"><span class="metric-name">Mobile payment share of total invoices</span><span class="metric-target">Target: 80%+</span></div>
+      <div class="metric-row"><span class="metric-name">Time-to-first-value from sign-up</span><span class="metric-target">Target: under 7 days</span></div>
+    </div>
+    <div class="metric-group">
+      <div class="mg-header">Outcomes: Lagging Indicators</div>
+      <div class="metric-row"><span class="metric-name">Subsidy recovery rate vs. pre-AI assistant baseline</span><span class="metric-target">Target: +15%</span></div>
+      <div class="metric-row"><span class="metric-name">Days from invoice issue to payment</span><span class="metric-target">Target: under 6 days</span></div>
+      <div class="metric-row"><span class="metric-name">Director admin time saved per month</span><span class="metric-target">Target: 8 hrs/mo</span></div>
+      <div class="metric-row"><span class="metric-name">Billing disputes per 100 invoices</span><span class="metric-target">Target: below 1</span></div>
+      <div class="metric-row"><span class="metric-name">Family NPS</span><span class="metric-target">Target: 60+ (vs. ~45 benchmark)</span></div>
+    </div>
+    <div class="metric-group">
+      <div class="mg-header">Business Metrics</div>
+      <div class="metric-row"><span class="metric-name">Center activation rate (trial to paid in 30 days)</span><span class="metric-target">Target: 75%+</span></div>
+      <div class="metric-row"><span class="metric-name">Logo retention at year 1 (FACTS-attached centers)</span><span class="metric-target">Target: 92%+</span></div>
+      <div class="metric-row"><span class="metric-name">Win rate vs. Brightwheel in head-to-head pilots</span><span class="metric-target">Target: 35%+</span></div>
+      <div class="metric-row"><span class="metric-name">Annual churn rate vs. category average (~20%)</span><span class="metric-target">Target: below 10%</span></div>
+      <div class="metric-row"><span class="metric-name">Expansion revenue from existing FACTS accounts</span><span class="metric-target">Track quarterly</span></div>
+    </div>
+    <div class="metric-group">
+      <div class="mg-header">Trust and Safety</div>
+      <div class="metric-row"><span class="metric-name">COPPA consent completion rate at enrollment</span><span class="metric-target dark">Target: 100%</span></div>
+      <div class="metric-row"><span class="metric-name">Data deletion request response time</span><span class="metric-target">Target: under 45 days</span></div>
+      <div class="metric-row"><span class="metric-name">AI report approval rate (teacher reviews before send)</span><span class="metric-target">Track weekly</span></div>
+      <div class="metric-row"><span class="metric-name">Privacy incidents</span><span class="metric-target dark">Target: zero</span></div>
+      <div class="metric-row"><span class="metric-name">Support tickets related to billing transparency</span><span class="metric-target">Target: below 2%</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- NEXT STEPS -->
+<section id="nextsteps" class="sec">
+  <span class="sec-num">Next Steps</span>
+  <h2>What we've done. What we test. How we build.</h2>
+  <div class="g3">
+    <div class="card">
+      <div class="eyebrow">Where we are</div>
+      <h4>Prototype built for Admin + Teacher</h4>
+      <p>We have a working prototype across the Director and Teacher surfaces. The five critical flows are designed. The next step is getting this in front of real users.</p>
+    </div>
+    <div class="card">
+      <div class="eyebrow">What to test</div>
+      <h4>Usability testing with real clients</h4>
+      <p>Run structured sessions with actual directors and teachers. Validate the under-10-second logging claim, the subsidy flow, and whether the AI assistant suggestions feel trustworthy, before a line of production code is written.</p>
+    </div>
+    <div class="card">
+      <div class="eyebrow">How to build</div>
+      <h4>One pillar at a time, in priority order</h4>
+      <p>Start with the teacher loop, the keystone. Layer in subsidy (single state first). Then center customization. Each stage is validated before the next begins.</p>
+    </div>
+  </div>
+</section>
+
+</div>
+
+<footer>
+  <span>FACTS Child Care Management · Research Synthesis · June 2026 · Priyanka Gujja · Product Design</span>
+  <span>CONFIDENTIAL · FACTS / Nelnet Internal</span>
+</footer>
+
+</body>
+</html>
