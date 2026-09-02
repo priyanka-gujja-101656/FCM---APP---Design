@@ -11023,8 +11023,17 @@ input[type="checkbox"]{accent-color:var(--brand)}
 </style>
 <style>
 /* ── Login gate, additive: an overlay inside the phone, nothing else touched ── */
-#lg-gate{position:absolute;inset:0;z-index:400;background:var(--surface);display:none;flex-direction:column}
+#lg-gate{position:absolute;inset:0;z-index:400;background:#fff;display:none;flex-direction:column}
 #lg-gate.on{display:flex}
+/* The frosted themes make --surface translucent, which let the app behind the
+   gate bleed through. Sheets already carry an opaque backstop; the gate needs
+   the same, and its own fields must not inherit the translucent surface. */
+.theme-a #lg-gate,.theme-c #lg-gate,.theme-h #lg-gate{background:#fff !important;backdrop-filter:none}
+#lg-gate .lg-in,#lg-gate .lg-select{background:#fff}
+/* theme-h quiets filled buttons to near-white for chrome that sits on a
+   colour wash; on the gate's own white ground that hides the only CTA, so
+   the gate keeps a solid brand button. */
+#lg-gate npds-button{--npds-button-color-background-primary-filled:var(--brand);--npds-button-color-text-primary-filled:#fff;--npds-button-color-background-primary-filled-hover:var(--npds-primitive-color-blue-800,#074d69)}
 .lg-top{height:10px;flex-shrink:0;background:linear-gradient(90deg,var(--npds-primitive-color-blue-700,#1d4ed8) 0%,var(--brand) 55%,var(--npds-primitive-color-teal-500,#0891b2) 100%)}
 .lg-body{flex:1;overflow-y:auto;padding:40px 24px 24px;display:flex;flex-direction:column}
 .lg-brand{display:flex;align-items:center;gap:10px;margin-bottom:32px}
