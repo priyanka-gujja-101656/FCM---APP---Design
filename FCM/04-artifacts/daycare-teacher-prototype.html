@@ -716,6 +716,13 @@
   .mc-prev em{font-style:normal;color:var(--ink-3);font-weight:600}
   .udot{width:9px;height:9px;border-radius:50%;background:var(--npds-blue-500);display:block}
   .mcard.unread{box-shadow:inset 3px 0 0 var(--npds-blue-500),0 12px 26px -20px rgba(40,55,38,.4)}
+
+  /* ===== more breathing room around each row's arrow ===== */
+  .card.list .row{padding-top:17px;padding-bottom:17px}
+  .list.roomy .row{padding-top:19px;padding-bottom:19px}
+  .rr .mini{margin:3px 0}
+  .rr .mini.lg{margin:4px 0}
+  .card.list .row+.row{border-top:1px solid var(--line)}
 </style>
 <div class="stage">
  <div class="lead">
@@ -961,14 +968,20 @@ function vActivities(){
    </div>`;
 }
 function vMessages(){
+  const scope=S.mscope||'all';
+  const list=S.threads.filter(t=>scope==='all'?true:t.kind===scope);
+  const n=k=>S.threads.filter(t=>t.kind===k).length;
+  const chip=(id,lbl,c)=>`<span class="ch${scope===id?' on':''}" data-act="mscope:${id}">${lbl} ${c}</span>`;
   return `${topbar('Messages',unread()?`${unread()} waiting on you`:'All caught up',
     `<button class="tb-btn" data-act="sheet:compose">${ic('plus')}</button>`)}
    <div class="body pad">
-    <div class="card list">${S.threads.map(t=>`
+    <div class="chips">${chip('all','All',S.threads.length)}${chip('family','Parents',n('family'))}${chip('staff','Staff',n('staff'))}</div>
+    <div class="card list">${list.length?list.map(t=>`
       <div class="row" data-act="thread:${t.id}">
        <span class="av"><i style="background:${t.unread?'var(--expected)':'var(--present)'}"></i>${ini(t.who)}</span>
        <span class="rt"><b>${t.who}</b><small>${t.kind==='staff'?t.role:t.kid} · \u201c${t.msgs[t.msgs.length-1].txt}\u201d</small></span>
-       <span class="rr"><span class="tm${t.unread?' accent':' mute'}">${t.t}</span></span></div>`).join('')}</div>
+       <span class="rr"><span class="tm${t.unread?' accent':' mute'}">${t.t}</span></span></div>`).join('')
+      :'<div class="empty">No messages in this group.</div>'}</div>
    </div>`;
 }
 function vThread(){
