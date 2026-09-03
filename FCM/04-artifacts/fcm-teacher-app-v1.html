@@ -21872,9 +21872,11 @@ function toggleAcctField(field, acctId){
     const note=document.createElement('div');
     note.className='hz-note'; note.id='hz-note';
     document.body.appendChild(note);
-    let saved='h';
-    try{ saved=localStorage.getItem(KEY)||'h'; }catch(e){}
-    apply(saved);
+    /* Pinned. The teacher-app layer strips the concept switcher, so nothing can
+       change this at runtime, and reading it back from localStorage let a value
+       left over from an earlier visit decide the concept per viewer. C, Steady
+       Ground, is the shared concept. */
+    apply('c');
   }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',boot);
   else boot();
