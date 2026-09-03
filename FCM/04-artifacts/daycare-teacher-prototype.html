@@ -756,6 +756,18 @@
   .sd-count{margin:9px auto 0;width:fit-content;font-size:12px;font-weight:500;color:var(--ink-2);
     background:rgba(255,253,250,.9);padding:5px 12px;border-radius:999px;
     font-variant-numeric:tabular-nums}
+
+  /* row actions: check in = primary outlined, check out = secondary outlined */
+  .mini.lbl.pri{background:rgba(255,255,255,.92);border:1px solid var(--npds-blue-500);
+    color:var(--npds-blue-700)}
+  .mini.lbl.pri:hover{background:var(--npds-blue-100);border-color:var(--npds-blue-700)}
+  .mini.lbl.pri:active{background:var(--npds-blue-200)}
+  .mini.lbl.pri svg{stroke:currentColor!important}
+  .mini.lbl.sec{background:rgba(255,255,255,.92);border:1px solid var(--npds-gray-500);
+    color:var(--npds-gray-700)}
+  .mini.lbl.sec:hover{background:#f0f1f2;border-color:var(--npds-gray-700)}
+  .mini.lbl.sec:active{background:var(--npds-gray-200)}
+  .mini.lbl.sec svg{stroke:currentColor!important}
 </style>
 <div class="stage">
  <div class="lead">
@@ -909,8 +921,8 @@ function row(k,opts={}){
   if(right===undefined){
     if(S.selecting) right='';
     else if(k.status==='expected') right=`<button class="mini" data-act="checkin:${k.id}" aria-label="Check in ${k.name}">${ic('in','ic sm','var(--accent)')}</button>`;
-    else if(k.status==='here') right=`<button class="mini lbl" data-act="checkout:${k.id}" aria-label="Check out ${k.name}">${ic('out','ic sm','var(--accent)','1.9')}Check out</button>`;
-    else right=`<button class="mini lbl" data-act="checkin:${k.id}" aria-label="Check in ${k.name}">${ic('in','ic sm','var(--accent)','1.9')}Check in</button>`;
+    else if(k.status==='here') right=`<button class="mini lbl sec" data-act="checkout:${k.id}" aria-label="Check out ${k.name}">${ic('out','ic sm','currentColor','1.9')}Check out</button>`;
+    else right=`<button class="mini lbl pri" data-act="checkin:${k.id}" aria-label="Check in ${k.name}">${ic('in','ic sm','currentColor','1.9')}Check in</button>`;
   }
   const act=S.selecting?`data-act="sel:${k.id}"`:`data-act="child:${k.id}"`;
   return `<div class="row${S.sel.has(k.id)?' picked':''}${k.status==='out'?' gone':''}" ${act}>${box}
@@ -976,8 +988,7 @@ function vAttendance(){
    <div class="body pad">
     <div class="chips"><span class="ch${S.filters.size?'':' on'}" data-act="fkid:all">All ${S.kids.length}</span>
      ${chip('here','Here',cnt('here'))}${chip('expected','To arrive',cnt('expected'))}${chip('out','Checked out',cnt('out'))}${chip('absent','Absent',cnt('absent'))}</div>
-    ${S.selecting?'<p class="hint">Tick the children you want, then pick an action at the bottom.</p>'
-      :'<p class="hint">Each row shows what you can do next: <b>Check in</b> for a child who is not here yet, <b>Check out</b> for a child who is. Tap the name for their day, or <b data-act="selmode" class="linkish">Select</b> several to act together.</p>'}
+    ${S.selecting?'<p class="hint">Tick the children you want, then pick an action at the bottom.</p>':''}
     <div class="card list">${rows}</div>
    </div>
    ${S.searchOpen?`<div class="searchdock">
@@ -1085,7 +1096,7 @@ const SHEETS={
     <span class="sg${S.dir==='in'?' on':''}" data-act="dir:in">${ic('in','ic','currentColor','1.8')}Check in</span>
     <span class="sg${S.dir==='out'?' on':''}" data-act="dir:out">${ic('out','ic','currentColor','1.8')}Check out</span></div>
    <p class="sh-note">${S.dir==='in'?`${pool.length} ${pool.length===1?'child is':'children are'} not in the room yet.`:`${pool.length} ${pool.length===1?'child is':'children are'} here now.`}</p>
-   <div class="card list roomy">${pool.length?pool.slice(0,5).map(k=>row(k,{right:`<button class="mini lbl" data-act="${S.dir==='in'?'checkin':'checkout'}:${k.id}" aria-label="${S.dir==='in'?'Check in':'Check out'} ${k.name}">${ic(S.dir==='in'?'in':'out','ic sm','var(--accent)','1.9')}${S.dir==='in'?'Check in':'Check out'}</button>`})).join(''):`<div class="empty">${S.dir==='in'?'Everyone has arrived.':'Nobody left to check out.'}</div>`}</div>
+   <div class="card list roomy">${pool.length?pool.slice(0,5).map(k=>row(k,{right:`<button class="mini lbl ${S.dir==='in'?'pri':'sec'}" data-act="${S.dir==='in'?'checkin':'checkout'}:${k.id}" aria-label="${S.dir==='in'?'Check in':'Check out'} ${k.name}">${ic(S.dir==='in'?'in':'out','ic sm','currentColor','1.9')}${S.dir==='in'?'Check in':'Check out'}</button>`})).join(''):`<div class="empty">${S.dir==='in'?'Everyone has arrived.':'Nobody left to check out.'}</div>`}</div>
    <button class="second" data-act="bulkfrom">${ic('listCheck','ic','var(--npds-gray-700)','1.8')}Select several in Attendance</button>`;
  },
  posttype(){
