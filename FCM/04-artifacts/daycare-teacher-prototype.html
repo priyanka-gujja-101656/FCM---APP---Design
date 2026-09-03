@@ -782,6 +782,20 @@
   .mini.lg.sec:hover{background:#f0f1f2;border-color:var(--npds-gray-700)}
   .mini.lg.sec:active{background:var(--npds-gray-200)}
   .mini.lg.pri svg,.mini.lg.sec svg{stroke:currentColor!important}
+
+  /* ===== one segmented pill instead of loose filter chips ===== */
+  .tabpill{display:flex;gap:4px;flex:none;padding:4px;border-radius:999px;
+    background:rgba(255,255,255,.58);border:1px solid rgba(255,255,255,.6);
+    overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;
+    box-shadow:0 8px 20px -18px rgba(40,55,38,.4)}
+  .tabpill::-webkit-scrollbar{display:none}
+  .tp{flex:0 0 auto;padding:10px 16px;border-radius:999px;white-space:nowrap;cursor:pointer;
+    font-size:13.5px;font-weight:500;color:var(--ink-2);
+    -webkit-tap-highlight-color:transparent;user-select:none;
+    transition:background .16s ease,color .16s ease,box-shadow .16s ease}
+  .tp:hover{color:var(--ink)}
+  .tp.on{background:var(--npds-blue-100);box-shadow:inset 0 0 0 1px var(--npds-blue-500);
+    color:var(--npds-blue-700);font-weight:600}
 </style>
 <div class="stage">
  <div class="lead">
@@ -1006,13 +1020,13 @@ function vAttendance(){
     if(q&&!k.name.toLowerCase().includes(q))return false;
     if(S.filters.size&&!S.filters.has(k.status))return false;
     return true;});
-  const chip=(id,lbl,n)=>`<span class="ch${S.filters.has(id)?' on':''}" data-act="fkid:${id}">${lbl} ${n}</span>`;
+  const chip=(id,lbl,n)=>`<span class="tp${S.filters.has(id)?' on':''}" data-act="fkid:${id}">${lbl} ${n}</span>`;
   const rows=list.length?list.map(k=>row(k)).join(''):'<div class="empty">No children match.</div>';
   return `${topbar('Attendance',`${S.kids.length} children · ${cnt('here')} here`,
      `<button class="tb-btn${S.searchOpen?' active':''}" data-act="searchtoggle" aria-label="Search this room">${ic('search')}</button>
       <button class="ghost tb-inline" data-act="selmode">${S.selecting?'Cancel':'Select'}</button>`)}
    <div class="body pad">
-    <div class="chips"><span class="ch${S.filters.size?'':' on'}" data-act="fkid:all">All ${S.kids.length}</span>
+    <div class="tabpill"><span class="tp${S.filters.size?'':' on'}" data-act="fkid:all">All ${S.kids.length}</span>
      ${chip('here','Here',cnt('here'))}${chip('out','Not in',cnt('out'))}${chip('absent','Absent',cnt('absent'))}</div>
     ${S.selecting?'<p class="hint">Tick the children you want, then pick an action at the bottom.</p>':''}
     <div class="card list">${rows}</div>
@@ -1024,12 +1038,12 @@ function vActivities(){
   const q=S.q.trim().toLowerCase();
   const list=S.feed.filter(a=>(!f.size||f.has(a.type))&&(!q||(a.title+' '+a.sub+' '+TY[a.type].label).toLowerCase().includes(q)));
   const counts={};S.feed.forEach(a=>counts[a.type]=(counts[a.type]||0)+1);
-  const chips=Object.keys(counts).map(t=>`<span class="ch${f.has(t)?' on':''}" data-act="fact:${t}">${TY[t].label} ${counts[t]}</span>`).join('');
+  const chips=Object.keys(counts).map(t=>`<span class="tp${f.has(t)?' on':''}" data-act="fact:${t}">${TY[t].label} ${counts[t]}</span>`).join('');
   return `${topbar('Activity log',`Today · ${S.feed.length} entries · whole room`,
     `${searchBtn()}<button class="ghost tb-inline" data-act="sheet:filter">Filters${f.size?' ('+f.size+')':''}</button>`)}
    <div class="body pad">
     <button class="primary" data-act="sheet:posttype">${ic('plus','ic','currentColor','1.9')}Post an activity</button>
-    <div class="chips"><span class="ch${f.size?'':' on'}" data-act="fact:all">All ${S.feed.length}</span>${chips}</div>
+    <div class="tabpill"><span class="tp${f.size?'':' on'}" data-act="fact:all">All ${S.feed.length}</span>${chips}</div>
     <div class="card feed">${list.length?list.map(a=>`
       <div class="fe${a.fresh?' new':''}" data-act="act:${a.id}">
        <span class="fi${a.type==='incident'?' warn':''}">${ic(TY[a.type].icon,'ic',a.type==='incident'?'var(--amber)':'var(--accent)','1.7')}</span>
@@ -1050,12 +1064,12 @@ function vMessages(){
   const list=mthreads();
   const nf=(S.mscope&&S.mscope!=='all'?1:0)+(S.munread?1:0);
   const n=k=>S.threads.filter(t=>t.kind===k).length;
-  const chip=(id,lbl,c)=>`<span class="ch${scope===id?' on':''}" data-act="mscope:${id}">${lbl} ${c}</span>`;
+  const chip=(id,lbl,c)=>`<span class="tp${scope===id?' on':''}" data-act="mscope:${id}">${lbl} ${c}</span>`;
   return `${topbar('Messages',unread()?`${unread()} waiting on you`:'All caught up',
     `${searchBtn()}<button class="ghost tb-inline" data-act="sheet:mfilter">Filters${nf?' ('+nf+')':''}</button>`)}
    <div class="body pad">
     <button class="primary" data-act="sheet:compose">${ic('plus','ic','currentColor','1.9')}New message</button>
-    <div class="chips">${chip('all','All',S.threads.length)}${chip('family','Parents',n('family'))}${chip('staff','Staff',n('staff'))}${S.munread?`<span class="ch on" data-act="munread">Unread ${unread()}</span>`:''}</div>
+    <div class="tabpill">${chip('all','All',S.threads.length)}${chip('family','Parents',n('family'))}${chip('staff','Staff',n('staff'))}${S.munread?`<span class="tp on" data-act="munread:all">Unread ${unread()}</span>`:''}</div>
     <div class="card list">${list.length?list.map(t=>`
       <div class="row" data-act="thread:${t.id}">
        <span class="av">${t.unread?'<i class="unreaddot"></i>':''}${ini(t.who)}</span>
