@@ -16,7 +16,7 @@
     --ink:#2C312B; --ink-2:#57604F; --ink-3:#88917F;
     --line:rgba(44,49,43,.09);
     --card:rgba(255,255,255,.82);
-    --present:#4E7263; --expected:#B08A56; --absent:#AAAEA3;
+    --present:#4E7263; --amber:#B08A56; --absent:#AAAEA3;
     --accent:#9A5F45;
     --arc-track:rgba(44,49,43,.11); --arc-done:rgba(154,95,69,.36); --arc-tick:rgba(44,49,43,.19);
     --r-lg:24px; --r-md:16px;
@@ -884,9 +884,9 @@ let S={
  draft:{who:'all',picked:new Set(),req:'',det:'',time:null},
  kids:[
   ['aiden','Aiden Brooks','here','7:14','Dad'],['bea','Bea Okafor','here','7:22','Grandma'],
-  ['caleb','Caleb Ruiz','expected','','',true],['dev','Dev Patel','here','7:30','Mum'],
-  ['elena','Elena Vance','absent','','Family holiday'],['finn','Finn Doyle','expected','',''],
-  ['grace','Grace Lin','here','7:28','Dad'],['hugo','Hugo Baptiste','expected','',''],
+  ['caleb','Caleb Ruiz','out','','',true],['dev','Dev Patel','here','7:30','Mum'],
+  ['elena','Elena Vance','absent','','Family holiday'],['finn','Finn Doyle','out','',''],
+  ['grace','Grace Lin','here','7:28','Dad'],['hugo','Hugo Baptiste','out','',''],
   ['ines','Ines Moreau','here','8:41','Mum',false,true],['jonah','Jonah Weiss','here','8:47','Dad'],
   ['kai','Kai Nakamura','here','8:12','Mum'],['lena','Lena Torres','here','8:04','Dad'],
   ['mateo','Mateo Silva','here','7:58','Gran'],['nina','Nina Alvarez','here','7:52','Mum'],
@@ -919,22 +919,20 @@ const ini=n=>n.split(' ').map(w=>w[0]).slice(0,2).join('');
 const now=()=>{const d=new Date();let h=d.getHours()%12||12;return h+':'+String(d.getMinutes()).padStart(2,'0');};
 
 /* ---------- pieces ---------- */
-const DOT={here:'var(--present)',absent:'var(--expected)',expected:null,out:null};
+const DOT={here:'var(--present)',absent:'var(--amber)',out:null};
 const dotFor=st=>DOT[st]?`<i style="background:${DOT[st]}"></i>`:'';
 function row(k,opts={}){
   const box=S.selecting?`<span class="cbx${S.sel.has(k.id)?' on':''}">${S.sel.has(k.id)?ic('check','ic sm','#FFFDFA','2.4'):''}</span>`:'';
   let meta=opts.meta;
   if(meta===undefined){
     meta = k.status==='here' ? `In ${k.tin}${k.who?' · '+k.who:''}`
-         : k.status==='expected' ? 'Expected this morning'
-         : k.status==='out' ? `Checked out ${k.tout}`
+         : k.status==='out' ? (k.tout?`Checked out ${k.tout}`:'Not checked in')
          : `Absent · ${k.who||'no reason given'}`;
     if(k.note) meta+=' · note';
   }
   let right=opts.right;
   if(right===undefined){
     if(S.selecting) right='';
-    else if(k.status==='expected') right=`<button class="mini" data-act="checkin:${k.id}" aria-label="Check in ${k.name}">${ic('in','ic sm','var(--accent)')}</button>`;
     else if(k.status==='here') right=`<button class="mini lbl sec" data-act="checkout:${k.id}" aria-label="Check out ${k.name}">${ic('out','ic sm','currentColor','1.9')}Check out</button>`;
     else right=`<button class="mini lbl pri" data-act="checkin:${k.id}" aria-label="Check in ${k.name}">${ic('in','ic sm','currentColor','1.9')}Check in</button>`;
   }
@@ -972,9 +970,9 @@ const homehead=()=>`<div class="head"><div class="room">
 
 /* ---------- routes ---------- */
 function vMyRoom(){
-  const h=cnt('here'),e=cnt('expected'),a=cnt('absent'),o=cnt('out'),tot=S.kids.length;
-  const line = e>0 ? `Good morning, Tara.<br>Your room is all set!` : (o>3 ? `Winding down, Tara.<br>${h} still with you.` : `All set, Tara.<br>Everyone is here.`);
-  const sub  = e>0 ? `<b>${e} still to arrive.</b> Circle time is at 9:00.` : `<b>${h} here.</b> Next up is outdoor play at 10:20.`;
+  const h=cnt('here'),a=cnt('absent'),ni=S.kids.filter(k=>k.status==='out').length,tot=S.kids.length;
+  const line = ni>0 ? `Good morning, Tara.<br>Your room is all set!` : `All set, Tara.<br>Everyone is here.`;
+  const sub  = ni>0 ? `<b>${ni} not checked in yet.</b> Circle time is at 9:00.` : `<b>${h} here.</b> Next up is outdoor play at 10:20.`;
   const q=S.q.trim().toLowerCase();
   const hits=q?S.kids.filter(k=>k.name.toLowerCase().includes(q)):[];
   if(S.searchOpen&&q){
@@ -987,15 +985,14 @@ function vMyRoom(){
    <div class="card pulse">
     <div class="pulse-top"><span><span class="pulse-count">${h} <em>of ${tot}</em></span><span class="pulse-label">Here right now</span></span>
      <span class="chip ok">Ratio 1:6</span></div>
-    <div class="bar">${h?`<i style="flex:${h};background:var(--present)"></i>`:''}${(e+o)?`<i style="flex:${e+o};background:var(--absent)"></i>`:''}${a?`<i style="flex:${a};background:var(--expected)"></i>`:''}</div>
+    <div class="bar">${h?`<i style="flex:${h};background:var(--present)"></i>`:''}${ni?`<i style="flex:${ni};background:var(--absent)"></i>`:''}${a?`<i style="flex:${a};background:var(--amber)"></i>`:''}</div>
     <div class="legend"><span><i class="dot" style="background:var(--present)"></i>Here ${h}</span>
-     <span><i class="dot" style="background:var(--expected)"></i>Absent ${a}</span>
-     ${e?`<span><i class="dot plain"></i>To arrive ${e}</span>`:''}
-     ${o?`<span><i class="dot plain"></i>Checked out ${o}</span>`:''}</div>
+     <span><i class="dot" style="background:var(--amber)"></i>Absent ${a}</span>
+     ${ni?`<span><i class="dot plain"></i>Not in ${ni}</span>`:''}</div>
     <div class="rowsplit">
-     <span class="rs-b"><b>${e}</b><small>Still to arrive</small></span>
-     <span class="rs-b"><b>${o}</b><small>Checked out</small></span>
+     <span class="rs-b"><b>${ni}</b><small>Not checked in</small></span>
      <span class="rs-b"><b>${a}</b><small>Absent</small></span>
+     <span class="rs-b"><b>3</b><small>Staff on duty</small></span>
     </div>
     <div class="quick">
      <button class="primary q" data-act="sheet:inout">${ic('in','ic','currentColor','1.8')}Check in / out</button>
@@ -1016,7 +1013,7 @@ function vAttendance(){
       <button class="ghost tb-inline" data-act="selmode">${S.selecting?'Cancel':'Select'}</button>`)}
    <div class="body pad">
     <div class="chips"><span class="ch${S.filters.size?'':' on'}" data-act="fkid:all">All ${S.kids.length}</span>
-     ${chip('here','Here',cnt('here'))}${chip('expected','To arrive',cnt('expected'))}${chip('out','Checked out',cnt('out'))}${chip('absent','Absent',cnt('absent'))}</div>
+     ${chip('here','Here',cnt('here'))}${chip('out','Not in',cnt('out'))}${chip('absent','Absent',cnt('absent'))}</div>
     ${S.selecting?'<p class="hint">Tick the children you want, then pick an action at the bottom.</p>':''}
     <div class="card list">${rows}</div>
    </div>
@@ -1035,7 +1032,7 @@ function vActivities(){
     <div class="chips"><span class="ch${f.size?'':' on'}" data-act="fact:all">All ${S.feed.length}</span>${chips}</div>
     <div class="card feed">${list.length?list.map(a=>`
       <div class="fe${a.fresh?' new':''}" data-act="act:${a.id}">
-       <span class="fi${a.type==='incident'?' warn':''}">${ic(TY[a.type].icon,'ic',a.type==='incident'?'var(--expected)':'var(--accent)','1.7')}</span>
+       <span class="fi${a.type==='incident'?' warn':''}">${ic(TY[a.type].icon,'ic',a.type==='incident'?'var(--amber)':'var(--accent)','1.7')}</span>
        <span class="ft"><b>${a.title}</b><small>${a.sub}</small>
         <span class="fmeta">${TY[a.type].label} · ${a.who||'whole room'}</span></span>
        <span class="fw">${a.t}</span></div>`).join('')
@@ -1091,13 +1088,12 @@ function vChild(){
   return `${topbar(k.name,'Toddlers · 2 yr 4 mo','',true)}
    <div class="body pad">
     <div class="card kidhero"><span class="av xl">${dotFor(k.status)}${ini(k.name)}</span>
-     <span class="kh-t"><b>${k.status==='here'?'Here since '+k.tin:k.status==='out'?'Checked out at '+k.tout:k.status==='expected'?'Not arrived yet':'Absent today'}</b>
+     <span class="kh-t"><b>${k.status==='here'?'Here since '+k.tin:k.status==='out'?(k.tout?'Checked out at '+k.tout:'Not checked in'):'Absent today'}</b>
      <small>${k.who?'With '+k.who:'No guardian recorded'}</small></span></div>
     ${(k.allergy||k.med)?`<div class="flags">${k.allergy?`<span class="flag warn">${ic('alert','ic sm','#7E5C2E','1.9')}Peanut allergy</span>`:''}${k.med?`<span class="flag">${ic('pill','ic sm','var(--ink-2)','1.9')}Inhaler, as needed</span>`:''}</div>`:''}
     ${k.note?`<div class="card ta"><span class="ta-l">Note for today</span><p>${k.note}</p></div>`:''}
     <div class="quick">
      ${k.status==='here'?`<button class="primary q" data-act="checkout:${k.id}">${ic('out','ic','currentColor','1.9')}Check out</button>`
-       :k.status==='expected'?`<button class="primary q" data-act="checkin:${k.id}">${ic('in','ic','currentColor','1.9')}Check in</button>`
        :`<button class="primary q" data-act="checkin:${k.id}">${ic('in','ic','currentColor','1.9')}Check in</button>`}
      <button class="second q" data-act="note:${k.id}">${ic('pen','ic','var(--accent)','1.9')}Add note</button></div>
     <div class="card fieldset">
@@ -1121,8 +1117,8 @@ const SHEETS={
    <div class="seg two big">
     <span class="sg${S.dir==='in'?' on':''}" data-act="dir:in">${ic('in','ic','currentColor','1.8')}Check in</span>
     <span class="sg${S.dir==='out'?' on':''}" data-act="dir:out">${ic('out','ic','currentColor','1.8')}Check out</span></div>
-   <p class="sh-note">${S.dir==='in'?`${pool.length} ${pool.length===1?'child is':'children are'} not in the room yet.`:`${pool.length} ${pool.length===1?'child is':'children are'} here now.`}</p>
-   <div class="card list roomy">${pool.length?pool.slice(0,5).map(k=>row(k,{right:`<button class="mini lg ${S.dir==='in'?'pri':'sec'}" data-act="${S.dir==='in'?'checkin':'checkout'}:${k.id}" aria-label="${S.dir==='in'?'Check in':'Check out'} ${k.name}">${ic(S.dir==='in'?'in':'out','ic','currentColor','1.9')}</button>`})).join(''):`<div class="empty">${S.dir==='in'?'Everyone has arrived.':'Nobody left to check out.'}</div>`}</div>
+   <p class="sh-note">${S.dir==='in'?`${pool.length} ${pool.length===1?'child is':'children are'} not in the room.`:`${pool.length} ${pool.length===1?'child is':'children are'} here now.`}</p>
+   <div class="card list roomy">${pool.length?pool.slice(0,5).map(k=>row(k,{right:`<button class="mini lg ${S.dir==='in'?'pri':'sec'}" data-act="${S.dir==='in'?'checkin':'checkout'}:${k.id}" aria-label="${S.dir==='in'?'Check in':'Check out'} ${k.name}">${ic(S.dir==='in'?'in':'out','ic','currentColor','1.9')}</button>`})).join(''):`<div class="empty">${S.dir==='in'?'Everyone is checked in.':'Nobody left to check out.'}</div>`}</div>
    <button class="second" data-act="bulkfrom">${ic('listCheck','ic','var(--npds-gray-700)','1.8')}Bulk check in / out</button>`;
  },
  posttype(){
