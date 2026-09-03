@@ -12410,7 +12410,7 @@ const CHILDREN = [
   { id:'c5',  name:'Ella Park',       initials:'EP', age:'4 yr', classroom:'Pre-K 4',     classroomId:'cl-prek4',     allergy:null },
   { id:'c6',  name:'Noah Bennett',    initials:'NB', age:'5 yr', classroom:'Kinder Prep', classroomId:'cl-kinder',    allergy:'Tree-nut' },
   { id:'c7',  name:'Lily Chen',       initials:'LC', age:'3 yr', classroom:'Pre-K 3',     classroomId:'cl-prek3',     allergy:null },
-  { id:'c8',  name:'Owen Patel',      initials:'OP', age:'4 yr', classroom:'Pre-K 4',     classroomId:'cl-prek4',     allergy:null },
+  { id:'c8',  name:'Owen Patel',      initials:'OP', age:'4 yr', classroom:'Pre-K 4',     classroomId:'cl-prek4',     allergy:'Dairy' },
   { id:'c9',  name:'Maya Johnson',    initials:'MJ', age:'2 yr', classroom:'Toddlers B',  classroomId:'cl-toddlersB', allergy:'Egg' },
   { id:'c10', name:'Liam O\'Connor',  initials:'LO', age:'5 yr', classroom:'Kinder Prep', classroomId:'cl-kinder',    allergy:null },
   { id:'c11', name:'Aria Davis',      initials:'AD', age:'3 yr', classroom:'Pre-K 3',     classroomId:'cl-prek3',     allergy:null },
@@ -13330,7 +13330,7 @@ const ACTIVITIES = [
   { id:'a3', time:'10:42 AM', child:'Ella Park',    classroom:'Pre-K 4',    by:'Marcus Webb',    type:'Incident',    text:'Ella tripped on the rug. Minor scrape on right knee. Cleaned and bandaged.', pending:true,  visible:'both' },
   { id:'a5', time:'11:45 AM', child:'Lily Chen',    classroom:'Pre-K 3',    by:'Tara Hernandez', type:'Kudos',       text:'Lily shared crayons without being asked.',                                   pending:false, visible:'parents' },
   { id:'a6', time:'12:15 PM', child:null,           classroom:'Kinder Prep',by:'Tara Hernandez', type:'Photo',       text:'Outdoor play album · 8 photos.',                                             pending:false, visible:'parents' },
-  { id:'a2', time:'10:00 AM', child:null,           classroom:'Pre-K 4',    by:'Tara Hernandez', type:'Food',        text:'Snack: apple slices and cheese cubes for 12 children.',                      pending:false, visible:'parents' },
+  { id:'a2', time:'10:00 AM', child:null,           classroom:'Pre-K 4',    by:'Tara Hernandez', type:'Food',        text:'Snack: apple slices and cheese cubes for 3 children.',                      pending:false, visible:'parents' },
   { id:'a4', time:'11:30 AM', child:null,           classroom:'Infants',    by:'Aisha Patel',    type:'Nap',         text:'Nap time started. Lights dim.',                                               pending:false, visible:'parents' },
   { id:'a7', time:'2:20 PM',  child:'Noah Bennett', classroom:'Toddlers A', by:'You',            type:'Note',        text:'Noah asked about the class fish again. Worth telling his family at pickup.',  pending:true,  visible:'parents' },
   { id:'a1', time:'9:15 AM',  child:'Amelia Walsh', classroom:'Pre-K 4',    by:'Tara Hernandez', type:'Observation', text:'Amelia is building an impressive tower today.',                               pending:false, visible:'parents' }
@@ -22697,8 +22697,12 @@ function tpCiFloater(){
   }
   return el;
 }
-/* Past midday the room is emptying, so checking out becomes the bulk
-   action. Before that it follows whichever side of the room is larger. */
+/* Pinned to check-in for usability testing. This used to flip to check-out
+   from noon, and before noon to follow whichever side of the room was larger,
+   so the same task produced a different bulk button in a morning session than
+   in an afternoon one and the recordings were not comparable. The two
+   all-or-nothing cases below still stand: a full room can only check out and
+   an empty one can only check in. */
 function tpBulkMode(){
   const kids = tpKids();
   const inNow = kids.filter(c=>CHECKIN_STATE[c.id] === 'present').length;
@@ -22706,7 +22710,7 @@ function tpBulkMode(){
   if(!kids.length) return null;
   if(!notIn) return 'out';
   if(!inNow) return 'in';
-  return new Date().getHours() >= 12 ? 'out' : (notIn >= inNow ? 'in' : 'out');
+  return 'in';
 }
 function syncCiFloat(){
   const el = tpCiFloater(); if(!el) return;
@@ -23418,14 +23422,26 @@ Object.assign(window, { tpCiToggleStatus, tpCiSearch, tpSyncFloats, tpOpenReloca
    The ids are deliberately opaque: participants read the address bar, and a
    descriptive slug would hand them the answer before they start.
 
-     ?t=0  sign-in gate, signed out   (use when signing in IS the task)
-     ?t=1  My Room        ?t=2  Attendance     ?t=3  Activities
-     ?t=4  Messages       ?t=5  More
+   Ids are the task numbers from the test plan, so a link drops straight into
+   the task it belongs to. The ROUTES map below lists them.
    No ?t= at all behaves exactly as before.
    ────────────────────────────────────────────────────────────────────────── */
 (function(){
-  var ROUTES = { '0':'myroom', '1':'myroom', '2':'checkin', '3':'activities', '4':'messages', '5':'more' };
-  var GATED  = { '0':true };   /* t=0 keeps the gate up, and signing in lands on My Room */
+  var ROUTES = {
+    '0':'myroom',      /* sign-in gate, if signing in is ever made a task    */
+    '1':'myroom',      /* Task 1, check in one child                         */
+    '2':'myroom',      /* Task 2, check out one child        -- see note      */
+    '3':'myroom',      /* Task 3, check in several children                  */
+    '4':'activities',  /* Task 4, post an activity                           */
+    '5':'activities',  /* Task 5, view an activity                           */
+    '6':'messages'     /* Task 6, message a parent                           */
+  };
+  var GATED  = { '0':true };   /* t=0 alone keeps the gate up */
+
+  /* Note on t=2: Task 2 checks Amelia OUT, and attendance lives in memory, so
+     any fresh load puts her back to absent. Task 2 is meant to run in the same
+     page load as Task 1. t=2 exists only so that a link used there still lands
+     on the right screen instead of falling through to the last tab used. */
   var t = null;
   try { t = new URLSearchParams(location.search).get('t'); } catch(e){ return; }
   if (t === null || !Object.prototype.hasOwnProperty.call(ROUTES, t)) return;
