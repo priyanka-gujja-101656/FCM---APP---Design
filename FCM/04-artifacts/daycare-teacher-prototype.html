@@ -961,27 +961,14 @@ function vActivities(){
    </div>`;
 }
 function vMessages(){
-  const scope=S.mscope||'all';
-  const list=S.threads.filter(t=>scope==='all'?true:scope==='unread'?t.unread:t.kind===scope);
-  const n=k=>S.threads.filter(t=>t.kind===k).length;
-  return `${topbar('Messages',unread()?`${unread()} waiting on you`:'All caught up')}
+  return `${topbar('Messages',unread()?`${unread()} waiting on you`:'All caught up',
+    `<button class="tb-btn" data-act="sheet:compose">${ic('plus')}</button>`)}
    <div class="body pad">
-    <button class="primary" data-act="sheet:compose">${ic('plus','ic','currentColor','1.9')}New message</button>
-    <div class="seg three">
-     <span class="sg${scope==='all'?' on':''}" data-act="mscope:all">All ${S.threads.length}</span>
-     <span class="sg${scope==='family'?' on':''}" data-act="mscope:family">Families ${n('family')}</span>
-     <span class="sg${scope==='staff'?' on':''}" data-act="mscope:staff">Staff ${n('staff')}</span></div>
-    <div class="mlist">${list.map(t=>{
-      const last=t.msgs[t.msgs.length-1];
-      return `<div class="mcard${t.unread?' unread':''}" data-act="thread:${t.id}">
-       <span class="mc-top">
-        <span class="av"><i style="background:${t.kind==='staff'?'var(--npds-blue-500)':'var(--present)'}"></i>${ini(t.who)}</span>
-        <span class="mc-who"><b>${t.who}</b>
-         <small>${t.kind==='staff'?'Staff · '+t.role:'Parent of '+t.kid}</small></span>
-        <span class="mc-time">${t.t}${t.unread?'<i class="udot"></i>':''}</span></span>
-       <p class="mc-prev">${last.me?'<em>You:</em> ':''}${last.txt}</p>
-      </div>`;}).join('')}
-     ${list.length?'':'<div class="empty">No messages in this group.</div>'}</div>
+    <div class="card list">${S.threads.map(t=>`
+      <div class="row" data-act="thread:${t.id}">
+       <span class="av"><i style="background:${t.unread?'var(--expected)':'var(--present)'}"></i>${ini(t.who)}</span>
+       <span class="rt"><b>${t.who}</b><small>${t.kind==='staff'?t.role:t.kid} · \u201c${t.msgs[t.msgs.length-1].txt}\u201d</small></span>
+       <span class="rr"><span class="tm${t.unread?' accent':' mute'}">${t.t}</span></span></div>`).join('')}</div>
    </div>`;
 }
 function vThread(){
