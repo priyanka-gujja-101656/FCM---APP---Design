@@ -723,6 +723,11 @@
   .rr .mini{margin:3px 0}
   .rr .mini.lg{margin:4px 0}
   .card.list .row+.row{border-top:1px solid var(--line)}
+
+  /* dots carry meaning only for present, absent and unread */
+  .dot.plain{background:var(--absent)}
+  .unreaddot{position:absolute;right:-1px;bottom:-1px;width:12px;height:12px;border-radius:50%;
+    background:var(--npds-blue-500);box-shadow:0 0 0 2px rgba(253,254,251,.94)}
 </style>
 <div class="stage">
  <div class="lead">
@@ -860,7 +865,8 @@ const ini=n=>n.split(' ').map(w=>w[0]).slice(0,2).join('');
 const now=()=>{const d=new Date();let h=d.getHours()%12||12;return h+':'+String(d.getMinutes()).padStart(2,'0');};
 
 /* ---------- pieces ---------- */
-const DOT={here:'var(--present)',expected:'var(--expected)',absent:'var(--absent)',out:'var(--absent)'};
+const DOT={here:'var(--present)',absent:'var(--expected)',expected:null,out:null};
+const dotFor=st=>DOT[st]?`<i style="background:${DOT[st]}"></i>`:'';
 function row(k,opts={}){
   const box=S.selecting?`<span class="cbx${S.sel.has(k.id)?' on':''}">${S.sel.has(k.id)?ic('check','ic sm','#FFFDFA','2.4'):''}</span>`:'';
   let meta=opts.meta;
@@ -881,7 +887,7 @@ function row(k,opts={}){
   }
   const act=S.selecting?`data-act="sel:${k.id}"`:`data-act="child:${k.id}"`;
   return `<div class="row${S.sel.has(k.id)?' picked':''}${k.status==='out'?' gone':''}" ${act}>${box}
-    <span class="av"><i style="background:${DOT[k.status]}"></i>${ini(k.name)}</span>
+    <span class="av">${dotFor(k.status)}${ini(k.name)}</span>
     <span class="rt"><b>${k.name}</b><small>${meta}</small></span>
     <span class="rr">${right}</span></div>`;
 }
@@ -913,11 +919,11 @@ function vMyRoom(){
    <div class="card pulse">
     <div class="pulse-top"><span><span class="pulse-count">${h} <em>of ${tot}</em></span><span class="pulse-label">Here right now</span></span>
      <span class="chip ok">Ratio 1:6</span></div>
-    <div class="bar">${h?`<i style="flex:${h};background:var(--present)"></i>`:''}${e?`<i style="flex:${e};background:var(--expected)"></i>`:''}${(a+o)?`<i style="flex:${a+o};background:var(--absent)"></i>`:''}</div>
+    <div class="bar">${h?`<i style="flex:${h};background:var(--present)"></i>`:''}${(e+o)?`<i style="flex:${e+o};background:var(--absent)"></i>`:''}${a?`<i style="flex:${a};background:var(--expected)"></i>`:''}</div>
     <div class="legend"><span><i class="dot" style="background:var(--present)"></i>Here ${h}</span>
-     ${e?`<span><i class="dot" style="background:var(--expected)"></i>Expected ${e}</span>`:''}
-     ${o?`<span><i class="dot" style="background:var(--absent)"></i>Gone home ${o}</span>`:''}
-     <span><i class="dot" style="background:var(--absent)"></i>Absent ${a}</span></div>
+     <span><i class="dot" style="background:var(--expected)"></i>Absent ${a}</span>
+     ${e?`<span><i class="dot plain"></i>To arrive ${e}</span>`:''}
+     ${o?`<span><i class="dot plain"></i>Gone home ${o}</span>`:''}</div>
     <div class="rowsplit">
      <span class="rs-b"><b>${e}</b><small>Still to arrive</small></span>
      <span class="rs-b"><b>${o}</b><small>Gone home</small></span>
@@ -978,7 +984,7 @@ function vMessages(){
     <div class="chips">${chip('all','All',S.threads.length)}${chip('family','Parents',n('family'))}${chip('staff','Staff',n('staff'))}</div>
     <div class="card list">${list.length?list.map(t=>`
       <div class="row" data-act="thread:${t.id}">
-       <span class="av"><i style="background:${t.unread?'var(--expected)':'var(--present)'}"></i>${ini(t.who)}</span>
+       <span class="av">${t.unread?'<i class="unreaddot"></i>':''}${ini(t.who)}</span>
        <span class="rt"><b>${t.who}</b><small>${t.kind==='staff'?t.role:t.kid} · \u201c${t.msgs[t.msgs.length-1].txt}\u201d</small></span>
        <span class="rr"><span class="tm${t.unread?' accent':' mute'}">${t.t}</span></span></div>`).join('')
       :'<div class="empty">No messages in this group.</div>'}</div>
@@ -1013,7 +1019,7 @@ function vChild(){
   const k=K(S.arg);
   return `${topbar(k.name,'Toddlers · 2 yr 4 mo','',true)}
    <div class="body pad">
-    <div class="card kidhero"><span class="av xl"><i style="background:${DOT[k.status]}"></i>${ini(k.name)}</span>
+    <div class="card kidhero"><span class="av xl">${dotFor(k.status)}${ini(k.name)}</span>
      <span class="kh-t"><b>${k.status==='here'?'Here since '+k.tin:k.status==='out'?'Went home '+k.tout:k.status==='expected'?'Not arrived yet':'Absent today'}</b>
      <small>${k.who?'With '+k.who:'No guardian recorded'}</small></span></div>
     ${(k.allergy||k.med)?`<div class="flags">${k.allergy?`<span class="flag warn">${ic('alert','ic sm','#7E5C2E','1.9')}Peanut allergy</span>`:''}${k.med?`<span class="flag">${ic('pill','ic sm','var(--ink-2)','1.9')}Inhaler, as needed</span>`:''}</div>`:''}
@@ -1068,7 +1074,7 @@ const SHEETS={
    ${d.who==='some'?`<div class="card list roomy pick">${S.kids.filter(k=>k.status==='here').slice(0,5).map(k=>`
      <div class="row" data-act="pick:${k.id}">
       <span class="cbx sq${d.picked.has(k.id)?' on':''}">${d.picked.has(k.id)?ic('check','ic sm','#fff','2.6'):''}</span>
-      <span class="av"><i style="background:var(--present)"></i>${ini(k.name)}</span>
+      <span class="av">${dotFor(k.status)}${ini(k.name)}</span>
       <span class="rt"><b>${k.name}</b></span></div>`).join('')}</div>`
     :`<p class="sh-note">${who}</p>`}
 
@@ -1089,7 +1095,7 @@ const SHEETS={
  note(){
   const k=K(S.arg);
   return `<span class="grab"></span>
-   <div class="sh-kid"><span class="av lg"><i style="background:${DOT[k.status]}"></i>${ini(k.name)}</span>
+   <div class="sh-kid"><span class="av lg">${dotFor(k.status)}${ini(k.name)}</span>
     <span class="rt"><b>${k.name}</b><small>${k.status==='here'?'Here since '+k.tin:'Not in yet'}</small></span></div>
    <span class="flabel">Note for today</span>
    <div class="card ta tall"><textarea id="nt" rows="3" placeholder="Pickup change, comfort item, mood…">${k.note}</textarea></div>
