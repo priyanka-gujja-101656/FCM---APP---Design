@@ -1039,17 +1039,23 @@ function vActivities(){
       :'<div class="empty">Nothing matches.<br><b class="linkish" data-act="fact:all">Clear the filters</b></div>'}</div>
    </div>${dock(list.length,S.feed.length,'entry','entries','Search activities')}`;
 }
-function vMessages(){
+function mthreads(){
   const scope=S.mscope||'all';
   const q=S.q.trim().toLowerCase();
-  const list=S.threads.filter(t=>(scope==='all'||t.kind===scope)&&
+  return S.threads.filter(t=>(scope==='all'||t.kind===scope)&&(!S.munread||t.unread)&&
     (!q||(t.who+' '+(t.kid||'')+' '+(t.role||'')+' '+t.msgs.map(m=>m.txt).join(' ')).toLowerCase().includes(q)));
+}
+function vMessages(){
+  const scope=S.mscope||'all';
+  const list=mthreads();
+  const nf=(S.mscope&&S.mscope!=='all'?1:0)+(S.munread?1:0);
   const n=k=>S.threads.filter(t=>t.kind===k).length;
   const chip=(id,lbl,c)=>`<span class="ch${scope===id?' on':''}" data-act="mscope:${id}">${lbl} ${c}</span>`;
   return `${topbar('Messages',unread()?`${unread()} waiting on you`:'All caught up',
-    `${searchBtn()}<button class="tb-btn" data-act="sheet:compose">${ic('plus')}</button>`)}
+    `${searchBtn()}<button class="ghost tb-inline" data-act="sheet:mfilter">Filters${nf?' ('+nf+')':''}</button>`)}
    <div class="body pad">
-    <div class="chips">${chip('all','All',S.threads.length)}${chip('family','Parents',n('family'))}${chip('staff','Staff',n('staff'))}</div>
+    <button class="primary" data-act="sheet:compose">${ic('plus','ic','currentColor','1.9')}New message</button>
+    <div class="chips">${chip('all','All',S.threads.length)}${chip('family','Parents',n('family'))}${chip('staff','Staff',n('staff'))}${S.munread?`<span class="ch on" data-act="munread">Unread ${unread()}</span>`:''}</div>
     <div class="card list">${list.length?list.map(t=>`
       <div class="row" data-act="thread:${t.id}">
        <span class="av">${t.unread?'<i class="unreaddot"></i>':''}${ini(t.who)}</span>
@@ -1203,6 +1209,26 @@ const SHEETS={
    <button class="primary" data-act="doprint">${ic('print','ic','currentColor','1.9')}Print</button>
    <button class="ghost" data-act="close">Save as PDF · Email to director</button>`;
  },
+
+ mfilter(){
+  const scope=S.mscope||'all';
+  const n=k=>S.threads.filter(t=>t.kind===k).length;
+  const res=mthreads().length;
+  return `<span class="grab"></span><h3 class="sh-h">Filter messages</h3>
+   <span class="flabel">Who it is from</span>
+   <div class="chips wrapc">
+    <span class="ch${scope==='all'?' on':''}" data-act="mscope:all">Everyone ${S.threads.length}</span>
+    <span class="ch${scope==='family'?' on':''}" data-act="mscope:family">Parents ${n('family')}</span>
+    <span class="ch${scope==='staff'?' on':''}" data-act="mscope:staff">Staff ${n('staff')}</span></div>
+   <span class="flabel">Status</span>
+   <div class="seg two"><span class="sg${S.munread?'':' on'}" data-act="munread:all">All</span>
+    <span class="sg${S.munread?' on':''}" data-act="munread:unread">Unread only ${unread()}</span></div>
+   <div class="card fieldset">
+    <div class="field"><span class="fl">From</span><span class="fv">Last 7 days ${ic('arrow','ic sm','var(--ink-3)')}</span></div>
+   </div>
+   <button class="primary" data-act="close">${ic('filter','ic','currentColor','1.8')}Show ${res} ${res===1?'thread':'threads'}</button>
+   <button class="ghost" data-act="mclear">Clear all filters</button>`;
+ },
  compose(){
   const to=S.cto||'family';
   return `<span class="grab"></span><h3 class="sh-h">New message</h3>
@@ -1272,7 +1298,7 @@ function doAct(a){
   const [cmd,arg]=a.split(':');
   const closeAll=()=>{document.querySelectorAll('.swipe.open').forEach(s=>s.classList.remove('open'));};
   switch(cmd){
-   case 'tab': S.tab=arg;S.sub=null;S.selecting=false;S.searchOpen=false;S.sel.clear();S.q='';S.filters.clear();closeSheet();render();break;
+   case 'tab': S.tab=arg;S.sub=null;S.selecting=false;S.searchOpen=false;S.sel.clear();S.q='';S.filters.clear();S.mscope='all';S.munread=false;closeSheet();render();break;
    case 'back': S.sub=null;render();break;
    case 'sheet': sheet(arg==='inout'?'inout':arg);break;
    case 'close': closeSheet();render(true);break;
@@ -1307,7 +1333,9 @@ function doAct(a){
    case 'fkid': if(arg==='all')S.filters.clear();else S.filters.has(arg)?S.filters.delete(arg):S.filters.add(arg);render(true);break;
    case 'fact': if(arg==='all')S.filters.clear();else S.filters.has(arg)?S.filters.delete(arg):S.filters.add(arg);
      if(openSheet)refreshSheet();render(true);break;
-   case 'mscope': S.mscope=arg;render(true);break;
+   case 'mscope': S.mscope=arg;if(openSheet)refreshSheet();render(true);break;
+   case 'munread': S.munread=(arg==='unread');if(openSheet)refreshSheet();render(true);break;
+   case 'mclear': S.mscope='all';S.munread=false;refreshSheet();render(true);break;
    case 'cto': S.cto=arg;refreshSheet();break;
    case 'docompose':{closeSheet();toast(S.cto==='room'?'Sent to 19 families':S.cto==='staff'?'Sent to your room staff':'Message sent');break;}
    case 'who': S.draft.who=arg;stash();refreshSheet();break;
