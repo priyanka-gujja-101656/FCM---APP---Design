@@ -1,0 +1,1251 @@
+<title>Attendance Row</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,300..500&family=Inter:wght@400;450;500;550;600;700&display=swap">
+<style>
+  :root{
+    --page-bg:#E7E9E2; --page-surface:#FBFBF8; --page-border:#D7DBD1;
+    --page-ink:#2C312B; --page-ink-2:#5B6259; --page-ink-3:#8D958A;
+
+    /* the one world: a low sun over ribboned green */
+    --sky-1:#FCF3D6; --sky-2:#F9E4C4; --sky-3:#E8EDF3; --sky-4:#DFEAE3;
+    --sun:#FBF4BE;
+    --g1:#D3E4D3; --g2:#C6DCC8; --g3:#BAD3BC; --g4:#AECBB1;
+    --cr:#DFE1CE; --cr2:#D8DEC9; --gl:#9FB8A0;
+
+    --ink:#2C312B; --ink-2:#57604F; --ink-3:#88917F;
+    --line:rgba(44,49,43,.09);
+    --card:rgba(255,255,255,.82);
+    --present:#4E7263; --amber:#B08A56; --absent:#AAAEA3;
+    --accent:#9A5F45;
+    --arc-track:rgba(44,49,43,.11); --arc-done:rgba(154,95,69,.36); --arc-tick:rgba(44,49,43,.19);
+    --r-lg:24px; --r-md:16px;
+  }
+  @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+    --page-bg:#171A16; --page-surface:#1F231E; --page-border:#333A31;
+    --page-ink:#EBEFE7; --page-ink-2:#B2BAAD; --page-ink-3:#828B7F;}}
+  :root[data-theme="dark"]{
+    --page-bg:#171A16; --page-surface:#1F231E; --page-border:#333A31;
+    --page-ink:#EBEFE7; --page-ink-2:#B2BAAD; --page-ink-3:#828B7F;}
+
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--page-bg);color:var(--page-ink);padding:48px 24px 72px;
+       font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1240px;margin:0 auto}
+  .eyebrow{font-size:11px;letter-spacing:.11em;text-transform:uppercase;color:var(--page-ink-3);font-weight:600;margin:0 0 12px}
+  header.intro{max-width:62ch;margin:0 0 8px}
+  header.intro h1{font-family:Newsreader,Georgia,serif;font-weight:400;font-size:clamp(28px,4vw,38px);
+    letter-spacing:-.02em;line-height:1.12;margin:0 0 14px;text-wrap:balance;color:var(--page-ink)}
+  header.intro p{margin:0 0 12px;font-size:15px;line-height:1.65;color:var(--page-ink-2)}
+
+  h2.sec{font-family:Newsreader,Georgia,serif;font-weight:400;font-size:24px;letter-spacing:-.015em;
+    margin:52px 0 4px;color:var(--page-ink);display:flex;align-items:baseline;gap:12px}
+  h2.sec span{font-family:Inter,sans-serif;font-size:11px;letter-spacing:.09em;text-transform:uppercase;
+    color:var(--page-ink-3);font-weight:600}
+  p.secsub{margin:0 0 24px;font-size:14px;line-height:1.6;color:var(--page-ink-2);max-width:60ch}
+
+  .rail{display:flex;gap:32px;overflow-x:auto;padding:4px 0 20px;scroll-snap-type:x proximity}
+  .frame{margin:0;flex:none;width:390px;scroll-snap-align:start}
+  figcaption{margin:16px 2px 0;font-size:12.5px;line-height:1.6;color:var(--page-ink-2);max-width:37ch}
+  figcaption b{display:block;font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;
+    color:var(--page-ink-3);margin-bottom:6px;font-variant-numeric:tabular-nums}
+
+  .device{width:390px;height:844px;position:relative;border-radius:50px;padding:10px;
+    background:linear-gradient(165deg,#343a33,#1e231e);
+    box-shadow:0 40px 70px -34px rgba(38,48,36,.48),0 0 0 1px rgba(0,0,0,.18)}
+  .screen{position:relative;width:100%;height:100%;border-radius:41px;overflow:hidden;color:var(--ink);
+    background:linear-gradient(180deg,var(--sky-1),var(--sky-2) 20%,var(--sky-3) 45%,var(--sky-4));
+    display:flex;flex-direction:column}
+  .glow{position:absolute;border-radius:50%;pointer-events:none;
+    background:radial-gradient(circle,rgba(253,249,212,.80),rgba(250,240,190,.26) 44%,rgba(250,240,190,0) 72%)}
+  .scene{position:absolute;inset:0;pointer-events:none}
+  .scene svg{display:block;width:100%;height:100%}
+  .haze{position:absolute;inset:0;pointer-events:none;
+    background:linear-gradient(180deg,rgba(253,252,250,.16),rgba(253,253,250,.10) 30%,rgba(252,253,250,.22) 62%,rgba(252,253,250,.40))}
+
+  .ic{width:20px;height:20px;display:block;flex:none}
+  .ic.sm{width:16px;height:16px}
+  .batt{width:20px;height:11px}
+  .status{position:relative;z-index:3;display:flex;justify-content:space-between;align-items:center;
+    padding:15px 28px 0;font-size:13px;font-weight:600;font-variant-numeric:tabular-nums}
+  .status .right{display:flex;gap:6px;align-items:center}
+
+  .head{position:relative;z-index:3;padding:16px 20px 0;display:flex;align-items:center;justify-content:space-between}
+  .room{display:flex;align-items:center;gap:10px}
+  .glyph{width:32px;height:32px;border-radius:10px;background:rgba(255,255,255,.55);display:grid;place-items:center}
+  .room-name{display:block;font-size:14px;font-weight:600;letter-spacing:-.01em}
+  .room-sub{display:block;font-size:11px;color:var(--ink-2);margin-top:2px}
+  .avatar{width:34px;height:34px;border-radius:50%;background:var(--present);color:#fff;font-size:12px;
+    font-weight:600;display:grid;place-items:center;box-shadow:0 0 0 3px rgba(255,255,255,.45)}
+
+  .topbar{position:relative;z-index:3;padding:14px 16px 12px;display:flex;align-items:center;gap:10px}
+  .tb-btn{width:34px;height:34px;border:0;border-radius:11px;background:rgba(255,255,255,.55);
+    display:grid;place-items:center;color:var(--ink);flex:none}
+  .tb-mid{flex:1;min-width:0}
+  .tb-title{display:block;font-size:15px;font-weight:600;letter-spacing:-.012em}
+  .tb-sub{display:block;font-size:11px;color:var(--ink-2);margin-top:2px}
+  .tb-right{display:flex;gap:6px;align-items:center;color:var(--ink-2);flex:none}
+  .tb-txt{font-size:13px;font-weight:600;color:var(--accent);padding:0 4px}
+
+  .ahead{padding:16px 6px 8px}
+  .ahead h3{font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3);
+    font-weight:600;margin:0 0 4px;padding:0 12px}
+  .ahead .moment{padding:10px 12px}
+  .ahead .moment+.moment{border-top:1px solid var(--line)}
+  .body{position:relative;z-index:3;flex:1;min-height:0;overflow:hidden;padding:6px 16px 0;
+    display:flex;flex-direction:column;gap:11px}
+  .body.pad{padding-top:0}
+  .body.dim{opacity:.45}
+  .card{background:var(--card);backdrop-filter:blur(16px) saturate(1.05);-webkit-backdrop-filter:blur(16px) saturate(1.05);
+    border-radius:var(--r-lg);border:1px solid rgba(255,255,255,.5);box-shadow:0 14px 30px -20px rgba(40,55,38,.42)}
+
+  .greet{padding:18px 19px 17px}
+  .greet h2{font-family:Newsreader,Georgia,serif;font-weight:400;font-size:22px;line-height:1.26;
+    letter-spacing:-.015em;margin:0 0 7px;color:var(--ink)}
+  .greet p{margin:0;font-size:13px;line-height:1.5;color:var(--ink-2)}
+  .greet b{color:var(--ink);font-weight:600}
+
+  .pulse{padding:17px 19px 18px}
+  .pulse-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:13px}
+  .pulse-count{display:block;font-size:27px;font-weight:450;letter-spacing:-.025em;line-height:1;font-variant-numeric:tabular-nums}
+  .pulse-count em{font-style:normal;font-size:14px;color:var(--ink-3);font-weight:400}
+  .pulse-label{display:block;font-size:11.5px;color:var(--ink-2);margin-top:6px}
+  .chip{font-size:10px;letter-spacing:.05em;text-transform:uppercase;font-weight:600;color:var(--ink-2);
+    background:rgba(255,255,255,.55);padding:5px 9px;border-radius:99px;white-space:nowrap;margin-top:2px}
+  .bar{display:flex;gap:3px;height:6px;margin-bottom:12px}
+  .bar i{border-radius:4px;display:block}
+  .legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:11px;color:var(--ink-2)}
+  .legend span{display:flex;align-items:center;gap:6px}
+  .dot{width:6px;height:6px;border-radius:50%;display:inline-block}
+
+  .primary{margin-top:15px;width:100%;border:0;font-family:inherit;background:var(--accent);color:#FFFDFA;
+    font-size:14.5px;font-weight:550;letter-spacing:-.005em;padding:14px;border-radius:var(--r-md);
+    display:flex;align-items:center;justify-content:center;gap:9px;box-shadow:0 8px 18px -12px rgba(70,40,25,.6)}
+  .ghost{margin-top:8px;width:100%;background:none;border:0;font-family:inherit;font-size:12px;
+    font-weight:500;color:var(--ink-2);padding:5px}
+  .primary:focus-visible,.ghost:focus-visible,.nav a:focus-visible,.tb-btn:focus-visible,.sb-go:focus-visible
+    {outline:2px solid var(--accent);outline-offset:3px}
+
+  .moment{display:flex;align-items:center;gap:12px;padding:13px 16px}
+  .mi{width:30px;height:30px;border-radius:10px;flex:none;background:rgba(255,255,255,.6);display:grid;place-items:center}
+  .mt{flex:1;min-width:0}
+  .mt b{display:block;font-size:13px;font-weight:550;letter-spacing:-.005em}
+  .mt small{display:block;font-size:11px;color:var(--ink-3);margin-top:2px}
+  .mw{font-size:12px;color:var(--ink-2);font-variant-numeric:tabular-nums;flex:none}
+
+  /* search + chips */
+  .search{display:flex;align-items:center;gap:9px;padding:11px 14px;border-radius:14px;
+    background:rgba(255,255,255,.55);font-size:13px;color:var(--ink-3)}
+  .chips{display:flex;gap:7px;overflow:hidden;flex:none}
+  .ch{font-size:11.5px;font-weight:500;padding:7px 12px;border-radius:99px;white-space:nowrap;
+    background:rgba(255,255,255,.5);color:var(--ink-2)}
+  .ch.on{background:var(--accent);color:#FFFDFA;font-weight:550}
+
+  /* rows */
+  .list{padding:6px 4px;overflow:hidden}
+  .list.tight{padding:0 4px 6px}
+  .lhead{display:flex;justify-content:space-between;padding:11px 14px 8px;font-size:10px;
+    letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);font-weight:600;border-bottom:1px solid var(--line)}
+  .lhead span+span{padding-left:14px}
+  .row{display:flex;align-items:center;gap:11px;padding:10px 12px}
+  .row+.row{border-top:1px solid var(--line)}
+  .row.picked{background:rgba(255,255,255,.38);border-radius:13px}
+  .av{position:relative;width:34px;height:34px;border-radius:50%;flex:none;display:grid;place-items:center;
+    background:rgba(255,255,255,.7);font-size:11.5px;font-weight:600;color:var(--ink-2);
+    box-shadow:inset 0 0 0 1px rgba(44,49,43,.06)}
+  .av.lg{width:44px;height:44px;font-size:14px}
+  .av i{position:absolute;right:-1px;bottom:-1px;width:10px;height:10px;border-radius:50%;
+    box-shadow:0 0 0 2px rgba(253,254,251,.94)}
+  .av.lg i{width:12px;height:12px}
+  .rt{flex:1;min-width:0}
+  .rt b{display:block;font-size:13px;font-weight:550;letter-spacing:-.005em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .rt small{display:block;font-size:11px;color:var(--ink-3);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .rr{display:flex;align-items:center;gap:12px;flex:none}
+  .tm{font-size:12px;color:var(--ink-2);font-variant-numeric:tabular-nums;min-width:34px;text-align:right}
+  .tm.mute{color:var(--ink-3)}
+  .tm.accent{color:var(--accent);font-weight:600}
+  .mini{width:30px;height:30px;border-radius:10px;border:1px solid rgba(154,95,69,.3);
+    background:rgba(255,255,255,.6);display:grid;place-items:center}
+  .mini.wide{width:auto;padding:0 12px;font-family:inherit;font-size:11.5px;font-weight:600;color:var(--accent)}
+  .cbx{width:21px;height:21px;border-radius:7px;flex:none;display:grid;place-items:center;
+    box-shadow:inset 0 0 0 1.5px rgba(44,49,43,.22)}
+  .cbx.on{background:var(--accent);box-shadow:none}
+  .pillv{font-size:11px;font-weight:600;color:var(--present);background:rgba(78,114,99,.13);
+    padding:4px 9px;border-radius:99px}
+  .pillv.warn{color:#7E5C2E;background:rgba(176,138,86,.2)}
+
+  /* summary tiles */
+  .sum{display:grid;grid-template-columns:repeat(4,1fr);padding:14px 8px}
+  .su{text-align:center;border-left:1px solid var(--line)}
+  .su:first-child{border-left:0}
+  .su b{display:block;font-size:19px;font-weight:450;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+  .su small{display:block;font-size:10px;color:var(--ink-3);margin-top:4px;letter-spacing:.03em}
+
+  /* sheet */
+  .scrim{position:absolute;inset:0;z-index:5;background:rgba(32,42,30,.18);backdrop-filter:blur(1.5px)}
+  .sheet{position:absolute;left:0;right:0;bottom:0;z-index:6;padding:10px 20px 96px;
+    background:rgba(253,254,251,.95);backdrop-filter:blur(26px);-webkit-backdrop-filter:blur(26px);
+    border-radius:28px 28px 41px 41px;box-shadow:0 -20px 50px -20px rgba(38,52,36,.34)}
+  .grab{display:block;width:38px;height:4px;border-radius:99px;background:rgba(44,49,43,.16);margin:0 auto 16px}
+  .sh-h{font-family:Newsreader,Georgia,serif;font-weight:400;font-size:20px;margin:0 0 14px;letter-spacing:-.015em}
+  .sh-kid{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+  .fieldset{padding:2px 14px}
+  .field{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 0;border-bottom:1px solid var(--line)}
+  .field:last-child{border-bottom:0}
+  .fl{font-size:12px;color:var(--ink-3);flex:none}
+  .fv{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:500;text-align:right}
+  .fv.ok{color:var(--present)}
+  .alertline{display:flex;gap:9px;align-items:flex-start;margin-top:14px;padding:11px 13px;border-radius:13px;
+    background:rgba(176,138,86,.15);font-size:11.5px;line-height:1.45;color:var(--ink-2)}
+  .prev{display:flex;justify-content:space-between;margin-top:16px;padding:12px 14px;border-radius:13px;
+    background:rgba(44,49,43,.05);font-size:12px}
+  .pv-l{color:var(--ink-3)}
+  .pv-r{font-weight:550;font-variant-numeric:tabular-nums}
+
+  /* selection bar */
+  .selbar{position:relative;z-index:4;flex:none;display:flex;align-items:center;justify-content:space-between;
+    gap:12px;padding:14px 18px 30px;background:rgba(253,254,251,.9);
+    backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);border-top:1px solid rgba(255,255,255,.6)}
+  .sb-t b{display:block;font-size:13.5px;font-weight:600}
+  .sb-t small{display:block;font-size:11px;color:var(--ink-3);margin-top:2px}
+  .sb-go{border:0;font-family:inherit;background:var(--accent);color:#FFFDFA;font-size:13.5px;font-weight:550;
+    padding:12px 18px;border-radius:13px;display:flex;align-items:center;gap:8px;flex:none}
+
+  /* tiles */
+  .tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
+  .tile{background:var(--card);border:1px solid rgba(255,255,255,.5);border-radius:18px;padding:13px 10px 14px;
+    display:flex;flex-direction:column;gap:9px;box-shadow:0 10px 24px -20px rgba(40,55,38,.4)}
+  .tl-i{width:28px;height:28px;border-radius:9px;background:rgba(255,255,255,.6);display:grid;place-items:center}
+  .tile b{font-size:12px;font-weight:550;letter-spacing:-.005em;line-height:1.2}
+  .tl-n{font-size:10.5px;color:var(--ink-3)}
+
+  /* segmented */
+  .seg{display:grid;grid-template-columns:repeat(4,1fr);gap:3px;padding:3px;border-radius:13px;
+    background:rgba(255,255,255,.5)}
+  .sg{text-align:center;font-size:12px;font-weight:500;padding:9px 0;border-radius:10px;color:var(--ink-2)}
+  .sg.on{background:var(--accent);color:#FFFDFA;font-weight:600}
+
+  /* relocate */
+  .movefrom{display:flex;align-items:center;gap:12px}
+  .mf-a,.mf-b{flex:1;padding:13px 14px;border-radius:16px;background:var(--card);border:1px solid rgba(255,255,255,.5);
+    font-size:13px;font-weight:600;letter-spacing:-.005em}
+  .mf-b{box-shadow:inset 0 0 0 1.5px rgba(154,95,69,.28)}
+  .mf-a small,.mf-b small{display:block;font-size:10.5px;font-weight:400;color:var(--ink-3);margin-top:3px}
+  .ratio{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 15px;
+    border-radius:14px;background:rgba(78,114,99,.12);font-size:11.5px}
+  .rl{color:var(--ink-2)}
+  .rv{font-weight:600}
+  .rv.ok{color:var(--present)}
+
+  /* feed */
+  .feed{padding:4px 4px;overflow:hidden}
+  .fe{display:flex;align-items:flex-start;gap:11px;padding:13px 12px}
+  .fe+.fe{border-top:1px solid var(--line)}
+  .fi{width:30px;height:30px;border-radius:10px;flex:none;background:rgba(255,255,255,.62);display:grid;place-items:center}
+  .fi.warn{background:rgba(176,138,86,.2)}
+  .ft{flex:1;min-width:0}
+  .ft b{display:block;font-size:13px;font-weight:550;letter-spacing:-.005em}
+  .ft small{display:block;font-size:11px;line-height:1.45;color:var(--ink-3);margin-top:3px}
+  .fw{font-size:11.5px;color:var(--ink-2);font-variant-numeric:tabular-nums;flex:none}
+
+  /* thread */
+  .thread{gap:12px;padding-top:8px}
+  .daymark{text-align:center;font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3)}
+  .bub{max-width:82%;padding:12px 15px;border-radius:19px;font-size:13px;line-height:1.5}
+  .bub p{margin:0}
+  .bub .bt{display:block;font-size:10px;margin-top:7px;opacity:.75;font-variant-numeric:tabular-nums}
+  .bub.in{align-self:flex-start;background:rgba(255,255,255,.78);border-bottom-left-radius:7px;color:var(--ink)}
+  .bub.out{align-self:flex-end;background:var(--accent);color:#FFFDFA;border-bottom-right-radius:7px}
+  .ctx{display:flex;align-items:center;gap:11px;padding:12px 14px}
+  .ctx span{flex:1;min-width:0}
+  .ctx b{display:block;font-size:12.5px;font-weight:600}
+  .ctx small{display:block;font-size:11px;color:var(--ink-3);margin-top:2px}
+  .composer{position:relative;z-index:4;flex:none;display:flex;gap:10px;align-items:center;padding:12px 16px 14px}
+  .cinput{flex:1;padding:12px 15px;border-radius:99px;background:rgba(255,255,255,.7);font-size:13px;color:var(--ink-3)}
+  .csend{width:40px;height:40px;border:0;border-radius:50%;background:var(--accent);display:grid;place-items:center;flex:none}
+
+  .nav{position:relative;z-index:4;flex:none;margin-top:12px;background:rgba(253,254,251,.84);
+    backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);border-top:1px solid rgba(255,255,255,.6);
+    padding:11px 10px 26px;display:grid;grid-template-columns:repeat(4,1fr)}
+  .nav a{position:relative;text-decoration:none;color:var(--ink-3);display:flex;flex-direction:column;
+    align-items:center;gap:5px;font-size:10px;font-weight:500}
+  .nav a.on{color:var(--accent)}
+  .badge{position:absolute;top:-4px;left:calc(50% + 5px);min-width:15px;height:15px;padding:0 4px;
+    border-radius:99px;background:var(--accent);color:#FFFDFA;font-size:9px;font-weight:700;
+    display:grid;place-items:center;font-variant-numeric:tabular-nums}
+  .nav.five{grid-template-columns:repeat(5,1fr)}
+  .nav.five a{font-size:9.5px}
+
+  .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
+  .stat{background:var(--card);border:1px solid rgba(255,255,255,.5);border-radius:18px;padding:14px 12px;
+    box-shadow:0 10px 24px -20px rgba(40,55,38,.4)}
+  .stat.ok{box-shadow:inset 0 0 0 1.5px rgba(78,114,99,.28),0 10px 24px -20px rgba(40,55,38,.4)}
+  .st-n{display:block;font-size:22px;font-weight:450;letter-spacing:-.025em;font-variant-numeric:tabular-nums}
+  .st-l{display:block;font-size:11.5px;font-weight:550;margin-top:6px}
+  .st-d{display:block;font-size:10px;color:var(--ink-3);margin-top:3px}
+  .mi.warn{background:rgba(176,138,86,.2)}
+  .ghost.line{display:flex;align-items:center;justify-content:center;gap:7px;
+    border:1px dashed rgba(44,49,43,.18);border-radius:14px;padding:11px}
+  .hint{margin:2px 4px 0;font-size:11px;line-height:1.45;color:var(--ink-3)}
+
+  .swipe{display:flex;align-items:stretch;gap:6px;padding:0 2px}
+  .sw-row{flex:1;min-width:0;transform:translateX(-6px)}
+  .sw-row .row{padding-left:10px}
+  .sw-acts{display:flex;gap:5px;flex:none;align-items:center}
+  .sw-a{width:58px;border-radius:13px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    gap:4px;font-size:9.5px;font-weight:600;color:#FFFDFA;letter-spacing:.02em;align-self:stretch}
+  .sw-a.absent{background:#9AA093}
+  .sw-a.relo{background:var(--accent)}
+
+  .kidhero{display:flex;align-items:center;gap:14px;padding:16px 18px}
+  .av.xl{width:52px;height:52px;font-size:16px}
+  .av.xl i{width:13px;height:13px}
+  .kh-t b{display:block;font-size:14px;font-weight:600}
+  .kh-t small{display:block;font-size:11.5px;color:var(--ink-3);margin-top:3px}
+  .flags{display:flex;gap:7px;flex-wrap:wrap}
+  .flag{display:flex;align-items:center;gap:6px;font-size:11.5px;font-weight:550;color:var(--ink-2);
+    background:rgba(255,255,255,.6);padding:7px 11px;border-radius:99px}
+  .flag.warn{color:#7E5C2E;background:rgba(176,138,86,.22)}
+
+  .flabel{font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3);
+    font-weight:600;margin:3px 2px -3px}
+  .chips.wrapc{flex-wrap:wrap;overflow:visible;gap:6px}
+  .seg.two{grid-template-columns:repeat(2,1fr)}
+  .ta{padding:13px 16px 15px}
+  .ta.tall{padding-bottom:36px}
+  .ta-l{display:flex;align-items:center;gap:6px;font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;
+    color:var(--ink-3);font-weight:600;margin-bottom:7px}
+  .ta p{margin:0;font-size:12.5px;line-height:1.5;color:var(--ink-2)}
+  .ta.int{background:rgba(44,49,43,.055);border-style:dashed;border-color:rgba(44,49,43,.14)}
+  .rv.warn{color:#7E5C2E}
+  .ratio:has(.rv.warn){background:rgba(176,138,86,.16)}
+
+  .photos{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
+  .ph{aspect-ratio:1;border-radius:14px;background:linear-gradient(150deg,var(--g1),var(--cr) 55%,var(--g3));
+    box-shadow:inset 0 0 0 1px rgba(255,255,255,.5)}
+  .attach{display:flex;align-items:center;gap:9px;padding:12px 15px;border-radius:14px;
+    border:1px dashed rgba(154,95,69,.32);font-size:12.5px;font-weight:500;color:var(--accent)}
+
+  .placeholder{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;
+    border:1px dashed rgba(44,49,43,.18);border-radius:22px;margin:4px 0 8px;color:var(--ink-3)}
+  .pl-i{width:44px;height:44px;border-radius:14px;background:rgba(255,255,255,.55);display:grid;place-items:center}
+  .placeholder b{font-size:14px;font-weight:600;color:var(--ink-2)}
+  .placeholder small{font-size:11.5px}
+  .quick{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:15px}
+  .quick .q{margin-top:0;padding:13px 8px;font-size:13px;gap:7px}
+  .second{border:1px solid rgba(154,95,69,.32);background:rgba(255,255,255,.62);color:var(--accent);
+    font-family:inherit;font-weight:550;border-radius:var(--r-md);
+    display:flex;align-items:center;justify-content:center}
+  .chip.ok{color:var(--present);background:rgba(78,114,99,.14)}
+  .sheet.tall{padding-top:10px}
+  .sheet .seg{margin-bottom:12px}
+  .sh-search{margin-bottom:12px}
+  .sheet-tiles{gap:8px}
+  .sheet-tiles .tile{padding:11px 9px 12px;border-radius:16px}
+  .sheet .ghost{margin-top:12px}
+  .legendkey{margin:56px 0 0;display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+  .key{border-top:1px solid var(--page-border);padding-top:14px}
+  .key b{display:block;font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--page-ink-3);margin-bottom:8px}
+  .key p{margin:0;font-size:13px;line-height:1.6;color:var(--page-ink-2)}
+  @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+  /* ===== interactive shell ===== */
+  body{display:flex;flex-direction:column;align-items:center;padding:40px 20px 60px}
+  .stage{display:flex;flex-direction:column;align-items:center;gap:22px}
+  .device{position:sticky;top:24px}
+  .screen{cursor:default}
+  .body{overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-bottom:14px}
+  .body::-webkit-scrollbar{display:none}
+
+  button,.ch,.sg,.tile,.row,.fe,.moment,.nav a,.mini,.sw-a,.cbx,.flag,.attach,.tl-i{cursor:pointer}
+  .ch,.sg,.tile,.row,.fe,.moment,.nav a{-webkit-tap-highlight-color:transparent;user-select:none}
+  .tile:active,.row:active,.fe:active,.moment:active{transform:scale(.985)}
+  .tile,.row,.fe,.moment,.ch,.sg,.primary,.second,.sb-go{transition:transform .12s ease,background .16s ease,color .16s ease,opacity .16s ease}
+  .primary:active,.second:active,.sb-go:active{transform:scale(.98)}
+
+  /* route transitions */
+  .route{display:flex;flex-direction:column;flex:1;min-height:0}
+  .route.enter{animation:fade .22s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+
+  /* sheets */
+  .scrim{opacity:0;pointer-events:none;transition:opacity .22s ease}
+  .scrim.on{opacity:1;pointer-events:auto}
+  .sheet{transform:translateY(102%);transition:transform .3s cubic-bezier(.32,.72,0,1);max-height:86%;
+    overflow-y:auto;scrollbar-width:none}
+  .sheet::-webkit-scrollbar{display:none}
+  .sheet.on{transform:none}
+
+  /* toast */
+  .toast{position:absolute;left:16px;right:16px;bottom:96px;z-index:9;
+    background:rgba(38,44,37,.93);color:#F4F6F1;border-radius:15px;padding:13px 16px;
+    font-size:12.5px;font-weight:500;display:flex;align-items:center;gap:9px;
+    opacity:0;transform:translateY(10px);pointer-events:none;transition:all .26s ease;
+    box-shadow:0 14px 30px -14px rgba(20,30,18,.6)}
+  .toast.on{opacity:1;transform:none}
+  .toast b{font-weight:600}
+
+  /* live rows */
+  .row{border-radius:13px}
+  .row:hover{background:rgba(255,255,255,.34)}
+  .row.gone{opacity:.55}
+  .swipe{position:relative;overflow:hidden;border-radius:13px}
+  .sw-row{transform:none;transition:transform .26s cubic-bezier(.32,.72,0,1)}
+  .swipe.open .sw-row{transform:translateX(-124px)}
+  .sw-acts{position:absolute;right:2px;top:2px;bottom:2px}
+  .searchbox{display:flex;align-items:center;gap:9px;padding:11px 14px;border-radius:14px;
+    background:rgba(255,255,255,.6)}
+  .searchbox input{flex:1;border:0;background:none;font-family:inherit;font-size:13px;color:var(--ink);outline:none;min-width:0}
+  .searchbox input::placeholder{color:var(--ink-3)}
+  .empty{text-align:center;font-size:12px;color:var(--ink-3);padding:26px 10px}
+
+  .ta textarea{width:100%;border:0;background:none;font-family:inherit;font-size:12.5px;line-height:1.5;
+    color:var(--ink-2);outline:none;resize:none}
+  .cinput{border:0;font-family:inherit;outline:none}
+  .cinput::placeholder{color:var(--ink-3)}
+
+  .badge.hide{display:none}
+  .fe.new{animation:pop .4s ease}
+  @keyframes pop{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+
+  /* page chrome */
+  .lead{max-width:52ch;text-align:center;margin:0 0 4px}
+  .lead .eyebrow{margin-bottom:10px}
+  .lead h1{font-family:Newsreader,Georgia,serif;font-weight:400;font-size:30px;letter-spacing:-.02em;
+    margin:0 0 10px;color:var(--page-ink)}
+  .lead p{margin:0;font-size:14px;line-height:1.6;color:var(--page-ink-2)}
+  .try{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;max-width:640px}
+  .try span{font-size:12px;color:var(--page-ink-2);background:var(--page-surface);
+    border:1px solid var(--page-border);border-radius:99px;padding:7px 13px}
+  .try b{color:var(--page-ink);font-weight:600}
+
+  /* ===== NPDS buttons: primary outlined + secondary outlined only ===== */
+  :root{
+    --npds-blue-100:#e6f3fb; --npds-blue-200:#cae7fa; --npds-blue-500:#189dd2;
+    --npds-blue-600:#037aa7; --npds-blue-700:#056488;
+    --npds-gray-200:#e1e2e6; --npds-gray-500:#8a919f; --npds-gray-600:#6d727e; --npds-gray-700:#5a5f68;
+    --npds-fill:#ffffff; --npds-radius:4px;
+    /* the single interactive colour, replacing the terracotta accent */
+    --accent:var(--npds-blue-700);
+    --accent-line:var(--npds-blue-500);
+    --arc-done:rgba(24,157,210,.34);
+  }
+  @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--npds-fill:#ffffff}}
+
+  .primary,.second,.ghost,.sb-go,.mini,.csend{
+    font-family:inherit;font-weight:500;letter-spacing:0;
+    border-radius:var(--npds-radius);box-shadow:none;transition:background .14s ease,border-color .14s ease,color .14s ease;
+  }
+  /* primary, outlined */
+  .primary,.sb-go{
+    min-height:44px;padding:11px 16px;background:rgba(255,255,255,.92);
+    border:1px solid var(--npds-blue-500);color:var(--npds-blue-700);
+    display:flex;align-items:center;justify-content:center;gap:9px;font-size:14.5px;
+  }
+  .primary:hover,.sb-go:hover{background:var(--npds-blue-100);border-color:var(--npds-blue-700)}
+  .primary:active,.sb-go:active{background:var(--npds-blue-200);border-color:var(--npds-blue-700);transform:none}
+  .primary.q{min-height:44px;padding:11px 8px;font-size:13px;margin-top:0}
+  .sb-go{flex:none;min-width:52px;padding:11px 14px}
+
+  /* secondary, outlined */
+  .second,.ghost,.mini,.csend{
+    background:rgba(255,255,255,.92);border:1px solid var(--npds-gray-500);color:var(--npds-gray-700);
+  }
+  .second,.ghost{min-height:44px;padding:11px 16px;display:flex;align-items:center;justify-content:center;gap:9px}
+  .second{font-size:14.5px}
+  .second.q{min-height:44px;padding:11px 8px;font-size:13px;margin-top:0}
+  .ghost{width:100%;margin-top:9px;font-size:13px}
+  .second:hover,.ghost:hover,.mini:hover,.csend:hover{background:#f0f1f2;border-color:var(--npds-gray-700);color:var(--npds-gray-700)}
+  .second:active,.ghost:active,.mini:active,.csend:active{background:var(--npds-gray-200);transform:none}
+  .second svg{stroke:var(--npds-gray-700)!important}
+  .mini{width:36px;height:36px;min-height:36px;display:grid;place-items:center;padding:0}
+  .mini svg{stroke:var(--npds-blue-700)!important}
+  .mini.wide{width:auto;min-width:74px;padding:0 12px;font-size:12px;color:var(--npds-blue-700)}
+  .csend{width:44px;height:44px;min-height:44px;border-radius:var(--npds-radius);display:grid;place-items:center;flex:none}
+  .csend svg{stroke:var(--npds-blue-700)!important}
+  .tb-btn{border-radius:var(--npds-radius)}
+  .tb-txt{color:var(--npds-blue-700)}
+
+  /* selected states follow the outlined language */
+  .ch.on{background:var(--npds-blue-100);border:1px solid var(--npds-blue-500);color:var(--npds-blue-700);
+    font-weight:500;padding:6px 11px}
+  .ch{border:1px solid transparent;padding:6px 11px}
+  .sg.on{background:var(--npds-blue-100);box-shadow:inset 0 0 0 1px var(--npds-blue-500);color:var(--npds-blue-700);font-weight:500}
+  .seg{border-radius:var(--npds-radius)}
+  .sg{border-radius:2px}
+  .nav a.on{color:var(--npds-blue-700)}
+  .badge{background:var(--npds-blue-600)}
+  .tm.accent{color:var(--npds-blue-700)}
+  .bub.out{background:var(--npds-blue-600);color:#fff}
+  .flag,.attach{border-radius:var(--npds-radius)}
+  .attach{border:1px dashed var(--npds-gray-500);color:var(--npds-gray-700)}
+  .attach svg{stroke:var(--npds-gray-700)!important}
+  .tl-i svg{stroke:var(--npds-blue-700)!important}
+  .mf-b{box-shadow:inset 0 0 0 1.5px var(--npds-blue-500)}
+  .sw-a.relo{background:var(--npds-blue-600)}
+  .quick{gap:9px}
+
+  /* ===== home: cards sit lower, less dead space ===== */
+  .body.home{justify-content:center;padding-top:26px;padding-bottom:22px;gap:13px}
+
+  /* ===== bigger bottom nav ===== */
+  .nav{padding:13px 8px 30px}
+  .nav.five a{font-size:10.5px;gap:6px}
+  .nav a .ic{width:24px;height:24px}
+  .badge{top:-3px;left:calc(50% + 7px);min-width:16px;height:16px;font-size:9.5px}
+
+  /* ===== corrected against .npds-button: radius-full, 1px border, size ramp ===== */
+  :root{ --npds-radius:999px; }
+  .primary,.second,.ghost,.sb-go,.mini,.csend,.tb-btn{border-radius:999px}
+  /* lg = 48px min-height, body-lg */
+  .primary,.second,.ghost{min-height:48px;padding:12px 20px;font-size:15px;column-gap:8px;border-width:1px}
+  .primary.q,.second.q{min-height:48px;padding:12px 10px;font-size:13.5px}
+  /* md = 36px min-height, body-md */
+  .sb-go{min-height:36px;min-width:36px;padding:9px 16px;font-size:14px}
+  .ghost{min-height:36px;padding:9px 18px;font-size:13px;width:auto;margin:9px auto 0;display:flex}
+  .mini{width:36px;height:36px;min-height:36px;border-radius:999px}
+  .csend{width:44px;height:44px;min-height:44px;border-radius:999px}
+  .tb-btn{width:36px;height:36px;border-radius:999px}
+  /* chips and segments follow the pill language too */
+  .ch,.ch.on{border-radius:999px}
+  .seg{border-radius:999px;padding:4px}
+  .sg{border-radius:999px}
+  .flag,.attach{border-radius:999px}
+  .attach{padding:12px 18px}
+  .sw-a{border-radius:999px}
+  .cbx{border-radius:999px}
+  .quick{gap:10px}
+  .primary:focus-visible,.second:focus-visible,.ghost:focus-visible,.sb-go:focus-visible,
+  .mini:focus-visible,.csend:focus-visible{outline:2px solid var(--npds-blue-500);outline-offset:2px}
+
+  /* ================= TYPE SCALE: legible, roomier ================= */
+  .screen{font-size:15px;line-height:1.5}
+  .status{font-size:14px;padding:16px 26px 0}
+
+  .topbar{padding:16px 18px 14px;gap:12px}
+  .tb-title{font-size:17px;letter-spacing:-.014em}
+  .tb-sub{font-size:12.5px;margin-top:3px}
+  .ghost.tb-inline{min-height:34px;padding:7px 15px;font-size:13.5px;margin:0;width:auto}
+
+  .head{padding:18px 20px 2px}
+  .room-name{font-size:15.5px}
+  .room-sub{font-size:12.5px;margin-top:3px}
+  .avatar{width:40px;height:40px;font-size:13.5px}
+
+  .body{padding:10px 18px 0;gap:14px}
+  .body.pad{padding-top:6px}
+
+  .greet{padding:22px 22px 20px}
+  .greet h2{font-size:25px;line-height:1.24;margin:0 0 9px}
+  .greet p{font-size:15px;line-height:1.5}
+
+  .pulse{padding:22px 22px 22px}
+  .pulse-top{margin-bottom:16px}
+  .pulse-count{font-size:34px}
+  .pulse-count em{font-size:16px}
+  .pulse-label{font-size:13.5px;margin-top:7px}
+  .chip{font-size:11.5px;padding:6px 11px}
+  .bar{height:8px;margin-bottom:16px}
+  .legend{font-size:12.5px;gap:8px 16px}
+  .dot{width:8px;height:8px}
+
+  /* home: three small stats inside the second card, making it taller */
+  .rowsplit{display:grid;grid-template-columns:repeat(3,1fr);margin-top:18px;padding-top:16px;
+    border-top:1px solid var(--line)}
+  .rs-b{text-align:center;border-left:1px solid var(--line)}
+  .rs-b:first-child{border-left:0}
+  .rs-b b{display:block;font-size:20px;font-weight:450;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+  .rs-b small{display:block;font-size:11.5px;color:var(--ink-3);margin-top:5px}
+  .quick{margin-top:18px;gap:10px}
+
+  .ahead{padding:20px 8px 12px}
+  .ahead h3{font-size:12px;margin:0 0 8px;padding:0 14px}
+  .moment{padding:13px 14px;gap:13px}
+  .mi{width:36px;height:36px;border-radius:12px}
+  .mt b{font-size:15px}
+  .mt small{font-size:12.5px;margin-top:3px}
+  .mw{font-size:13.5px}
+
+  .searchbox{padding:13px 16px;gap:11px}
+  .searchbox input{font-size:15px}
+  .ch{font-size:13px;padding:8px 14px}
+  .chips{gap:8px;padding:1px 0}
+  .sg{font-size:14px;padding:10px 0}
+  .seg{padding:4px;gap:4px}
+  .seg.three{grid-template-columns:repeat(3,1fr)}
+  .seg.big .sg{display:flex;align-items:center;justify-content:center;gap:8px;padding:13px 0;font-size:14.5px}
+
+  .list{padding:6px 6px}
+  .list.roomy .row{padding:14px 12px}
+  .row{padding:13px 12px;gap:13px}
+  .av{width:40px;height:40px;font-size:13px}
+  .av i{width:12px;height:12px;right:-1px;bottom:-1px}
+  .av.lg{width:48px;height:48px;font-size:15px}
+  .av.xl{width:60px;height:60px;font-size:18px}
+  .rt b{font-size:15px}
+  .rt small{font-size:12.5px;margin-top:3px}
+  .rr{gap:12px}
+  .tm{font-size:13.5px;min-width:42px}
+  .lhead{padding:13px 16px 10px;font-size:11.5px}
+  .empty{font-size:14px;padding:34px 14px;line-height:1.6}
+  .hint{font-size:13px;line-height:1.55;margin:0 4px}
+  .linkish{color:var(--npds-blue-700);font-weight:600;cursor:pointer;text-decoration:underline;
+    text-decoration-thickness:1px;text-underline-offset:2px}
+
+  /* checkbox: square, not a radio */
+  .cbx,.cbx.sq{border-radius:6px!important;width:24px;height:24px}
+  .cbx.on,.cbx.sq.on{background:var(--npds-blue-600);box-shadow:none}
+  .row.picked{background:var(--npds-blue-100)}
+
+  /* feed */
+  .feed{padding:6px 6px}
+  .fe{padding:15px 13px;gap:13px}
+  .fi{width:38px;height:38px;border-radius:12px}
+  .ft b{font-size:15px}
+  .ft small{font-size:13px;margin-top:4px;line-height:1.45}
+  .fmeta{display:block;font-size:11.5px;color:var(--ink-3);margin-top:6px;
+    letter-spacing:.03em;text-transform:uppercase;font-weight:600}
+  .fw{font-size:13px}
+
+  /* sheets */
+  .sheet{padding:14px 22px 104px}
+  .sh-h{font-size:21px;margin:0 0 16px}
+  .sh-note{margin:0;font-size:13.5px;line-height:1.5;color:var(--ink-2)}
+  .grab{width:44px;height:5px;margin-bottom:18px}
+  .sheet>*+*{margin-top:14px}
+  .sheet .flabel{display:flex;align-items:center;gap:8px;font-size:12px;margin-bottom:-4px}
+  .reqd{font-style:normal;font-size:10.5px;letter-spacing:.05em;color:#8a4b2f;
+    background:rgba(176,138,86,.22);padding:3px 8px;border-radius:999px;font-weight:600}
+  .optl{font-style:normal;font-size:10.5px;letter-spacing:.05em;color:var(--ink-3);font-weight:500;text-transform:none}
+  .fieldset{padding:4px 18px}
+  .field{padding:15px 0;gap:14px}
+  .fl{font-size:13.5px}
+  .fv{font-size:15px}
+  .ta{padding:16px 18px}
+  .ta-l{font-size:12px;margin-bottom:9px}
+  .ta p,.ta textarea{font-size:14.5px;line-height:1.55}
+  .attach{padding:14px 20px;font-size:14px;gap:11px}
+  .prev{padding:15px 18px;font-size:13.5px;margin-top:16px}
+  .sh-kid{gap:14px;margin-bottom:18px}
+  .mini.lg{width:44px;height:44px;min-height:44px}
+  .primary.off,.second.off{opacity:.45}
+
+  /* selection bar with four real actions */
+  .selbar{flex-direction:column;align-items:stretch;gap:11px;padding:14px 16px 26px}
+  .sb-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+  .sb-head b{font-size:14.5px;font-weight:600}
+  .sb-head a{font-size:13px}
+  .sb-acts{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+  .primary.sm,.second.sm{min-height:42px;padding:10px 12px;font-size:13.5px;gap:7px;margin:0;width:100%}
+
+  /* messages: real estate */
+  .mlist{display:flex;flex-direction:column;gap:11px}
+  .mcard{background:var(--card);border:1px solid rgba(255,255,255,.55);border-radius:20px;
+    padding:16px 17px 17px;box-shadow:0 12px 26px -20px rgba(40,55,38,.4);cursor:pointer;
+    transition:transform .12s ease,background .16s ease}
+  .mcard:hover{background:rgba(255,255,255,.9)}
+  .mcard:active{transform:scale(.99)}
+  .mcard.unread{box-shadow:inset 3px 0 0 var(--npds-blue-500),0 12px 26px -20px rgba(40,55,38,.4)}
+  .mc-top{display:flex;align-items:center;gap:13px}
+  .mc-who{flex:1;min-width:0}
+  .mc-who b{display:block;font-size:15.5px;font-weight:600;letter-spacing:-.008em}
+  .mc-tag{display:inline-block;margin-top:5px;font-size:11px;font-weight:600;letter-spacing:.03em;
+    padding:4px 10px;border-radius:999px}
+  .mc-tag.family{color:#3C6355;background:rgba(78,114,99,.16)}
+  .mc-tag.staff{color:var(--npds-blue-700);background:var(--npds-blue-100)}
+  .mc-time{font-size:12.5px;color:var(--ink-3);flex:none;display:flex;align-items:center;gap:7px;
+    font-variant-numeric:tabular-nums}
+  .udot{width:8px;height:8px;border-radius:50%;background:var(--npds-blue-500);display:block}
+  .mc-prev{margin:13px 0 0;font-size:14px;line-height:1.5;color:var(--ink-2)}
+  .mc-prev em{font-style:normal;color:var(--ink-3);font-weight:600}
+
+  /* thread */
+  .thread{gap:14px;padding-top:12px}
+  .bub{padding:14px 17px;font-size:15px;line-height:1.5;max-width:84%}
+  .bub .bt{font-size:11px;margin-top:9px}
+  .daymark{font-size:11px}
+  .composer{padding:14px 16px 16px;gap:11px}
+  .cinput{padding:14px 18px;font-size:15px}
+  .ctx{padding:15px 16px;gap:12px}
+  .ctx b{font-size:14px}
+  .ctx small{font-size:12.5px;margin-top:3px}
+
+  .flags{gap:9px}
+  .flag{font-size:13px;padding:9px 15px;gap:8px}
+  .kidhero{padding:20px 20px;gap:16px}
+  .kh-t b{font-size:15.5px}
+  .kh-t small{font-size:13px;margin-top:4px}
+  .stat{padding:16px 14px}
+  .st-n{font-size:24px}
+  .st-l{font-size:12.5px;margin-top:7px}
+  .st-d{font-size:11px}
+  .placeholder b{font-size:16px}
+  .placeholder small{font-size:13px}
+  .toast{font-size:13.5px;padding:15px 18px;bottom:104px}
+  .pillv{font-size:12px;padding:5px 11px}
+  .ratio{padding:14px 17px;font-size:12.5px}
+  .movefrom{gap:13px}
+  .mf-a,.mf-b{padding:15px 16px;font-size:14px}
+  .mf-a small,.mf-b small{font-size:11.5px;margin-top:4px}
+
+  /* ===== messages back to the attendance list pattern, just roomier ===== */
+  .row.msg{padding:16px 13px;align-items:flex-start}
+  .row.msg .av{margin-top:2px}
+  .row.msg .rt b{font-size:15px}
+  .row.msg .rt small{font-size:12.5px;margin-top:4px}
+  .row.msg .rt small.prev{font-size:13.5px;color:var(--ink-2);margin-top:7px;line-height:1.45;
+    white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .row.msg .rr{margin-top:3px}
+  .row.msg.unread{box-shadow:inset 3px 0 0 var(--npds-blue-500)}
+
+  /* ===== messages: the card version, bigger, type matched to attendance ===== */
+  .mlist{display:flex;flex-direction:column;gap:13px;padding-bottom:6px}
+  .mcard{padding:20px 20px 21px;border-radius:22px}
+  .mc-top{display:flex;align-items:center;gap:14px}
+  .mc-who{flex:1;min-width:0}
+  /* same as .rt in Attendance */
+  .mc-who b{display:block;font-size:15px;font-weight:550;letter-spacing:-.005em;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .mc-who small{display:block;font-size:12.5px;color:var(--ink-3);margin-top:3px;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .mc-time{font-size:13.5px;color:var(--ink-3);flex:none;display:flex;align-items:center;gap:8px;
+    font-variant-numeric:tabular-nums}
+  .mcard.unread .mc-time{color:var(--npds-blue-700);font-weight:600}
+  .mc-prev{margin:15px 0 0;font-size:13.5px;line-height:1.5;color:var(--ink-2);
+    display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .mc-prev em{font-style:normal;color:var(--ink-3);font-weight:600}
+  .udot{width:9px;height:9px;border-radius:50%;background:var(--npds-blue-500);display:block}
+  .mcard.unread{box-shadow:inset 3px 0 0 var(--npds-blue-500),0 12px 26px -20px rgba(40,55,38,.4)}
+
+  /* ===== more breathing room around each row's arrow ===== */
+  .card.list .row{padding-top:17px;padding-bottom:17px}
+  .list.roomy .row{padding-top:19px;padding-bottom:19px}
+  .rr .mini{margin:3px 0}
+  .rr .mini.lg{margin:4px 0}
+  .card.list .row+.row{border-top:1px solid var(--line)}
+
+  /* dots carry meaning only for present, absent and unread */
+  .dot.plain{background:var(--absent)}
+  .unreaddot{position:absolute;right:-1px;bottom:-1px;width:12px;height:12px;border-radius:50%;
+    background:var(--npds-blue-500);box-shadow:0 0 0 2px rgba(253,254,251,.94)}
+
+  /* labelled row actions: the icon never has to carry the meaning alone */
+  .mini.lbl{width:auto;min-width:0;height:36px;min-height:36px;padding:0 15px;
+    display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:500;
+    color:var(--npds-blue-700);white-space:nowrap}
+  .mini.lbl svg{stroke:var(--npds-blue-700)!important}
+  .rr{gap:10px}
+  .hint b{color:var(--ink);font-weight:600}
+
+  /* ===== search: an icon in the bar, a field docked above the nav ===== */
+  .tb-btn.active{background:var(--npds-blue-100);color:var(--npds-blue-700)}
+  .tb-btn.active svg{stroke:var(--npds-blue-700)}
+  .searchdock{position:absolute;left:16px;right:16px;bottom:100px;z-index:6;
+    animation:dockup .24s cubic-bezier(.32,.72,0,1)}
+  @keyframes dockup{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+  .sd-bar{display:flex;align-items:center;gap:12px;padding:14px 16px;border-radius:999px;
+    background:rgba(255,253,250,.97);backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);
+    border:1px solid var(--npds-blue-500);
+    box-shadow:0 18px 40px -16px rgba(38,52,36,.42)}
+  .sd-bar input{flex:1;min-width:0;border:0;background:none;outline:none;
+    font-family:inherit;font-size:16px;color:var(--ink)}
+  .sd-bar input::placeholder{color:var(--ink-3)}
+  .sd-x{width:30px;height:30px;min-height:30px;flex:none;border:0;border-radius:999px;
+    background:rgba(44,49,43,.07);display:grid;place-items:center;padding:0}
+  .sd-x:hover{background:rgba(44,49,43,.13)}
+  .sd-count{margin:9px auto 0;width:fit-content;font-size:12px;font-weight:500;color:var(--ink-2);
+    background:rgba(255,253,250,.9);padding:5px 12px;border-radius:999px;
+    font-variant-numeric:tabular-nums}
+
+  /* row actions: check in = primary outlined, check out = secondary outlined */
+  .mini.lbl.pri{background:rgba(255,255,255,.92);border:1px solid var(--npds-blue-500);
+    color:var(--npds-blue-700)}
+  .mini.lbl.pri:hover{background:var(--npds-blue-100);border-color:var(--npds-blue-700)}
+  .mini.lbl.pri:active{background:var(--npds-blue-200)}
+  .mini.lbl.pri svg{stroke:currentColor!important}
+  .mini.lbl.sec{background:rgba(255,255,255,.92);border:1px solid var(--npds-gray-500);
+    color:var(--npds-gray-700)}
+  .mini.lbl.sec:hover{background:#f0f1f2;border-color:var(--npds-gray-700)}
+  .mini.lbl.sec:active{background:var(--npds-gray-200)}
+  .mini.lbl.sec svg{stroke:currentColor!important}
+
+  /* search icon lives beside the avatar on home */
+  .hh-right{display:flex;align-items:center;gap:10px}
+
+  /* check-in sheet keeps icon-only actions: the section heading names the direction */
+  .mini.lg.pri{background:rgba(255,255,255,.92);border:1px solid var(--npds-blue-500);
+    color:var(--npds-blue-700)}
+  .mini.lg.pri:hover{background:var(--npds-blue-100);border-color:var(--npds-blue-700)}
+  .mini.lg.pri:active{background:var(--npds-blue-200)}
+  .mini.lg.sec{background:rgba(255,255,255,.92);border:1px solid var(--npds-gray-500);
+    color:var(--npds-gray-700)}
+  .mini.lg.sec:hover{background:#f0f1f2;border-color:var(--npds-gray-700)}
+  .mini.lg.sec:active{background:var(--npds-gray-200)}
+  .mini.lg.pri svg,.mini.lg.sec svg{stroke:currentColor!important}
+
+  /* ===== one segmented pill instead of loose filter chips ===== */
+  .tabpill{display:flex;gap:4px;flex:none;padding:4px;border-radius:999px;
+    background:rgba(255,255,255,.58);border:1px solid rgba(255,255,255,.6);
+    overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;
+    box-shadow:0 8px 20px -18px rgba(40,55,38,.4)}
+  .tabpill::-webkit-scrollbar{display:none}
+  .tp{flex:0 0 auto;padding:10px 16px;border-radius:999px;white-space:nowrap;cursor:pointer;
+    font-size:13.5px;font-weight:500;color:var(--ink-2);
+    -webkit-tap-highlight-color:transparent;user-select:none;
+    transition:background .16s ease,color .16s ease,box-shadow .16s ease}
+  .tp:hover{color:var(--ink)}
+  .tp.on{background:var(--npds-blue-100);box-shadow:inset 0 0 0 1px var(--npds-blue-500);
+    color:var(--npds-blue-700);font-weight:600}
+
+  /* ===== date spine ===== */
+  .spine{display:flex;align-items:center;gap:8px;flex:none}
+  .sp-b{width:40px;height:40px;min-height:40px;flex:none;border-radius:999px;
+    border:1px solid var(--npds-gray-500);background:rgba(255,255,255,.92);
+    color:var(--npds-gray-700);display:grid;place-items:center;padding:0;font-family:inherit}
+  .sp-b:hover{background:#f0f1f2}
+  .sp-b.off{opacity:.4}
+  .sp-b svg{stroke:currentColor!important}
+  .sp-mid{flex:1;min-width:0;display:flex;align-items:center;justify-content:center;gap:8px;
+    font-size:14px;font-variant-numeric:tabular-nums}
+  .sp-mid b{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .sp-f{flex:none;height:40px;min-height:40px;padding:0 15px;border-radius:999px;
+    border:1px solid var(--npds-gray-500);background:rgba(255,255,255,.92);color:var(--npds-gray-700);
+    display:inline-flex;align-items:center;gap:7px;font-family:inherit;font-size:13px;font-weight:500}
+  .sp-f:hover{background:#f0f1f2}
+  .sp-f svg{stroke:currentColor!important}
+
+  /* ===== attention cards ===== */
+  .needs,.banner{display:flex;align-items:center;gap:13px;padding:15px 16px;cursor:pointer}
+  .banner{cursor:default}
+  .needs{box-shadow:inset 3px 0 0 var(--amber),0 14px 30px -20px rgba(40,55,38,.42)}
+  .hint.readonly{display:flex;align-items:flex-start;gap:8px;padding:12px 14px;border-radius:16px;
+    background:rgba(44,49,43,.055)}
+
+  /* ===== choice rows (visibility, pickup) ===== */
+  .opt{display:flex;align-items:center;gap:13px;padding:14px 13px;border-radius:14px;cursor:pointer}
+  .opt+.opt{border-top:1px solid var(--line)}
+  .opt.on{background:var(--npds-blue-100)}
+  .pk-row{cursor:pointer}
+  .pk-row.on{background:var(--npds-blue-100)}
+  .pk-row.on .cbx{background:var(--npds-blue-600);box-shadow:none}
+  .pk-row.on .cbx::after{content:"";width:11px;height:6px;border-left:2.4px solid #fff;
+    border-bottom:2.4px solid #fff;transform:rotate(-45deg) translateY(-1px)}
+
+  /* ===== switch ===== */
+  .sw{width:46px;height:27px;border-radius:999px;background:rgba(44,49,43,.16);
+    display:inline-flex;align-items:center;padding:3px;cursor:pointer;transition:background .18s ease;flex:none}
+  .sw i{width:21px;height:21px;border-radius:50%;background:#fff;display:block;
+    box-shadow:0 1px 3px rgba(0,0,0,.2);transition:transform .18s ease}
+  .sw.on{background:var(--npds-blue-600)}
+  .sw.on i{transform:translateX(19px)}
+  .fv.pale{color:var(--ink-3)}
+
+  /* ===== visibility tag on feed rows ===== */
+  .visq{font-style:normal;text-transform:none;letter-spacing:0;font-weight:500;
+    margin-left:7px;padding:2px 8px;border-radius:999px;background:rgba(44,49,43,.07);color:var(--ink-3)}
+
+  /* ===== report table ===== */
+  .tablewrap{overflow-x:auto;border-radius:18px;background:var(--card);
+    border:1px solid rgba(255,255,255,.55);box-shadow:0 14px 30px -20px rgba(40,55,38,.42);
+    scrollbar-width:none}
+  .tablewrap::-webkit-scrollbar{display:none}
+  .rt-t{border-collapse:collapse;width:100%;font-size:13px}
+  .rt-t th{text-align:left;font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;
+    color:var(--ink-3);font-weight:600;padding:13px 14px;border-bottom:1px solid var(--line);white-space:nowrap}
+  .rt-t td{padding:13px 14px;border-bottom:1px solid var(--line);white-space:nowrap;
+    font-variant-numeric:tabular-nums}
+  .rt-t tr:last-child td{border-bottom:0}
+  .seg .ic{width:16px;height:16px}
+  .seg.two .sg{display:flex;align-items:center;justify-content:center;gap:7px}
+
+  /* ===== confirm dialog ===== */
+  .confirmwrap{position:absolute;inset:0;z-index:12;display:grid;place-items:center;padding:24px;
+    opacity:0;transition:opacity .18s ease;pointer-events:none}
+  .confirmwrap.on{opacity:1;pointer-events:auto}
+  .cf-scrim{position:absolute;inset:0;background:rgba(28,38,26,.34);backdrop-filter:blur(2px)}
+  .cf-card{position:relative;width:100%;background:rgba(253,254,251,.98);border-radius:24px;
+    padding:24px 22px 20px;box-shadow:0 26px 60px -20px rgba(28,42,26,.5);
+    transform:scale(.96);transition:transform .2s cubic-bezier(.32,.72,0,1)}
+  .confirmwrap.on .cf-card{transform:none}
+  .cf-card h4{margin:0 0 9px;font-family:Newsreader,Georgia,serif;font-weight:400;font-size:20px;
+    letter-spacing:-.015em;color:var(--ink)}
+  .cf-card p{margin:0 0 18px;font-size:14px;line-height:1.5;color:var(--ink-2)}
+  .cf-card .primary{margin:0}
+  .cf-card .second{margin-top:9px;width:100%}
+
+  .pillv.warn{color:#7E5C2E;background:rgba(176,138,86,.22)}
+  .card.needs .mt small{color:var(--ink-2)}
+  .sum{padding:16px 8px}
+
+  body{display:block;padding:44px 24px 70px}
+  .wrap{max-width:1400px;margin:0 auto}
+  header.intro{max-width:60ch;margin:0 0 12px}
+  .eyebrow{font-size:11px;letter-spacing:.11em;text-transform:uppercase;color:var(--page-ink-3);font-weight:600;margin:0 0 12px}
+  header.intro h1{font-family:Newsreader,Georgia,serif;font-weight:400;font-size:clamp(28px,4vw,38px);
+    letter-spacing:-.02em;line-height:1.12;margin:0 0 14px;text-wrap:balance;color:var(--page-ink)}
+  header.intro p{margin:0 0 10px;font-size:15px;line-height:1.65;color:var(--page-ink-2)}
+  .tb-right{gap:7px}
+  .rail{display:flex;gap:34px;overflow-x:auto;padding:26px 0 24px;scroll-snap-type:x proximity}
+  .frame{margin:0;flex:none;width:390px;scroll-snap-align:start}
+  figcaption{margin:20px 2px 0;max-width:37ch}
+  figcaption b{display:block;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+    color:var(--page-ink-3);margin-bottom:7px}
+  figcaption h3{font-family:Newsreader,Georgia,serif;font-weight:400;font-size:20px;letter-spacing:-.015em;
+    margin:0 0 12px;color:var(--page-ink)}
+  figcaption p{margin:0 0 8px;font-size:13px;line-height:1.6;color:var(--page-ink-2)}
+  figcaption em{font-style:normal;font-weight:600;color:var(--page-ink);margin-right:5px}
+  .cnt{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-bottom:14px!important}
+  .cnt span{display:inline-grid;place-items:center;min-width:30px;height:26px;padding:0 8px;border-radius:999px;
+    background:var(--npds-blue-100);color:var(--npds-blue-700);font-weight:700;font-size:13px;
+    font-variant-numeric:tabular-nums;margin-left:4px}
+  .cnt span:first-child{margin-left:0}
+  .cnt{font-size:12px!important;color:var(--page-ink-3)!important}
+
+  /* option A */
+  .grouphead{display:flex;align-items:baseline;justify-content:space-between;
+    padding:15px 14px 9px;border-bottom:1px solid var(--line);margin-bottom:2px}
+  .grouphead b{font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3);font-weight:600}
+  .grouphead span{font-size:13px;color:var(--ink-3);font-variant-numeric:tabular-nums}
+  .grouphead+.row{border-top:0!important}
+
+  /* option B + C */
+  .sumline{margin:2px 2px 0;font-size:14.5px;color:var(--ink-3);flex:none}
+  .sl{font-weight:500;color:var(--ink-2);cursor:pointer;padding-bottom:2px}
+  .sl.on{color:var(--npds-blue-700);font-weight:600;border-bottom:2px solid var(--npds-blue-500)}
+
+  /* option C */
+  .row.tappable{cursor:pointer}
+  .statew{font-size:13px;color:var(--ink-3);font-weight:500}
+  .statew.on{color:var(--present);font-weight:600}
+  .t-undo{margin-left:auto;color:#A8D8B4;font-weight:700;font-size:12.5px;
+    border-bottom:1px solid rgba(168,216,180,.5);padding-bottom:1px}
+  .toast.on{opacity:1;transform:none}
+
+  .notes{max-width:1400px;margin:34px auto 0;display:grid;gap:18px;
+    grid-template-columns:repeat(auto-fit,minmax(250px,1fr))}
+  .note{border-top:1px solid var(--page-border);padding-top:15px}
+  .note b{display:block;font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;
+    color:var(--page-ink-3);margin-bottom:8px}
+  .note p{margin:0;font-size:13px;line-height:1.6;color:var(--page-ink-2)}
+
+  /* the row structure: name, time and who, then the allergy tag beneath */
+  .row.rowstack{align-items:flex-start;padding-top:15px;padding-bottom:15px}
+  .row.rowstack .av{margin-top:1px}
+  .row.rowstack .rr{margin-top:2px}
+  .row.rowstack .rt b{font-size:15.5px;font-weight:550;letter-spacing:-.008em}
+  .row.rowstack .rt small{font-size:13px;color:var(--ink-3);margin-top:4px;
+    font-variant-numeric:tabular-nums}
+  .alg{display:inline-flex;align-items:center;margin-top:9px;font-size:12.5px;font-weight:500;
+    padding:5px 11px;border-radius:9px;background:rgba(44,49,43,.05);
+    box-shadow:inset 0 0 0 1px rgba(44,49,43,.16);color:var(--ink-2)}
+  .alg.warn{background:rgba(163,58,45,.06);box-shadow:inset 0 0 0 1px rgba(163,58,45,.3);color:#A33A2A}
+  .alg.note{background:rgba(5,100,136,.05);box-shadow:inset 0 0 0 1px rgba(24,157,210,.34);
+    color:var(--npds-blue-700)}
+  .tagrow{display:flex;gap:8px;flex-wrap:wrap}
+  .tagrow .alg{margin-top:9px}
+  .noteg{flex:none;width:28px;height:28px;border-radius:999px;display:grid;place-items:center;
+    background:rgba(24,157,210,.1);color:var(--npds-blue-700)}
+  .noteg svg{width:14px;height:14px}
+  .noteline{display:flex!important;align-items:flex-start;gap:7px;color:var(--ink)!important;
+    font-weight:450!important;white-space:normal!important;line-height:1.45;margin-top:10px!important;
+    font-size:13px!important;font-variant-numeric:normal!important}
+  .noteline svg{width:14px;height:14px;flex:none;margin-top:2px;color:var(--npds-blue-700)}
+  .row.hasnote{background:rgba(255,255,255,.44);border-radius:14px}
+  .cnt span:last-child{background:rgba(44,49,43,.07);color:var(--page-ink-2)}
+  .cnt span{min-width:0}
+
+  /* the overflow handle: a glyph, not a button */
+  .dotsb{flex:none;width:30px;height:34px;border:0;background:none;padding:0;
+    display:grid;place-items:center;cursor:pointer;border-radius:999px;margin-right:-6px}
+  .dotsb:hover{background:rgba(44,49,43,.06)}
+  .row.rowstack .rr{gap:6px}
+  .sheet.on{transform:none}
+  .scrim.on{opacity:1}
+  .sheet .sh-kid .rt small{color:var(--ink-3);font-size:13px;margin-top:3px}
+  .sheet .card.list .row{padding:15px 13px}
+  .sheet .card.list .av{background:rgba(255,255,255,.7)}
+</style>
+<div class="wrap">
+ <header class="intro">
+  <p class="eyebrow">FCM · Teacher app · Attendance · the row</p>
+  <h1>Five facts, one row</h1>
+  <p>Row structure is settled from your reference: avatar with the status dot, the name, then the time and who dropped them off on one quiet line \u2014 no "In" \u2014 and the allergy as an outlined tag beneath. The action sits on the right.</p>
+  <p>Rows A to C settle the note. Row D adds the overflow you pointed at, and the last frame is the bottom sheet it opens. Scroll sideways.</p>
+ </header>
+ <div class="rail"><figure class="frame">
+ <div class="device"><div class="screen">
+  <div class="glow" style="left:236px;top:104px;width:190px;height:190px;opacity:.42"></div>
+  <div class="scene"><svg viewBox="0 0 390 844" preserveAspectRatio="none" aria-hidden="true"><g opacity=".78">
+<circle cx="299" cy="121" r="41" fill="var(--sun)" opacity=".72"></circle>
+<circle cx="299" cy="121" r="41" fill="none" stroke="var(--sun)" stroke-opacity=".42" stroke-width="10"></circle>
+<path fill="var(--g1)" d="M0 432C60 398 130 404 200 426c68 21 130 6 190-6v424H0Z"></path>
+<path fill="var(--g2)" d="M0 474C70 446 150 456 230 474c70 16 120 0 160-8v378H0Z"></path>
+<path d="M0 500C90 474 190 490 280 504c33 5 68-1 110-6" fill="none" stroke="var(--gl)" stroke-opacity=".38" stroke-width="5"></path>
+<path d="M0 524C90 500 190 514 280 528c33 5 68 0 110-5" fill="none" stroke="var(--gl)" stroke-opacity=".22" stroke-width="3"></path>
+<path fill="var(--cr)" d="M0 552C80 518 170 534 250 552c60 13 105 4 140-2v58c-50 6-90-6-150-16-80-14-160-24-240 2Z"></path>
+<path fill="var(--g3)" d="M0 626C90 596 180 612 260 628c60 12 100 4 130-2v218H0Z"></path>
+<path d="M0 664C95 638 190 652 275 665c36 6 78 1 115-4" fill="none" stroke="var(--gl)" stroke-opacity=".24" stroke-width="4"></path>
+<path fill="var(--cr2)" d="M0 700C100 672 190 688 270 702c60 10 95 4 120 0v36c-45 6-85-4-145-14-80-14-165-22-245 4Z"></path>
+<path fill="var(--g4)" d="M0 772C90 746 190 762 280 774c33 4 78 0 110-4v74H0Z"></path>
+</g></svg></div>
+<div class="haze"></div>
+  <div class="status"><span>8:32</span><span class="right">
+   <svg class="ic sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 13a10 10 0 0 1 14 0M8.5 16.5a5.5 5.5 0 0 1 7 0"/><circle cx="12" cy="20" r="1" fill="currentColor" stroke="none"/></svg>
+   <svg class="batt" viewBox="0 0 26 13" fill="none"><rect x=".7" y=".7" width="22" height="11.6" rx="3.2" stroke="currentColor" stroke-opacity=".45"/><rect x="2.4" y="2.4" width="16" height="8.2" rx="2" fill="currentColor" fill-opacity=".75"/><path d="M24.6 4.6v3.8a2 2 0 0 0 0-3.8Z" fill="currentColor" fill-opacity=".45"/></svg>
+  </span></div>
+  <div class="topbar"><span style="width:34px"></span><span class="tb-mid"><span class="tb-title">Attendance</span></span><span class="tb-right"><button class="tb-btn"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg></button><button class="ghost tb-inline">Select</button></span></div>
+<div class="body pad">
+ <div class="spine">
+  <button class="sp-b"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M14 6l-6 6 6 6"/></svg></button>
+  <span class="sp-mid"><svg class="ic sm" viewBox="0 0 24 24" fill="none" stroke="var(--ink-3)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg><b>Today · Tue 3 Sep</b></span>
+  <button class="sp-b off"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M10 6l6 6-6 6"/></svg></button>
+ </div>
+ <div class="tabpill"><span class="tp on">All 19</span><span class="tp">Here 16</span><span class="tp">Not in 1</span><span class="tp">Absent 2</span><span class="tp">Allergies 2</span></div>
+ <div class="card list"><div class="row rowstack"><span class="av">AW</span>
+     <span class="rt"><b>Amelia Walsh</b><small>Not checked in</small></span>
+     <span class="rr"><button class="mini lbl pri"><svg class="ic sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3h5a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-5"/><path d="M10 8l4 4-4 4"/><path d="M14 12H3"/></svg>Check in</button></span></div><div class="row rowstack"><span class="av"><i style="background:var(--present)"></i>MG</span>
+     <span class="rt"><b>Mateo Garcia</b><small>8:05 AM · Dad</small><span class="alg warn">Peanut</span></span>
+     <span class="rr"><button class="mini lbl sec"><svg class="ic sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h5"/><path d="M17 8l4 4-4 4"/><path d="M21 12H10"/></svg>Check out</button></span></div><div class="row rowstack"><span class="av"><i style="background:var(--present)"></i>EP</span>
+     <span class="rt"><b>Ella Park</b><small>8:11 AM · Mum</small></span>
+     <span class="rr"><button class="mini lbl sec"><svg class="ic sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h5"/><path d="M17 8l4 4-4 4"/><path d="M21 12H10"/></svg>Check out</button></span></div><div class="row rowstack"><span class="av"><i style="background:var(--present)"></i>BO</span>
+     <span class="rt"><b>Bea Okafor</b><small>8:20 AM · Grandma</small></span>
+     <span class="rr"><span class="noteg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 6.5h14M5 12h14M5 17.5h8"/></svg></span><button class="mini lbl sec"><svg class="ic sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h5"/><path d="M17 8l4 4-4 4"/><path d="M21 12H10"/></svg>Check out</button></span></div><div class="row rowstack"><span class="av">OP</span>
+     <span class="rt"><b>Owen Patel</b><small>Not checked in</small></span>
+     <span class="rr"><button class="mini lbl pri"><svg class="ic sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3h5a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-5"/><path d="M10 8l4 4-4 4"/><path d="M14 12H3"/></svg>Check in</button></span></div><div class="row rowstack"><span class="av"><i style="background:var(--present)"></i>IM</span>
+     <span class="rt"><b>Ines Moreau</b><small>8:08 AM · Mum</small><span class="alg">Inhaler</span></span>
+     <span class="rr"><span class="noteg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 6.5h14M5 12h14M5 17.5h8"/></svg></span><button class="mini lbl sec"><svg class="ic sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h5"/><path d="M17 8l4 4-4 4"/><path d="M21 12H10"/></svg>Check out</button></span></div><div class="row rowstack"><span class="av"><i style="background:var(--amber)"></i>EV</span>
+     <span class="rt"><b>Elena Vance</b><small>Absent · Family holiday</small></span>
+     <span class="rr"><button class="mini lbl pri"><svg class="ic sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3h5a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-5"/><path d="M10 8l4 4-4 4"/><path d="M14 12H3"/></svg>Check in</button></span></div></div>
+</div>
+  <nav class="nav five"><a href="#"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 10.5 12 3.5l8.5 7"/><path d="M5.5 9.6V20h13V9.6"/><path d="M9.8 20v-5.4h4.4V20"/></svg>My Room</a><a href="#" class="on"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6.5 5.6 8 8.4 5"/><path d="M4 12.5 5.6 14l2.8-3"/><path d="M4 18.5 5.6 20l2.8-3"/><path d="M11.5 6.5H20M11.5 12.5H20M11.5 18.5H20"/></svg>Attendance</a><a href="#"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="4.5" width="14" height="16" rx="2.5"/><path d="M9 4.5a1.5 1.5 0 0 1 1.5-1.5h3A1.5 1.5 0 0 1 15 4.5v1H9Z"/><path d="M9 11h6M9 15h4"/></svg>Activities</a><a href="#"><span class="badge">3</span><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 6.5A2.5 2.5 0 0 1 6 4h12a2.5 2.5 0 0 1 2.5 2.5v9A2.5 2.5 0 0 1 18 18H8l-4.5 3Z"/></svg>Messages</a><a href="#"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="7" height="7" rx="2"/><rect x="13" y="4" width="7" height="7" rx="2"/><rect x="4" y="13" width="7" height="7" rx="2"/><rect x="13" y="13" width="7" height="7" rx="2"/></svg>More</a></nav>
+ </div></div>
+ <figcaption>
+  <b>Row A</b><h3>Note as a glyph in the rail</h3>
+  <p class="cnt"><span>3 tiers</span><span>every row equal</span></p>
+  <p><em>Loses</em> nothing</p>
+  <p><em>How it reads</em> the note is a small mark next to the button, so every row keeps exactly three tiers. Quietest of the three, but you have to know the glyph means "there is something to read".</p>
+ </figcaption>
+</figure><figure class="frame">
+ <div class="device"><div class="screen">
+  <div class="glow" style="left:236px;top:104px;width:190px;height:190px;opacity:.42"></div>
+  <div class="scene"><svg viewBox="0 0 390 844" preserveAspectRatio="none" aria-hidden="true"><g opacity=".78">
+<circle cx="299" cy="121" r="41" fill="var(--sun)" opacity=".72"></circle>
+<circle cx="299" cy="121" r="41" fill="none" stroke="var(--sun)" stroke-opacity=".42" stroke-width="10"></circle>
+<path fill="var(--g1)" d="M0 432C60 398 130 404 200 426c68 21 130 6 190-6v424H0Z"></path>
+<path fill="var(--g2)" d="M0 474C70 446 150 456 230 474c70 16 120 0 160-8v378H0Z"></path>
+<path d="M0 500C90 474 190 490 280 504c33 5 68-1 110-6" fill="none" stroke="var(--gl)" stroke-opacity=".38" stroke-width="5"></path>
+<path d="M0 524C90 500 190 514 280 528c33 5 68 0 110-5" fill="none" stroke="var(--gl)" stroke-opacity=".22" stroke-width="3"></path>
+<path fill="var(--cr)" d="M0 552C80 518 170 534 250 552c60 13 105 4 140-2v58c-50 6-90-6-150-16-80-14-160-24-240 2Z"></path>
+<path fill="var(--g3)" d="M0 626C90 596 180 612 260 628c60 12 100 4 130-2v218H0Z"></path>
+<path d="M0 664C95 638 190 652 275 665c36 6 78 1 115-4" fill="none" stroke="var(--gl)" stroke-opacity=".24" stroke-width="4"></path>
+<path fill="var(--cr2)" d="M0 700C100 672 190 688 270 702c60 10 95 4 120 0v36c-45 6-85-4-145-14-80-14-165-22-245 4Z"></path>
+<path fill="var(--g4)" d="M0 772C90 746 190 762 280 774c33 4 78 0 110-4v74H0Z"></path>
+</g></svg></div>
+<div class="haze"></div>
+  <div class="status"><span>8:32</span><span class="right">
+   <svg class="ic sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 13a10 10 0 0 1 14 0M8.5 16.5a5.5 5.5 0 0 1 7 0"/><circle cx="12" cy="20" r="1" fill="currentColor" stroke="none"/></svg>
+   <svg class="batt" viewBox="0 0 26 13" fill="none"><rect x=".7" y=".7" width="22" height="11.6" rx="3.2" stroke="currentColor" stroke-opacity=".45"/><rect x="2.4" y="2.4" width="16" height="8.2" rx="2" fill="currentColor" fill-opacity=".75"/><path d="M24.6 4.6v3.8a2 2 0 0 0 0-3.8Z" fill="currentColor" fill-opacity=".45"/></svg>
+  </span></div>
+  <div class="topbar"><span style="width:34px"></span><span class="tb-mid"><span class="tb-title">Attendance</span></span><span class="tb-right"><button class="tb-btn"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg></button><button class="ghost tb-inline">Select</button></span></div>
+<div class="body pad">
+ <div class="spine">
+  <button class="sp-b"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M14 6l-6 6 6 6"/></svg></button>
+  <span class="sp-mid"><svg class="ic sm" viewBox="0 0 24 24" fill="none" stroke="var(--ink-3)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg><b>Today · Tue 3 Sep</b></span>
+  <button class="sp-b off"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M10 6l6 6-6 6"/></svg></button>
+ </div>
+ <div class="tabpill"><span class="tp on">All 19</span><span class="tp">Here 16</span><span class="tp">Not in 1</span><span class="tp">Absent 2</span><span class="tp">Allergies 2</span></div>
+ <div class="card list"><div class="row rowstack"><span class="av">AW</span>
+     <span class="rt"><b>Amelia Walsh</b><small>Not checked in</small></span>
+     <span class="rr"><button class="mini lbl pri"><svg class="ic sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3h5a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-5"/><path d="M10 8l4 4-4 4"/><path d="M14 12H3"/></svg>Check in</button></span></div><div class="row rowstack"><span class="av"><i style="background:var(--present)"></i>MG</span>
+     <span class="rt"><b>Mateo Garcia</b><small>8:05 AM · Dad</small><span class="tagrow"><span class="alg warn">Peanut</span></span></span>
+     <span class="rr"><button class="mini lbl sec"><svg class="ic sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h5"/><path d="M17 8l4 4-4 4"/><path d="M21 12H10"/></svg>Check out</button></span></div><div class="row rowstack"><span class="av"><i style="background:var(--present)"></i>EP</span>
+     <span class="rt"><b>Ella Park</b><small>8:11 AM · Mum</small></span>
+     <span class="rr"><button class="mini lbl sec"><svg class="ic sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h5"/><path d="M17 8l4 4-4 4"/><path d="M21 12H10"/></svg>Check out</button></span></div><div class="row rowstack"><span class="av"><i style="background:var(--present)"></i>BO</span>
+     <span class="rt"><b>Bea Okafor</b><small>8:20 AM · Grandma</small><span class="tagrow"><span class="alg note">Note</span></span></span>
+     <span class="rr"><button class="mini lbl sec"><svg class="ic sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h5"/><path d="M17 8l4 4-4 4"/><path d="M21 12H10"/></svg>Check out</button></span></div><div class="row rowstack"><span class="av">OP</span>
+     <span class="rt"><b>Owen Patel</b><small>Not checked in</small></span>
+     <span class="rr"><button class="mini lbl pri"><svg class="ic sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3h5a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-5"/><path d="M10 8l4 4-4 4"/><path d="M14 12H3"/></svg>Check in</button></span></div><div class="row rowstack"><span class="av"><i style="background:var(--present)"></i>IM</span>
+     <span class="rt"><b>Ines Moreau</b><small>8:08 AM · Mum</small><span class="tagrow"><span class="alg">Inhaler</span><span class="alg note">Note</span></span></span>
+     <span class="rr"><button class="mini lbl sec"><svg class="ic sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h5"/><path d="M17 8l4 4-4 4"/><path d="M21 12H10"/></svg>Check out</button></span></div><div class="row rowstack"><span class="av"><i style="background:var(--amber)"></i>EV</span>
+     <span class="rt"><b>Elena Vance</b><small>Absent · Family holiday</small></span>
+     <span class="rr"><button class="mini lbl pri"><svg class="ic sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3h5a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-5"/><path d="M10 8l4 4-4 4"/><path d="M14 12H3"/></svg>Check in</button></span></div></div>
+</div>
+  <nav class="nav five"><a href="#"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 10.5 12 3.5l8.5 7"/><path d="M5.5 9.6V20h13V9.6"/><path d="M9.8 20v-5.4h4.4V20"/></svg>My Room</a><a href="#" class="on"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6.5 5.6 8 8.4 5"/><path d="M4 12.5 5.6 14l2.8-3"/><path d="M4 18.5 5.6 20l2.8-3"/><path d="M11.5 6.5H20M11.5 12.5H20M11.5 18.5H20"/></svg>Attendance</a><a href="#"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="4.5" width="14" height="16" rx="2.5"/><path d="M9 4.5a1.5 1.5 0 0 1 1.5-1.5h3A1.5 1.5 0 0 1 15 4.5v1H9Z"/><path d="M9 11h6M9 15h4"/></svg>Activities</a><a href="#"><span class="badge">3</span><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 6.5A2.5 2.5 0 0 1 6 4h12a2.5 2.5 0 0 1 2.5 2.5v9A2.5 2.5 0 0 1 18 18H8l-4.5 3Z"/></svg>Messages</a><a href="#"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="7" height="7" rx="2"/><rect x="13" y="4" width="7" height="7" rx="2"/><rect x="4" y="13" width="7" height="7" rx="2"/><rect x="13" y="13" width="7" height="7" rx="2"/></svg>More</a></nav>
+ </div></div>
+ <figcaption>
+  <b>Row B</b><h3>Note as a second tag</h3>
+  <p class="cnt"><span>3 tiers</span><span>every row equal</span></p>
+  <p><em>Loses</em> nothing</p>
+  <p><em>How it reads</em> the note sits beside the allergy as its own pill, so both exceptions read the same way and live in the same place. Costs nothing in height, but "Note" as a word does not tell you what the note says.</p>
+ </figcaption>
+</figure><figure class="frame">
+ <div class="device"><div class="screen">
+  <div class="glow" style="left:236px;top:104px;width:190px;height:190px;opacity:.42"></div>
+  <div class="scene"><svg viewBox="0 0 390 844" preserveAspectRatio="none" aria-hidden="true"><g opacity=".78">
+<circle cx="299" cy="121" r="41" fill="var(--sun)" opacity=".72"></circle>
+<circle cx="299" cy="121" r="41" fill="none" stroke="var(--sun)" stroke-opacity=".42" stroke-width="10"></circle>
+<path fill="var(--g1)" d="M0 432C60 398 130 404 200 426c68 21 130 6 190-6v424H0Z"></path>
+<path fill="var(--g2)" d="M0 474C70 446 150 456 230 474c70 16 120 0 160-8v378H0Z"></path>
+<path d="M0 500C90 474 190 490 280 504c33 5 68-1 110-6" fill="none" stroke="var(--gl)" stroke-opacity=".38" stroke-width="5"></path>
+<path d="M0 524C90 500 190 514 280 528c33 5 68 0 110-5" fill="none" stroke="var(--gl)" stroke-opacity=".22" stroke-width="3"></path>
+<path fill="var(--cr)" d="M0 552C80 518 170 534 250 552c60 13 105 4 140-2v58c-50 6-90-6-150-16-80-14-160-24-240 2Z"></path>
+<path fill="var(--g3)" d="M0 626C90 596 180 612 260 628c60 12 100 4 130-2v218H0Z"></path>
+<path d="M0 664C95 638 190 652 275 665c36 6 78 1 115-4" fill="none" stroke="var(--gl)" stroke-opacity=".24" stroke-width="4"></path>
+<path fill="var(--cr2)" d="M0 700C100 672 190 688 270 702c60 10 95 4 120 0v36c-45 6-85-4-145-14-80-14-165-22-245 4Z"></path>
+<path fill="var(--g4)" d="M0 772C90 746 190 762 280 774c33 4 78 0 110-4v74H0Z"></path>
+</g></svg></div>
+<div class="haze"></div>
+  <div class="status"><span>8:32</span><span class="right">
+   <svg class="ic sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 13a10 10 0 0 1 14 0M8.5 16.5a5.5 5.5 0 0 1 7 0"/><circle cx="12" cy="20" r="1" fill="currentColor" stroke="none"/></svg>
+   <svg class="batt" viewBox="0 0 26 13" fill="none"><rect x=".7" y=".7" width="22" height="11.6" rx="3.2" stroke="currentColor" stroke-opacity=".45"/><rect x="2.4" y="2.4" width="16" height="8.2" rx="2" fill="currentColor" fill-opacity=".75"/><path d="M24.6 4.6v3.8a2 2 0 0 0 0-3.8Z" fill="currentColor" fill-opacity=".45"/></svg>
+  </span></div>
+  <div class="topbar"><span style="width:34px"></span><span class="tb-mid"><span class="tb-title">Attendance</span></span><span class="tb-right"><button class="tb-btn"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg></button><button class="ghost tb-inline">Select</button></span></div>
+<div class="body pad">
+ <div class="spine">
+  <button class="sp-b"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M14 6l-6 6 6 6"/></svg></button>
+  <span class="sp-mid"><svg class="ic sm" viewBox="0 0 24 24" fill="none" stroke="var(--ink-3)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg><b>Today · Tue 3 Sep</b></span>
+  <button class="sp-b off"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M10 6l6 6-6 6"/></svg></button>
+ </div>
+ <div class="tabpill"><span class="tp on">All 19</span><span class="tp">Here 16</span><span class="tp">Not in 1</span><span class="tp">Absent 2</span><span class="tp">Allergies 2</span></div>
+ <div class="card list"><div class="row rowstack"><span class="av">AW</span>
+     <span class="rt"><b>Amelia Walsh</b><small>Not checked in</small></span>
+     <span class="rr"><button class="mini lbl pri"><svg class="ic sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3h5a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-5"/><path d="M10 8l4 4-4 4"/><path d="M14 12H3"/></svg>Check in</button></span></div><div class="row rowstack"><span class="av"><i style="background:var(--present)"></i>MG</span>
+     <span class="rt"><b>Mateo Garcia</b><small>8:05 AM · Dad</small><span class="alg warn">Peanut</span></span>
+     <span class="rr"><button class="mini lbl sec"><svg class="ic sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h5"/><path d="M17 8l4 4-4 4"/><path d="M21 12H10"/></svg>Check out</button></span></div><div class="row rowstack"><span class="av"><i style="background:var(--present)"></i>EP</span>
+     <span class="rt"><b>Ella Park</b><small>8:11 AM · Mum</small></span>
+     <span class="rr"><button class="mini lbl sec"><svg class="ic sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h5"/><path d="M17 8l4 4-4 4"/><path d="M21 12H10"/></svg>Check out</button></span></div><div class="row rowstack hasnote"><span class="av"><i style="background:var(--present)"></i>BO</span>
+     <span class="rt"><b>Bea Okafor</b><small>8:20 AM · Grandma</small><small class="noteline"><svg class="ic sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 6.5h14M5 12h14M5 17.5h8"/></svg>Grandma collects at 4, not Mum. Blanket is in her bag.</small></span>
+     <span class="rr"><button class="mini lbl sec"><svg class="ic sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h5"/><path d="M17 8l4 4-4 4"/><path d="M21 12H10"/></svg>Check out</button></span></div><div class="row rowstack"><span class="av">OP</span>
+     <span class="rt"><b>Owen Patel</b><small>Not checked in</small></span>
+     <span class="rr"><button class="mini lbl pri"><svg class="ic sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3h5a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-5"/><path d="M10 8l4 4-4 4"/><path d="M14 12H3"/></svg>Check in</button></span></div><div class="row rowstack hasnote"><span class="av"><i style="background:var(--present)"></i>IM</span>
+     <span class="rt"><b>Ines Moreau</b><small>8:08 AM · Mum</small><span class="alg">Inhaler</span><small class="noteline"><svg class="ic sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 6.5h14M5 12h14M5 17.5h8"/></svg>Slept badly — may need an early nap.</small></span>
+     <span class="rr"><button class="mini lbl sec"><svg class="ic sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h5"/><path d="M17 8l4 4-4 4"/><path d="M21 12H10"/></svg>Check out</button></span></div><div class="row rowstack"><span class="av"><i style="background:var(--amber)"></i>EV</span>
+     <span class="rt"><b>Elena Vance</b><small>Absent · Family holiday</small></span>
+     <span class="rr"><button class="mini lbl pri"><svg class="ic sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3h5a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-5"/><path d="M10 8l4 4-4 4"/><path d="M14 12H3"/></svg>Check in</button></span></div></div>
+</div>
+  <nav class="nav five"><a href="#"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 10.5 12 3.5l8.5 7"/><path d="M5.5 9.6V20h13V9.6"/><path d="M9.8 20v-5.4h4.4V20"/></svg>My Room</a><a href="#" class="on"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6.5 5.6 8 8.4 5"/><path d="M4 12.5 5.6 14l2.8-3"/><path d="M4 18.5 5.6 20l2.8-3"/><path d="M11.5 6.5H20M11.5 12.5H20M11.5 18.5H20"/></svg>Attendance</a><a href="#"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="4.5" width="14" height="16" rx="2.5"/><path d="M9 4.5a1.5 1.5 0 0 1 1.5-1.5h3A1.5 1.5 0 0 1 15 4.5v1H9Z"/><path d="M9 11h6M9 15h4"/></svg>Activities</a><a href="#"><span class="badge">3</span><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 6.5A2.5 2.5 0 0 1 6 4h12a2.5 2.5 0 0 1 2.5 2.5v9A2.5 2.5 0 0 1 18 18H8l-4.5 3Z"/></svg>Messages</a><a href="#"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="7" height="7" rx="2"/><rect x="13" y="4" width="7" height="7" rx="2"/><rect x="4" y="13" width="7" height="7" rx="2"/><rect x="13" y="13" width="7" height="7" rx="2"/></svg>More</a></nav>
+ </div></div>
+ <figcaption>
+  <b>Row C</b><h3>Note as its own line</h3>
+  <p class="cnt"><span>4 tiers</span><span>on 2 of 19 rows</span></p>
+  <p><em>Loses</em> nothing</p>
+  <p><em>How it reads</em> the note reads in full, in ink, and the row grows to hold it. The two rows that need reading are visibly taller than the seventeen that do not.</p>
+ </figcaption>
+</figure><figure class="frame">
+ <div class="device"><div class="screen">
+  <div class="glow" style="left:236px;top:104px;width:190px;height:190px;opacity:.42"></div>
+  <div class="scene"><svg viewBox="0 0 390 844" preserveAspectRatio="none" aria-hidden="true"><g opacity=".78">
+<circle cx="299" cy="121" r="41" fill="var(--sun)" opacity=".72"></circle>
+<circle cx="299" cy="121" r="41" fill="none" stroke="var(--sun)" stroke-opacity=".42" stroke-width="10"></circle>
+<path fill="var(--g1)" d="M0 432C60 398 130 404 200 426c68 21 130 6 190-6v424H0Z"></path>
+<path fill="var(--g2)" d="M0 474C70 446 150 456 230 474c70 16 120 0 160-8v378H0Z"></path>
+<path d="M0 500C90 474 190 490 280 504c33 5 68-1 110-6" fill="none" stroke="var(--gl)" stroke-opacity=".38" stroke-width="5"></path>
+<path d="M0 524C90 500 190 514 280 528c33 5 68 0 110-5" fill="none" stroke="var(--gl)" stroke-opacity=".22" stroke-width="3"></path>
+<path fill="var(--cr)" d="M0 552C80 518 170 534 250 552c60 13 105 4 140-2v58c-50 6-90-6-150-16-80-14-160-24-240 2Z"></path>
+<path fill="var(--g3)" d="M0 626C90 596 180 612 260 628c60 12 100 4 130-2v218H0Z"></path>
+<path d="M0 664C95 638 190 652 275 665c36 6 78 1 115-4" fill="none" stroke="var(--gl)" stroke-opacity=".24" stroke-width="4"></path>
+<path fill="var(--cr2)" d="M0 700C100 672 190 688 270 702c60 10 95 4 120 0v36c-45 6-85-4-145-14-80-14-165-22-245 4Z"></path>
+<path fill="var(--g4)" d="M0 772C90 746 190 762 280 774c33 4 78 0 110-4v74H0Z"></path>
+</g></svg></div>
+<div class="haze"></div>
+  <div class="status"><span>8:32</span><span class="right">
+   <svg class="ic sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 13a10 10 0 0 1 14 0M8.5 16.5a5.5 5.5 0 0 1 7 0"/><circle cx="12" cy="20" r="1" fill="currentColor" stroke="none"/></svg>
+   <svg class="batt" viewBox="0 0 26 13" fill="none"><rect x=".7" y=".7" width="22" height="11.6" rx="3.2" stroke="currentColor" stroke-opacity=".45"/><rect x="2.4" y="2.4" width="16" height="8.2" rx="2" fill="currentColor" fill-opacity=".75"/><path d="M24.6 4.6v3.8a2 2 0 0 0 0-3.8Z" fill="currentColor" fill-opacity=".45"/></svg>
+  </span></div>
+  <div class="topbar"><span style="width:34px"></span><span class="tb-mid"><span class="tb-title">Attendance</span></span><span class="tb-right"><button class="tb-btn"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg></button><button class="ghost tb-inline">Select</button></span></div>
+<div class="body pad">
+ <div class="spine">
+  <button class="sp-b"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M14 6l-6 6 6 6"/></svg></button>
+  <span class="sp-mid"><svg class="ic sm" viewBox="0 0 24 24" fill="none" stroke="var(--ink-3)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg><b>Today · Tue 3 Sep</b></span>
+  <button class="sp-b off"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M10 6l6 6-6 6"/></svg></button>
+ </div>
+ <div class="tabpill"><span class="tp on">All 19</span><span class="tp">Here 16</span><span class="tp">Not in 1</span><span class="tp">Absent 2</span><span class="tp">Allergies 2</span></div>
+ <div class="card list"><div class="row rowstack"><span class="av">AW</span>
+     <span class="rt"><b>Amelia Walsh</b><small>Not checked in</small></span>
+     <span class="rr"><button class="mini lbl pri"><svg class="ic sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3h5a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-5"/><path d="M10 8l4 4-4 4"/><path d="M14 12H3"/></svg>Check in</button><button class="dotsb"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="var(--ink-3)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5.2" r="1.55"/><circle cx="12" cy="12" r="1.55"/><circle cx="12" cy="18.8" r="1.55"/></svg></button></span></div><div class="row rowstack"><span class="av"><i style="background:var(--present)"></i>MG</span>
+     <span class="rt"><b>Mateo Garcia</b><small>8:05 AM · Dad</small><span class="alg warn">Peanut</span></span>
+     <span class="rr"><button class="mini lbl sec"><svg class="ic sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h5"/><path d="M17 8l4 4-4 4"/><path d="M21 12H10"/></svg>Check out</button><button class="dotsb"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="var(--ink-3)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5.2" r="1.55"/><circle cx="12" cy="12" r="1.55"/><circle cx="12" cy="18.8" r="1.55"/></svg></button></span></div><div class="row rowstack"><span class="av"><i style="background:var(--present)"></i>EP</span>
+     <span class="rt"><b>Ella Park</b><small>8:11 AM · Mum</small></span>
+     <span class="rr"><button class="mini lbl sec"><svg class="ic sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h5"/><path d="M17 8l4 4-4 4"/><path d="M21 12H10"/></svg>Check out</button><button class="dotsb"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="var(--ink-3)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5.2" r="1.55"/><circle cx="12" cy="12" r="1.55"/><circle cx="12" cy="18.8" r="1.55"/></svg></button></span></div><div class="row rowstack hasnote"><span class="av"><i style="background:var(--present)"></i>BO</span>
+     <span class="rt"><b>Bea Okafor</b><small>8:20 AM · Grandma</small><small class="noteline"><svg class="ic sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 6.5h14M5 12h14M5 17.5h8"/></svg>Grandma collects at 4, not Mum. Blanket is in her bag.</small></span>
+     <span class="rr"><button class="mini lbl sec"><svg class="ic sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h5"/><path d="M17 8l4 4-4 4"/><path d="M21 12H10"/></svg>Check out</button><button class="dotsb"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="var(--ink-3)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5.2" r="1.55"/><circle cx="12" cy="12" r="1.55"/><circle cx="12" cy="18.8" r="1.55"/></svg></button></span></div><div class="row rowstack"><span class="av">OP</span>
+     <span class="rt"><b>Owen Patel</b><small>Not checked in</small></span>
+     <span class="rr"><button class="mini lbl pri"><svg class="ic sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3h5a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-5"/><path d="M10 8l4 4-4 4"/><path d="M14 12H3"/></svg>Check in</button><button class="dotsb"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="var(--ink-3)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5.2" r="1.55"/><circle cx="12" cy="12" r="1.55"/><circle cx="12" cy="18.8" r="1.55"/></svg></button></span></div><div class="row rowstack hasnote"><span class="av"><i style="background:var(--present)"></i>IM</span>
+     <span class="rt"><b>Ines Moreau</b><small>8:08 AM · Mum</small><span class="alg">Inhaler</span><small class="noteline"><svg class="ic sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 6.5h14M5 12h14M5 17.5h8"/></svg>Slept badly — may need an early nap.</small></span>
+     <span class="rr"><button class="mini lbl sec"><svg class="ic sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h5"/><path d="M17 8l4 4-4 4"/><path d="M21 12H10"/></svg>Check out</button><button class="dotsb"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="var(--ink-3)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5.2" r="1.55"/><circle cx="12" cy="12" r="1.55"/><circle cx="12" cy="18.8" r="1.55"/></svg></button></span></div><div class="row rowstack"><span class="av"><i style="background:var(--amber)"></i>EV</span>
+     <span class="rt"><b>Elena Vance</b><small>Absent · Family holiday</small></span>
+     <span class="rr"><button class="mini lbl pri"><svg class="ic sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3h5a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-5"/><path d="M10 8l4 4-4 4"/><path d="M14 12H3"/></svg>Check in</button><button class="dotsb"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="var(--ink-3)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5.2" r="1.55"/><circle cx="12" cy="12" r="1.55"/><circle cx="12" cy="18.8" r="1.55"/></svg></button></span></div></div>
+</div>
+  <nav class="nav five"><a href="#"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 10.5 12 3.5l8.5 7"/><path d="M5.5 9.6V20h13V9.6"/><path d="M9.8 20v-5.4h4.4V20"/></svg>My Room</a><a href="#" class="on"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6.5 5.6 8 8.4 5"/><path d="M4 12.5 5.6 14l2.8-3"/><path d="M4 18.5 5.6 20l2.8-3"/><path d="M11.5 6.5H20M11.5 12.5H20M11.5 18.5H20"/></svg>Attendance</a><a href="#"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="4.5" width="14" height="16" rx="2.5"/><path d="M9 4.5a1.5 1.5 0 0 1 1.5-1.5h3A1.5 1.5 0 0 1 15 4.5v1H9Z"/><path d="M9 11h6M9 15h4"/></svg>Activities</a><a href="#"><span class="badge">3</span><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 6.5A2.5 2.5 0 0 1 6 4h12a2.5 2.5 0 0 1 2.5 2.5v9A2.5 2.5 0 0 1 18 18H8l-4.5 3Z"/></svg>Messages</a><a href="#"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="7" height="7" rx="2"/><rect x="13" y="4" width="7" height="7" rx="2"/><rect x="4" y="13" width="7" height="7" rx="2"/><rect x="13" y="13" width="7" height="7" rx="2"/></svg>More</a></nav>
+ </div></div>
+ <figcaption>
+  <b>Row D</b><h3>Row C plus the overflow</h3>
+  <p class="cnt"><span>2 controls</span><span>per row</span></p>
+  <p><em>Loses</em> nothing</p>
+  <p><em>How it reads</em> the ellipsis returns as a quiet grey glyph after the action — no border, no fill — so it reads as a handle beside Check out rather than a rival to it.</p>
+ </figcaption>
+</figure><figure class="frame">
+ <div class="device"><div class="screen">
+  <div class="glow" style="left:236px;top:104px;width:190px;height:190px;opacity:.42"></div>
+  <div class="scene"><svg viewBox="0 0 390 844" preserveAspectRatio="none" aria-hidden="true"><g opacity=".78">
+<circle cx="299" cy="121" r="41" fill="var(--sun)" opacity=".72"></circle>
+<circle cx="299" cy="121" r="41" fill="none" stroke="var(--sun)" stroke-opacity=".42" stroke-width="10"></circle>
+<path fill="var(--g1)" d="M0 432C60 398 130 404 200 426c68 21 130 6 190-6v424H0Z"></path>
+<path fill="var(--g2)" d="M0 474C70 446 150 456 230 474c70 16 120 0 160-8v378H0Z"></path>
+<path d="M0 500C90 474 190 490 280 504c33 5 68-1 110-6" fill="none" stroke="var(--gl)" stroke-opacity=".38" stroke-width="5"></path>
+<path d="M0 524C90 500 190 514 280 528c33 5 68 0 110-5" fill="none" stroke="var(--gl)" stroke-opacity=".22" stroke-width="3"></path>
+<path fill="var(--cr)" d="M0 552C80 518 170 534 250 552c60 13 105 4 140-2v58c-50 6-90-6-150-16-80-14-160-24-240 2Z"></path>
+<path fill="var(--g3)" d="M0 626C90 596 180 612 260 628c60 12 100 4 130-2v218H0Z"></path>
+<path d="M0 664C95 638 190 652 275 665c36 6 78 1 115-4" fill="none" stroke="var(--gl)" stroke-opacity=".24" stroke-width="4"></path>
+<path fill="var(--cr2)" d="M0 700C100 672 190 688 270 702c60 10 95 4 120 0v36c-45 6-85-4-145-14-80-14-165-22-245 4Z"></path>
+<path fill="var(--g4)" d="M0 772C90 746 190 762 280 774c33 4 78 0 110-4v74H0Z"></path>
+</g></svg></div>
+<div class="haze"></div>
+  <div class="status"><span>8:32</span><span class="right">
+   <svg class="ic sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 13a10 10 0 0 1 14 0M8.5 16.5a5.5 5.5 0 0 1 7 0"/><circle cx="12" cy="20" r="1" fill="currentColor" stroke="none"/></svg>
+   <svg class="batt" viewBox="0 0 26 13" fill="none"><rect x=".7" y=".7" width="22" height="11.6" rx="3.2" stroke="currentColor" stroke-opacity=".45"/><rect x="2.4" y="2.4" width="16" height="8.2" rx="2" fill="currentColor" fill-opacity=".75"/><path d="M24.6 4.6v3.8a2 2 0 0 0 0-3.8Z" fill="currentColor" fill-opacity=".45"/></svg>
+  </span></div>
+  <div class="topbar"><span style="width:34px"></span><span class="tb-mid"><span class="tb-title">Attendance</span></span><span class="tb-right"><button class="tb-btn"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg></button><button class="ghost tb-inline">Select</button></span></div>
+<div class="body pad dim">
+ <div class="tabpill"><span class="tp on">All 19</span><span class="tp">Here 16</span><span class="tp">Not in 1</span></div>
+ <div class="card list"><div class="row rowstack"><span class="av"><i style="background:var(--present)"></i>MG</span>
+     <span class="rt"><b>Mateo Garcia</b><small>8:05 AM · Dad</small><span class="alg warn">Peanut</span></span>
+     <span class="rr"><button class="mini lbl sec"><svg class="ic sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h5"/><path d="M17 8l4 4-4 4"/><path d="M21 12H10"/></svg>Check out</button><button class="dotsb"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="var(--ink-3)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5.2" r="1.55"/><circle cx="12" cy="12" r="1.55"/><circle cx="12" cy="18.8" r="1.55"/></svg></button></span></div><div class="row rowstack"><span class="av"><i style="background:var(--present)"></i>EP</span>
+     <span class="rt"><b>Ella Park</b><small>8:11 AM · Mum</small></span>
+     <span class="rr"><button class="mini lbl sec"><svg class="ic sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h5"/><path d="M17 8l4 4-4 4"/><path d="M21 12H10"/></svg>Check out</button><button class="dotsb"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="var(--ink-3)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5.2" r="1.55"/><circle cx="12" cy="12" r="1.55"/><circle cx="12" cy="18.8" r="1.55"/></svg></button></span></div></div>
+</div>
+<div class="scrim on"></div>
+<div class="sheet on">
+ <span class="grab"></span>
+ <div class="sh-kid"><span class="av"><i style="background:var(--present)"></i>BO</span>
+  <span class="rt"><b>Bea Okafor</b><small>Sunflower Room · in at 8:20 AM</small></span></div>
+ <div class="card list roomy">
+  <div class="row"><span class="av"><svg class="ic sm" viewBox="0 0 24 24" fill="none" stroke="var(--ink-2)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8 8 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z"/></svg></span>
+      <span class="rt"><b>Mark absent</b><small>Confirms first — the family can see it</small></span><svg class="ic sm" viewBox="0 0 24 24" fill="none" stroke="var(--ink-3)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div>
+  <div class="row"><span class="av"><svg class="ic sm" viewBox="0 0 24 24" fill="none" stroke="var(--ink-2)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h13l-3-3M20 16H7l3 3"/></svg></span>
+      <span class="rt"><b>Move to another room</b><small>Checks the ratio before it moves</small></span><svg class="ic sm" viewBox="0 0 24 24" fill="none" stroke="var(--ink-3)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div>
+  <div class="row"><span class="av"><svg class="ic sm" viewBox="0 0 24 24" fill="none" stroke="var(--ink-2)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></span>
+      <span class="rt"><b>Add a note for today</b><small>Clears at midnight</small></span><svg class="ic sm" viewBox="0 0 24 24" fill="none" stroke="var(--ink-3)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div>
+  <div class="row"><span class="av"><svg class="ic sm" viewBox="0 0 24 24" fill="none" stroke="var(--ink-2)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.4"/><path d="M5 20a7 7 0 0 1 14 0"/></svg></span>
+      <span class="rt"><b>Open profile</b><small>Medical, pickup, custody, consent</small></span><svg class="ic sm" viewBox="0 0 24 24" fill="none" stroke="var(--ink-3)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div>
+ </div>
+ <button class="ghost">Close</button>
+</div>
+  <nav class="nav five"><a href="#"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 10.5 12 3.5l8.5 7"/><path d="M5.5 9.6V20h13V9.6"/><path d="M9.8 20v-5.4h4.4V20"/></svg>My Room</a><a href="#" class="on"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6.5 5.6 8 8.4 5"/><path d="M4 12.5 5.6 14l2.8-3"/><path d="M4 18.5 5.6 20l2.8-3"/><path d="M11.5 6.5H20M11.5 12.5H20M11.5 18.5H20"/></svg>Attendance</a><a href="#"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="4.5" width="14" height="16" rx="2.5"/><path d="M9 4.5a1.5 1.5 0 0 1 1.5-1.5h3A1.5 1.5 0 0 1 15 4.5v1H9Z"/><path d="M9 11h6M9 15h4"/></svg>Activities</a><a href="#"><span class="badge">3</span><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 6.5A2.5 2.5 0 0 1 6 4h12a2.5 2.5 0 0 1 2.5 2.5v9A2.5 2.5 0 0 1 18 18H8l-4.5 3Z"/></svg>Messages</a><a href="#"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="7" height="7" rx="2"/><rect x="13" y="4" width="7" height="7" rx="2"/><rect x="4" y="13" width="7" height="7" rx="2"/><rect x="13" y="13" width="7" height="7" rx="2"/></svg>More</a></nav>
+ </div></div>
+ <figcaption>
+  <b>The sheet</b><h3>What the ellipsis opens</h3>
+  <p class="cnt"><span>4 actions</span><span>1 tap each</span></p>
+  <p><em>Loses</em> Check Out, which the row already carries</p>
+  <p><em>How it reads</em> four list rows, not five stacked pill buttons. Each says what it does and what it costs — marking absent confirms, moving checks the ratio, a note expires at midnight.</p>
+ </figcaption>
+</figure></div>
+ <div class="notes">
+  <div class="note"><b>What is fixed now</b><p>Time reads as a time and nothing else \u2014 "8:05 AM \u00b7 Dad". The allergy tag is an outlined pill under the subtitle, warm red for a food allergy and neutral for medication, so severity is visible without a second glance.</p></div>
+  <div class="note"><b>One thing I did not copy</b><p>Your reference tints the avatar blue for a child who is in. Blue means interactive everywhere else in this app, and the green dot already says "here", so the avatar stays neutral. Two signals for one fact is how the old screen got loud.</p></div>
+  <div class="note"><b>What I would ship</b><p>Row C. A note exists to be read, and the only version where it is actually read is the one that shows it. Seventeen rows stay three tiers tall; two grow. That difference is the point, not a cost.</p></div>
+  <div class="note"><b>The overflow, kept honest</b><p>The ellipsis earns its place — mark absent, relocate and add note have nowhere else to live on the row. But it is a glyph, not a button: no border, no fill, so it reads as a handle beside Check out rather than a rival to it.</p></div>
+  <div class="note"><b>What the sheet drops</b><p>Check Out, because the row already carries it 40px to the left. Five stacked pill buttons also become four list rows, each with a line saying what it does — that marking absent confirms, that moving checks the ratio, that a note expires at midnight. Say the word if you want Check Out kept for muscle memory.</p></div>
+  <div class="note"><b>If the register must stay even</b><p>Take Row B. Both exceptions become tags in the same place, so every row is the same height and the eye still finds them \u2014 you just have to tap to find out what the note says.</p></div>
+ </div>
+</div>

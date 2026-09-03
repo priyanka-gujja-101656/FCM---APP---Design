@@ -876,15 +876,50 @@
   .pillv.warn{color:#7E5C2E;background:rgba(176,138,86,.22)}
   .card.needs .mt small{color:var(--ink-2)}
   .sum{padding:16px 8px}
+
+  /* ===== the settled attendance row ===== */
+  .row.rowstack{align-items:flex-start;padding-top:15px;padding-bottom:15px}
+  .row.rowstack .av{margin-top:1px}
+  .row.rowstack .rr{margin-top:2px;gap:6px}
+  .row.rowstack .rt b{font-size:15.5px;font-weight:550;letter-spacing:-.008em}
+  .row.rowstack .rt small{font-size:13px;color:var(--ink-3);margin-top:4px;font-variant-numeric:tabular-nums}
+
+  /* exceptions are tags, never sentences */
+  .tagrow{display:flex;gap:8px;flex-wrap:wrap;margin-top:9px}
+  .alg{display:inline-flex;align-items:center;font-size:12.5px;font-weight:500;
+    padding:5px 11px;border-radius:9px;background:rgba(44,49,43,.05);
+    box-shadow:inset 0 0 0 1px rgba(44,49,43,.16);color:var(--ink-2);white-space:nowrap}
+  .alg.warn{background:rgba(163,58,45,.06);box-shadow:inset 0 0 0 1px rgba(163,58,45,.3);color:#A33A2A}
+  .alg.note{background:rgba(5,100,136,.05);box-shadow:inset 0 0 0 1px rgba(24,157,210,.34);
+    color:var(--npds-blue-700);cursor:pointer;transition:background .15s ease}
+  .alg.note:hover{background:var(--npds-blue-100)}
+  .alg.note.on{background:var(--npds-blue-100);box-shadow:inset 0 0 0 1.5px var(--npds-blue-500);font-weight:600}
+
+  /* the note stays closed until the pill is tapped */
+  .noteline{display:flex!important;align-items:flex-start;gap:8px;color:var(--ink)!important;
+    font-weight:450!important;white-space:normal!important;line-height:1.45;
+    margin-top:11px!important;font-size:13px!important;font-variant-numeric:normal!important;
+    padding:11px 13px;border-radius:12px;background:rgba(24,157,210,.07);
+    animation:notedrop .2s ease}
+  @keyframes notedrop{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+  .noteline svg{width:14px;height:14px;flex:none;margin-top:1px;color:var(--npds-blue-700)}
+
+  /* the overflow is a handle, not a button */
+  .dotsb{flex:none;width:30px;height:34px;border:0;background:none;padding:0;
+    display:grid;place-items:center;cursor:pointer;border-radius:999px;margin-right:-6px}
+  .dotsb:hover{background:rgba(44,49,43,.06)}
+  .dotsb svg{stroke:var(--ink-3)!important}
+  .row.rowstack .rt b[data-act]{cursor:pointer}
+  .sheet .card.list .row{padding:15px 13px}
 </style>
 <div class="stage">
  <div class="lead">
   <p class="eyebrow">FCM · Teacher app · working copy · changes land here</p>
   <h1>Teacher App, Working Copy</h1>
-  <p>Every capability from the teacher app audit, carried in this design language. My Room is unchanged. Attendance, Activities, Messages and More now hold the full feature set.</p>
+  <p>Every capability from the teacher app audit, carried in this design language. My Room is unchanged. Attendance now uses the settled row: time only, exceptions as tags, the note closed until you ask for it.</p>
  </div>
  <div class="try">
-  <span><b>Try:</b> check a child out — it asks who collected them</span>
+  <span><b>Try:</b> tap a blue <b>Note</b> tag in Attendance</span>
   <span>Swipe a child left in Attendance</span>
   <span>Select several, check them out at once</span>
   <span>Post an activity, then filter the log</span>
@@ -1000,7 +1035,7 @@ let S={
  tab:'myroom', sub:null, arg:null,
  selecting:false, searchOpen:false, dir:'in', sel:new Set(), q:'', filters:new Set(), draftType:null,
  draft:{who:'all',picked:new Set(),req:'',det:'',time:null,vis:'parents',internal:'',sev:'low',witness:''},
- stack:[], day:0, childTab:'general', famTab:'general', reportView:'list', confirm:null,
+ stack:[], openNote:new Set(), day:0, childTab:'general', famTab:'general', reportView:'list', confirm:null,
  sort:'name', columns:new Set(['status','time','allergy']),
  compose:{to:null,fwd:false,subject:'',body:''},
  drafts:[{id:'d1',to:'Lin Family',subject:'Nap routine',body:'Hi [Family Name], a note about [Child Name] and naps…'}],
@@ -1049,39 +1084,44 @@ const now=()=>{const d=new Date();let h=d.getHours()%12||12;return h+':'+String(
 const DOT={here:'var(--present)',absent:'var(--amber)',out:null};
 const dotFor=st=>DOT[st]?`<i style="background:${DOT[st]}"></i>`:'';
 function row(k,opts={}){
-  const box=S.selecting?`<span class="cbx${S.sel.has(k.id)?' on':''}">${S.sel.has(k.id)?ic('check','ic sm','#FFFDFA','2.4'):''}</span>`:'';
-  let meta=opts.meta;
-  if(meta===undefined){
-    const C=S.columns, bits=[];
-    if(k.status==='here'){bits.push(C.has('time')?`In ${k.tin}`:'Here');
-      if(C.has('guardian')&&k.who)bits.push(k.who);}
-    else if(k.status==='out'){bits.push(k.tout?(C.has('time')?`Checked out ${k.tout}`:'Checked out'):'Not checked in');
-      if(C.has('guardian')&&k.collectedBy)bits.push(k.collectedBy.split(' · ')[0]);}
-    else bits.push(`Absent${k.who?' · '+k.who:''}`);
-    if(C.has('allergy')&&k.allergy)bits.push('Peanut allergy');
-    if(C.has('allergy')&&k.med)bits.push('Inhaler');
-    if(k.note)bits.push('note');
-    meta=bits.join(' · ');
+  const box=S.selecting?`<span class="cbx sq${S.sel.has(k.id)?' on':''}">${S.sel.has(k.id)?ic('check','ic sm','#FFFDFA','2.4'):''}</span>`:'';
+  const C=S.columns;
+  // one quiet line: the time and who, nothing else
+  let sub=opts.meta;
+  if(sub===undefined){
+    if(k.status==='here'){
+      const b=[]; if(C.has('time'))b.push(k.tin); if(C.has('guardian')&&k.who)b.push(k.who);
+      sub=b.join(' \u00b7 ')||'Here';
+    }else if(k.status==='out'){
+      sub=k.tout?(C.has('time')?`Checked out ${k.tout}`:'Checked out')+(C.has('guardian')&&k.collectedBy?' \u00b7 '+k.collectedBy.split(' \u00b7 ')[0]:''):'Not checked in';
+    }else sub=`Absent${k.who?' \u00b7 '+k.who:''}`;
   }
+  // exceptions become tags beneath, never sentences
+  let tags='';
+  if(!S.selecting){
+    const t=[];
+    if(C.has('allergy')&&k.allergy)t.push('<span class="alg warn">Peanut</span>');
+    if(C.has('allergy')&&k.med)t.push('<span class="alg">Inhaler</span>');
+    if(k.note)t.push(`<span class="alg note${S.openNote.has(k.id)?' on':''}" data-act="notepill:${k.id}">Note</span>`);
+    if(t.length)tags=`<span class="tagrow">${t.join('')}</span>`;
+  }
+  const noteOpen=(!S.selecting&&k.note&&S.openNote.has(k.id))
+    ? `<small class="noteline">${ic('doc','ic sm','currentColor','2')}${k.note}</small>` : '';
   let right=opts.right;
   if(right===undefined){
     if(S.selecting) right='';
-    else if(k.status==='here') right=`<button class="mini lbl sec" data-act="checkout:${k.id}" aria-label="Check out ${k.name}">${ic('out','ic sm','currentColor','1.9')}Check out</button>`;
-    else right=`<button class="mini lbl pri" data-act="checkin:${k.id}" aria-label="Check in ${k.name}">${ic('in','ic sm','currentColor','1.9')}Check in</button>`;
+    else{
+      const act = k.status==='here'
+        ? `<button class="mini lbl sec" data-act="checkout:${k.id}" aria-label="Check out ${k.name}">${ic('out','ic sm','currentColor','1.9')}Check out</button>`
+        : `<button class="mini lbl pri" data-act="checkin:${k.id}" aria-label="Check in ${k.name}">${ic('in','ic sm','currentColor','1.9')}Check in</button>`;
+      right=act+`<button class="dotsb" data-act="rowmenu:${k.id}" aria-label="More for ${k.name}">${ic('dots','ic','var(--ink-3)','1.8')}</button>`;
+    }
   }
-  const act=S.selecting?`data-act="sel:${k.id}"`:`data-act="child:${k.id}"`;
-  return `<div class="row${S.sel.has(k.id)?' picked':''}${k.status==='out'?' gone':''}" ${act}>${box}
+  const act=S.selecting?`data-act="sel:${k.id}"`:'';
+  return `<div class="row rowstack${S.sel.has(k.id)?' picked':''}${k.status==='out'&&k.tout?' gone':''}" ${act}>${box}
     <span class="av">${dotFor(k.status)}${ini(k.name)}</span>
-    <span class="rt"><b>${k.name}</b><small>${meta}</small></span>
+    <span class="rt"><b ${S.selecting?'':`data-act="child:${k.id}"`}>${k.name}</b><small>${sub}</small>${tags}${noteOpen}</span>
     <span class="rr">${right}</span></div>`;
-}
-function swipeRow(k){
-  return `<div class="swipe" data-swipe="${k.id}">
-   <div class="sw-row">${row(k)}</div>
-   <div class="sw-acts">
-    <span class="sw-a absent" data-act="absent:${k.id}">${ic('moon','ic sm','#FFFDFA','2')}Absent</span>
-    <span class="sw-a relo" data-act="sheet:relocate">${ic('swap','ic sm','#FFFDFA','2')}Move</span>
-   </div></div>`;
 }
 const tile=(t,sub)=>`<div class="tile" data-act="type:${t[0]}"><span class="tl-i">${ic(t[2],'ic','var(--accent)','1.6')}</span><b>${t[1]}</b>${sub?`<span class="tl-n">${sub}</span>`:''}</div>`;
 const topbar=(title,sub,right='',back=false)=>`<div class="topbar">
@@ -1578,6 +1618,24 @@ const SHEETS={
 
    <button class="primary${ready?'':' off'}" data-act="${ready?'asksave':'needreq'}">${ic('check','ic','currentColor','1.8')}Post ${t.label.toLowerCase()}</button>`;
  },
+
+ rowactions(){
+  const k=K(S.arg);
+  const item=(i,l,sub,act)=>`<div class="row" data-act="${act}">
+    <span class="av">${ic(i,'ic sm','var(--ink-2)','1.8')}</span>
+    <span class="rt"><b>${l}</b><small>${sub}</small></span>
+    ${ic('arrow','ic sm','var(--ink-3)')}</div>`;
+  return `<span class="grab"></span>
+   <div class="sh-kid"><span class="av lg">${dotFor(k.status)}${ini(k.name)}</span>
+    <span class="rt"><b>${k.name}</b><small>${k.room} Room \u00b7 ${k.status==='here'?'in at '+k.tin:k.status==='absent'?'absent today':'not checked in'}</small></span></div>
+   <div class="card list roomy">
+    ${item('moon','Mark absent','Confirms first \u2014 the family can see it',`absent:${k.id}`)}
+    ${item('swap','Move to another room','Checks the ratio before it moves','sheet:relocate')}
+    ${item('pen',k.note?'Edit today\u2019s note':'Add a note for today','Clears at midnight',`note:${k.id}`)}
+    ${item('people','Open profile','Medical, pickup, custody, consent',`child:${k.id}`)}
+   </div>
+   <button class="ghost" data-act="close">Close</button>`;
+ },
  pickup(){
   const k=K(S.arg);
   const people=(PICKUPS[k.id]||DEFAULT_PICKUPS.map(x=>x+' · on file'));
@@ -1809,7 +1867,7 @@ function doAct(a){
   if(PUSH.has(cmd))S.stack.push({sub:S.sub,arg:S.arg,childTab:S.childTab,famTab:S.famTab});
   const closeAll=()=>{document.querySelectorAll('.swipe.open').forEach(s=>s.classList.remove('open'));};
   switch(cmd){
-   case 'tab': S.tab=arg;S.sub=null;S.stack=[];S.selecting=false;S.searchOpen=false;S.sel.clear();S.q='';S.filters.clear();S.mscope='all';S.munread=false;S.day=0;closeSheet();render();break;
+   case 'tab': S.tab=arg;S.sub=null;S.stack=[];S.openNote.clear();S.selecting=false;S.searchOpen=false;S.sel.clear();S.q='';S.filters.clear();S.mscope='all';S.munread=false;S.day=0;closeSheet();render();break;
    case 'back':{const p=S.stack.pop();
      if(p){S.sub=p.sub;S.arg=p.arg;S.childTab=p.childTab;S.famTab=p.famTab;}else S.sub=null;
      S.q='';S.searchOpen=false;render();break;}
@@ -1931,6 +1989,8 @@ function doAct(a){
      toast(`<b>${t.label}</b> posted for ${n} ${n===1?'child':'children'}`);break;}
 
    case 'note': sheet('note',arg);break;
+   case 'notepill': S.openNote.has(arg)?S.openNote.delete(arg):S.openNote.add(arg);render(true);break;
+   case 'rowmenu': sheet('rowactions',arg);break;
    case 'savenote':{const k=K(arg);const n=$('#nt');k.note=n?n.value.trim():'';
      closeSheet();toast(k.note?`Note saved for <b>${k.name}</b>`:`Note cleared`);render(true);break;}
 
