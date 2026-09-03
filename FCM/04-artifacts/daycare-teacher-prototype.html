@@ -771,6 +771,17 @@
 
   /* search icon lives beside the avatar on home */
   .hh-right{display:flex;align-items:center;gap:10px}
+
+  /* check-in sheet keeps icon-only actions: the section heading names the direction */
+  .mini.lg.pri{background:rgba(255,255,255,.92);border:1px solid var(--npds-blue-500);
+    color:var(--npds-blue-700)}
+  .mini.lg.pri:hover{background:var(--npds-blue-100);border-color:var(--npds-blue-700)}
+  .mini.lg.pri:active{background:var(--npds-blue-200)}
+  .mini.lg.sec{background:rgba(255,255,255,.92);border:1px solid var(--npds-gray-500);
+    color:var(--npds-gray-700)}
+  .mini.lg.sec:hover{background:#f0f1f2;border-color:var(--npds-gray-700)}
+  .mini.lg.sec:active{background:var(--npds-gray-200)}
+  .mini.lg.pri svg,.mini.lg.sec svg{stroke:currentColor!important}
 </style>
 <div class="stage">
  <div class="lead">
@@ -1111,7 +1122,7 @@ const SHEETS={
     <span class="sg${S.dir==='in'?' on':''}" data-act="dir:in">${ic('in','ic','currentColor','1.8')}Check in</span>
     <span class="sg${S.dir==='out'?' on':''}" data-act="dir:out">${ic('out','ic','currentColor','1.8')}Check out</span></div>
    <p class="sh-note">${S.dir==='in'?`${pool.length} ${pool.length===1?'child is':'children are'} not in the room yet.`:`${pool.length} ${pool.length===1?'child is':'children are'} here now.`}</p>
-   <div class="card list roomy">${pool.length?pool.slice(0,5).map(k=>row(k,{right:`<button class="mini lbl ${S.dir==='in'?'pri':'sec'}" data-act="${S.dir==='in'?'checkin':'checkout'}:${k.id}" aria-label="${S.dir==='in'?'Check in':'Check out'} ${k.name}">${ic(S.dir==='in'?'in':'out','ic sm','currentColor','1.9')}${S.dir==='in'?'Check in':'Check out'}</button>`})).join(''):`<div class="empty">${S.dir==='in'?'Everyone has arrived.':'Nobody left to check out.'}</div>`}</div>
+   <div class="card list roomy">${pool.length?pool.slice(0,5).map(k=>row(k,{right:`<button class="mini lg ${S.dir==='in'?'pri':'sec'}" data-act="${S.dir==='in'?'checkin':'checkout'}:${k.id}" aria-label="${S.dir==='in'?'Check in':'Check out'} ${k.name}">${ic(S.dir==='in'?'in':'out','ic','currentColor','1.9')}</button>`})).join(''):`<div class="empty">${S.dir==='in'?'Everyone has arrived.':'Nobody left to check out.'}</div>`}</div>
    <button class="second" data-act="bulkfrom">${ic('listCheck','ic','var(--npds-gray-700)','1.8')}Bulk check in / out</button>`;
  },
  posttype(){
