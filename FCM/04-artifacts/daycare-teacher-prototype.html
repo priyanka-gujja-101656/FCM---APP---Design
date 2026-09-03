@@ -493,6 +493,30 @@
   .nav.five a{font-size:10.5px;gap:6px}
   .nav a .ic{width:24px;height:24px}
   .badge{top:-3px;left:calc(50% + 7px);min-width:16px;height:16px;font-size:9.5px}
+
+  /* ===== corrected against .npds-button: radius-full, 1px border, size ramp ===== */
+  :root{ --npds-radius:999px; }
+  .primary,.second,.ghost,.sb-go,.mini,.csend,.tb-btn{border-radius:999px}
+  /* lg = 48px min-height, body-lg */
+  .primary,.second,.ghost{min-height:48px;padding:12px 20px;font-size:15px;column-gap:8px;border-width:1px}
+  .primary.q,.second.q{min-height:48px;padding:12px 10px;font-size:13.5px}
+  /* md = 36px min-height, body-md */
+  .sb-go{min-height:36px;min-width:36px;padding:9px 16px;font-size:14px}
+  .ghost{min-height:36px;padding:9px 18px;font-size:13px;width:auto;margin:9px auto 0;display:flex}
+  .mini{width:36px;height:36px;min-height:36px;border-radius:999px}
+  .csend{width:44px;height:44px;min-height:44px;border-radius:999px}
+  .tb-btn{width:36px;height:36px;border-radius:999px}
+  /* chips and segments follow the pill language too */
+  .ch,.ch.on{border-radius:999px}
+  .seg{border-radius:999px;padding:4px}
+  .sg{border-radius:999px}
+  .flag,.attach{border-radius:999px}
+  .attach{padding:12px 18px}
+  .sw-a{border-radius:999px}
+  .cbx{border-radius:999px}
+  .quick{gap:10px}
+  .primary:focus-visible,.second:focus-visible,.ghost:focus-visible,.sb-go:focus-visible,
+  .mini:focus-visible,.csend:focus-visible{outline:2px solid var(--npds-blue-500);outline-offset:2px}
 </style>
 <div class="stage">
  <div class="lead">
