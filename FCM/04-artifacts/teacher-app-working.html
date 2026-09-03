@@ -1265,7 +1265,8 @@ function vAttendance(){
     ${S.selecting?'<p class="hint">Tick the children you want, then pick an action at the bottom.</p>':''}
     <div class="card list">${list.length?list.map(k=>row(k,past?{right:''}:{})).join(''):'<div class="empty">No children match.</div>'}</div>
    </div>
-   ${dock(list.length,S.kids.length,'child','children','Search this room')}`;
+   ${dock(list.length,S.kids.length,'child','children','Search this room',
+     `<button class="sd-more" data-act="sheet:attfilter">${ic('filter','ic sm','var(--npds-gray-700)','1.9')}Sort &amp; columns${nf?' ('+nf+')':''}</button>`)}`;
 }
 function vActivities(){
   const f=S.filters, q=S.q.trim().toLowerCase();
