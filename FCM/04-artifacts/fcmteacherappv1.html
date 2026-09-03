@@ -6119,9 +6119,20 @@ function _convertLucideIcons(root){
 }
 function _convertStatusTags(root){
   var scope = root||document;
-  function makeTag(el, variant){
+  /* NPDS tags come in two flavours: a semantic variant (neutral, positive,
+     negative...) and the 11-colour palette. Status pills want the variant;
+     activity types want the palette, so one type reads apart from another. */
+  var ACT_TAG_COLOR = {
+    photo:'blue', note:'indigo', observation:'indigo', food:'orange',
+    meal:'orange', snack:'orange', nap:'purple', incident:'red',
+    accident:'red', kudos:'yellow', milestone:'yellow', art:'green',
+    toilet:'teal', diaper:'teal'
+  };
+  window.ACT_TAG_COLOR = ACT_TAG_COLOR;
+  function makeTag(el, variant, color){
     var tag = document.createElement('npds-tag');
-    tag.setAttribute('variant', variant);
+    if(color) tag.setAttribute('color', color);
+    else tag.setAttribute('variant', variant);
     tag.innerHTML = el.innerHTML;
     var keep=[];
     (el.getAttribute('style')||'').split(';').map(function(s){return s.trim();}).filter(Boolean).forEach(function(d){
@@ -6136,7 +6147,14 @@ function _convertStatusTags(root){
   scope.querySelectorAll('.sub-status-pill').forEach(function(el){ var v = el.classList.contains('paid')?'positive':el.classList.contains('submitted')?'informative':'notice'; makeTag(el, v); });
   scope.querySelectorAll('.tag-sm').forEach(function(el){ var v = el.classList.contains('ok')?'positive':el.classList.contains('err')?'negative':el.classList.contains('warn')?'notice':'neutral'; makeTag(el, v); });
   scope.querySelectorAll('.allergy-pill').forEach(function(el){ var green=/(#e8f5e9|2e7d32|c8e6c9)/.test(el.getAttribute('style')||''); makeTag(el, green?'positive':'notice'); });
-  scope.querySelectorAll('.act-type-tag').forEach(function(el){ var neg=el.className.indexOf('incident')>=0||el.className.indexOf('accident')>=0; makeTag(el, neg?'negative':'neutral'); });
+  scope.querySelectorAll('.act-type-tag').forEach(function(el){
+    /* Keyed on the label, since one of the two call sites renders the tag
+       without its act-tag-* class. */
+    var key = (el.textContent||'').trim().toLowerCase();
+    var color = ACT_TAG_COLOR[key];
+    if(!color && (el.className.indexOf('incident')>=0||el.className.indexOf('accident')>=0)) color='red';
+    makeTag(el, 'neutral', color || 'gray');
+  });
   scope.querySelectorAll('.act-rep-badge').forEach(function(el){ makeTag(el, 'neutral'); });
   scope.querySelectorAll('.staff-badge').forEach(function(el){ makeTag(el, /expired/i.test(el.textContent)?'negative':'notice'); });
 }
@@ -16276,16 +16294,16 @@ SCREENS.reports = () => {
 };
 
 /* ── Activity Report, state & helpers ── */
-/* Matches the npds-tag variants the activity cards use. */
-function actTagVariant(type){
-  if(['Incident','Accident'].includes(type)) return 'negative';
-  if(['Kudos','Milestone'].includes(type)) return 'positive';
-  if(['Photo','Art','Observation','Note'].includes(type)) return 'info';
-  if(['Food','Meal'].includes(type)) return 'warning';
-  return 'neutral';
+/* Activity types read off the NPDS colour palette rather than the semantic
+   variants. npds-tag accepts variant="error|informative|negative|neutral|
+   notice|positive"; the old map returned "info" and "warning", which are not
+   in that set, so those tags fell back to grey. Types are not statuses
+   anyway, so the palette is the right axis: one colour per kind of activity. */
+function actTagColor(type){
+  return (window.ACT_TAG_COLOR || {})[String(type).trim().toLowerCase()] || 'gray';
 }
-function actTag(type){ return '<npds-tag variant="'+actTagVariant(type)+'">'+type+'</npds-tag>'; }
-Object.assign(window, { actTagVariant, actTag });
+function actTag(type){ return '<npds-tag color="'+actTagColor(type)+'">'+type+'</npds-tag>'; }
+Object.assign(window, { actTagColor, actTag });
 const ACT_BADGE_COLORS = {
   Incident:    {bg:'#fef3f2', color:'#d33737'},
   Food:        {bg:'#d1fae5', color:'#059669'},
@@ -18358,7 +18376,7 @@ SCREENS.activities = () => {
         <div class="act-text">${a.text}</div>
         <div class="act-footer">
           <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;min-width:0">
-            <npds-tag variant="${(['Incident','Accident'].includes(a.type)?'negative':['Kudos','Milestone'].includes(a.type)?'positive':['Photo','Art','Observation','Note'].includes(a.type)?'info':['Food','Meal'].includes(a.type)?'warning':'neutral')}">${a.type}</npds-tag>
+            <npds-tag color="${actTagColor(a.type)}">${a.type}</npds-tag>
             ${a.pending ? `<span class="act-draft"><npds-icon glyph="penToSquare" size="sm"></npds-icon>Draft</span>` : ''}
           </div>
           ${cta}
