@@ -23407,3 +23407,49 @@ Object.assign(window, { tpCiToggleStatus, tpCiSearch, tpSyncFloats, tpOpenReloca
 })();
 
 </script>
+
+<script>
+/* ── Usability-test entry points ───────────────────────────────────────────
+   Unmoderated tests need every task to open on the same known screen. The
+   prototype otherwise restores the last tab used, so task N+1 would start
+   wherever task N ended, and the sign-in gate would sit in front of tasks
+   that are not about signing in. A ?t= link resets both and boots one screen.
+
+   The ids are deliberately opaque: participants read the address bar, and a
+   descriptive slug would hand them the answer before they start.
+
+     ?t=0  sign-in gate, signed out   (use when signing in IS the task)
+     ?t=1  My Room        ?t=2  Attendance     ?t=3  Activities
+     ?t=4  Messages       ?t=5  More
+   No ?t= at all behaves exactly as before.
+   ────────────────────────────────────────────────────────────────────────── */
+(function(){
+  var ROUTES = { '0':'myroom', '1':'myroom', '2':'checkin', '3':'activities', '4':'messages', '5':'more' };
+  var GATED  = { '0':true };   /* t=0 keeps the gate up, and signing in lands on My Room */
+  var t = null;
+  try { t = new URLSearchParams(location.search).get('t'); } catch(e){ return; }
+  if (t === null || !Object.prototype.hasOwnProperty.call(ROUTES, t)) return;
+
+  var tab = ROUTES[t], gated = GATED[t] === true;
+  /* Runs while the document is still parsing, so the gate and the tab-restore
+     both read the state this leaves behind rather than racing it. */
+  try {
+    localStorage.removeItem('tp-active-tab');
+    if (gated) localStorage.removeItem('tp-signed-in');
+    else localStorage.setItem('tp-signed-in', '1');
+  } catch(e){}
+
+  /* The app's own boot() calls switchTab('myroom') on a 60ms timer, so the
+     target is asserted after that and once more as a backstop. */
+  function go(){
+    if (typeof window.switchTab !== 'function' || !document.getElementById('main')) return false;
+    window.switchTab(tab);
+    /* The screen behind the gate is set too, so a t=0 participant lands on
+       My Room once they finish signing in rather than on a stale tab. */
+    var g = document.getElementById('lg-gate');
+    if (g && !gated) g.classList.remove('on');
+    return true;
+  }
+  [150, 400].forEach(function(d){ setTimeout(go, d); });
+})();
+</script>
