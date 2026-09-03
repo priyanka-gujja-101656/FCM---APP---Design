@@ -517,6 +517,176 @@
   .quick{gap:10px}
   .primary:focus-visible,.second:focus-visible,.ghost:focus-visible,.sb-go:focus-visible,
   .mini:focus-visible,.csend:focus-visible{outline:2px solid var(--npds-blue-500);outline-offset:2px}
+
+  /* ================= TYPE SCALE: legible, roomier ================= */
+  .screen{font-size:15px;line-height:1.5}
+  .status{font-size:14px;padding:16px 26px 0}
+
+  .topbar{padding:16px 18px 14px;gap:12px}
+  .tb-title{font-size:17px;letter-spacing:-.014em}
+  .tb-sub{font-size:12.5px;margin-top:3px}
+  .ghost.tb-inline{min-height:34px;padding:7px 15px;font-size:13.5px;margin:0;width:auto}
+
+  .head{padding:18px 20px 2px}
+  .room-name{font-size:15.5px}
+  .room-sub{font-size:12.5px;margin-top:3px}
+  .avatar{width:40px;height:40px;font-size:13.5px}
+
+  .body{padding:10px 18px 0;gap:14px}
+  .body.pad{padding-top:6px}
+
+  .greet{padding:22px 22px 20px}
+  .greet h2{font-size:25px;line-height:1.24;margin:0 0 9px}
+  .greet p{font-size:15px;line-height:1.5}
+
+  .pulse{padding:22px 22px 22px}
+  .pulse-top{margin-bottom:16px}
+  .pulse-count{font-size:34px}
+  .pulse-count em{font-size:16px}
+  .pulse-label{font-size:13.5px;margin-top:7px}
+  .chip{font-size:11.5px;padding:6px 11px}
+  .bar{height:8px;margin-bottom:16px}
+  .legend{font-size:12.5px;gap:8px 16px}
+  .dot{width:8px;height:8px}
+
+  /* home: three small stats inside the second card, making it taller */
+  .rowsplit{display:grid;grid-template-columns:repeat(3,1fr);margin-top:18px;padding-top:16px;
+    border-top:1px solid var(--line)}
+  .rs-b{text-align:center;border-left:1px solid var(--line)}
+  .rs-b:first-child{border-left:0}
+  .rs-b b{display:block;font-size:20px;font-weight:450;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+  .rs-b small{display:block;font-size:11.5px;color:var(--ink-3);margin-top:5px}
+  .quick{margin-top:18px;gap:10px}
+
+  .ahead{padding:20px 8px 12px}
+  .ahead h3{font-size:12px;margin:0 0 8px;padding:0 14px}
+  .moment{padding:13px 14px;gap:13px}
+  .mi{width:36px;height:36px;border-radius:12px}
+  .mt b{font-size:15px}
+  .mt small{font-size:12.5px;margin-top:3px}
+  .mw{font-size:13.5px}
+
+  .searchbox{padding:13px 16px;gap:11px}
+  .searchbox input{font-size:15px}
+  .ch{font-size:13px;padding:8px 14px}
+  .chips{gap:8px;padding:1px 0}
+  .sg{font-size:14px;padding:10px 0}
+  .seg{padding:4px;gap:4px}
+  .seg.three{grid-template-columns:repeat(3,1fr)}
+  .seg.big .sg{display:flex;align-items:center;justify-content:center;gap:8px;padding:13px 0;font-size:14.5px}
+
+  .list{padding:6px 6px}
+  .list.roomy .row{padding:14px 12px}
+  .row{padding:13px 12px;gap:13px}
+  .av{width:40px;height:40px;font-size:13px}
+  .av i{width:12px;height:12px;right:-1px;bottom:-1px}
+  .av.lg{width:48px;height:48px;font-size:15px}
+  .av.xl{width:60px;height:60px;font-size:18px}
+  .rt b{font-size:15px}
+  .rt small{font-size:12.5px;margin-top:3px}
+  .rr{gap:12px}
+  .tm{font-size:13.5px;min-width:42px}
+  .lhead{padding:13px 16px 10px;font-size:11.5px}
+  .empty{font-size:14px;padding:34px 14px;line-height:1.6}
+  .hint{font-size:13px;line-height:1.55;margin:0 4px}
+  .linkish{color:var(--npds-blue-700);font-weight:600;cursor:pointer;text-decoration:underline;
+    text-decoration-thickness:1px;text-underline-offset:2px}
+
+  /* checkbox: square, not a radio */
+  .cbx,.cbx.sq{border-radius:6px!important;width:24px;height:24px}
+  .cbx.on,.cbx.sq.on{background:var(--npds-blue-600);box-shadow:none}
+  .row.picked{background:var(--npds-blue-100)}
+
+  /* feed */
+  .feed{padding:6px 6px}
+  .fe{padding:15px 13px;gap:13px}
+  .fi{width:38px;height:38px;border-radius:12px}
+  .ft b{font-size:15px}
+  .ft small{font-size:13px;margin-top:4px;line-height:1.45}
+  .fmeta{display:block;font-size:11.5px;color:var(--ink-3);margin-top:6px;
+    letter-spacing:.03em;text-transform:uppercase;font-weight:600}
+  .fw{font-size:13px}
+
+  /* sheets */
+  .sheet{padding:14px 22px 104px}
+  .sh-h{font-size:21px;margin:0 0 16px}
+  .sh-note{margin:0;font-size:13.5px;line-height:1.5;color:var(--ink-2)}
+  .grab{width:44px;height:5px;margin-bottom:18px}
+  .sheet>*+*{margin-top:14px}
+  .sheet .flabel{display:flex;align-items:center;gap:8px;font-size:12px;margin-bottom:-4px}
+  .reqd{font-style:normal;font-size:10.5px;letter-spacing:.05em;color:#8a4b2f;
+    background:rgba(176,138,86,.22);padding:3px 8px;border-radius:999px;font-weight:600}
+  .optl{font-style:normal;font-size:10.5px;letter-spacing:.05em;color:var(--ink-3);font-weight:500;text-transform:none}
+  .fieldset{padding:4px 18px}
+  .field{padding:15px 0;gap:14px}
+  .fl{font-size:13.5px}
+  .fv{font-size:15px}
+  .ta{padding:16px 18px}
+  .ta-l{font-size:12px;margin-bottom:9px}
+  .ta p,.ta textarea{font-size:14.5px;line-height:1.55}
+  .attach{padding:14px 20px;font-size:14px;gap:11px}
+  .prev{padding:15px 18px;font-size:13.5px;margin-top:16px}
+  .sh-kid{gap:14px;margin-bottom:18px}
+  .mini.lg{width:44px;height:44px;min-height:44px}
+  .primary.off,.second.off{opacity:.45}
+
+  /* selection bar with four real actions */
+  .selbar{flex-direction:column;align-items:stretch;gap:11px;padding:14px 16px 26px}
+  .sb-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+  .sb-head b{font-size:14.5px;font-weight:600}
+  .sb-head a{font-size:13px}
+  .sb-acts{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+  .primary.sm,.second.sm{min-height:42px;padding:10px 12px;font-size:13.5px;gap:7px;margin:0;width:100%}
+
+  /* messages: real estate */
+  .mlist{display:flex;flex-direction:column;gap:11px}
+  .mcard{background:var(--card);border:1px solid rgba(255,255,255,.55);border-radius:20px;
+    padding:16px 17px 17px;box-shadow:0 12px 26px -20px rgba(40,55,38,.4);cursor:pointer;
+    transition:transform .12s ease,background .16s ease}
+  .mcard:hover{background:rgba(255,255,255,.9)}
+  .mcard:active{transform:scale(.99)}
+  .mcard.unread{box-shadow:inset 3px 0 0 var(--npds-blue-500),0 12px 26px -20px rgba(40,55,38,.4)}
+  .mc-top{display:flex;align-items:center;gap:13px}
+  .mc-who{flex:1;min-width:0}
+  .mc-who b{display:block;font-size:15.5px;font-weight:600;letter-spacing:-.008em}
+  .mc-tag{display:inline-block;margin-top:5px;font-size:11px;font-weight:600;letter-spacing:.03em;
+    padding:4px 10px;border-radius:999px}
+  .mc-tag.family{color:#3C6355;background:rgba(78,114,99,.16)}
+  .mc-tag.staff{color:var(--npds-blue-700);background:var(--npds-blue-100)}
+  .mc-time{font-size:12.5px;color:var(--ink-3);flex:none;display:flex;align-items:center;gap:7px;
+    font-variant-numeric:tabular-nums}
+  .udot{width:8px;height:8px;border-radius:50%;background:var(--npds-blue-500);display:block}
+  .mc-prev{margin:13px 0 0;font-size:14px;line-height:1.5;color:var(--ink-2)}
+  .mc-prev em{font-style:normal;color:var(--ink-3);font-weight:600}
+
+  /* thread */
+  .thread{gap:14px;padding-top:12px}
+  .bub{padding:14px 17px;font-size:15px;line-height:1.5;max-width:84%}
+  .bub .bt{font-size:11px;margin-top:9px}
+  .daymark{font-size:11px}
+  .composer{padding:14px 16px 16px;gap:11px}
+  .cinput{padding:14px 18px;font-size:15px}
+  .ctx{padding:15px 16px;gap:12px}
+  .ctx b{font-size:14px}
+  .ctx small{font-size:12.5px;margin-top:3px}
+
+  .flags{gap:9px}
+  .flag{font-size:13px;padding:9px 15px;gap:8px}
+  .kidhero{padding:20px 20px;gap:16px}
+  .kh-t b{font-size:15.5px}
+  .kh-t small{font-size:13px;margin-top:4px}
+  .stat{padding:16px 14px}
+  .st-n{font-size:24px}
+  .st-l{font-size:12.5px;margin-top:7px}
+  .st-d{font-size:11px}
+  .placeholder b{font-size:16px}
+  .placeholder small{font-size:13px}
+  .toast{font-size:13.5px;padding:15px 18px;bottom:104px}
+  .pillv{font-size:12px;padding:5px 11px}
+  .ratio{padding:14px 17px;font-size:12.5px}
+  .movefrom{gap:13px}
+  .mf-a,.mf-b{padding:15px 16px;font-size:14px}
+  .mf-a small,.mf-b small{font-size:11.5px;margin-top:4px}
 </style>
 <div class="stage">
  <div class="lead">
@@ -526,10 +696,10 @@
  </div>
  <div class="try">
   <span><b>Try:</b> check Caleb in from home</span>
-  <span>Swipe a child left in Attendance</span>
-  <span>Select several, check them out at once</span>
-  <span>Post an activity, then filter the log</span>
-  <span>Reply to Marta</span>
+  <span>Select several, then Check out</span>
+  <span>Post a meal — it needs one required field</span>
+  <span>Filter the activity log</span>
+  <span>Switch Messages to Staff</span>
  </div>
 
  <div class="device"><div class="screen">
@@ -573,8 +743,8 @@
 
 <script>
 const I={
-in:'<path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><path d="M10 17l5-5-5-5"/><path d="M15 12H3"/>',
-out:'<path d="M9 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/>',
+in:'<path d="M14 3h5a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-5"/><path d="M10 8l4 4-4 4"/><path d="M14 12H3"/>',
+out:'<path d="M10 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h5"/><path d="M17 8l4 4-4 4"/><path d="M21 12H10"/>',
 pen:'<path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/>',
 check:'<path d="M20 6 9 17l-5-5"/>',
 clock:'<circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/>',
@@ -612,9 +782,11 @@ const TYPES=[['arrival','Arrival','in'],['meal','Meal','meal'],['bottle','Bottle
 ['mood','Mood','smile'],['incident','Incident','alert'],['medication','Medication','pill'],['photo','Photo note','camera']];
 const TY=Object.fromEntries(TYPES.map(t=>[t[0],{label:t[1],icon:t[2]}]));
 
+const REQUIRED={"meal": "What was served", "bottle": "Amount taken", "nap": "Start and end time", "diaper": "What was changed", "incident": "What happened", "medication": "Medication and dose", "mood": "How they seemed", "photo": "Caption"};
 let S={
  tab:'myroom', sub:null, arg:null,
  selecting:false, dir:'in', sel:new Set(), q:'', filters:new Set(), draftType:null,
+ draft:{who:'all',picked:new Set(),req:'',det:'',time:null},
  kids:[
   ['aiden','Aiden Brooks','here','7:14','Dad'],['bea','Bea Okafor','here','7:22','Grandma'],
   ['caleb','Caleb Ruiz','expected','','',true],['dev','Dev Patel','here','7:30','Mum'],
@@ -635,11 +807,13 @@ let S={
   {id:5,type:'learning',title:'Circle time · whole room',sub:'Songs and weather chart',t:'9:00'}
  ],
  threads:[
-  {id:'marta',who:'Marta Ruiz',kid:'Caleb',unread:true,t:'4:52',msgs:[{me:false,txt:'Did he finish his lunch? He was picky at breakfast.',t:'4:52 PM'}]},
-  {id:'tom',who:'Tom Doyle',kid:'Finn',unread:true,t:'4:41',msgs:[{me:false,txt:'Running 15 min late for pickup, sorry!',t:'4:41 PM'}]},
-  {id:'ana',who:'Ana Lin',kid:'Grace',unread:true,t:'3:10',msgs:[{me:false,txt:'She slept well last night for once.',t:'3:10 PM'}]},
-  {id:'priya',who:'Priya Shah',kid:'Nina',unread:false,t:'Mon',msgs:[{me:false,txt:'Thank you for today!',t:'Mon'},{me:true,txt:'Any time — she had a lovely afternoon.',t:'Mon · Ms. Rivera'}]},
-  {id:'room',who:'Whole room',kid:'Announcement',unread:false,t:'Mon',msgs:[{me:true,txt:'Picture day is Thursday. Drop off by 8:30 if you would like a sibling shot.',t:'Mon · Ms. Rivera'}]}
+  {id:'marta',who:'Marta Ruiz',kind:'family',kid:'Caleb',unread:true,t:'4:52',msgs:[{me:false,txt:'Did he finish his lunch? He was picky at breakfast.',t:'4:52 PM'}]},
+  {id:'tom',who:'Tom Doyle',kind:'family',kid:'Finn',unread:true,t:'4:41',msgs:[{me:false,txt:'Running 15 min late for pickup, sorry!',t:'4:41 PM'}]},
+  {id:'ana',who:'Ana Lin',kind:'family',kid:'Grace',unread:true,t:'3:10',msgs:[{me:false,txt:'She slept well last night for once.',t:'3:10 PM'}]},
+  {id:'priya',who:'Priya Shah',kind:'family',kid:'Nina',unread:false,t:'Mon',msgs:[{me:false,txt:'Thank you for today!',t:'Mon'},{me:true,txt:'Any time — she had a lovely afternoon.',t:'Mon · Tara Rivera'}]},
+  {id:'room',who:'All Sunflower families',kind:'family',kid:'19 children',unread:false,t:'Mon',msgs:[{me:true,txt:'Picture day is Thursday. Drop off by 8:30 if you would like a sibling shot.',t:'Mon · Tara Rivera'}]},
+  {id:'osei',who:'Kwame Osei',kind:'staff',role:'Director',unread:true,t:'2:20',msgs:[{me:false,txt:'Can you cover Bluebell for the last hour on Thursday?',t:'2:20 PM'}]},
+  {id:'joy',who:'Joy Adeyemi',kind:'staff',role:'Assistant Teacher',unread:false,t:'11:15',msgs:[{me:false,txt:'Restocked the wipes and put the spare blankets in the low cupboard.',t:'11:15 AM'}]}
  ]
 };
 const $=s=>document.querySelector(s);
@@ -666,8 +840,8 @@ function row(k,opts={}){
     if(S.selecting) right='';
     else if(k.status==='expected') right=`<button class="mini" data-act="checkin:${k.id}" aria-label="Check in ${k.name}">${ic('in','ic sm','var(--accent)')}</button>`;
     else if(k.status==='here') right=`<span class="tm">${k.tin}</span><button class="mini" data-act="checkout:${k.id}" aria-label="Check out ${k.name}">${ic('out','ic sm','var(--accent)')}</button>`;
-    else if(k.status==='out') right=`<span class="tm mute">${k.tout}</span>`;
-    else right='<span class="tm mute">Away</span>';
+    else if(k.status==='out') right=`<span class="tm mute">Out ${k.tout}</span><button class="mini" data-act="checkin:${k.id}" aria-label="Check ${k.name} back in">${ic('in','ic sm','var(--accent)')}</button>`;
+    else right=`<span class="tm mute">Away</span><button class="mini" data-act="checkin:${k.id}" aria-label="Check in ${k.name}">${ic('in','ic sm','var(--accent)')}</button>`;
   }
   const act=S.selecting?`data-act="sel:${k.id}"`:`data-act="child:${k.id}"`;
   return `<div class="row${S.sel.has(k.id)?' picked':''}${k.status==='out'?' gone':''}" ${act}>${box}
@@ -690,14 +864,14 @@ const topbar=(title,sub,right='',back=false)=>`<div class="topbar">
   <span class="tb-right">${right}</span></div>`;
 const homehead=()=>`<div class="head"><div class="room">
   <span class="glyph">${ic('sun','ic sm','var(--present)','1.6')}</span>
-  <span><span class="room-name">Sunflower Room</span><span class="room-sub">Toddlers · Ms. Rivera</span></span></div>
-  <span class="avatar">MR</span></div>`;
+  <span><span class="room-name">Sunflower Room</span><span class="room-sub">Toddlers · Tara Rivera</span></span></div>
+  <span class="avatar">TR</span></div>`;
 
 /* ---------- routes ---------- */
 function vMyRoom(){
   const h=cnt('here'),e=cnt('expected'),a=cnt('absent'),o=cnt('out'),tot=S.kids.length;
-  const line = e>0 ? `Good morning. The room is<br>still filling up.` : (o>3 ? `Winding down.<br>${h} still with us.` : `Everyone's here.<br>The room is settled.`);
-  const sub  = e>0 ? `<b>${e} more</b> expected before circle time at 9:00.` : `<b>${h} here.</b> Next up is outdoor play at 10:20.`;
+  const line = e>0 ? `Good morning, Tara.<br>Your room is all set!` : (o>3 ? `Winding down, Tara.<br>${h} still with you.` : `All set, Tara.<br>Everyone is here.`);
+  const sub  = e>0 ? `<b>${e} still to arrive.</b> Circle time is at 9:00.` : `<b>${h} here.</b> Next up is outdoor play at 10:20.`;
   return `${homehead()}<div class="body home">
    <div class="card greet"><h2>${line}</h2><p>${sub}</p></div>
    <div class="card pulse">
@@ -708,9 +882,14 @@ function vMyRoom(){
      ${e?`<span><i class="dot" style="background:var(--expected)"></i>Expected ${e}</span>`:''}
      ${o?`<span><i class="dot" style="background:var(--absent)"></i>Gone home ${o}</span>`:''}
      <span><i class="dot" style="background:var(--absent)"></i>Absent ${a}</span></div>
+    <div class="rowsplit">
+     <span class="rs-b"><b>${e}</b><small>Still to arrive</small></span>
+     <span class="rs-b"><b>${o}</b><small>Gone home</small></span>
+     <span class="rs-b"><b>${a}</b><small>Absent</small></span>
+    </div>
     <div class="quick">
-     <button class="primary q" data-act="sheet:inout">${ic('in','ic','currentColor','1.9')}Check in / out</button>
-     <button class="second q" data-act="sheet:posttype">${ic('pen','ic','var(--accent)','1.9')}Post activity</button>
+     <button class="primary q" data-act="sheet:inout">${ic('in','ic','currentColor','1.8')}Check in / out</button>
+     <button class="second q" data-act="sheet:posttype">${ic('pen','ic','var(--accent)','1.8')}Post activity</button>
     </div></div>
   </div>`;
 }
@@ -721,15 +900,16 @@ function vAttendance(){
     if(S.filters.size&&!S.filters.has(k.status))return false;
     return true;});
   const chip=(id,lbl,n)=>`<span class="ch${S.filters.has(id)?' on':''}" data-act="fkid:${id}">${lbl} ${n}</span>`;
-  const rows=list.length?list.map((k,i)=>(i===1&&!S.selecting&&!q)?swipeRow(k):row(k)).join(''):'<div class="empty">No children match.</div>';
+  const rows=list.length?list.map(k=>row(k)).join(''):'<div class="empty">No children match.</div>';
   return `${topbar('Attendance',`${S.kids.length} children · ${cnt('here')} here`,
-     `<button class="tb-btn" data-act="selmode">${ic('listCheck')}</button><button class="tb-btn" data-act="sheet:print">${ic('print')}</button>`)}
+     `<button class="ghost tb-inline" data-act="selmode">${S.selecting?'Cancel':'Select'}</button>`)}
    <div class="body pad">
-    <div class="searchbox">${ic('search','ic sm','var(--ink-3)')}<input id="q" placeholder="Search this room" value="${S.q}"></div>
+    <div class="searchbox">${ic('search','ic','var(--ink-3)')}<input id="q" placeholder="Search this room" value="${S.q}"></div>
     <div class="chips"><span class="ch${S.filters.size?'':' on'}" data-act="fkid:all">All ${S.kids.length}</span>
-     ${chip('here','Here',cnt('here'))}${chip('expected','Expected',cnt('expected'))}${chip('out','Out',cnt('out'))}${chip('absent','Absent',cnt('absent'))}</div>
+     ${chip('here','Here',cnt('here'))}${chip('expected','To arrive',cnt('expected'))}${chip('out','Gone home',cnt('out'))}${chip('absent','Absent',cnt('absent'))}</div>
+    ${S.selecting?'<p class="hint">Tick the children you want, then pick an action at the bottom.</p>'
+      :'<p class="hint">Tap a child for their day, or use the arrow to check them in or out. <b data-act="selmode" class="linkish">Select</b> several to act on them together.</p>'}
     <div class="card list">${rows}</div>
-    ${S.selecting?'':'<p class="hint">Swipe a child left for the two actions that are not check-in.</p>'}
    </div>`;
 }
 function vActivities(){
@@ -737,32 +917,47 @@ function vActivities(){
   const list=S.feed.filter(a=>!f.size||f.has(a.type));
   const counts={};S.feed.forEach(a=>counts[a.type]=(counts[a.type]||0)+1);
   const chips=Object.keys(counts).map(t=>`<span class="ch${f.has(t)?' on':''}" data-act="fact:${t}">${TY[t].label} ${counts[t]}</span>`).join('');
-  return `${topbar('Activities',`Today · ${S.feed.length} entries`,
-    `<button class="tb-btn" data-act="sheet:filter">${ic('filter')}</button><button class="tb-btn" data-act="sheet:print">${ic('print')}</button>`)}
+  return `${topbar('Activity log',`Today · ${S.feed.length} entries · whole room`,
+    `<button class="ghost tb-inline" data-act="sheet:filter">Filters${f.size?' ('+f.size+')':''}</button>`)}
    <div class="body pad">
+    <button class="primary" data-act="sheet:posttype">${ic('plus','ic','currentColor','1.9')}Post an activity</button>
     <div class="chips"><span class="ch${f.size?'':' on'}" data-act="fact:all">All ${S.feed.length}</span>${chips}</div>
-    <button class="second q" style="padding:13px" data-act="sheet:posttype">${ic('pen','ic','var(--accent)','1.9')}Post an activity</button>
     <div class="card feed">${list.length?list.map(a=>`
       <div class="fe${a.fresh?' new':''}" data-act="act:${a.id}">
-       <span class="fi${a.type==='incident'?' warn':''}">${ic(TY[a.type].icon,'ic sm',a.type==='incident'?'var(--expected)':'var(--accent)','1.6')}</span>
-       <span class="ft"><b>${a.title}</b><small>${a.sub}</small></span><span class="fw">${a.t}</span></div>`).join('')
-      :'<div class="empty">Nothing matches this filter.</div>'}</div>
+       <span class="fi${a.type==='incident'?' warn':''}">${ic(TY[a.type].icon,'ic',a.type==='incident'?'var(--expected)':'var(--accent)','1.7')}</span>
+       <span class="ft"><b>${a.title}</b><small>${a.sub}</small>
+        <span class="fmeta">${TY[a.type].label} · ${a.who||'whole room'}</span></span>
+       <span class="fw">${a.t}</span></div>`).join('')
+      :'<div class="empty">Nothing matches these filters.<br><b class="linkish" data-act="fact:all">Clear them</b></div>'}</div>
    </div>`;
 }
 function vMessages(){
-  return `${topbar('Messages',unread()?`${unread()} waiting on you`:'All caught up',
-    `<button class="tb-btn" data-act="sheet:compose">${ic('plus')}</button>`)}
+  const scope=S.mscope||'all';
+  const list=S.threads.filter(t=>scope==='all'||t.kind===scope);
+  const n=k=>S.threads.filter(t=>t.kind===k).length;
+  return `${topbar('Messages',unread()?`${unread()} waiting on you`:'All caught up')}
    <div class="body pad">
-    <div class="card list">${S.threads.map(t=>`
-      <div class="row" data-act="thread:${t.id}">
-       <span class="av"><i style="background:${t.unread?'var(--expected)':'var(--present)'}"></i>${ini(t.who)}</span>
-       <span class="rt"><b>${t.who}</b><small>${t.kid} · “${t.msgs[t.msgs.length-1].txt}”</small></span>
-       <span class="rr"><span class="tm${t.unread?' accent':' mute'}">${t.t}</span></span></div>`).join('')}</div>
+    <button class="primary" data-act="sheet:compose">${ic('plus','ic','currentColor','1.9')}New message</button>
+    <div class="seg three">
+     <span class="sg${scope==='all'?' on':''}" data-act="mscope:all">All ${S.threads.length}</span>
+     <span class="sg${scope==='family'?' on':''}" data-act="mscope:family">Families ${n('family')}</span>
+     <span class="sg${scope==='staff'?' on':''}" data-act="mscope:staff">Staff ${n('staff')}</span></div>
+    <div class="mlist">${list.map(t=>{
+      const last=t.msgs[t.msgs.length-1];
+      return `<div class="mcard${t.unread?' unread':''}" data-act="thread:${t.id}">
+       <span class="mc-top">
+        <span class="av lg"><i style="background:${t.kind==='staff'?'var(--npds-blue-500)':'var(--present)'}"></i>${ini(t.who)}</span>
+        <span class="mc-who"><b>${t.who}</b>
+         <span class="mc-tag ${t.kind}">${t.kind==='staff'?'Staff · '+t.role:'Parent of '+t.kid}</span></span>
+        <span class="mc-time">${t.t}${t.unread?'<i class="udot"></i>':''}</span></span>
+       <p class="mc-prev">${last.me?'<em>You:</em> ':''}${last.txt}</p>
+      </div>`;}).join('')}
+     ${list.length?'':'<div class="empty">No messages in this group.</div>'}</div>
    </div>`;
 }
 function vThread(){
   const t=S.threads.find(x=>x.id===S.arg);
-  return `${topbar(t.who,`${t.kid} · Sunflower Room`,'',true)}
+  return `${topbar(t.who,t.kind==='staff'?`Staff · ${t.role}`:`Parent of ${t.kid} · Sunflower Room`,'',true)}
    <div class="body thread">
     <span class="daymark">Today</span>
     ${t.msgs.map(m=>`<div class="bub ${m.me?'out':'in'}"><p>${m.txt}</p><span class="bt">${m.t}</span></div>`).join('')}
@@ -806,7 +1001,7 @@ function vChild(){
     </div>
    </div>`;
 }
-const vMore=()=>`${topbar('More','Ms. Rivera · Sunflower Room')}
+const vMore=()=>`${topbar('More','Tara Rivera · Sunflower Room')}
   <div class="body pad"><div class="placeholder">
    <span class="pl-i">${ic('grid4','ic','var(--ink-3)','1.5')}</span><b>More</b><small>To be defined</small>
   </div></div>`;
@@ -814,11 +1009,15 @@ const vMore=()=>`${topbar('More','Ms. Rivera · Sunflower Room')}
 /* ---------- sheets ---------- */
 const SHEETS={
  inout(){
-  const pool=S.dir==='in'?S.kids.filter(k=>k.status==='expected'||k.status==='absent'):S.kids.filter(k=>k.status==='here');
+  const pool=S.dir==='in'?S.kids.filter(k=>k.status!=='here'):S.kids.filter(k=>k.status==='here');
   return `<span class="grab"></span>
-   <div class="seg two"><span class="sg${S.dir==='in'?' on':''}" data-act="dir:in">Check in</span><span class="sg${S.dir==='out'?' on':''}" data-act="dir:out">Check out</span></div>
-   <div class="card list">${pool.length?pool.slice(0,6).map(k=>row(k,{right:`<button class="mini" data-act="${S.dir==='in'?'checkin':'checkout'}:${k.id}">${ic(S.dir==='in'?'in':'out','ic sm','var(--accent)')}</button>`})).join(''):`<div class="empty">${S.dir==='in'?'Everyone expected has arrived.':'Nobody left to check out.'}</div>`}</div>
-   <button class="ghost" data-act="bulkfrom">Select several · open Attendance</button>`;
+   <h3 class="sh-h">Check children in or out</h3>
+   <div class="seg two big">
+    <span class="sg${S.dir==='in'?' on':''}" data-act="dir:in">${ic('in','ic','currentColor','1.8')}Check in</span>
+    <span class="sg${S.dir==='out'?' on':''}" data-act="dir:out">${ic('out','ic','currentColor','1.8')}Check out</span></div>
+   <p class="sh-note">${S.dir==='in'?`${pool.length} ${pool.length===1?'child is':'children are'} not in the room yet.`:`${pool.length} ${pool.length===1?'child is':'children are'} here now.`}</p>
+   <div class="card list roomy">${pool.length?pool.slice(0,5).map(k=>row(k,{right:`<button class="mini lg" data-act="${S.dir==='in'?'checkin':'checkout'}:${k.id}" aria-label="${S.dir==='in'?'Check in':'Check out'} ${k.name}">${ic(S.dir==='in'?'in':'out','ic','var(--accent)','1.8')}</button>`})).join(''):`<div class="empty">${S.dir==='in'?'Everyone has arrived.':'Nobody left to check out.'}</div>`}</div>
+   <button class="second" data-act="bulkfrom">${ic('listCheck','ic','var(--npds-gray-700)','1.8')}Select several in Attendance</button>`;
  },
  posttype(){
   return `<span class="grab"></span><h3 class="sh-h">Post an activity</h3>
@@ -826,17 +1025,37 @@ const SHEETS={
  },
  log(){
   const t=TY[S.draftType];
-  return `<span class="grab"></span><h3 class="sh-h">${t.label}</h3>
+  const req=REQUIRED[S.draftType]||null;
+  const d=S.draft;
+  const who = d.who==='all' ? `Whole room · ${cnt('here')} children` : `${d.picked.size} ${d.picked.size===1?'child':'children'} chosen`;
+  const ready = !req || (d.req||'').trim().length>0;
+  return `<span class="grab"></span>
+   <h3 class="sh-h">${t.label}</h3>
+   <span class="flabel">Activity</span>
+   <div class="chips wrapc">${TYPES.map(x=>`<span class="ch${x[0]===S.draftType?' on':''}" data-act="type:${x[0]}">${x[1]}</span>`).join('')}</div>
+
+   <span class="flabel">Children</span>
+   <div class="seg two"><span class="sg${d.who==='all'?' on':''}" data-act="who:all">Whole room</span><span class="sg${d.who==='some'?' on':''}" data-act="who:some">Choose children</span></div>
+   ${d.who==='some'?`<div class="card list roomy pick">${S.kids.filter(k=>k.status==='here').slice(0,5).map(k=>`
+     <div class="row" data-act="pick:${k.id}">
+      <span class="cbx sq${d.picked.has(k.id)?' on':''}">${d.picked.has(k.id)?ic('check','ic sm','#fff','2.6'):''}</span>
+      <span class="av"><i style="background:var(--present)"></i>${ini(k.name)}</span>
+      <span class="rt"><b>${k.name}</b></span></div>`).join('')}</div>`
+    :`<p class="sh-note">${who}</p>`}
+
    <div class="card fieldset">
-    <div class="field"><span class="fl">Time</span><span class="fv">${now()} · now</span></div>
-    <div class="field"><span class="fl">Children</span><span class="fv">Whole room · ${cnt('here')} here</span></div>
+    <div class="field"><span class="fl">Date</span><span class="fv">Today · 3 Sep</span></div>
+    <div class="field"><span class="fl">Time</span><span class="fv">${d.time||now()} ${ic('clock','ic sm','var(--ink-3)')}</span></div>
    </div>
-   <span class="flabel">Who</span>
-   <div class="seg"><span class="sg on">All</span><span class="sg">Most</span><span class="sg">Some</span><span class="sg">Choose</span></div>
-   <div class="card ta"><span class="ta-l">Details</span>
-    <textarea id="det" rows="3" placeholder="What happened? Families see this tonight.">${t.label==='Meal'?'Chicken, rice and green beans.':''}</textarea></div>
-   <div class="attach">${ic('camera','ic sm','var(--accent)','1.7')}<span>Attach a photo</span></div>
-   <button class="primary" data-act="savelog">${ic('check','ic','currentColor','1.9')}Post to ${cnt('here')} children</button>`;
+
+   ${req?`<span class="flabel">${req} <em class="reqd">Required</em></span>
+     <div class="card ta"><textarea id="reqf" rows="2" placeholder="${req}…">${d.req||''}</textarea></div>`:''}
+
+   <span class="flabel">Details <em class="optl">Optional</em></span>
+   <div class="card ta"><textarea id="det" rows="2" placeholder="Anything families should know…">${d.det||''}</textarea></div>
+   <div class="attach">${ic('camera','ic','var(--npds-gray-700)','1.7')}<span>Attach a photo</span></div>
+
+   <button class="primary${ready?'':' off'}" data-act="${ready?'savelog':'needreq'}">${ic('check','ic','currentColor','1.8')}Post ${t.label.toLowerCase()}</button>`;
  },
  note(){
   const k=K(S.arg);
@@ -883,17 +1102,29 @@ const SHEETS={
    <button class="ghost" data-act="close">Save as PDF · Email to director</button>`;
  },
  compose(){
+  const to=S.cto||'family';
   return `<span class="grab"></span><h3 class="sh-h">New message</h3>
-   <div class="seg two"><span class="sg on">One family</span><span class="sg">Whole room · ${S.kids.length}</span></div>
+   <span class="flabel">Send to</span>
+   <div class="seg three">
+    <span class="sg${to==='family'?' on':''}" data-act="cto:family">One family</span>
+    <span class="sg${to==='room'?' on':''}" data-act="cto:room">All families</span>
+    <span class="sg${to==='staff'?' on':''}" data-act="cto:staff">Staff</span></div>
    <div class="card fieldset">
-    <div class="field"><span class="fl">To</span><span class="fv">Choose a family ${ic('arrow','ic sm','var(--ink-3)')}</span></div>
-    <div class="field"><span class="fl">Subject</span><span class="fv">Optional</span></div>
+    <div class="field"><span class="fl">To</span><span class="fv">${to==='family'?'Choose a family':to==='room'?`All Sunflower families · ${S.kids.length}`:'Kwame Osei, Joy Adeyemi'} ${ic('arrow','ic sm','var(--ink-3)')}</span></div>
+    <div class="field"><span class="fl">Subject</span><span class="fv">Optional ${ic('arrow','ic sm','var(--ink-3)')}</span></div>
    </div>
-   <div class="card ta tall"><textarea rows="3" placeholder="Write your message…"></textarea></div>
-   <p class="hint">Broadcasts send as individual threads, so replies stay private.</p>
-   <button class="primary" data-act="close">${ic('send','ic','currentColor','1.9')}Send</button>`;
+   <span class="flabel">Message</span>
+   <div class="card ta tall"><textarea id="cmsg" rows="4" placeholder="Write your message…"></textarea></div>
+   <div class="attach">${ic('camera','ic','var(--npds-gray-700)','1.7')}<span>Attach a photo or today's report</span></div>
+   <p class="sh-note">${to==='room'?'Sends as 19 separate threads, so replies stay private between you and each family.':to==='staff'?'Goes to the two staff in your room.':'Goes to one family only.'}</p>
+   <button class="primary" data-act="docompose">${ic('send','ic','currentColor','1.8')}Send</button>`;
  }
+
 };
+function stash(){
+  const r=document.getElementById('reqf'), d=document.getElementById('det');
+  if(r)S.draft.req=r.value; if(d)S.draft.det=d.value;
+}
 let openSheet=null;
 function sheet(name,arg){
   if(arg!==undefined)S.arg=arg;
@@ -946,34 +1177,50 @@ function doAct(a){
    case 'checkout':{const k=K(arg);k.status='out';k.tout=now();
      toast(`<b>${k.name}</b> checked out at ${k.tout}`);closeAll();
      if(openSheet)refreshSheet();render(true);break;}
-   case 'absent':{const k=K(arg);k.status='absent';k.who='marked by Ms. Rivera';
+   case 'absent':{const k=K(arg);k.status='absent';k.who='marked by Tara Rivera';
      toast(`<b>${k.name}</b> marked absent`);closeAll();render(true);break;}
 
    case 'selmode': S.selecting=!S.selecting;S.sel.clear();closeAll();render();break;
    case 'sel': S.sel.has(arg)?S.sel.delete(arg):S.sel.add(arg);render(true);break;
-   case 'selall':{const vis=S.kids.filter(k=>S.dir==='in'?k.status!=='here':k.status==='here');
+   case 'selall':{const vis=S.kids.filter(k=>!S.filters.size||S.filters.has(k.status));
      if(S.sel.size===vis.length)S.sel.clear();else vis.forEach(k=>S.sel.add(k.id));render(true);break;}
    case 'bulkfrom': closeSheet();S.tab='attendance';S.sub=null;S.selecting=true;render();break;
    case 'bulkdir': S.dir=arg;render(true);break;
-   case 'bulk':{const n=S.sel.size;
+   case 'bulk':{const n=S.sel.size; if(!n)break;
      S.sel.forEach(id=>{const k=K(id);
-       if(S.dir==='in'){k.status='here';k.tin=now();k.who=k.who||'Guardian';}
-       else{k.status='out';k.tout=now();}});
+       if(arg==='in'){k.status='here';k.tin=now();k.who=k.who||'Guardian';}
+       else if(arg==='out'){k.status='out';k.tout=now();}
+       else{k.status='absent';k.who='marked by Tara';}});
      S.sel.clear();S.selecting=false;
-     toast(`<b>${n} children</b> checked ${S.dir==='in'?'in':'out'}`);render();break;}
+     toast(`<b>${n} ${n===1?'child':'children'}</b> ${arg==='in'?'checked in':arg==='out'?'checked out':'marked absent'}`);render();break;}
+   case 'nosel': toast('Tick a child first');break;
 
    case 'fkid': if(arg==='all')S.filters.clear();else S.filters.has(arg)?S.filters.delete(arg):S.filters.add(arg);render(true);break;
    case 'fact': if(arg==='all')S.filters.clear();else S.filters.has(arg)?S.filters.delete(arg):S.filters.add(arg);
      if(openSheet)refreshSheet();render(true);break;
+   case 'mscope': S.mscope=arg;render(true);break;
+   case 'cto': S.cto=arg;refreshSheet();break;
+   case 'docompose':{closeSheet();toast(S.cto==='room'?'Sent to 19 families':S.cto==='staff'?'Sent to your room staff':'Message sent');break;}
+   case 'who': S.draft.who=arg;stash();refreshSheet();break;
+   case 'pick': S.draft.picked.has(arg)?S.draft.picked.delete(arg):S.draft.picked.add(arg);stash();refreshSheet();break;
+   case 'needreq':{const el=document.getElementById('reqf');if(el){el.focus();}toast('That field is required');break;}
    case 'clearf': S.filters.clear();refreshSheet();render(true);break;
 
-   case 'type': S.draftType=arg;sheet('log');break;
-   case 'savelog':{const t=TY[S.draftType];const det=$('#det');
-     const n=cnt('here');
-     S.feed.unshift({id:Date.now(),type:S.draftType,title:`${t.label} · ${n} children`,
-       sub:(det&&det.value.trim())||'Logged from the room.',t:now(),fresh:true});
+   case 'type': if(openSheet==='log')stash();
+     S.draftType=arg;
+     if(openSheet!=='log'){S.draft={who:'all',picked:new Set(),req:'',det:'',time:null};}
+     sheet('log');break;
+   case 'savelog':{stash();const t=TY[S.draftType];const d=S.draft;
+     const n=d.who==='all'?cnt('here'):d.picked.size;
+     if(d.who==='some'&&n===0){toast('Choose at least one child');break;}
+     const names=d.who==='some'?[...d.picked].map(id=>K(id).name.split(' ')[0]).join(', '):null;
+     const body=[d.req,d.det].filter(x=>x&&x.trim()).join(' — ')||'Logged from the room.';
+     S.feed.unshift({id:Date.now(),type:S.draftType,
+       title:`${t.label} · ${d.who==='all'?'whole room':names}`,
+       sub:body,who:d.who==='all'?`${n} children`:names,t:d.time||now(),fresh:true});
+     S.draft={who:'all',picked:new Set(),req:'',det:'',time:null};
      closeSheet();S.tab='activities';S.sub=null;S.filters.clear();render();
-     toast(`<b>${t.label}</b> posted to ${n} children`);break;}
+     toast(`<b>${t.label}</b> posted for ${n} ${n===1?'child':'children'}`);break;}
 
    case 'note': sheet('note',arg);break;
    case 'savenote':{const k=K(arg);const n=$('#nt');k.note=n?n.value.trim():'';
@@ -984,11 +1231,11 @@ function doAct(a){
    case 'thread':{const t=S.threads.find(x=>x.id===arg);t.unread=false;S.sub='thread';S.arg=arg;render();break;}
    case 'send':{const inp=$('#msg');if(!inp||!inp.value.trim())break;
      const t=S.threads.find(x=>x.id===S.arg);
-     t.msgs.push({me:true,txt:inp.value.trim(),t:now()+' PM · Ms. Rivera'});t.t=now();
+     t.msgs.push({me:true,txt:inp.value.trim(),t:now()+' PM · Tara Rivera'});t.t=now();
      render();const b=$('#app').querySelector('.body');if(b)b.scrollTop=b.scrollHeight;
      toast('Message sent');break;}
    case 'attach':{const t=S.threads.find(x=>x.id===S.arg);
-     t.msgs.push({me:true,txt:'Attached: Lunch · 11:45 — ate some, alt. tray.',t:now()+' PM · Ms. Rivera'});
+     t.msgs.push({me:true,txt:'Attached: Lunch · 11:45 — ate some, alt. tray.',t:now()+' PM · Tara Rivera'});
      render();toast('Log attached to the thread');break;}
 
    case 'domove':{let n=0;const picked=S.sel.size?[...S.sel]:[S.kids.find(k=>k.status==='here').id];
@@ -1002,22 +1249,20 @@ function doAct(a){
 function chrome(){
   const bar=document.getElementById('selbar');
   if(S.selecting&&!S.sub){
-    if(!bar){
-      const d=document.createElement('div');d.id='selbar';d.className='selbar';
-      $('#tabs').insertAdjacentElement('beforebegin',d);
-    }
-    const n=S.sel.size;
+    if(!bar){const d=document.createElement('div');d.id='selbar';d.className='selbar';
+      document.getElementById('tabs').insertAdjacentElement('beforebegin',d);}
+    const n=S.sel.size, on=n>0;
     document.getElementById('selbar').innerHTML=`
-      <span class="sb-t"><b>${n?n+(n===1?' child':' children'):'Select children'}</b>
-       <small>${S.dir==='in'?'Arriving':'Going home'} · <a href="#" data-act="selall" style="color:var(--accent);font-weight:600">${n?'clear':'select all'}</a></small></span>
-      <span style="display:flex;gap:7px;align-items:center">
-       <span class="seg two" style="width:132px"><span class="sg${S.dir==='in'?' on':''}" data-act="bulkdir:in">In</span><span class="sg${S.dir==='out'?' on':''}" data-act="bulkdir:out">Out</span></span>
-       <button class="sb-go" data-act="bulk" ${n?'':'style="opacity:.45"'}>${ic(S.dir==='in'?'in':'out','ic sm','currentColor','2')}</button></span>`;
-    $('#tabs').style.display='none';
-  }else{
-    if(bar)bar.remove();
-    $('#tabs').style.display='';
-  }
+      <div class="sb-head"><b>${on?n+(n===1?' child selected':' children selected'):'No children selected'}</b>
+       <a href="#" data-act="selall" class="linkish">${on?'Clear':'Select all'}</a></div>
+      <div class="sb-acts">
+       <button class="primary sm${on?'':' off'}" data-act="${on?'bulk:in':'nosel'}">${ic('in','ic','currentColor','1.8')}Check in</button>
+       <button class="primary sm${on?'':' off'}" data-act="${on?'bulk:out':'nosel'}">${ic('out','ic','currentColor','1.8')}Check out</button>
+       <button class="second sm${on?'':' off'}" data-act="${on?'bulk:absent':'nosel'}">${ic('moon','ic','var(--npds-gray-700)','1.8')}Absent</button>
+       <button class="second sm${on?'':' off'}" data-act="${on?'sheet:relocate':'nosel'}">${ic('swap','ic','var(--npds-gray-700)','1.8')}Move</button>
+      </div>`;
+    document.getElementById('tabs').style.display='none';
+  }else{ if(bar)bar.remove(); document.getElementById('tabs').style.display=''; }
 }
 const _render=render;
 render=function(k){_render(k);chrome();};
@@ -1028,14 +1273,7 @@ document.addEventListener('click',e=>{
   if(t){e.preventDefault();doAct(t.dataset.act);return;}
   if(e.target.closest('#scrim')){doAct('close');return;}
 });
-/* swipe */
-let sx=0,cur=null;
-document.addEventListener('pointerdown',e=>{const s=e.target.closest('.swipe');if(!s)return;cur=s;sx=e.clientX;});
-document.addEventListener('pointerup',e=>{
-  if(!cur)return;const d=e.clientX-sx;
-  if(d<-28)cur.classList.add('open'); else if(d>18)cur.classList.remove('open');
-  cur=null;});
-document.querySelectorAll('.swipe').forEach(()=>{});
+
 $('#clock').textContent=now();
 render();
 
