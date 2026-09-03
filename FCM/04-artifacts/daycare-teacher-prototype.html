@@ -768,6 +768,9 @@
   .mini.lbl.sec:hover{background:#f0f1f2;border-color:var(--npds-gray-700)}
   .mini.lbl.sec:active{background:var(--npds-gray-200)}
   .mini.lbl.sec svg{stroke:currentColor!important}
+
+  /* search icon lives beside the avatar on home */
+  .hh-right{display:flex;align-items:center;gap:10px}
 </style>
 <div class="stage">
  <div class="lead">
@@ -943,16 +946,31 @@ const topbar=(title,sub,right='',back=false)=>`<div class="topbar">
   ${back?`<button class="tb-btn" data-act="back">${ic('back')}</button>`:'<span style="width:34px"></span>'}
   <span class="tb-mid"><span class="tb-title">${title}</span>${sub?`<span class="tb-sub">${sub}</span>`:''}</span>
   <span class="tb-right">${right}</span></div>`;
+const searchBtn=()=>`<button class="tb-btn${S.searchOpen?' active':''}" data-act="searchtoggle" aria-label="Search">${ic('search')}</button>`;
+const dock=(n,total,one,many,ph)=>S.searchOpen?`<div class="searchdock">
+   <div class="sd-bar">${ic('search','ic','var(--ink-3)')}
+    <input id="q" placeholder="${ph}" value="${S.q}" autocomplete="off">
+    <button class="sd-x" data-act="searchclose" aria-label="Close search">${ic('x','ic sm','var(--npds-gray-700)','2')}</button>
+   </div>
+   <p class="sd-count">${S.q?`${n} of ${total} ${n===1?one:many}`:'Type to search'}</p>
+  </div>`:'';
 const homehead=()=>`<div class="head"><div class="room">
   <span class="glyph">${ic('sun','ic sm','var(--present)','1.6')}</span>
   <span><span class="room-name">Sunflower Room</span><span class="room-sub">Toddlers · Tara Rivera</span></span></div>
-  <span class="avatar">TR</span></div>`;
+  <span class="hh-right">${searchBtn()}<span class="avatar">TR</span></span></div>`;
 
 /* ---------- routes ---------- */
 function vMyRoom(){
   const h=cnt('here'),e=cnt('expected'),a=cnt('absent'),o=cnt('out'),tot=S.kids.length;
   const line = e>0 ? `Good morning, Tara.<br>Your room is all set!` : (o>3 ? `Winding down, Tara.<br>${h} still with you.` : `All set, Tara.<br>Everyone is here.`);
   const sub  = e>0 ? `<b>${e} still to arrive.</b> Circle time is at 9:00.` : `<b>${h} here.</b> Next up is outdoor play at 10:20.`;
+  const q=S.q.trim().toLowerCase();
+  const hits=q?S.kids.filter(k=>k.name.toLowerCase().includes(q)):[];
+  if(S.searchOpen&&q){
+    return `${homehead()}<div class="body pad">
+     <div class="card list">${hits.length?hits.map(k=>row(k)).join(''):'<div class="empty">No children match that name.</div>'}</div>
+    </div>${dock(hits.length,S.kids.length,'child','children','Search children')}`;
+  }
   return `${homehead()}<div class="body home">
    <div class="card greet"><h2>${line}</h2><p>${sub}</p></div>
    <div class="card pulse">
@@ -972,7 +990,7 @@ function vMyRoom(){
      <button class="primary q" data-act="sheet:inout">${ic('in','ic','currentColor','1.8')}Check in / out</button>
      <button class="second q" data-act="sheet:posttype">${ic('pen','ic','var(--accent)','1.8')}Post activity</button>
     </div></div>
-  </div>`;
+  </div>${dock(0,S.kids.length,'child','children','Search children')}`;
 }
 function vAttendance(){
   const q=S.q.toLowerCase();
@@ -991,21 +1009,16 @@ function vAttendance(){
     ${S.selecting?'<p class="hint">Tick the children you want, then pick an action at the bottom.</p>':''}
     <div class="card list">${rows}</div>
    </div>
-   ${S.searchOpen?`<div class="searchdock">
-     <div class="sd-bar">${ic('search','ic','var(--ink-3)')}
-      <input id="q" placeholder="Search this room" value="${S.q}" autocomplete="off">
-      <button class="sd-x" data-act="searchclose" aria-label="Close search">${ic('x','ic sm','var(--npds-gray-700)','2')}</button>
-     </div>
-     <p class="sd-count">${S.q?`${list.length} of ${S.kids.length} ${list.length===1?'child':'children'}`:'Type a name'}</p>
-    </div>`:''}`;
+   ${dock(list.length,S.kids.length,'child','children','Search this room')}`;
 }
 function vActivities(){
   const f=S.filters;
-  const list=S.feed.filter(a=>!f.size||f.has(a.type));
+  const q=S.q.trim().toLowerCase();
+  const list=S.feed.filter(a=>(!f.size||f.has(a.type))&&(!q||(a.title+' '+a.sub+' '+TY[a.type].label).toLowerCase().includes(q)));
   const counts={};S.feed.forEach(a=>counts[a.type]=(counts[a.type]||0)+1);
   const chips=Object.keys(counts).map(t=>`<span class="ch${f.has(t)?' on':''}" data-act="fact:${t}">${TY[t].label} ${counts[t]}</span>`).join('');
   return `${topbar('Activity log',`Today · ${S.feed.length} entries · whole room`,
-    `<button class="ghost tb-inline" data-act="sheet:filter">Filters${f.size?' ('+f.size+')':''}</button>`)}
+    `${searchBtn()}<button class="ghost tb-inline" data-act="sheet:filter">Filters${f.size?' ('+f.size+')':''}</button>`)}
    <div class="body pad">
     <button class="primary" data-act="sheet:posttype">${ic('plus','ic','currentColor','1.9')}Post an activity</button>
     <div class="chips"><span class="ch${f.size?'':' on'}" data-act="fact:all">All ${S.feed.length}</span>${chips}</div>
@@ -1015,16 +1028,18 @@ function vActivities(){
        <span class="ft"><b>${a.title}</b><small>${a.sub}</small>
         <span class="fmeta">${TY[a.type].label} · ${a.who||'whole room'}</span></span>
        <span class="fw">${a.t}</span></div>`).join('')
-      :'<div class="empty">Nothing matches these filters.<br><b class="linkish" data-act="fact:all">Clear them</b></div>'}</div>
-   </div>`;
+      :'<div class="empty">Nothing matches.<br><b class="linkish" data-act="fact:all">Clear the filters</b></div>'}</div>
+   </div>${dock(list.length,S.feed.length,'entry','entries','Search activities')}`;
 }
 function vMessages(){
   const scope=S.mscope||'all';
-  const list=S.threads.filter(t=>scope==='all'?true:t.kind===scope);
+  const q=S.q.trim().toLowerCase();
+  const list=S.threads.filter(t=>(scope==='all'||t.kind===scope)&&
+    (!q||(t.who+' '+(t.kid||'')+' '+(t.role||'')+' '+t.msgs.map(m=>m.txt).join(' ')).toLowerCase().includes(q)));
   const n=k=>S.threads.filter(t=>t.kind===k).length;
   const chip=(id,lbl,c)=>`<span class="ch${scope===id?' on':''}" data-act="mscope:${id}">${lbl} ${c}</span>`;
   return `${topbar('Messages',unread()?`${unread()} waiting on you`:'All caught up',
-    `<button class="tb-btn" data-act="sheet:compose">${ic('plus')}</button>`)}
+    `${searchBtn()}<button class="tb-btn" data-act="sheet:compose">${ic('plus')}</button>`)}
    <div class="body pad">
     <div class="chips">${chip('all','All',S.threads.length)}${chip('family','Parents',n('family'))}${chip('staff','Staff',n('staff'))}</div>
     <div class="card list">${list.length?list.map(t=>`
@@ -1032,8 +1047,8 @@ function vMessages(){
        <span class="av">${t.unread?'<i class="unreaddot"></i>':''}${ini(t.who)}</span>
        <span class="rt"><b>${t.who}</b><small>${t.kind==='staff'?t.role:t.kid} · \u201c${t.msgs[t.msgs.length-1].txt}\u201d</small></span>
        <span class="rr"><span class="tm${t.unread?' accent':' mute'}">${t.t}</span></span></div>`).join('')
-      :'<div class="empty">No messages in this group.</div>'}</div>
-   </div>`;
+      :'<div class="empty">No messages match.</div>'}</div>
+   </div>${dock(list.length,S.threads.length,'thread','threads','Search messages')}`;
 }
 function vThread(){
   const t=S.threads.find(x=>x.id===S.arg);
