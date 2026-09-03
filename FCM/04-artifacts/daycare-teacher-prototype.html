@@ -1112,7 +1112,7 @@ const SHEETS={
     <span class="sg${S.dir==='out'?' on':''}" data-act="dir:out">${ic('out','ic','currentColor','1.8')}Check out</span></div>
    <p class="sh-note">${S.dir==='in'?`${pool.length} ${pool.length===1?'child is':'children are'} not in the room yet.`:`${pool.length} ${pool.length===1?'child is':'children are'} here now.`}</p>
    <div class="card list roomy">${pool.length?pool.slice(0,5).map(k=>row(k,{right:`<button class="mini lbl ${S.dir==='in'?'pri':'sec'}" data-act="${S.dir==='in'?'checkin':'checkout'}:${k.id}" aria-label="${S.dir==='in'?'Check in':'Check out'} ${k.name}">${ic(S.dir==='in'?'in':'out','ic sm','currentColor','1.9')}${S.dir==='in'?'Check in':'Check out'}</button>`})).join(''):`<div class="empty">${S.dir==='in'?'Everyone has arrived.':'Nobody left to check out.'}</div>`}</div>
-   <button class="second" data-act="bulkfrom">${ic('listCheck','ic','var(--npds-gray-700)','1.8')}Select several in Attendance</button>`;
+   <button class="second" data-act="bulkfrom">${ic('listCheck','ic','var(--npds-gray-700)','1.8')}Bulk check in / out</button>`;
  },
  posttype(){
   return `<span class="grab"></span><h3 class="sh-h">Post an activity</h3>
