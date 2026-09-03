@@ -796,15 +796,95 @@
   .tp:hover{color:var(--ink)}
   .tp.on{background:var(--npds-blue-100);box-shadow:inset 0 0 0 1px var(--npds-blue-500);
     color:var(--npds-blue-700);font-weight:600}
+
+  /* ===== date spine ===== */
+  .spine{display:flex;align-items:center;gap:8px;flex:none}
+  .sp-b{width:40px;height:40px;min-height:40px;flex:none;border-radius:999px;
+    border:1px solid var(--npds-gray-500);background:rgba(255,255,255,.92);
+    color:var(--npds-gray-700);display:grid;place-items:center;padding:0;font-family:inherit}
+  .sp-b:hover{background:#f0f1f2}
+  .sp-b.off{opacity:.4}
+  .sp-b svg{stroke:currentColor!important}
+  .sp-mid{flex:1;min-width:0;display:flex;align-items:center;justify-content:center;gap:8px;
+    font-size:14px;font-variant-numeric:tabular-nums}
+  .sp-mid b{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .sp-f{flex:none;height:40px;min-height:40px;padding:0 15px;border-radius:999px;
+    border:1px solid var(--npds-gray-500);background:rgba(255,255,255,.92);color:var(--npds-gray-700);
+    display:inline-flex;align-items:center;gap:7px;font-family:inherit;font-size:13px;font-weight:500}
+  .sp-f:hover{background:#f0f1f2}
+  .sp-f svg{stroke:currentColor!important}
+
+  /* ===== attention cards ===== */
+  .needs,.banner{display:flex;align-items:center;gap:13px;padding:15px 16px;cursor:pointer}
+  .banner{cursor:default}
+  .needs{box-shadow:inset 3px 0 0 var(--amber),0 14px 30px -20px rgba(40,55,38,.42)}
+  .hint.readonly{display:flex;align-items:flex-start;gap:8px;padding:12px 14px;border-radius:16px;
+    background:rgba(44,49,43,.055)}
+
+  /* ===== choice rows (visibility, pickup) ===== */
+  .opt{display:flex;align-items:center;gap:13px;padding:14px 13px;border-radius:14px;cursor:pointer}
+  .opt+.opt{border-top:1px solid var(--line)}
+  .opt.on{background:var(--npds-blue-100)}
+  .pk-row{cursor:pointer}
+  .pk-row.on{background:var(--npds-blue-100)}
+  .pk-row.on .cbx{background:var(--npds-blue-600);box-shadow:none}
+  .pk-row.on .cbx::after{content:"";width:11px;height:6px;border-left:2.4px solid #fff;
+    border-bottom:2.4px solid #fff;transform:rotate(-45deg) translateY(-1px)}
+
+  /* ===== switch ===== */
+  .sw{width:46px;height:27px;border-radius:999px;background:rgba(44,49,43,.16);
+    display:inline-flex;align-items:center;padding:3px;cursor:pointer;transition:background .18s ease;flex:none}
+  .sw i{width:21px;height:21px;border-radius:50%;background:#fff;display:block;
+    box-shadow:0 1px 3px rgba(0,0,0,.2);transition:transform .18s ease}
+  .sw.on{background:var(--npds-blue-600)}
+  .sw.on i{transform:translateX(19px)}
+  .fv.pale{color:var(--ink-3)}
+
+  /* ===== visibility tag on feed rows ===== */
+  .visq{font-style:normal;text-transform:none;letter-spacing:0;font-weight:500;
+    margin-left:7px;padding:2px 8px;border-radius:999px;background:rgba(44,49,43,.07);color:var(--ink-3)}
+
+  /* ===== report table ===== */
+  .tablewrap{overflow-x:auto;border-radius:18px;background:var(--card);
+    border:1px solid rgba(255,255,255,.55);box-shadow:0 14px 30px -20px rgba(40,55,38,.42);
+    scrollbar-width:none}
+  .tablewrap::-webkit-scrollbar{display:none}
+  .rt-t{border-collapse:collapse;width:100%;font-size:13px}
+  .rt-t th{text-align:left;font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;
+    color:var(--ink-3);font-weight:600;padding:13px 14px;border-bottom:1px solid var(--line);white-space:nowrap}
+  .rt-t td{padding:13px 14px;border-bottom:1px solid var(--line);white-space:nowrap;
+    font-variant-numeric:tabular-nums}
+  .rt-t tr:last-child td{border-bottom:0}
+  .seg .ic{width:16px;height:16px}
+  .seg.two .sg{display:flex;align-items:center;justify-content:center;gap:7px}
+
+  /* ===== confirm dialog ===== */
+  .confirmwrap{position:absolute;inset:0;z-index:12;display:grid;place-items:center;padding:24px;
+    opacity:0;transition:opacity .18s ease;pointer-events:none}
+  .confirmwrap.on{opacity:1;pointer-events:auto}
+  .cf-scrim{position:absolute;inset:0;background:rgba(28,38,26,.34);backdrop-filter:blur(2px)}
+  .cf-card{position:relative;width:100%;background:rgba(253,254,251,.98);border-radius:24px;
+    padding:24px 22px 20px;box-shadow:0 26px 60px -20px rgba(28,42,26,.5);
+    transform:scale(.96);transition:transform .2s cubic-bezier(.32,.72,0,1)}
+  .confirmwrap.on .cf-card{transform:none}
+  .cf-card h4{margin:0 0 9px;font-family:Newsreader,Georgia,serif;font-weight:400;font-size:20px;
+    letter-spacing:-.015em;color:var(--ink)}
+  .cf-card p{margin:0 0 18px;font-size:14px;line-height:1.5;color:var(--ink-2)}
+  .cf-card .primary{margin:0}
+  .cf-card .second{margin-top:9px;width:100%}
+
+  .pillv.warn{color:#7E5C2E;background:rgba(176,138,86,.22)}
+  .card.needs .mt small{color:var(--ink-2)}
+  .sum{padding:16px 8px}
 </style>
 <div class="stage">
  <div class="lead">
   <p class="eyebrow">FCM · Teacher app · working copy · changes land here</p>
   <h1>Teacher App, Working Copy</h1>
-  <p>A working prototype, not a picture of one. Check children in and out and the counts move; post an activity and it lands in the log; send a message and the badge clears.</p>
+  <p>Every capability from the teacher app audit, carried in this design language. My Room is unchanged. Attendance, Activities, Messages and More now hold the full feature set.</p>
  </div>
  <div class="try">
-  <span><b>Try:</b> check Caleb in from home</span>
+  <span><b>Try:</b> check a child out — it asks who collected them</span>
   <span>Swipe a child left in Attendance</span>
   <span>Select several, check them out at once</span>
   <span>Post an activity, then filter the log</span>
@@ -886,16 +966,48 @@ send:'<path d="M21 3 10.5 13.5M21 3l-6.8 18-3.7-7.5L3 9.8Z"/>',
 x:'<path d="M18 6 6 18M6 6l12 12"/>'};
 const ic=(k,c='ic',s='currentColor',w='1.7')=>`<svg class="${c}" viewBox="0 0 24 24" fill="none" stroke="${s}" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round">${I[k]||''}</svg>`;
 
-const TYPES=[['arrival','Arrival','in'],['meal','Meal','meal'],['bottle','Bottle','bottle'],['nap','Nap','moon'],
-['diaper','Diaper','diaper'],['outdoor','Outdoor','sun'],['learning','Learning','book'],['art','Art','art'],
-['mood','Mood','smile'],['incident','Incident','alert'],['medication','Medication','pill'],['photo','Photo note','camera']];
+const TYPES=[
+['arrival','Arrival','in'],['food','Food','meal'],['bottle','Bottle','bottle'],['nap','Nap','moon'],
+['toilet','Toilet','diaper'],['outdoor','Outdoor','sun'],['learning','Learning','book'],['art','Art','art'],
+['observation','Observation','eye'],['kudos','Kudos','star'],['mood','Mood','smile'],['behavior','Behavior','flag'],
+['medication','Medication','pill'],['incident','Incident','alert'],['accident','Accident','bandage'],
+['note','Note','doc'],['photo','Photo','camera']];
 const TY=Object.fromEntries(TYPES.map(t=>[t[0],{label:t[1],icon:t[2]}]));
 
+const ROOM='Sunflower';
+const PICKUPS={
+ aiden:['Marcus Brooks · Father','Dawn Brooks · Mother','Ruth Brooks · Grandmother'],
+ bea:['Ifeoma Okafor · Mother','Grace Okafor · Grandmother'],
+ caleb:['Marta Ruiz · Mother','Luis Ruiz · Father','Elena Diaz · Aunt'],
+ dev:['Anita Patel · Mother','Raj Patel · Father'],
+ grace:['Ana Lin · Mother','Wei Lin · Father']
+};
+const DEFAULT_PICKUPS=['Parent or guardian','Authorized pickup'];
+const FAMILIES=[
+ {id:'brooks',name:'Brooks Family',kids:['Aiden'],primary:'Dawn Brooks',phone:'(402) 555 0181',email:'dawn.brooks@example.com',addr:'414 Elm St, Lincoln NE'},
+ {id:'okafor',name:'Okafor Family',kids:['Bea'],primary:'Ifeoma Okafor',phone:'(402) 555 0122',email:'i.okafor@example.com',addr:'19 Ash Ave, Lincoln NE'},
+ {id:'ruiz',name:'Ruiz Family',kids:['Caleb'],primary:'Marta Ruiz',phone:'(402) 555 0164',email:'marta.ruiz@example.com',addr:'88 Cedar Rd, Lincoln NE'},
+ {id:'patel',name:'Patel Family',kids:['Dev'],primary:'Anita Patel',phone:'(402) 555 0107',email:'a.patel@example.com',addr:'7 Birch Ln, Lincoln NE'},
+ {id:'lin',name:'Lin Family',kids:['Grace'],primary:'Ana Lin',phone:'(402) 555 0193',email:'ana.lin@example.com',addr:'250 Poplar St, Lincoln NE'}
+];
+const TEMPLATES=[
+ {id:'t1',name:'Pickup reminder',body:'Hi [Family Name], a quick reminder that [Child Name] needs collecting by [Time] today.'},
+ {id:'t2',name:'Illness notice',body:'Hi [Family Name], [Child Name] is not feeling well and may need collecting early. We will keep you posted.'},
+ {id:'t3',name:'Great day',body:'Hi [Family Name], [Child Name] had a lovely day today. Ask them about it at dinner!'}
+];
 const REQUIRED={"meal": "What was served", "bottle": "Amount taken", "nap": "Start and end time", "diaper": "What was changed", "incident": "What happened", "medication": "Medication and dose", "mood": "How they seemed", "photo": "Caption"};
 let S={
  tab:'myroom', sub:null, arg:null,
  selecting:false, searchOpen:false, dir:'in', sel:new Set(), q:'', filters:new Set(), draftType:null,
- draft:{who:'all',picked:new Set(),req:'',det:'',time:null},
+ draft:{who:'all',picked:new Set(),req:'',det:'',time:null,vis:'parents',internal:'',sev:'low',witness:''},
+ stack:[], day:0, childTab:'general', famTab:'general', reportView:'list', confirm:null,
+ sort:'name', columns:new Set(['status','time','allergy']),
+ compose:{to:null,fwd:false,subject:'',body:''},
+ drafts:[{id:'d1',to:'Lin Family',subject:'Nap routine',body:'Hi [Family Name], a note about [Child Name] and naps…'}],
+ sent:[{id:'s1',to:'All Sunflower families',subject:'Picture day Thursday',t:'Mon'}],
+ incidents:[{id:'i1',child:'Ella Park',room:'Pre-K 4',by:'Marcus Webb',t:'10:42 AM',
+   vis:'Staff + Parents',sev:'Low',desc:'Tripped on the edge of the mat during free play. Small graze to the left elbow, cleaned and covered.',
+   actions:'Cleaned and covered, comforted, returned to play.',witness:'Joy Adeyemi',status:'pending',note:''}],
  kids:[
   ['aiden','Aiden Brooks','here','7:14','Dad'],['bea','Bea Okafor','here','7:22','Grandma'],
   ['caleb','Caleb Ruiz','out','','',true],['dev','Dev Patel','here','7:30','Mum'],
@@ -907,13 +1019,14 @@ let S={
   ['omar','Omar Haddad','here','8:20','Dad'],['priya','Priya Shah','here','8:33','Mum'],
   ['quinn','Quinn Byrne','absent','','Unwell'],['rosa','Rosa Delgado','here','8:26','Dad'],
   ['sam','Sam Whitfield','here','8:38','Mum']
- ].map(k=>({id:k[0],name:k[1],status:k[2],tin:k[3],who:k[4],allergy:!!k[5],med:!!k[6],note:''})),
+ ].map(k=>({id:k[0],name:k[1],status:k[2],tin:k[3],who:k[4],allergy:!!k[5],med:!!k[6],note:'',
+   room:ROOM,collectedBy:null,dob:'12 Apr 2024',age:'2 yr 4 mo'})),
  feed:[
-  {id:1,type:'meal',title:'Lunch · 17 children',sub:'Chicken, rice, green beans',t:'11:45'},
-  {id:2,type:'outdoor',title:'Outdoor play · whole room',sub:'Sandpit and trikes, 40 min',t:'10:20'},
-  {id:3,type:'incident',title:'Incident · Dev Patel',sub:'Bumped knee, ice applied. Family notified.',t:'10:04'},
-  {id:4,type:'art',title:'Art · 8 children',sub:'Leaf printing, photo added',t:'9:35'},
-  {id:5,type:'learning',title:'Circle time · whole room',sub:'Songs and weather chart',t:'9:00'}
+  {id:1,type:'food',title:'Lunch · whole room',sub:'Chicken, rice and green beans',t:'11:45',by:'Tara Rivera',vis:'parents'},
+  {id:2,type:'outdoor',title:'Outdoor play · whole room',sub:'Sandpit and trikes, 40 minutes',t:'10:20',by:'Joy Adeyemi',vis:'parents'},
+  {id:3,type:'incident',title:'Incident · Dev Patel',sub:'Bumped knee, ice applied. Family notified.',t:'10:04',by:'Tara Rivera',vis:'both'},
+  {id:4,type:'art',title:'Art · 8 children',sub:'Leaf printing, photo added',t:'9:35',by:'Tara Rivera',vis:'parents',photos:true},
+  {id:5,type:'observation',title:'Circle time · whole room',sub:'Songs and the weather chart. Grace led the counting.',t:'9:00',by:'Tara Rivera',vis:'parents'}
  ],
  threads:[
   {id:'marta',who:'Marta Ruiz',kind:'family',kid:'Caleb',unread:true,t:'4:52',msgs:[{me:false,txt:'Did he finish his lunch? He was picky at breakfast.',t:'4:52 PM'}]},
@@ -939,10 +1052,16 @@ function row(k,opts={}){
   const box=S.selecting?`<span class="cbx${S.sel.has(k.id)?' on':''}">${S.sel.has(k.id)?ic('check','ic sm','#FFFDFA','2.4'):''}</span>`:'';
   let meta=opts.meta;
   if(meta===undefined){
-    meta = k.status==='here' ? `In ${k.tin}${k.who?' · '+k.who:''}`
-         : k.status==='out' ? (k.tout?`Checked out ${k.tout}`:'Not checked in')
-         : `Absent · ${k.who||'no reason given'}`;
-    if(k.note) meta+=' · note';
+    const C=S.columns, bits=[];
+    if(k.status==='here'){bits.push(C.has('time')?`In ${k.tin}`:'Here');
+      if(C.has('guardian')&&k.who)bits.push(k.who);}
+    else if(k.status==='out'){bits.push(k.tout?(C.has('time')?`Checked out ${k.tout}`:'Checked out'):'Not checked in');
+      if(C.has('guardian')&&k.collectedBy)bits.push(k.collectedBy.split(' · ')[0]);}
+    else bits.push(`Absent${k.who?' · '+k.who:''}`);
+    if(C.has('allergy')&&k.allergy)bits.push('Peanut allergy');
+    if(C.has('allergy')&&k.med)bits.push('Inhaler');
+    if(k.note)bits.push('note');
+    meta=bits.join(' · ');
   }
   let right=opts.right;
   if(right===undefined){
@@ -1014,41 +1133,73 @@ function vMyRoom(){
     </div></div>
   </div>${dock(0,S.kids.length,'child','children','Search children')}`;
 }
-function vAttendance(){
-  const q=S.q.toLowerCase();
-  const list=S.kids.filter(k=>{
+const DAYS=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+function dayLabel(off){
+  if(off===0)return 'Today · Tue 3 Sep';
+  const d=new Date(2026,8,3+off);
+  return `${DAYS[d.getDay()]} ${d.getDate()} Sep`+(off===-1?' · yesterday':'');
+}
+function datespine(act,extra){
+  return `<div class="spine">
+   <button class="sp-b" data-act="${act}:-1" aria-label="Previous day">${ic('left','ic')}</button>
+   <span class="sp-mid">${ic('cal','ic sm','var(--ink-3)')}<b>${dayLabel(S.day)}</b></span>
+   <button class="sp-b${S.day>=0?' off':''}" data-act="${S.day>=0?'noop':act+':1'}" aria-label="Next day">${ic('right','ic')}</button>
+   ${extra||''}</div>`;
+}
+function sortKids(list){
+  if(S.sort==='time')return list.slice().sort((a,b)=>(a.tin||'~').localeCompare(b.tin||'~'));
+  if(S.sort==='status')return list.slice().sort((a,b)=>a.status.localeCompare(b.status)||a.name.localeCompare(b.name));
+  return list.slice().sort((a,b)=>a.name.localeCompare(b.name));
+}
+function attList(){
+  const q=S.q.trim().toLowerCase();
+  let l=S.kids.filter(k=>{
     if(q&&!k.name.toLowerCase().includes(q))return false;
+    if(S.filters.has('allergy'))return k.allergy||k.med;
     if(S.filters.size&&!S.filters.has(k.status))return false;
     return true;});
+  return sortKids(l);
+}
+function vAttendance(){
+  const list=attList();
+  const nf=(S.sort!=='name'?1:0)+(S.columns.size!==3?1:0);
   const chip=(id,lbl,n)=>`<span class="tp${S.filters.has(id)?' on':''}" data-act="fkid:${id}">${lbl} ${n}</span>`;
-  const rows=list.length?list.map(k=>row(k)).join(''):'<div class="empty">No children match.</div>';
-  return `${topbar('Attendance',`${S.kids.length} children · ${cnt('here')} here`,
-     `<button class="tb-btn${S.searchOpen?' active':''}" data-act="searchtoggle" aria-label="Search this room">${ic('search')}</button>
-      <button class="ghost tb-inline" data-act="selmode">${S.selecting?'Cancel':'Select'}</button>`)}
+  const past=S.day<0;
+  return `${topbar('Attendance',`${ROOM} Room · ${S.kids.length} children`,
+     `${searchBtn()}<button class="ghost tb-inline" data-act="selmode">${S.selecting?'Cancel':'Select'}</button>`)}
    <div class="body pad">
+    ${datespine('day',`<button class="sp-f" data-act="sheet:attfilter">${ic('filter','ic sm','var(--npds-gray-700)','1.9')}Filters${nf?' ('+nf+')':''}</button>`)}
     <div class="tabpill"><span class="tp${S.filters.size?'':' on'}" data-act="fkid:all">All ${S.kids.length}</span>
-     ${chip('here','Here',cnt('here'))}${chip('out','Not in',cnt('out'))}${chip('absent','Absent',cnt('absent'))}</div>
+     ${chip('here','Here',cnt('here'))}${chip('out','Not in',cnt('out'))}${chip('absent','Absent',cnt('absent'))}
+     ${chip('allergy','Allergies',S.kids.filter(k=>k.allergy||k.med).length)}</div>
+    ${past?'<p class="hint readonly">'+ic('shield','ic sm','var(--ink-3)','1.8')+' A past day is read-only. Ask the director to amend a closed register.</p>':''}
     ${S.selecting?'<p class="hint">Tick the children you want, then pick an action at the bottom.</p>':''}
-    <div class="card list">${rows}</div>
+    <div class="card list">${list.length?list.map(k=>row(k,past?{right:''}:{})).join(''):'<div class="empty">No children match.</div>'}</div>
    </div>
    ${dock(list.length,S.kids.length,'child','children','Search this room')}`;
 }
 function vActivities(){
-  const f=S.filters;
-  const q=S.q.trim().toLowerCase();
+  const f=S.filters, q=S.q.trim().toLowerCase();
   const list=S.feed.filter(a=>(!f.size||f.has(a.type))&&(!q||(a.title+' '+a.sub+' '+TY[a.type].label).toLowerCase().includes(q)));
   const counts={};S.feed.forEach(a=>counts[a.type]=(counts[a.type]||0)+1);
   const chips=Object.keys(counts).map(t=>`<span class="tp${f.has(t)?' on':''}" data-act="fact:${t}">${TY[t].label} ${counts[t]}</span>`).join('');
-  return `${topbar('Activity log',`Today · ${S.feed.length} entries · whole room`,
-    `${searchBtn()}<button class="ghost tb-inline" data-act="sheet:filter">Filters${f.size?' ('+f.size+')':''}</button>`)}
+  const pend=S.incidents.filter(i=>i.status==='pending');
+  return `${topbar('Activity log',`${ROOM} Room · ${S.feed.length} entries`,
+    `${searchBtn()}<button class="ghost tb-inline" data-act="sheet:posttype">Post</button>`)}
    <div class="body pad">
-    <button class="primary" data-act="sheet:posttype">${ic('plus','ic','currentColor','1.9')}Post an activity</button>
+    ${datespine('day',`<button class="sp-f" data-act="sheet:filter">${ic('filter','ic sm','var(--npds-gray-700)','1.9')}Filters${f.size?' ('+f.size+')':''}</button>`)}
+    ${pend.length?`<div class="card needs" data-act="review:${pend[0].id}">
+      <span class="mi warn">${ic('alert','ic sm','var(--amber)')}</span>
+      <span class="mt"><b>${pend.length} incident ${pend.length===1?'report needs':'reports need'} your review</b>
+       <small>${pend[0].child} · reported by ${pend[0].by} at ${pend[0].t}</small></span>
+      ${ic('arrow','ic sm','var(--ink-3)')}</div>`:''}
     <div class="tabpill"><span class="tp${f.size?'':' on'}" data-act="fact:all">All ${S.feed.length}</span>${chips}</div>
     <div class="card feed">${list.length?list.map(a=>`
       <div class="fe${a.fresh?' new':''}" data-act="act:${a.id}">
-       <span class="fi${a.type==='incident'?' warn':''}">${ic(TY[a.type].icon,'ic',a.type==='incident'?'var(--amber)':'var(--accent)','1.7')}</span>
+       <span class="fi${a.type==='incident'||a.type==='accident'?' warn':''}">${ic(TY[a.type].icon,'ic',(a.type==='incident'||a.type==='accident')?'var(--amber)':'var(--accent)','1.7')}</span>
        <span class="ft"><b>${a.title}</b><small>${a.sub}</small>
-        <span class="fmeta">${TY[a.type].label} · ${a.who||'whole room'}</span></span>
+        <span class="fmeta">${TY[a.type].label} · ${a.who||'whole room'} · by ${a.by||'Tara Rivera'}
+         ${a.vis?`<i class="visq">${a.vis==='both'?'Parents + staff':a.vis==='staff'?'Staff only':'Parents'}</i>`:''}</span></span>
        <span class="fw">${a.t}</span></div>`).join('')
       :'<div class="empty">Nothing matches.<br><b class="linkish" data-act="fact:all">Clear the filters</b></div>'}</div>
    </div>${dock(list.length,S.feed.length,'entry','entries','Search activities')}`;
@@ -1061,22 +1212,38 @@ function mthreads(){
 }
 function vMessages(){
   const scope=S.mscope||'all';
-  const list=mthreads();
-  const nf=(S.mscope&&S.mscope!=='all'?1:0)+(S.munread?1:0);
+  const q=S.q.trim().toLowerCase();
   const n=k=>S.threads.filter(t=>t.kind===k).length;
   const chip=(id,lbl,c)=>`<span class="tp${scope===id?' on':''}" data-act="mscope:${id}">${lbl} ${c}</span>`;
-  return `${topbar('Messages',unread()?`${unread()} waiting on you`:'All caught up',
-    `${searchBtn()}<button class="ghost tb-inline" data-act="sheet:mfilter">Filters${nf?' ('+nf+')':''}</button>`)}
-   <div class="body pad">
-    <button class="primary" data-act="sheet:compose">${ic('plus','ic','currentColor','1.9')}New message</button>
-    <div class="tabpill">${chip('all','All',S.threads.length)}${chip('family','Parents',n('family'))}${chip('staff','Staff',n('staff'))}${S.munread?`<span class="tp on" data-act="munread:all">Unread ${unread()}</span>`:''}</div>
-    <div class="card list">${list.length?list.map(t=>`
-      <div class="row" data-act="thread:${t.id}">
+  let rows='';
+  if(scope==='drafts'){
+    rows=S.drafts.length?S.drafts.map(d=>`<div class="row" data-act="opendraft:${d.id}">
+      <span class="av">${ic('pen','ic sm','var(--ink-3)','1.8')}</span>
+      <span class="rt"><b>${d.to}</b><small>Draft \u00b7 ${d.subject} \u2014 \u201c${d.body}\u201d</small></span>
+      <span class="rr"><span class="tm mute">Draft</span></span></div>`).join(''):'<div class="empty">No drafts.</div>';
+  }else if(scope==='sent'){
+    rows=S.sent.map(x=>`<div class="row" data-act="sentitem:${x.id}">
+      <span class="av">${ic('send','ic sm','var(--ink-3)','1.8')}</span>
+      <span class="rt"><b>${x.to}</b><small>Sent \u00b7 ${x.subject}</small></span>
+      <span class="rr"><span class="tm mute">${x.t}</span></span></div>`).join('');
+  }else{
+    const list=S.threads.filter(t=>(scope==='all'||t.kind===scope)&&(!S.munread||t.unread)&&
+      (!q||(t.who+' '+(t.kid||'')+' '+(t.role||'')+' '+t.msgs.map(m=>m.txt).join(' ')).toLowerCase().includes(q)));
+    rows=list.length?list.map(t=>`<div class="row" data-act="thread:${t.id}">
        <span class="av">${t.unread?'<i class="unreaddot"></i>':''}${ini(t.who)}</span>
-       <span class="rt"><b>${t.who}</b><small>${t.kind==='staff'?t.role:t.kid} · \u201c${t.msgs[t.msgs.length-1].txt}\u201d</small></span>
+       <span class="rt"><b>${t.who}</b><small>${t.kind==='staff'?t.role:'Parent of '+t.kid} \u00b7 \u201c${t.msgs[t.msgs.length-1].txt}\u201d</small></span>
        <span class="rr"><span class="tm${t.unread?' accent':' mute'}">${t.t}</span></span></div>`).join('')
-      :'<div class="empty">No messages match.</div>'}</div>
-   </div>${dock(list.length,S.threads.length,'thread','threads','Search messages')}`;
+      :'<div class="empty">No messages match.</div>';
+  }
+  const shown=scope==='drafts'?S.drafts.length:scope==='sent'?S.sent.length:
+    S.threads.filter(t=>(scope==='all'||t.kind===scope)).length;
+  return `${topbar('Messages',unread()?`${unread()} waiting on you`:'All caught up',
+    `${searchBtn()}<button class="ghost tb-inline" data-act="sheet:mfilter">Filters${((S.mscope&&S.mscope!=='all')?1:0)+(S.munread?1:0)?' ('+(((S.mscope&&S.mscope!=='all')?1:0)+(S.munread?1:0))+')':''}</button>`)}
+   <div class="body pad">
+    <button class="primary" data-act="newmsg">${ic('plus','ic','currentColor','1.9')}New message</button>
+    <div class="tabpill">${chip('all','Inbox',S.threads.length)}${chip('family','Parents',n('family'))}${chip('staff','Staff',n('staff'))}${chip('drafts','Drafts',S.drafts.length)}${chip('sent','Sent',S.sent.length)}</div>
+    <div class="card list">${rows}</div>
+   </div>${dock(shown,S.threads.length,'thread','threads','Search messages')}`;
 }
 function vThread(){
   const t=S.threads.find(x=>x.id===S.arg);
@@ -1103,30 +1270,244 @@ function vActivity(){
      <p>Staff-only observation. Never sent to families.</p></div>
    </div>`;
 }
+const CTABS=[['general','General'],['pickup','Pickup & emergency'],['custody','Custody'],
+ ['medical','Medical'],['documents','Documents'],['consent','Consent'],['activity','Activity']];
 function vChild(){
-  const k=K(S.arg);
-  return `${topbar(k.name,'Toddlers · 2 yr 4 mo','',true)}
+  const k=K(S.arg), t=S.childTab;
+  const fr=(l,v)=>`<div class="field"><span class="fl">${l}</span><span class="fv">${v}</span></div>`;
+  const fam=FAMILIES.find(f=>f.kids.includes(k.name.split(' ')[0]));
+  let panel='';
+  if(t==='general') panel=`<div class="card fieldset">
+     ${fr('Date of birth',k.dob)}${fr('Age',k.age)}${fr('Room',k.room+' Room')}
+     ${fr('Enrollment','Active · since Jan 2026')}</div>
+    ${fam?`<div class="card moment" data-act="family:${fam.id}"><span class="mi">${ic('users','ic sm','var(--ink-2)')}</span>
+      <span class="mt"><b>${fam.name}</b><small>${fam.primary} · primary contact</small></span>${ic('arrow','ic sm','var(--ink-3)')}</div>`:''}`;
+  if(t==='pickup') panel=`<p class="hint">These are the only people the check-out sheet will offer.</p>
+    <div class="card list roomy">${(PICKUPS[k.id]||DEFAULT_PICKUPS.map(x=>x+' · on file')).map(w=>`
+      <div class="row"><span class="av">${ini(w)}</span>
+       <span class="rt"><b>${w.split(' · ')[0]}</b><small>${w.split(' · ')[1]||'Authorized'}</small></span>
+       <span class="rr">${ic('phone','ic sm','var(--npds-blue-700)','1.8')}</span></div>`).join('')}</div>
+    <div class="card fieldset">${fr('Emergency contact','Ruth Brooks · (402) 555 0110')}
+     ${fr('Doctor','Dr Amara Nwosu · (402) 555 0900')}</div>`;
+  if(t==='custody') panel=`<div class="card banner"><span class="mi">${ic('shield','ic sm','var(--ink-2)')}</span>
+     <span class="mt"><b>No custody restrictions on file</b><small>Anyone on the pickup list may collect.</small></span></div>
+    <div class="card fieldset">${fr('Court order','None')}${fr('Restricted persons','None')}${fr('Last reviewed','Jan 2026')}</div>`;
+  if(t==='medical') panel=`${(k.allergy||k.med)?`<div class="flags">
+      ${k.allergy?`<span class="flag warn">${ic('alert','ic sm','#7E5C2E','1.9')}Peanut allergy</span>`:''}
+      ${k.med?`<span class="flag">${ic('pill','ic sm','var(--ink-2)','1.9')}Inhaler, as needed</span>`:''}</div>`:''}
+    <div class="card fieldset">${fr('Allergies',k.allergy?'Peanut · severe':'None recorded')}
+     ${fr('Medication',k.med?'Inhaler · as needed':'None')}${fr('Dietary','No pork')}
+     ${fr('Immunisations','Up to date')}</div>
+    <div class="card ta"><span class="ta-l">Care notes</span>
+     <p>${k.allergy?'Alternative tray at every meal. Kitchen holds a copy of the plan.':'No special care notes.'}</p></div>`;
+  if(t==='documents') panel=`<div class="card list roomy">
+     ${['Enrollment form · signed Jan 2026','Immunisation record · Feb 2026','Allergy action plan · Mar 2026','Photo consent · Jan 2026'].map(d=>`
+      <div class="row"><span class="av">${ic('file','ic sm','var(--ink-2)','1.8')}</span>
+       <span class="rt"><b>${d.split(' · ')[0]}</b><small>${d.split(' · ')[1]}</small></span>
+       <span class="rr">${ic('arrow','ic sm','var(--ink-3)')}</span></div>`).join('')}</div>`;
+  if(t==='consent') panel=`<div class="card list roomy">
+     ${[['Photos in the family app','on'],['Photos on the centre website','off'],['Sunscreen application','on'],['Local walks','on'],['Emergency medical treatment','on']].map(c=>`
+      <div class="row"><span class="rt"><b>${c[0]}</b><small>${c[1]==='on'?'Given by '+ (fam?fam.primary:'the family'):'Not given'}</small></span>
+       <span class="rr"><span class="sw${c[1]==='on'?' on':''}"><i></i></span></span></div>`).join('')}</div>
+    <p class="hint">Consent is set by the family in their app. You can see it, not change it.</p>`;
+  if(t==='activity') panel=`<div class="card feed">${S.feed.slice(0,4).map(a=>`
+     <div class="fe" data-act="act:${a.id}"><span class="fi">${ic(TY[a.type].icon,'ic','var(--accent)','1.7')}</span>
+      <span class="ft"><b>${TY[a.type].label}</b><small>${a.sub}</small></span><span class="fw">${a.t}</span></div>`).join('')}</div>`;
+  return `${topbar(k.name,`${k.age} · ${k.room} Room`,'',true)}
    <div class="body pad">
     <div class="card kidhero"><span class="av xl">${dotFor(k.status)}${ini(k.name)}</span>
      <span class="kh-t"><b>${k.status==='here'?'Here since '+k.tin:k.status==='out'?(k.tout?'Checked out at '+k.tout:'Not checked in'):'Absent today'}</b>
-     <small>${k.who?'With '+k.who:'No guardian recorded'}</small></span></div>
-    ${(k.allergy||k.med)?`<div class="flags">${k.allergy?`<span class="flag warn">${ic('alert','ic sm','#7E5C2E','1.9')}Peanut allergy</span>`:''}${k.med?`<span class="flag">${ic('pill','ic sm','var(--ink-2)','1.9')}Inhaler, as needed</span>`:''}</div>`:''}
-    ${k.note?`<div class="card ta"><span class="ta-l">Note for today</span><p>${k.note}</p></div>`:''}
+      <small>${k.status==='here'&&k.who?'Dropped off by '+k.who:k.collectedBy?'Collected by '+k.collectedBy.split(' · ')[0]:'\u2014'}</small></span></div>
     <div class="quick">
-     ${k.status==='here'?`<button class="primary q" data-act="checkout:${k.id}">${ic('out','ic','currentColor','1.9')}Check out</button>`
-       :`<button class="primary q" data-act="checkin:${k.id}">${ic('in','ic','currentColor','1.9')}Check in</button>`}
-     <button class="second q" data-act="note:${k.id}">${ic('pen','ic','var(--accent)','1.9')}Add note</button></div>
+     ${k.status==='here'
+       ?`<button class="second q" data-act="checkout:${k.id}">${ic('out','ic','var(--npds-gray-700)','1.8')}Check out</button>`
+       :`<button class="primary q" data-act="checkin:${k.id}">${ic('in','ic','currentColor','1.8')}Check in</button>`}
+     <button class="second q" data-act="type:note">${ic('pen','ic','var(--npds-gray-700)','1.8')}Post activity</button>
+    </div>
+    <div class="quick">
+     <button class="second q" data-act="note:${k.id}">${ic('doc','ic','var(--npds-gray-700)','1.8')}Day note</button>
+     <button class="second q" data-act="absent:${k.id}">${ic('moon','ic','var(--npds-gray-700)','1.8')}Mark absent</button>
+    </div>
+    <button class="second" data-act="sheet:relocate">${ic('swap','ic','var(--npds-gray-700)','1.8')}Move to another room</button>
+    ${k.note?`<div class="card ta"><span class="ta-l">Note for today</span><p>${k.note}</p></div>`:''}
+    <div class="tabpill">${CTABS.map(c=>`<span class="tp${t===c[0]?' on':''}" data-act="ctab:${c[0]}">${c[1]}</span>`).join('')}</div>
+    ${panel}
+   </div>`;
+}
+const FTABS=[['general','General'],['students','Students'],['messages','Messages'],['notes','Notes']];
+function vFamily(){
+  const f=FAMILIES.find(x=>x.id===S.arg)||FAMILIES[0], t=S.famTab;
+  const fr=(l,v,ico)=>`<div class="field"><span class="fl">${l}</span><span class="fv">${v}${ico?' '+ico:''}</span></div>`;
+  let panel='';
+  if(t==='general') panel=`<div class="card fieldset">
+     ${fr('Primary contact',f.primary)}
+     ${fr('Phone',f.phone,ic('phone','ic sm','var(--npds-blue-700)','1.8'))}
+     ${fr('Email',f.email,ic('mail','ic sm','var(--npds-blue-700)','1.8'))}
+     ${fr('Address',f.addr)}</div>
+    <p class="hint">Tap the phone or email to call or write from your device.</p>`;
+  if(t==='students') panel=`<div class="card list roomy">${f.kids.map(n=>{
+     const k=S.kids.find(x=>x.name.split(' ')[0]===n);
+     return `<div class="row" data-act="child:${k.id}"><span class="av">${dotFor(k.status)}${ini(k.name)}</span>
+      <span class="rt"><b>${k.name}</b><small>${k.room} Room · ${k.age}</small></span>
+      <span class="rr"><span class="pillv">Primary</span></span></div>`;}).join('')}</div>
+    <button class="second" data-act="addmember">${ic('plus','ic','var(--npds-gray-700)','1.8')}Add a family member</button>`;
+  if(t==='messages') panel=`<div class="card list roomy">${S.threads.filter(x=>x.kind==='family').slice(0,2).map(x=>`
+     <div class="row" data-act="thread:${x.id}"><span class="av">${ini(x.who)}</span>
+      <span class="rt"><b>${x.who}</b><small>\u201c${x.msgs[x.msgs.length-1].txt}\u201d</small></span>
+      <span class="rr"><span class="tm mute">${x.t}</span></span></div>`).join('')}</div>`;
+  if(t==='notes') panel=`<div class="card ta int"><span class="ta-l">Staff notes</span>
+     <p>Grandmother collects on Thursdays. Prefers a call over a message.</p></div>`;
+  return `${topbar(f.name,`${f.kids.length} enrolled \u00b7 ${ROOM} Room`,'',true)}
+   <div class="body pad">
+    <div class="quick">
+     <button class="primary q" data-act="msgfam:${f.name}">${ic('chat','ic','currentColor','1.8')}Message</button>
+     <button class="second q" data-act="famsoon">${ic('pen','ic','var(--npds-gray-700)','1.8')}Edit</button>
+    </div>
+    <div class="tabpill">${FTABS.map(c=>`<span class="tp${t===c[0]?' on':''}" data-act="ftab:${c[0]}">${c[1]}</span>`).join('')}</div>
+    ${panel}
+   </div>`;
+}
+function vStudents(){
+  const q=S.q.trim().toLowerCase();
+  const list=sortKids(S.kids.filter(k=>!q||k.name.toLowerCase().includes(q)));
+  return `${topbar('Students',`${S.kids.length} in ${ROOM} Room`,searchBtn(),true)}
+   <div class="body pad">
+    <div class="card sum">
+     <span class="su"><b>${S.kids.length}</b><small>Students</small></span>
+     <span class="su"><b>${cnt('here')}</b><small>Here</small></span>
+     <span class="su"><b>${S.kids.filter(k=>k.allergy||k.med).length}</b><small>Allergies</small></span></div>
+    <div class="card list">${list.map(k=>`<div class="row" data-act="child:${k.id}">
+      <span class="av">${dotFor(k.status)}${ini(k.name)}</span>
+      <span class="rt"><b>${k.name}</b><small>${k.age}${k.allergy?' · Peanut allergy':''}${k.med?' · Inhaler':''}</small></span>
+      <span class="rr">${ic('arrow','ic sm','var(--ink-3)')}</span></div>`).join('')}</div>
+   </div>${dock(list.length,S.kids.length,'student','students','Search students')}`;
+}
+function vFamilies(){
+  const q=S.q.trim().toLowerCase();
+  const list=FAMILIES.filter(f=>!q||(f.name+' '+f.primary+' '+f.kids.join(' ')).toLowerCase().includes(q));
+  return `${topbar('Families',`${FAMILIES.length} families in ${ROOM} Room`,searchBtn(),true)}
+   <div class="body pad">
+    <div class="card list">${list.map(f=>`<div class="row" data-act="family:${f.id}">
+      <span class="av">${ini(f.name)}</span>
+      <span class="rt"><b>${f.name}</b><small>${f.kids.join(', ')} · ${f.primary}</small></span>
+      <span class="rr">${ic('arrow','ic sm','var(--ink-3)')}</span></div>`).join('')}
+      ${list.length?'':'<div class="empty">No families match.</div>'}</div>
+    <p class="hint">Only families with a child in ${ROOM} Room.</p>
+   </div>${dock(list.length,FAMILIES.length,'family','families','Search families')}`;
+}
+function vReview(){
+  const i=S.incidents.find(x=>x.id===S.arg)||S.incidents[0];
+  const fr=(l,v)=>`<div class="field"><span class="fl">${l}</span><span class="fv">${v}</span></div>`;
+  return `${topbar('Incident report',`${i.child} · reported by ${i.by}`,'',true)}
+   <div class="body pad">
+    <div class="card banner"><span class="mi warn">${ic('alert','ic sm','var(--amber)')}</span>
+     <span class="mt"><b>Not sent to the family yet</b><small>Nothing reaches them until you approve it.</small></span></div>
     <div class="card fieldset">
-     <div class="field"><span class="fl">Classroom</span><span class="fv">Sunflower</span></div>
-     <div class="field"><span class="fl">Guardians</span><span class="fv">2 recorded</span></div>
-     <div class="field"><span class="fl">Enrollment</span><span class="fv">Active · since Jan 2026</span></div>
+     ${fr('Child',i.child)}${fr('Room',i.room)}${fr('Reported by',i.by)}
+     ${fr('Time',i.t)}${fr('Severity',i.sev)}${fr('Would be visible to',i.vis)}
+    </div>
+    <div class="card ta"><span class="ta-l">What happened</span><p>${i.desc}</p></div>
+    <div class="card ta"><span class="ta-l">Actions taken</span><p>${i.actions}</p></div>
+    <div class="card ta"><span class="ta-l">Witness</span><p>${i.witness}</p></div>
+    <span class="flabel">Your note <em class="optl">Required to send back</em></span>
+    <div class="card ta int"><textarea id="revnote" rows="2" placeholder="Staff only. Say what needs changing, or add context.">${i.note||''}</textarea></div>
+    <div class="quick">
+     <button class="primary q" data-act="askapprove:${i.id}">${ic('check','ic','currentColor','1.8')}Approve</button>
+     <button class="second q" data-act="sendback:${i.id}">${ic('back','ic','var(--npds-gray-700)','1.8')}Send back</button>
     </div>
    </div>`;
 }
-const vMore=()=>`${topbar('More','Tara Rivera · Sunflower Room')}
-  <div class="body pad"><div class="placeholder">
-   <span class="pl-i">${ic('grid4','ic','var(--ink-3)','1.5')}</span><b>More</b><small>To be defined</small>
-  </div></div>`;
+const REPORTS=[
+ {id:'att',name:'Attendance',sub:'Who was in, out and absent, by day',icon:'listCheck'},
+ {id:'daily',name:'Daily summary',sub:'One page per child for the day',icon:'doc'},
+ {id:'act',name:'Activity report',sub:'Activities by date, type and child',icon:'clipboard'}
+];
+function vReports(){
+  return `${topbar('Reports',`${ROOM} Room · today`,'',true)}
+   <div class="body pad">
+    ${datespine('day')}
+    <div class="card list roomy">${REPORTS.map(r=>`
+      <div class="row" data-act="report:${r.id}">
+       <span class="av">${ic(r.icon,'ic sm','var(--ink-2)','1.8')}</span>
+       <span class="rt"><b>${r.name}</b><small>${r.sub}</small></span>
+       <span class="rr">${ic('arrow','ic sm','var(--ink-3)')}</span></div>`).join('')}</div>
+    <p class="hint">Every report is scoped to ${ROOM} Room and the day above.</p>
+   </div>`;
+}
+function vReport(){
+  const r=REPORTS.find(x=>x.id===S.arg)||REPORTS[0];
+  const table=S.reportView==='table';
+  let body='';
+  if(r.id==='att'){
+    body=table
+      ?`<div class="tablewrap"><table class="rt-t"><thead><tr><th>Child</th><th>In</th><th>Out</th><th>With</th></tr></thead>
+        <tbody>${S.kids.map(k=>`<tr><td>${k.name}</td><td>${k.tin||'\u2014'}</td><td>${k.tout||'\u2014'}</td>
+         <td>${k.status==='absent'?'Absent':(k.collectedBy?k.collectedBy.split(' · ')[0]:k.who||'\u2014')}</td></tr>`).join('')}</tbody></table></div>`
+      :`<div class="card list">${S.kids.map(k=>row(k,{right:''})).join('')}</div>`;
+  }else if(r.id==='daily'){
+    body=`<div class="card list roomy">${S.kids.filter(k=>k.status!=='absent').map(k=>`
+      <div class="row" data-act="child:${k.id}"><span class="av">${dotFor(k.status)}${ini(k.name)}</span>
+       <span class="rt"><b>${k.name}</b><small>${S.feed.length} entries · ${k.tin?'in '+k.tin:'not in'}${k.tout?' · out '+k.tout:''}</small></span>
+       <span class="rr"><span class="pillv">Ready</span></span></div>`).join('')}</div>
+     <p class="hint">Each page carries the child's meals, naps, activities and any notes for the day.</p>`;
+  }else{
+    body=table
+      ?`<div class="tablewrap"><table class="rt-t"><thead><tr><th>Time</th><th>Type</th><th>Who</th><th>By</th></tr></thead>
+        <tbody>${S.feed.map(a=>`<tr><td>${a.t}</td><td>${TY[a.type].label}</td><td>${a.who||'Whole room'}</td><td>${a.by||'Tara Rivera'}</td></tr>`).join('')}</tbody></table></div>`
+      :`<div class="card feed">${S.feed.map(a=>`
+        <div class="fe" data-act="act:${a.id}"><span class="fi">${ic(TY[a.type].icon,'ic','var(--accent)','1.7')}</span>
+         <span class="ft"><b>${a.title}</b><small>${a.sub}</small>
+          <span class="fmeta">${TY[a.type].label} · by ${a.by||'Tara Rivera'}</span></span>
+         <span class="fw">${a.t}</span></div>`).join('')}</div>`;
+  }
+  const n=r.id==='att'?S.kids.length:r.id==='daily'?S.kids.filter(k=>k.status!=='absent').length:S.feed.length;
+  return `${topbar(r.name,`${dayLabel(S.day)} · ${n} ${r.id==='act'?'entries':'children'}`,'',true)}
+   <div class="body pad">
+    <div class="seg two"><span class="sg${table?'':' on'}" data-act="rv:list">${ic('list','ic sm','currentColor','1.8')}List</span>
+     <span class="sg${table?' on':''}" data-act="rv:table">${ic('table','ic sm','currentColor','1.8')}Table</span></div>
+    ${body}
+    <div class="quick">
+     <button class="primary q" data-act="sheet:print">${ic('print','ic','currentColor','1.8')}Print</button>
+     <button class="second q" data-act="exportpdf">${ic('file','ic','var(--npds-gray-700)','1.8')}Export PDF</button>
+    </div>
+   </div>`;
+}
+const vMore=()=>{
+  const t=(icon,name,sub,act)=>`<div class="row" data-act="${act}">
+    <span class="av">${ic(icon,'ic sm','var(--ink-2)','1.8')}</span>
+    <span class="rt"><b>${name}</b><small>${sub}</small></span>
+    <span class="rr">${ic('arrow','ic sm','var(--ink-3)')}</span></div>`;
+  const pend=S.incidents.filter(i=>i.status==='pending').length;
+  return `${topbar('More','Tara Rivera · Lead Teacher')}
+  <div class="body pad">
+   <span class="flabel">People</span>
+   <div class="card list">
+    ${t('people','Students',`${S.kids.length} in ${ROOM} Room`,'go:students')}
+    ${t('users','Families',`${FAMILIES.length} families \u00b7 contacts and consent`,'go:families')}
+   </div>
+   <span class="flabel">Records</span>
+   <div class="card list">
+    ${t('chart','Reports','Attendance, daily summaries and activities','go:reports')}
+    ${t('alert','Incident reports',pend?`${pend} waiting on your review`:'All reviewed','go:incidents')}
+   </div>
+   <span class="flabel">You</span>
+   <div class="card list">
+    ${t('gear','Room settings',`${ROOM} Room \u00b7 ratio and staffing`,'soon')}
+    ${t('signout','Sign out','Tara Rivera','asksignout')}
+   </div>
+  </div>`;
+};
+function vIncidents(){
+  return `${topbar('Incident reports',`${ROOM} Room · this week`,'',true)}
+   <div class="body pad">
+    <div class="card list roomy">${S.incidents.map(i=>`
+      <div class="row" data-act="review:${i.id}">
+       <span class="av">${i.status==='pending'?'<i class="unreaddot"></i>':''}${ini(i.child)}</span>
+       <span class="rt"><b>${i.child}</b><small>${i.sev} · by ${i.by} at ${i.t}</small></span>
+       <span class="rr"><span class="pillv${i.status==='pending'?' warn':''}">${i.status==='pending'?'Needs review':i.status==='approved'?'Approved':'Sent back'}</span></span></div>`).join('')}</div>
+    <p class="hint">You review reports written by anyone in your room. Nothing reaches a family until it is approved.</p>
+   </div>`;
+}
 
 /* ---------- sheets ---------- */
 const SHEETS={
@@ -1146,38 +1527,76 @@ const SHEETS={
    <div class="tiles sheet-tiles">${TYPES.map(t=>tile(t)).join('')}</div>`;
  },
  log(){
-  const t=TY[S.draftType];
+  const t=TY[S.draftType], d=S.draft;
   const req=REQUIRED[S.draftType]||null;
-  const d=S.draft;
-  const who = d.who==='all' ? `Whole room · ${cnt('here')} children` : `${d.picked.size} ${d.picked.size===1?'child':'children'} chosen`;
-  const ready = !req || (d.req||'').trim().length>0;
+  const risky=(S.draftType==='incident'||S.draftType==='accident');
+  const who = d.who==='all' ? `Whole room · ${cnt('here')} children here` : `${d.picked.size} ${d.picked.size===1?'child':'children'} chosen`;
+  const ready=(!req||(d.req||'').trim().length>0)&&(d.who==='all'||d.picked.size>0);
+  const vb=(id,lbl,sub)=>`<div class="opt${d.vis===id?' on':''}" data-act="vis:${id}">
+    <span class="cbx sq${d.vis===id?' on':''}">${d.vis===id?ic('check','ic sm','#fff','2.6'):''}</span>
+    <span class="rt"><b>${lbl}</b><small>${sub}</small></span></div>`;
   return `<span class="grab"></span>
    <h3 class="sh-h">${t.label}</h3>
    <span class="flabel">Activity</span>
    <div class="chips wrapc">${TYPES.map(x=>`<span class="ch${x[0]===S.draftType?' on':''}" data-act="type:${x[0]}">${x[1]}</span>`).join('')}</div>
 
-   <span class="flabel">Children</span>
+   <span class="flabel">Children ${d.who==='some'&&!d.picked.size?'<em class="reqd">Pick at least one</em>':''}</span>
    <div class="seg two"><span class="sg${d.who==='all'?' on':''}" data-act="who:all">Whole room</span><span class="sg${d.who==='some'?' on':''}" data-act="who:some">Choose children</span></div>
-   ${d.who==='some'?`<div class="card list roomy pick">${S.kids.filter(k=>k.status==='here').slice(0,5).map(k=>`
+   ${d.who==='some'?`<div class="card list roomy pick">${S.kids.filter(k=>k.status==='here').map(k=>`
      <div class="row" data-act="pick:${k.id}">
       <span class="cbx sq${d.picked.has(k.id)?' on':''}">${d.picked.has(k.id)?ic('check','ic sm','#fff','2.6'):''}</span>
       <span class="av">${dotFor(k.status)}${ini(k.name)}</span>
-      <span class="rt"><b>${k.name}</b></span></div>`).join('')}</div>`
-    :`<p class="sh-note">${who}</p>`}
+      <span class="rt"><b>${k.name}</b>${k.allergy?'<small>Peanut allergy</small>':''}</span></div>`).join('')}</div>`
+    :`<p class="sh-note">${who} \u2014 only children in ${ROOM} Room.</p>`}
 
    <div class="card fieldset">
-    <div class="field"><span class="fl">Date</span><span class="fv">Today · 3 Sep</span></div>
+    <div class="field"><span class="fl">Date</span><span class="fv">${dayLabel(0).replace('Today · ','')}</span></div>
     <div class="field"><span class="fl">Time</span><span class="fv">${d.time||now()} ${ic('clock','ic sm','var(--ink-3)')}</span></div>
    </div>
 
-   ${req?`<span class="flabel">${req} <em class="reqd">Required</em></span>
-     <div class="card ta"><textarea id="reqf" rows="2" placeholder="${req}…">${d.req||''}</textarea></div>`:''}
+   ${risky?`<span class="flabel">Severity</span>
+     <div class="seg"><span class="sg${d.sev==='low'?' on':''}" data-act="sev:low">Low</span>
+      <span class="sg${d.sev==='medium'?' on':''}" data-act="sev:medium">Medium</span>
+      <span class="sg${d.sev==='high'?' on':''}" data-act="sev:high">High</span></div>`:''}
 
-   <span class="flabel">Details <em class="optl">Optional</em></span>
-   <div class="card ta"><textarea id="det" rows="2" placeholder="Anything families should know…">${d.det||''}</textarea></div>
+   ${req?`<span class="flabel">${req} <em class="reqd">Required</em></span>
+     <div class="card ta"><textarea id="reqf" rows="2" placeholder="${req}\u2026">${d.req||''}</textarea></div>`:''}
+
+   <span class="flabel">Details <em class="optl">Optional \u00b7 families read this</em></span>
+   <div class="card ta"><textarea id="det" rows="2" placeholder="What happened? Be specific.">${d.det||''}</textarea></div>
+
+   ${risky?`<span class="flabel">Witness <em class="optl">Optional</em></span>
+     <div class="card ta"><textarea id="wit" rows="1" placeholder="Who else saw it?">${d.witness||''}</textarea></div>`:''}
+
+   <span class="flabel">Staff note <em class="optl">Never sent to families</em></span>
+   <div class="card ta int"><textarea id="intn" rows="2" placeholder="Context for the team only.">${d.internal||''}</textarea></div>
+
    <div class="attach">${ic('camera','ic','var(--npds-gray-700)','1.7')}<span>Attach a photo</span></div>
 
-   <button class="primary${ready?'':' off'}" data-act="${ready?'savelog':'needreq'}">${ic('check','ic','currentColor','1.8')}Post ${t.label.toLowerCase()}</button>`;
+   <span class="flabel">Who can see this</span>
+   <div class="card list roomy">${vb('parents','Families and staff','The family sees it in their app tonight')}${vb('staff','Staff only','Stays inside the room team')}${vb('both','Families, staff and the director','Escalates \u2014 use for incidents')}</div>
+
+   <button class="primary${ready?'':' off'}" data-act="${ready?'asksave':'needreq'}">${ic('check','ic','currentColor','1.8')}Post ${t.label.toLowerCase()}</button>`;
+ },
+ pickup(){
+  const k=K(S.arg);
+  const people=(PICKUPS[k.id]||DEFAULT_PICKUPS.map(x=>x+' · on file'));
+  return `<span class="grab"></span>
+   <div class="sh-kid"><span class="av lg">${dotFor(k.status)}${ini(k.name)}</span>
+    <span class="rt"><b>${k.name}</b><small>Here since ${k.tin}</small></span></div>
+   <span class="flabel">Who is collecting ${k.name.split(' ')[0]}? <em class="reqd">Required</em></span>
+   <div class="card list roomy">${people.map(w=>`
+     <div class="row pk-row" data-act="pk:${w}" data-who="${w}">
+      <span class="cbx sq"></span>
+      <span class="av">${ini(w)}</span>
+      <span class="rt"><b>${w.split(' · ')[0]}</b><small>${w.split(' · ')[1]||'Authorized'}</small></span></div>`).join('')}
+    <div class="row pk-row" data-act="pk:Someone else" data-who="Someone else">
+     <span class="cbx sq"></span><span class="av">?</span>
+     <span class="rt"><b>Someone else</b><small>Not on the authorized list — needs a note</small></span></div>
+   </div>
+   <div class="card fieldset"><div class="field"><span class="fl">Time out</span><span class="fv">${now()} · now</span></div></div>
+   <p class="sh-note">The name is written into the attendance record, so the day says who left with whom.</p>
+   <button class="primary" data-act="dopickup">${ic('out','ic','currentColor','1.8')}Check out</button>`;
  },
  note(){
   const k=K(S.arg);
@@ -1189,6 +1608,27 @@ const SHEETS={
    <div class="chips wrapc"><span class="ch on">Visible to family</span><span class="ch">Staff only</span></div>
    <p class="hint">Notes clear at midnight. Anything lasting belongs on the child's profile.</p>
    <button class="primary" data-act="savenote:${k.id}">${ic('check','ic','currentColor','1.9')}Save note</button>`;
+ },
+
+ attfilter(){
+  const C=S.columns;
+  const cs=(id,lbl)=>`<span class="ch${C.has(id)?' on':''}" data-act="col:${id}">${lbl}</span>`;
+  const so=(id,lbl)=>`<span class="ch${S.sort===id?' on':''}" data-act="sort:${id}">${lbl}</span>`;
+  return `<span class="grab"></span><h3 class="sh-h">Filter attendance</h3>
+   <span class="flabel">Status</span>
+   <div class="chips wrapc">
+    <span class="ch${S.filters.size?'':' on'}" data-act="fkid:all">Everyone ${S.kids.length}</span>
+    <span class="ch${S.filters.has('here')?' on':''}" data-act="fkid:here">Here ${cnt('here')}</span>
+    <span class="ch${S.filters.has('out')?' on':''}" data-act="fkid:out">Not in ${cnt('out')}</span>
+    <span class="ch${S.filters.has('absent')?' on':''}" data-act="fkid:absent">Absent ${cnt('absent')}</span>
+    <span class="ch${S.filters.has('allergy')?' on':''}" data-act="fkid:allergy">Allergies ${S.kids.filter(k=>k.allergy||k.med).length}</span></div>
+   <span class="flabel">Sort by</span>
+   <div class="chips wrapc">${so('name','Name A\u2013Z')}${so('time','Time in')}${so('status','Status')}</div>
+   <span class="flabel">Show on each row</span>
+   <div class="chips wrapc">${cs('time','Times')}${cs('guardian','Who with')}${cs('allergy','Allergies & meds')}</div>
+   <button class="primary" data-act="close">${ic('filter','ic','currentColor','1.8')}Show ${attList().length} of ${S.kids.length}</button>
+   <button class="second" data-act="sheet:print">${ic('print','ic','var(--npds-gray-700)','1.8')}Print the register</button>
+   <button class="ghost" data-act="attclear">Reset filters</button>`;
  },
  filter(){
   const counts={};S.feed.forEach(a=>counts[a.type]=(counts[a.type]||0)+1);
@@ -1244,28 +1684,64 @@ const SHEETS={
    <button class="ghost" data-act="mclear">Clear all filters</button>`;
  },
  compose(){
-  const to=S.cto||'family';
+  const c=S.compose;
   return `<span class="grab"></span><h3 class="sh-h">New message</h3>
-   <span class="flabel">Send to</span>
-   <div class="seg three">
-    <span class="sg${to==='family'?' on':''}" data-act="cto:family">One family</span>
-    <span class="sg${to==='room'?' on':''}" data-act="cto:room">All families</span>
-    <span class="sg${to==='staff'?' on':''}" data-act="cto:staff">Staff</span></div>
    <div class="card fieldset">
-    <div class="field"><span class="fl">To</span><span class="fv">${to==='family'?'Choose a family':to==='room'?`All Sunflower families · ${S.kids.length}`:'Kwame Osei, Joy Adeyemi'} ${ic('arrow','ic sm','var(--ink-3)')}</span></div>
-    <div class="field"><span class="fl">Subject</span><span class="fv">Optional ${ic('arrow','ic sm','var(--ink-3)')}</span></div>
+    <div class="field" data-act="sheet:recipients"><span class="fl">To</span>
+     <span class="fv${c.to?'':' pale'}">${c.to||'Choose a recipient'} ${ic('arrow','ic sm','var(--ink-3)')}</span></div>
+    <div class="field"><span class="fl">Forward to the director</span>
+     <span class="fv"><span class="sw${c.fwd?' on':''}" data-act="fwd"><i></i></span></span></div>
    </div>
-   <span class="flabel">Message</span>
-   <div class="card ta tall"><textarea id="cmsg" rows="4" placeholder="Write your message…"></textarea></div>
-   <div class="attach">${ic('camera','ic','var(--npds-gray-700)','1.7')}<span>Attach a photo or today's report</span></div>
-   <p class="sh-note">${to==='room'?'Sends as 19 separate threads, so replies stay private between you and each family.':to==='staff'?'Goes to the two staff in your room.':'Goes to one family only.'}</p>
-   <button class="primary" data-act="docompose">${ic('send','ic','currentColor','1.8')}Send</button>`;
+   <span class="flabel">Subject <em class="reqd">Required</em></span>
+   <div class="card ta"><textarea id="csub" rows="1" placeholder="What is this about?">${c.subject}</textarea></div>
+   <button class="second" data-act="sheet:templates">${ic('file','ic','var(--npds-gray-700)','1.8')}Start from a template</button>
+   <span class="flabel">Message <em class="reqd">Required</em></span>
+   <div class="card ta tall"><textarea id="cbody" rows="4" placeholder="Write your message\u2026">${c.body}</textarea></div>
+   <div class="attach">${ic('camera','ic','var(--npds-gray-700)','1.7')}<span>Attach a photo or today\u2019s report</span></div>
+   <p class="sh-note">${c.to==='All '+ROOM+' families'?`Sends as ${S.kids.length} separate threads, so replies stay private between you and each family.`:'Goes to this recipient only.'}</p>
+   <button class="primary" data-act="sendmsg">${ic('send','ic','currentColor','1.8')}Send</button>
+   <button class="ghost" data-act="savedraft">Save as a draft</button>`;
+ },
+ recipients(){
+  const q='';
+  return `<span class="grab"></span><h3 class="sh-h">Send to</h3>
+   <p class="sh-note">Only families and staff in ${ROOM} Room.</p>
+   <div class="card list roomy">
+    <div class="row" data-act="setto:All ${ROOM} families">
+     <span class="av">${ic('users','ic sm','var(--ink-2)','1.8')}</span>
+     <span class="rt"><b>All ${ROOM} families</b><small>${S.kids.length} families \u00b7 sends as separate threads</small></span></div>
+    <div class="row" data-act="setto:Room staff">
+     <span class="av">${ic('people','ic sm','var(--ink-2)','1.8')}</span>
+     <span class="rt"><b>Room staff</b><small>Kwame Osei, Joy Adeyemi</small></span></div>
+   </div>
+   <span class="flabel">One family</span>
+   <div class="card list roomy">${FAMILIES.map(f=>`
+     <div class="row" data-act="setto:${f.name}">
+      <span class="av">${ini(f.name)}</span>
+      <span class="rt"><b>${f.name}</b><small>${f.kids.join(', ')} \u00b7 ${f.primary}</small></span></div>`).join('')}</div>`;
+ },
+ templates(){
+  return `<span class="grab"></span><h3 class="sh-h">Templates</h3>
+   <p class="sh-note">Placeholders fill in from the recipient when you use one.</p>
+   <div class="card list roomy">${TEMPLATES.map(t=>`
+     <div class="row" data-act="usetpl:${t.id}">
+      <span class="av">${ic('file','ic sm','var(--ink-2)','1.8')}</span>
+      <span class="rt"><b>${t.name}</b><small>${t.body}</small></span>
+      <span class="rr"><span class="mini lbl pri">Use</span></span></div>`).join('')}</div>
+   <button class="second" data-act="tplsoon">${ic('plus','ic','var(--npds-gray-700)','1.8')}Add a template</button>`;
  }
 
 };
+function stashCompose(){
+  const g=id=>document.getElementById(id);
+  const a=g('csub'),b=g('cbody');
+  if(a)S.compose.subject=a.value; if(b)S.compose.body=b.value;
+}
 function stash(){
-  const r=document.getElementById('reqf'), d=document.getElementById('det');
+  const g=id=>document.getElementById(id);
+  const r=g('reqf'),d=g('det'),w=g('wit'),n=g('intn');
   if(r)S.draft.req=r.value; if(d)S.draft.det=d.value;
+  if(w)S.draft.witness=w.value; if(n)S.draft.internal=n.value;
 }
 let openSheet=null;
 function sheet(name,arg){
@@ -1275,6 +1751,24 @@ function sheet(name,arg){
 }
 function closeSheet(){openSheet=null;$('#sheet').classList.remove('on');$('#scrim').classList.remove('on');}
 function refreshSheet(){if(openSheet)$('#sheet').innerHTML=SHEETS[openSheet]();}
+
+/* ---------- confirm ---------- */
+let pending=null;
+function confirmAsk(o){
+  pending=o.act;
+  let el=document.getElementById('confirmwrap');
+  if(!el){el=document.createElement('div');el.id='confirmwrap';el.className='confirmwrap';
+    document.querySelector('.screen').appendChild(el);}
+  el.innerHTML=`<div class="cf-scrim" data-act="cfno"></div>
+   <div class="cf-card">
+    <h4>${o.title}</h4><p>${o.body}</p>
+    <button class="primary" data-act="cfyes">${o.label}</button>
+    <button class="second" data-act="cfno">Cancel</button>
+   </div>`;
+  requestAnimationFrame(()=>el.classList.add('on'));
+}
+function confirmClose(){const el=document.getElementById('confirmwrap');
+  if(el){el.classList.remove('on');setTimeout(()=>el.remove(),200);} pending=null;}
 
 /* ---------- toast ---------- */
 let tt;
@@ -1293,7 +1787,8 @@ function render(keepScroll){
   const prev=$('#app').querySelector('.body');
   const y=keepScroll&&prev?prev.scrollTop:0;
   const V={myroom:vMyRoom,attendance:vAttendance,activities:vActivities,messages:vMessages,more:vMore,
-           thread:vThread,activity:vActivity,child:vChild};
+           thread:vThread,activity:vActivity,child:vChild,review:vReview,
+           students:vStudents,families:vFamilies,family:vFamily,reports:vReports,report:vReport,incidents:vIncidents};
   $('#app').innerHTML=V[S.sub||S.tab]();
   if(!keepScroll){$('#app').classList.remove('enter');void $('#app').offsetWidth;$('#app').classList.add('enter');}
   const b=$('#app').querySelector('.body'); if(b&&y)b.scrollTop=y;
@@ -1308,12 +1803,16 @@ function render(keepScroll){
 }
 
 /* ---------- actions ---------- */
+const PUSH=new Set(['go','child','family','report','review','thread','activity']);
 function doAct(a){
   const [cmd,arg]=a.split(':');
+  if(PUSH.has(cmd))S.stack.push({sub:S.sub,arg:S.arg,childTab:S.childTab,famTab:S.famTab});
   const closeAll=()=>{document.querySelectorAll('.swipe.open').forEach(s=>s.classList.remove('open'));};
   switch(cmd){
-   case 'tab': S.tab=arg;S.sub=null;S.selecting=false;S.searchOpen=false;S.sel.clear();S.q='';S.filters.clear();S.mscope='all';S.munread=false;closeSheet();render();break;
-   case 'back': S.sub=null;render();break;
+   case 'tab': S.tab=arg;S.sub=null;S.stack=[];S.selecting=false;S.searchOpen=false;S.sel.clear();S.q='';S.filters.clear();S.mscope='all';S.munread=false;S.day=0;closeSheet();render();break;
+   case 'back':{const p=S.stack.pop();
+     if(p){S.sub=p.sub;S.arg=p.arg;S.childTab=p.childTab;S.famTab=p.famTab;}else S.sub=null;
+     S.q='';S.searchOpen=false;render();break;}
    case 'sheet': sheet(arg==='inout'?'inout':arg);break;
    case 'close': closeSheet();render(true);break;
    case 'dir': S.dir=arg;refreshSheet();break;
@@ -1321,11 +1820,20 @@ function doAct(a){
    case 'checkin':{const k=K(arg);k.status='here';k.tin=now();k.who=k.who||'Guardian';
      toast(`<b>${k.name}</b> checked in at ${k.tin}`);closeAll();
      if(openSheet)refreshSheet();render(true);break;}
-   case 'checkout':{const k=K(arg);k.status='out';k.tout=now();
-     toast(`<b>${k.name}</b> checked out at ${k.tout}`);closeAll();
-     if(openSheet)refreshSheet();render(true);break;}
-   case 'absent':{const k=K(arg);k.status='absent';k.who='marked by Tara Rivera';
-     toast(`<b>${k.name}</b> marked absent`);closeAll();render(true);break;}
+   case 'checkout': sheet('pickup',arg);break;
+   case 'dopickup':{const k=K(S.arg);const sel=document.querySelector('.pk-row.on');
+     if(!sel){toast('Choose who is collecting');break;}
+     k.status='out';k.tout=now();k.collectedBy=sel.dataset.who;
+     closeSheet();toast(`<b>${k.name}</b> checked out to ${k.collectedBy.split(' · ')[0]}`);
+     closeAll();render(true);break;}
+   case 'pk':{document.querySelectorAll('.pk-row').forEach(r=>r.classList.toggle('on',r.dataset.who===arg));break;}
+   case 'absent':{const k=K(arg);
+     confirmAsk({title:`Mark ${k.name} absent?`,
+       body:'This goes on the day\u2019s attendance record and their family can see it.',
+       label:'Mark absent',
+       act:()=>{k.status='absent';k.who='marked by Tara Rivera';closeSheet();
+         toast(`<b>${k.name}</b> marked absent`);render(true);}});
+     break;}
 
    case 'searchtoggle': S.searchOpen=!S.searchOpen; if(!S.searchOpen)S.q=''; render(true);break;
    case 'searchclose': S.searchOpen=false;S.q='';render(true);break;
@@ -1336,6 +1844,10 @@ function doAct(a){
    case 'bulkfrom': closeSheet();S.tab='attendance';S.sub=null;S.selecting=true;render();break;
    case 'bulkdir': S.dir=arg;render(true);break;
    case 'bulk':{const n=S.sel.size; if(!n)break;
+     if(arg==='absent'){confirmAsk({title:`Mark ${n} ${n===1?'child':'children'} absent?`,
+       body:'It goes on the day\u2019s record for each of them, and their families can see it.',
+       label:`Mark ${n} absent`,act:()=>{S.sel.forEach(id=>{const k=K(id);k.status='absent';k.who='marked by Tara Rivera';});
+         S.sel.clear();S.selecting=false;toast(`<b>${n} ${n===1?'child':'children'}</b> marked absent`);render();}});break;}
      S.sel.forEach(id=>{const k=K(id);
        if(arg==='in'){k.status='here';k.tin=now();k.who=k.who||'Guardian';}
        else if(arg==='out'){k.status='out';k.tout=now();}
@@ -1349,27 +1861,72 @@ function doAct(a){
      if(openSheet)refreshSheet();render(true);break;
    case 'mscope': S.mscope=arg;if(openSheet)refreshSheet();render(true);break;
    case 'munread': S.munread=(arg==='unread');if(openSheet)refreshSheet();render(true);break;
+   case 'newmsg': S.compose={to:null,fwd:false,subject:'',body:''};sheet('compose');break;
+   case 'setto': S.compose.to=arg;sheet('compose');break;
+   case 'fwd': stashCompose();S.compose.fwd=!S.compose.fwd;refreshSheet();break;
+   case 'usetpl':{stashCompose();const t=TEMPLATES.find(x=>x.id===arg);
+     const fam=S.compose.to||'there';
+     const kidName=(FAMILIES.find(f=>f.name===S.compose.to)?.kids[0])||'your child';
+     S.compose.subject=S.compose.subject||t.name;
+     S.compose.body=t.body.replace(/\[Family Name\]/g,fam.replace(' Family','')).replace(/\[Child Name\]/g,kidName).replace(/\[Time\]/g,'5:30 PM');
+     sheet('compose');toast('Template filled in');break;}
+   case 'tplsoon': toast('Template editing is not in this prototype');break;
+   case 'opendraft':{const d=S.drafts.find(x=>x.id===arg);
+     S.compose={to:d.to,fwd:false,subject:d.subject,body:d.body};sheet('compose');break;}
+   case 'sentitem': toast('Sent messages open read-only');break;
+   case 'savedraft':{stashCompose();const c=S.compose;
+     if(!c.to&&!c.subject&&!c.body){toast('Nothing to save yet');break;}
+     S.drafts.unshift({id:'d'+Date.now(),to:c.to||'No recipient',subject:c.subject||'No subject',body:c.body||''});
+     closeSheet();S.mscope='drafts';render();toast('Saved to drafts');break;}
+   case 'sendmsg':{stashCompose();const c=S.compose;
+     if(!c.to){toast('Choose a recipient first');break;}
+     if(!c.subject.trim()){toast('Add a subject');const e=document.getElementById('csub');if(e)e.focus();break;}
+     if(!c.body.trim()){toast('Write your message');const e=document.getElementById('cbody');if(e)e.focus();break;}
+     const many=c.to==='All '+ROOM+' families';
+     confirmAsk({title:many?`Send to ${S.kids.length} families?`:`Send to ${c.to}?`,
+       body:many?'Each family gets its own private thread. It cannot be unsent.':'It cannot be unsent.',
+       label:'Send',
+       act:()=>{S.sent.unshift({id:'s'+Date.now(),to:c.to,subject:c.subject,t:now()});
+         S.compose={to:null,fwd:false,subject:'',body:''};closeSheet();S.mscope='sent';render();
+         toast(c.fwd?'Sent \u00b7 director copied':'Message sent');}});
+     break;}
    case 'mclear': S.mscope='all';S.munread=false;refreshSheet();render(true);break;
    case 'cto': S.cto=arg;refreshSheet();break;
    case 'docompose':{closeSheet();toast(S.cto==='room'?'Sent to 19 families':S.cto==='staff'?'Sent to your room staff':'Message sent');break;}
    case 'who': S.draft.who=arg;stash();refreshSheet();break;
    case 'pick': S.draft.picked.has(arg)?S.draft.picked.delete(arg):S.draft.picked.add(arg);stash();refreshSheet();break;
    case 'needreq':{const el=document.getElementById('reqf');if(el){el.focus();}toast('That field is required');break;}
+   case 'day': S.day=Math.min(0,S.day+Number(arg));S.selecting=false;S.sel.clear();render(true);break;
+   case 'noop': toast('There is no register for a future day');break;
+   case 'sort': S.sort=arg;if(openSheet)refreshSheet();render(true);break;
+   case 'col': S.columns.has(arg)?S.columns.delete(arg):S.columns.add(arg);if(openSheet)refreshSheet();render(true);break;
+   case 'attclear': S.filters.clear();S.sort='name';S.columns=new Set(['status','time','allergy']);refreshSheet();render(true);break;
    case 'clearf': S.filters.clear();refreshSheet();render(true);break;
 
    case 'type': if(openSheet==='log')stash();
      S.draftType=arg;
      if(openSheet!=='log'){S.draft={who:'all',picked:new Set(),req:'',det:'',time:null};}
      sheet('log');break;
+   case 'vis': S.draft.vis=arg;stash();refreshSheet();break;
+   case 'sev': S.draft.sev=arg;stash();refreshSheet();break;
+   case 'asksave':{stash();const d=S.draft;const t=TY[S.draftType];
+     const n=d.who==='all'?cnt('here'):d.picked.size;
+     if(d.vis==='staff'){doAct('savelog');break;}
+     confirmAsk({title:`Post to ${n} ${n===1?'family':'families'}?`,
+       body:`${t.label} will appear in ${n===1?'their':'their'} app tonight and cannot be unsent.`,
+       label:'Post it',act:()=>doAct('savelog')});
+     break;}
    case 'savelog':{stash();const t=TY[S.draftType];const d=S.draft;
      const n=d.who==='all'?cnt('here'):d.picked.size;
      if(d.who==='some'&&n===0){toast('Choose at least one child');break;}
      const names=d.who==='some'?[...d.picked].map(id=>K(id).name.split(' ')[0]).join(', '):null;
-     const body=[d.req,d.det].filter(x=>x&&x.trim()).join(' — ')||'Logged from the room.';
+     const body=[d.req,d.det].filter(x=>x&&x.trim()).join(' \u2014 ')||'Logged from the room.';
      S.feed.unshift({id:Date.now(),type:S.draftType,
        title:`${t.label} · ${d.who==='all'?'whole room':names}`,
-       sub:body,who:d.who==='all'?`${n} children`:names,t:d.time||now(),fresh:true});
-     S.draft={who:'all',picked:new Set(),req:'',det:'',time:null};
+       sub:body,who:d.who==='all'?`${n} children`:names,t:d.time||now(),fresh:true,
+       by:'Tara Rivera',vis:d.vis,internal:d.internal,
+       sev:(S.draftType==='incident'||S.draftType==='accident')?d.sev:null,witness:d.witness});
+     S.draft={who:'all',picked:new Set(),req:'',det:'',time:null,vis:'parents',internal:'',sev:'low',witness:''};
      closeSheet();S.tab='activities';S.sub=null;S.filters.clear();render();
      toast(`<b>${t.label}</b> posted for ${n} ${n===1?'child':'children'}`);break;}
 
@@ -1377,7 +1934,35 @@ function doAct(a){
    case 'savenote':{const k=K(arg);const n=$('#nt');k.note=n?n.value.trim():'';
      closeSheet();toast(k.note?`Note saved for <b>${k.name}</b>`:`Note cleared`);render(true);break;}
 
-   case 'child': S.sub='child';S.arg=arg;render();break;
+   case 'child': S.sub='child';S.childTab='general';S.arg=arg;render();break;
+   case 'review': S.sub='review';S.arg=arg;render();break;
+   case 'go': S.sub=arg;S.q='';S.searchOpen=false;render();break;
+   case 'family': S.sub='family';S.famTab='general';S.arg=arg;render();break;
+   case 'ctab': S.childTab=arg;render(true);break;
+   case 'ftab': S.famTab=arg;render(true);break;
+   case 'report': S.sub='report';S.arg=arg;S.reportView='list';render();break;
+   case 'rv': S.reportView=arg;render(true);break;
+   case 'exportpdf': toast('PDF exported to your downloads');break;
+   case 'msgfam':{S.compose={to:arg,fwd:false,subject:'',body:''};sheet('compose');break;}
+   case 'famsoon': case 'addmember': case 'soon': toast('Not in this prototype');break;
+   case 'asksignout': confirmAsk({title:'Sign out?',
+     body:'Anything you have not posted will be lost.',label:'Sign out',
+     act:()=>{toast('Signed out');}});break;
+   case 'askapprove':{const i=S.incidents.find(x=>x.id===arg);
+     const n=document.getElementById('revnote'); if(n)i.note=n.value;
+     confirmAsk({title:'Approve and notify the family?',
+       body:`${i.child}\u2019s family will be told about this incident. It cannot be unsent.`,
+       label:'Approve and notify',
+       act:()=>{i.status='approved';S.sub=null;S.tab='activities';
+         S.feed.unshift({id:Date.now(),type:'incident',title:`Incident · ${i.child}`,sub:i.desc,
+           who:i.child,t:i.t,by:i.by,vis:'both',fresh:true});
+         render();toast('Approved \u00b7 family notified');}});
+     break;}
+   case 'sendback':{const i=S.incidents.find(x=>x.id===arg);
+     const n=document.getElementById('revnote');
+     if(!n||!n.value.trim()){toast('Add a note saying what needs changing');if(n)n.focus();break;}
+     i.note=n.value.trim();i.status='sentback';S.sub=null;render();
+     toast(`Sent back to ${i.by}`);break;}
    case 'act': S.sub='activity';S.arg=Number(arg);render();break;
    case 'thread':{const t=S.threads.find(x=>x.id===arg);t.unread=false;S.sub='thread';S.arg=arg;render();break;}
    case 'send':{const inp=$('#msg');if(!inp||!inp.value.trim())break;
@@ -1393,6 +1978,8 @@ function doAct(a){
      picked.forEach(id=>{K(id).who='Bluebell Room';n++;});S.sel.clear();S.selecting=false;
      closeSheet();render();toast(`<b>${n} ${n===1?'child':'children'}</b> moved to Bluebell`);break;}
    case 'doprint': closeSheet();toast('Sent to the office printer');break;
+   case 'cfyes':{const f=pending;confirmClose();if(f)f();break;}
+   case 'cfno': confirmClose();break;
   }
 }
 
