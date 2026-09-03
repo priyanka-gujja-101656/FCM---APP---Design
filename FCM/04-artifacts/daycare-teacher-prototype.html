@@ -881,9 +881,8 @@ function row(k,opts={}){
   if(right===undefined){
     if(S.selecting) right='';
     else if(k.status==='expected') right=`<button class="mini" data-act="checkin:${k.id}" aria-label="Check in ${k.name}">${ic('in','ic sm','var(--accent)')}</button>`;
-    else if(k.status==='here') right=`<span class="tm">${k.tin}</span><button class="mini" data-act="checkout:${k.id}" aria-label="Check out ${k.name}">${ic('out','ic sm','var(--accent)')}</button>`;
-    else if(k.status==='out') right=`<span class="tm mute">Out ${k.tout}</span><button class="mini" data-act="checkin:${k.id}" aria-label="Check ${k.name} back in">${ic('in','ic sm','var(--accent)')}</button>`;
-    else right=`<span class="tm mute">Away</span><button class="mini" data-act="checkin:${k.id}" aria-label="Check in ${k.name}">${ic('in','ic sm','var(--accent)')}</button>`;
+    else if(k.status==='here') right=`<button class="mini" data-act="checkout:${k.id}" aria-label="Check out ${k.name}">${ic('out','ic sm','var(--accent)')}</button>`;
+    else right=`<button class="mini" data-act="checkin:${k.id}" aria-label="Check ${k.status==='out'?k.name+' back':'in '+k.name} in">${ic('in','ic sm','var(--accent)')}</button>`;
   }
   const act=S.selecting?`data-act="sel:${k.id}"`:`data-act="child:${k.id}"`;
   return `<div class="row${S.sel.has(k.id)?' picked':''}${k.status==='out'?' gone':''}" ${act}>${box}
