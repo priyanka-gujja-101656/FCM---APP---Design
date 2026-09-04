@@ -3,6 +3,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,300..500&family=Inter:wght@400;450;500;550;600&display=swap">
 <style>
+
   :root{
     --page-bg:#E7E9E2; --page-surface:#FBFBF8; --page-border:#D7DBD1;
     --page-ink:#2C312B; --page-ink-2:#5B6259; --page-ink-3:#8D958A;
@@ -981,6 +982,48 @@
 
   /* a standalone secondary button fills its container, like primary does */
   .sheet .second,.body>.second{width:100%}
+
+  /* ===== activities: quick chips, card feed, floating post button ===== */
+  .qrrow{display:flex;gap:10px;flex:none;justify-content:space-between}
+  .qr{flex:1;display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;
+    font-size:13.5px;font-weight:500;color:var(--ink-2);cursor:pointer;
+    -webkit-tap-highlight-color:transparent;user-select:none}
+  .qr:active{transform:scale(.97)}
+  .qri{width:56px;height:56px;border-radius:999px;display:grid;place-items:center;
+    background:rgba(255,255,255,.92)}
+  .qri svg{width:23px;height:23px}
+  .feedhd{display:flex;align-items:baseline;gap:8px;flex:none;padding:4px 2px 0}
+  .feedhd.lab b,.feedhd.lab span{font-size:10.5px;font-weight:600;letter-spacing:.09em;
+    text-transform:uppercase;color:var(--ink-3)}
+  .pfeed{display:flex;flex-direction:column;gap:12px;padding-bottom:70px}
+  .pfeed.short{padding-bottom:0}
+  .pcard{background:var(--card);backdrop-filter:blur(16px) saturate(1.05);
+    -webkit-backdrop-filter:blur(16px) saturate(1.05);border:1px solid rgba(255,255,255,.5);
+    border-radius:var(--r-lg);padding:16px 16px 15px;cursor:pointer;
+    box-shadow:0 14px 30px -20px rgba(40,55,38,.42);transition:transform .12s ease}
+  .pcard:active{transform:scale(.985)}
+  .pcard.new{animation:pop .4s ease}
+  .pc-h{display:flex;align-items:flex-start;gap:12px}
+  .pav{width:44px;height:44px;border-radius:999px;flex:none;display:grid;place-items:center}
+  .pav svg{width:21px;height:21px}
+  .pc-t{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px;padding-top:11px}
+  .pc-t b{font-size:15.5px;font-weight:550;letter-spacing:-.008em;line-height:1.25}
+  .pc-w{flex:none;font-size:13px;color:var(--ink-3);font-variant-numeric:tabular-nums;padding-top:13px}
+  .pc-b{font-size:13px;line-height:1.45;color:var(--ink-2);margin:9px 0 0}
+  .pc-f{display:flex;align-items:center;gap:9px;margin-top:13px;padding-top:12px;
+    border-top:1px solid var(--line)}
+  .pc-tags{display:flex;gap:8px;flex:1;min-width:0;flex-wrap:wrap}
+  .ptag{display:inline-flex;align-items:center;height:28px;padding:0 12px;border-radius:999px;
+    font-size:12.5px;font-weight:500;white-space:nowrap}
+  .pc-f .mini.lbl{flex:none;min-height:36px;padding:0 16px;font-size:13.5px;font-weight:550}
+  .phrow{display:flex;gap:9px;margin-top:12px}
+  .phb{flex:1;aspect-ratio:1;border-radius:12px;border:1px dashed #CDD2D8;
+    display:grid;place-items:center;background:rgba(255,255,255,.5)}
+  .phb.more{font-size:14px;font-weight:600;color:var(--ink-2)}
+  .phb svg{width:22px;height:22px}
+  .fabdock{position:absolute;left:16px;right:16px;bottom:100px;z-index:6}
+  .fabdock .primary{margin:0;width:100%;
+    box-shadow:0 18px 34px -16px rgba(40,55,38,.55),0 2px 8px -2px rgba(40,55,38,.25)}
 </style>
 <div class="stage">
  <div class="lead">
@@ -1158,11 +1201,11 @@ let S={
  ines:'Slept badly last night may need an early nap.'})[k[0]]||'',
  room:ROOM,collectedBy:null,dob:'12 Apr 2024',age:'2 yr 4 mo'})),
  feed:[
- {id:1,type:'food',title:'Lunch · whole room',sub:'Chicken, rice and green beans',t:'11:45',by:'Tara Rivera',vis:'parents'},
- {id:2,type:'outdoor',title:'Outdoor play · whole room',sub:'Sandpit and trikes, 40 minutes',t:'10:20',by:'Joy Adeyemi',vis:'parents'},
- {id:3,type:'incident',title:'Incident · Dev Patel',sub:'Bumped knee, ice applied. Family notified.',t:'10:04',by:'Tara Rivera',vis:'both'},
- {id:4,type:'art',title:'Art · 8 children',sub:'Leaf printing, photo added',t:'9:35',by:'Tara Rivera',vis:'parents',photos:true},
- {id:5,type:'observation',title:'Circle time · whole room',sub:'Songs and the weather chart. Grace led the counting.',t:'9:00',by:'Tara Rivera',vis:'parents'}
+ {id:1,type:'food',title:'Lunch',sub:'Chicken, rice and green beans',who:'Whole room',t:'11:45 AM',by:'Tara Rivera',vis:'parents'},
+ {id:2,type:'outdoor',title:'Outdoor play',sub:'Sandpit and trikes, 40 minutes',who:'Whole room',t:'10:20 AM',by:'Joy Adeyemi',vis:'parents'},
+ {id:3,type:'incident',title:'Incident',sub:'Bumped knee, ice applied. Family notified.',who:'Dev Patel',t:'10:04 AM',by:'Tara Rivera',vis:'both'},
+ {id:4,type:'art',title:'Art',sub:'Leaf printing',who:'8 children',t:'9:35 AM',by:'Tara Rivera',vis:'parents',photos:true},
+ {id:5,type:'observation',title:'Circle time',sub:'Songs and the weather chart. Grace led the counting.',who:'Whole room',t:'9:00 AM',by:'Tara Rivera',vis:'parents'}
  ],
  threads:[
  {id:'marta',who:'Marta Ruiz',kind:'family',kid:'Caleb',unread:true,t:'4:52',msgs:[{me:false,txt:'Did he finish his lunch? He was picky at breakfast.',t:'4:52 PM'}]},
@@ -1321,31 +1364,56 @@ function vAttendance(){
  </div>
    ${dock(list.length,S.kids.length,'child','children','Search this room')}`;
 }
+/* ---- activity palette: pastel ring + tint, never the interactive blue ---- */
+const PAL={incident:['#F4E3DE','#9A4B39'],accident:['#F4E3DE','#9A4B39'],
+ behavior:['#F4E3DE','#9A4B39'],medication:['#F4E3DE','#9A4B39'],
+ food:['#F6EBD9','#8A6A3C'],bottle:['#F6EBD9','#8A6A3C'],toilet:['#F6EBD9','#8A6A3C'],
+ nap:['#E4EBF3','#4A6480'],mood:['#E4EBF3','#4A6480'],
+ photo:['#E4EEE7','#3F6354'],art:['#E4EEE7','#3F6354'],kudos:['#E4EEE7','#3F6354'],
+ outdoor:['#E4EEE7','#3F6354'],learning:['#E4EEE7','#3F6354'],observation:['#E4EEE7','#3F6354']};
+const pal=t=>PAL[t]||['rgba(44,49,43,.055)','var(--ink-2)'];
+const QUICK=[['photo','Photo'],['food','Food'],['nap','Nap'],['incident','Incident']];
+
+function qchips(){
+  return `<div class="qrrow">${QUICK.map(([t,l])=>{const[f,i]=pal(t);
+    return `<span class="qr" data-act="type:${t}"><i class="qri" style="box-shadow:inset 0 0 0 1.5px ${f}">
+      ${ic(TY[t].icon,'ic',i,'1.75')}</i>${l}</span>`;}).join('')}</div>`;
+}
+function acard(a){
+  const[f,i]=pal(a.type), t=TY[a.type];
+  const pend=(a.type==='incident'||a.type==='accident')&&S.incidents.some(x=>x.status==='pending'&&x.child===a.who);
+  const thumbs=a.photos?`<div class="phrow">${'<span class="phb">'+ic('camera','ic','#B6BBC2','1.6')+'</span>'.repeat(3)}<span class="phb more">+5</span></div>`:'';
+  const act=a.photos?`<button class="mini lbl sec" data-act="act:${a.id}">${ic('camera','ic sm','currentColor','1.8')}View all</button>`
+    :pend?`<button class="mini lbl pri" data-act="review:${S.incidents.find(x=>x.status==='pending').id}">Review</button>`:'';
+  return `<div class="pcard${a.fresh?' new':''}" data-act="act:${a.id}">
+    <div class="pc-h"><span class="pav" style="background:${f}">${ic(t.icon,'ic',i,'1.7')}</span>
+     <span class="pc-t"><b>${a.who||'Whole room'}</b></span>
+     <span class="pc-w">${a.t}</span></div>
+    <p class="pc-b">${a.sub}</p>${thumbs}
+    <div class="pc-f"><span class="pc-tags"><span class="ptag" style="background:${f};color:${i}">${t.label}</span></span>${act}</div></div>`;
+}
 function vActivities(){
- const f=S.filters, q=S.q.trim().toLowerCase();
-  const list=S.feed.filter(a=>(!f.size||f.has(a.type))&&(!q||(a.title+' '+a.sub+' '+TY[a.type].label).toLowerCase().includes(q)));
- const counts={};S.feed.forEach(a=>counts[a.type]=(counts[a.type]||0)+1);
-  const chips=Object.keys(counts).map(t=>`<span class="tp${f.has(t)?' on':''}" data-act="fact:${t}">${TY[t].label} ${counts[t]}</span>`).join('');
- const pend=S.incidents.filter(i=>i.status==='pending');
- return `${topbar('Activity log',`${ROOM} Room · ${S.feed.length} entries`,
- `${searchBtn()}<button class="ghost tb-inline" data-act="sheet:posttype">Post</button>`)}
+  const f=S.filters, q=S.q.trim().toLowerCase();
+  const list=S.feed.filter(a=>(!f.size||f.has(a.type))&&(!q||(a.title+' '+a.sub+' '+(a.who||'')+' '+TY[a.type].label).toLowerCase().includes(q)));
+  const pend=S.incidents.filter(i=>i.status==='pending');
+  const postbtn=`<button class="primary" data-act="sheet:posttype">${ic('plus','ic','currentColor','1.9')}Post activity</button>`;
+  return `${topbar('Activities','',
+    `${searchBtn()}<button class="ghost tb-inline" data-act="sheet:filter">Filters${f.size?' ('+f.size+')':''}</button>`)}
    <div class="body pad">
-    ${datespine('day',`<button class="sp-f" data-act="sheet:filter">${ic('filter','ic sm','var(--npds-gray-700)','1.9')}Filters${f.size?' ('+f.size+')':''}</button>`)}
- ${pend.length?`<div class="card needs" data-act="review:${pend[0].id}">
+    ${S.searchOpen?postbtn:''}
+    ${datespine('day')}
+    ${qchips()}
+    ${pend.length?`<div class="card needs" data-act="review:${pend[0].id}">
       <span class="mi warn">${ic('alert','ic sm','var(--amber)')}</span>
- <span class="mt"><b>${pend.length} incident ${pend.length===1?'report needs':'reports need'} your review</b>
- <small>${pend[0].child} · reported by ${pend[0].by} at ${pend[0].t}</small></span>
+      <span class="mt"><b>${pend.length} incident ${pend.length===1?'report needs':'reports need'} your review</b>
+       <small>${pend[0].child} \u00b7 reported by ${pend[0].by} at ${pend[0].t}</small></span>
       ${ic('arrow','ic sm','var(--ink-3)')}</div>`:''}
- <div class="tabpill"><span class="tp${f.size?'':' on'}" data-act="fact:all">All ${S.feed.length}</span>${chips}</div>
- <div class="card feed">${list.length?list.map(a=>`
-      <div class="fe${a.fresh?' new':''}" data-act="act:${a.id}">
- <span class="fi${a.type==='incident'||a.type==='accident'?' warn':''}">${ic(TY[a.type].icon,'ic',(a.type==='incident'||a.type==='accident')?'var(--amber)':'var(--accent)','1.7')}</span>
- <span class="ft"><b>${a.title}</b><small>${a.sub}</small>
-        <span class="fmeta">${TY[a.type].label} · ${a.who||'whole room'} · by ${a.by||'Tara Rivera'}
- ${a.vis?`<i class="visq">${a.vis==='both'?'Parents + staff':a.vis==='staff'?'Staff only':'Parents'}</i>`:''}</span></span>
- <span class="fw">${a.t}</span></div>`).join('')
- :'<div class="empty">Nothing matches.<br><b class="linkish" data-act="fact:all">Clear the filters</b></div>'}</div>
- </div>${dock(list.length,S.feed.length,'entry','entries','Search activities')}`;
+    <div class="feedhd lab"><b>Activity log</b><span>${S.feed.length} posts</span></div>
+    <div class="pfeed${S.searchOpen?' short':''}">${list.length?list.map(acard).join('')
+      :'<div class="card"><div class="empty">Nothing matches.<br><b class="linkish" data-act="fact:all">Clear the filters</b></div></div>'}</div>
+   </div>
+   ${S.searchOpen?'':`<div class="fabdock">${postbtn}</div>`}
+   ${dock(list.length,S.feed.length,'entry','entries','Search activities')}`;
 }
 function mthreads(){
  const scope=S.mscope||'all';
