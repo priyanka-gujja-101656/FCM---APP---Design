@@ -989,7 +989,7 @@
   <p>Every capability from the teacher app audit, carried in this design language. My Room is unchanged.</p>
  </div>
  <div class="try">
-  <span><b>Try:</b> the print icon on Attendance</span>
+  <span><b>Try:</b> Check in / out from My Room</span>
   <span>Swipe a child left in Attendance</span>
   <span>Select several, check them out at once</span>
   <span>Post an activity, then filter the log</span>
@@ -1205,7 +1205,7 @@ function row(k,opts={}){
  if(!S.selecting){
     const t=[];
     if(k.allergy)t.push('<span class="alg warn">Peanut</span>');
- if(C.has('allergy')&&k.med)t.push('<span class="alg">Inhaler</span>');
+ if(k.med)t.push('<span class="alg">Inhaler</span>');
  if(k.note)t.push(`<span class="notepill${S.openNote.has(k.id)?' on':''}" data-act="notepill:${k.id}">Note${ic('chev','ic sm','currentColor','2.4')}</span>`);
  if(t.length)tags=`<span class="tagrow">${t.join('')}</span>`;
  }
@@ -2155,8 +2155,10 @@ function doAct(a){
 
  case 'room': S.room=arg;refreshSheet();break;
  case 'domove':{const r=ROOMS.find(x=>x.id===S.room);
- const picked=S.sel.size?[...S.sel]:[S.arg||S.kids.find(k=>k.status==='here').id];
- picked.forEach(id=>{K(id).room=r.name;});
+ const raw=S.sel.size?[...S.sel]:[S.arg];
+ const picked=raw.map(id=>K(id)).filter(Boolean);
+ if(!picked.length){toast('Choose a child to move first');break;}
+ picked.forEach(k=>{k.room=r.name;});
      const n=picked.length;S.sel.clear();S.selecting=false;
      closeSheet();render();toast(`<b>${n} ${n===1?'child':'children'}</b> moved to ${r.name}`);break;}
  case 'doprint': closeSheet();toast('Sent to the office printer');break;
