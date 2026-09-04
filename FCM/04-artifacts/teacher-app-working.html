@@ -931,13 +931,6 @@
   .spine{gap:6px}
   .sp-b{width:38px;height:38px;min-height:38px}
 
-  /* sort & columns live in the search dock now */
-  .sd-more{display:flex;align-items:center;justify-content:center;gap:8px;margin:9px auto 0;
-    height:34px;padding:0 15px;border-radius:999px;border:1px solid var(--npds-gray-500);
-    background:rgba(255,253,250,.94);color:var(--npds-gray-700);
-    font-family:inherit;font-size:12.5px;font-weight:500;cursor:pointer}
-  .sd-more:hover{background:#f0f1f2}
-  .sd-more svg{stroke:currentColor!important}
 
   /* ===== note pill: outlined with a chevron, clearly an opener ===== */
   .notepill{display:inline-flex;align-items:center;gap:5px;font-size:12.5px;font-weight:600;
@@ -996,7 +989,7 @@
   <p>Every capability from the teacher app audit, carried in this design language. My Room is unchanged.</p>
  </div>
  <div class="try">
-  <span><b>Try:</b> Select, then tick two children</span>
+  <span><b>Try:</b> the print icon on Attendance</span>
   <span>Swipe a child left in Attendance</span>
   <span>Select several, check them out at once</span>
   <span>Post an activity, then filter the log</span>
@@ -1142,7 +1135,7 @@ let S={
  selecting:false, searchOpen:false, dir:'in', sel:new Set(), q:'', filters:new Set(), draftType:null,
  draft:{who:'all',picked:new Set(),req:'',det:'',time:null,vis:'parents',internal:'',sev:'low',witness:''},
  stack:[], openNote:new Set(), pick:null, room:'bluebell', tmark:null, day:0, childTab:'general', famTab:'general', reportView:'list', confirm:null,
- sort:'name', columns:new Set(['status','time','guardian','allergy']),
+
  compose:{to:null,fwd:false,subject:'',body:''},
  drafts:[{id:'d1',to:'Lin Family',subject:'Nap routine',body:'Hi [Family Name], a note about [Child Name] and naps…'}],
  sent:[{id:'s1',to:'All Sunflower families',subject:'Picture day Thursday',t:'Mon'}],
@@ -1194,25 +1187,24 @@ const DOT={here:'var(--present)',absent:null,out:null};
 const dotFor=st=>DOT[st]?`<i style="background:${DOT[st]}"></i>`:'';
 function row(k,opts={}){
  const box=S.selecting?`<span class="cbx sq${S.sel.has(k.id)?' on':''}">${S.sel.has(k.id)?ic('check','ic sm','#FFFDFA','2.4'):''}</span>`:'';
- const C=S.columns;
   let sub=opts.meta;
   if(sub===undefined){
     if(k.status==='here'){
- const b=[]; if(C.has('time'))b.push(k.tin);
- if(C.has('guardian')&&k.who)b.push('with '+k.who.split(' \u00b7 ')[0]);
- sub=b.join(' \u00b7 ')||'Here';
- }else if(k.status==='out'){
- if(k.tout){
-        const b=[C.has('time')?`Checked out ${k.tout}`:'Checked out'];
- if(C.has('guardian')&&k.collectedBy)b.push('with '+k.collectedBy.split(' \u00b7 ')[0]);
- sub=b.join(' \u00b7 ');
- }else sub='Not checked in';
- }else sub=`Absent${k.who?' \u00b7 '+k.who:''}`;
- }
+      const b=[k.tin];
+      if(k.who)b.push('with '+k.who.split(' \u00b7 ')[0]);
+      sub=b.join(' \u00b7 ');
+    }else if(k.status==='out'){
+      if(k.tout){
+        const b=[`Checked out ${k.tout}`];
+        if(k.collectedBy)b.push('with '+k.collectedBy.split(' \u00b7 ')[0]);
+        sub=b.join(' \u00b7 ');
+      }else sub='Not checked in';
+    }else sub=`Absent${k.who?' \u00b7 '+k.who:''}`;
+  }
   let tags='';
  if(!S.selecting){
     const t=[];
-    if(C.has('allergy')&&k.allergy)t.push('<span class="alg warn">Peanut</span>');
+    if(k.allergy)t.push('<span class="alg warn">Peanut</span>');
  if(C.has('allergy')&&k.med)t.push('<span class="alg">Inhaler</span>');
  if(k.note)t.push(`<span class="notepill${S.openNote.has(k.id)?' on':''}" data-act="notepill:${k.id}">Note${ic('chev','ic sm','currentColor','2.4')}</span>`);
  if(t.length)tags=`<span class="tagrow">${t.join('')}</span>`;
@@ -1302,9 +1294,7 @@ function datespine(act,extra){
  ${extra||''}</div>`;
 }
 function sortKids(list){
- if(S.sort==='time')return list.slice().sort((a,b)=>(a.tin||'~').localeCompare(b.tin||'~'));
- if(S.sort==='status')return list.slice().sort((a,b)=>a.status.localeCompare(b.status)||a.name.localeCompare(b.name));
- return list.slice().sort((a,b)=>a.name.localeCompare(b.name));
+  return list.slice().sort((a,b)=>a.name.localeCompare(b.name));
 }
 function attList(){
   const q=S.q.trim().toLowerCase();
@@ -1317,11 +1307,10 @@ function attList(){
 }
 function vAttendance(){
   const list=attList();
-  const nf=(S.sort!=='name'?1:0)+(S.columns.size!==4?1:0);
  const chip=(id,lbl,n)=>`<span class="tp${S.filters.has(id)?' on':''}" data-act="fkid:${id}">${lbl} ${n}</span>`;
  const past=S.day<0;
   return `${topbar('Attendance','',
- `${searchBtn()}<button class="ghost tb-inline" data-act="selmode">${S.selecting?'Cancel':'Select'}</button>`)}
+ `${searchBtn()}${S.selecting?'':`<button class="tb-btn" data-act="sheet:print" aria-label="Print the register">${ic('print')}</button>`}<button class="ghost tb-inline" data-act="selmode">${S.selecting?'Cancel':'Select'}</button>`)}
  <div class="body pad">
     ${S.selecting?'':datespine('day')}
  ${S.selecting?'':`<div class="tabpill"><span class="tp${S.filters.size?'':' on'}" data-act="fkid:all">All ${S.kids.length}</span>
@@ -1330,8 +1319,7 @@ function vAttendance(){
  ${past&&!S.selecting?'<p class="hint readonly">'+ic('shield','ic sm','var(--ink-3)','1.8')+' A past day is read-only. Ask the director to amend a closed register.</p>':''}
  <div class="card list">${list.length?list.map(k=>row(k,past?{right:''}:{})).join(''):'<div class="empty">No children match.</div>'}</div>
  </div>
-   ${dock(list.length,S.kids.length,'child','children','Search this room',
- `<button class="sd-more" data-act="sheet:attfilter">${ic('filter','ic sm','var(--npds-gray-700)','1.9')}Sort &amp; columns${nf?' ('+nf+')':''}</button>`)}`;
+   ${dock(list.length,S.kids.length,'child','children','Search this room')}`;
 }
 function vActivities(){
  const f=S.filters, q=S.q.trim().toLowerCase();
@@ -1797,26 +1785,6 @@ const SHEETS={
  ${k.note?`<button class="ghost" data-act="delnote:${k.id}">Delete note</button>`:''}`;
  },
 
- attfilter(){
- const C=S.columns;
-  const cs=(id,lbl)=>`<span class="ch${C.has(id)?' on':''}" data-act="col:${id}">${lbl}</span>`;
- const so=(id,lbl)=>`<span class="ch${S.sort===id?' on':''}" data-act="sort:${id}">${lbl}</span>`;
- return `<span class="grab"></span><h3 class="sh-h">Filter attendance</h3>
-   <span class="flabel">Status</span>
-   <div class="chips wrapc">
-    <span class="ch${S.filters.size?'':' on'}" data-act="fkid:all">Everyone ${S.kids.length}</span>
- <span class="ch${S.filters.has('here')?' on':''}" data-act="fkid:here">Here ${cnt('here')}</span>
- <span class="ch${S.filters.has('out')?' on':''}" data-act="fkid:out">Not in ${cnt('out')}</span>
- <span class="ch${S.filters.has('absent')?' on':''}" data-act="fkid:absent">Absent ${cnt('absent')}</span>
- <span class="ch${S.filters.has('allergy')?' on':''}" data-act="fkid:allergy">Allergies ${S.kids.filter(k=>k.allergy||k.med).length}</span></div>
- <span class="flabel">Sort by</span>
-   <div class="chips wrapc">${so('name','Name A\u2013Z')}${so('time','Time in')}${so('status','Status')}</div>
- <span class="flabel">Show on each row</span>
-   <div class="chips wrapc">${cs('time','Times')}${cs('guardian','Who with')}${cs('allergy','Allergies & meds')}</div>
- <button class="primary" data-act="close">${ic('filter','ic','currentColor','1.8')}Show ${attList().length} of ${S.kids.length}</button>
- <button class="second" data-act="sheet:print">${ic('print','ic','var(--npds-gray-700)','1.8')}Print the register</button>
- <button class="ghost" data-act="attclear">Reset filters</button>`;
- },
  filter(){
   const counts={};S.feed.forEach(a=>counts[a.type]=(counts[a.type]||0)+1);
   const n=S.feed.filter(a=>!S.filters.size||S.filters.has(a.type)).length;
@@ -2108,9 +2076,6 @@ function doAct(a){
  case 'needreq':{const el=document.getElementById('reqf');if(el){el.focus();}toast('That field is required');break;}
  case 'day': S.day=Math.min(0,S.day+Number(arg));S.selecting=false;S.sel.clear();render(true);break;
  case 'noop': toast('There is no register for a future day');break;
- case 'sort': S.sort=arg;if(openSheet)refreshSheet();render(true);break;
- case 'col': S.columns.has(arg)?S.columns.delete(arg):S.columns.add(arg);if(openSheet)refreshSheet();render(true);break;
- case 'attclear': S.filters.clear();S.sort='name';S.columns=new Set(['status','time','guardian','allergy']);refreshSheet();render(true);break;
  case 'clearf': S.filters.clear();refreshSheet();render(true);break;
 
  case 'type': if(openSheet==='log')stash();
