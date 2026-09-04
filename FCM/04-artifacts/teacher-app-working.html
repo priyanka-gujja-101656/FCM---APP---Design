@@ -1195,9 +1195,7 @@ function row(k,opts={}){
       sub=b.join(' \u00b7 ');
     }else if(k.status==='out'){
       if(k.tout){
-        const b=[`Checked out ${k.tout}`];
-        if(k.collectedBy)b.push('with '+k.collectedBy.split(' \u00b7 ')[0]);
-        sub=b.join(' \u00b7 ');
+        sub=`Checked out ${k.tout}`;
       }else sub='Not checked in';
     }else sub=`Absent${k.who?' \u00b7 '+k.who:''}`;
   }
