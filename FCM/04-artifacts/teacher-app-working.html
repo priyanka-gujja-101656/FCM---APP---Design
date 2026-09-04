@@ -984,7 +984,7 @@
   <p>Every capability from the teacher app audit, carried in this design language. My Room is unchanged.</p>
  </div>
  <div class="try">
-  <span><b>Try:</b> tap the blue <b>Note</b> pill on Bea or Ines</span>
+  <span><b>Try:</b> Select, then tick two children</span>
   <span>Swipe a child left in Attendance</span>
   <span>Select several, check them out at once</span>
   <span>Post an activity, then filter the log</span>
@@ -1032,6 +1032,8 @@
 
 <script>
 const I={
+person:'<circle cx="12" cy="8" r="3.4"/><path d="M5 20a7 7 0 0 1 14 0"/>',
+
 chev:'<path d="M9 6l6 6-6 6"/>',
 
 left:'<path d="M14 6l-6 6 6 6"/>',
@@ -1136,16 +1138,16 @@ let S={
  vis:'Staff + Parents',sev:'Low',desc:'Tripped on the edge of the mat during free play. Small graze to the left elbow, cleaned and covered.',
  actions:'Cleaned and covered, comforted, returned to play.',witness:'Joy Adeyemi',status:'pending',note:''}],
  kids:[
- ['aiden','Aiden Brooks','here','7:14','Dad'],['bea','Bea Okafor','here','7:22','Grandma'],
- ['caleb','Caleb Ruiz','out','','',true],['dev','Dev Patel','here','7:30','Mum'],
+ ['aiden','Aiden Brooks','here','7:14 AM','Dad'],['bea','Bea Okafor','here','7:22 AM','Grandma'],
+ ['caleb','Caleb Ruiz','out','','',true],['dev','Dev Patel','here','7:30 AM','Mum'],
  ['elena','Elena Vance','absent','','Family holiday'],['finn','Finn Doyle','out','',''],
- ['grace','Grace Lin','here','7:28','Dad'],['hugo','Hugo Baptiste','out','',''],
- ['ines','Ines Moreau','here','8:41','Mum',false,true],['jonah','Jonah Weiss','here','8:47','Dad'],
- ['kai','Kai Nakamura','here','8:12','Mum'],['lena','Lena Torres','here','8:04','Dad'],
- ['mateo','Mateo Silva','here','7:58','Gran'],['nina','Nina Alvarez','here','7:52','Mum'],
- ['omar','Omar Haddad','here','8:20','Dad'],['priya','Priya Shah','here','8:33','Mum'],
- ['quinn','Quinn Byrne','absent','','Unwell'],['rosa','Rosa Delgado','here','8:26','Dad'],
- ['sam','Sam Whitfield','here','8:38','Mum']
+ ['grace','Grace Lin','here','7:28 AM','Dad'],['hugo','Hugo Baptiste','out','',''],
+ ['ines','Ines Moreau','here','8:41 AM','Mum',false,true],['jonah','Jonah Weiss','here','8:47 AM','Dad'],
+ ['kai','Kai Nakamura','here','8:12 AM','Mum'],['lena','Lena Torres','here','8:04 AM','Dad'],
+ ['mateo','Mateo Silva','here','7:58 AM','Gran'],['nina','Nina Alvarez','here','7:52 AM','Mum'],
+ ['omar','Omar Haddad','here','8:20 AM','Dad'],['priya','Priya Shah','here','8:33 AM','Mum'],
+ ['quinn','Quinn Byrne','absent','','Unwell'],['rosa','Rosa Delgado','here','8:26 AM','Dad'],
+ ['sam','Sam Whitfield','here','8:38 AM','Mum']
  ].map(k=>({id:k[0],name:k[1],status:k[2],tin:k[3],who:k[4],allergy:!!k[5],med:!!k[6],
  note:({bea:'Grandma collects at 4 today, not Mum. Her blanket is in her bag.',
  ines:'Slept badly last night may need an early nap.'})[k[0]]||'',
@@ -1172,7 +1174,8 @@ const K=id=>S.kids.find(k=>k.id===id);
 const cnt=st=>S.kids.filter(k=>k.status===st).length;
 const unread=()=>S.threads.filter(t=>t.unread).length;
 const ini=n=>n.split(' ').map(w=>w[0]).slice(0,2).join('');
-const now=()=>{const d=new Date();let h=d.getHours()%12||12;return h+':'+String(d.getMinutes()).padStart(2,'0');};
+const now=()=>{const d=new Date();const h=d.getHours();const h12=h%12||12;
+  return h12+':'+String(d.getMinutes()).padStart(2,'0')+' '+(h<12?'AM':'PM');};
 
 /* ---------- pieces ---------- */
 const DOT={here:'var(--present)',absent:'var(--amber)',out:null};
@@ -1308,12 +1311,11 @@ function vAttendance(){
   return `${topbar('Attendance','',
  `${searchBtn()}<button class="ghost tb-inline" data-act="selmode">${S.selecting?'Cancel':'Select'}</button>`)}
  <div class="body pad">
-    ${datespine('day')}
- <div class="tabpill"><span class="tp${S.filters.size?'':' on'}" data-act="fkid:all">All ${S.kids.length}</span>
+    ${S.selecting?'':datespine('day')}
+ ${S.selecting?'':`<div class="tabpill"><span class="tp${S.filters.size?'':' on'}" data-act="fkid:all">All ${S.kids.length}</span>
  ${chip('here','Here',cnt('here'))}${chip('out','Not in',cnt('out'))}${chip('absent','Absent',cnt('absent'))}
- ${chip('allergy','Allergies',S.kids.filter(k=>k.allergy||k.med).length)}</div>
- ${past?'<p class="hint readonly">'+ic('shield','ic sm','var(--ink-3)','1.8')+' A past day is read-only. Ask the director to amend a closed register.</p>':''}
- ${S.selecting?'<p class="hint">Tick the children you want, then pick an action at the bottom.</p>':''}
+ ${chip('allergy','Allergies',S.kids.filter(k=>k.allergy||k.med).length)}</div>`}
+ ${past&&!S.selecting?'<p class="hint readonly">'+ic('shield','ic sm','var(--ink-3)','1.8')+' A past day is read-only. Ask the director to amend a closed register.</p>':''}
  <div class="card list">${list.length?list.map(k=>row(k,past?{right:''}:{})).join(''):'<div class="empty">No children match.</div>'}</div>
  </div>
    ${dock(list.length,S.kids.length,'child','children','Search this room',
@@ -2059,7 +2061,8 @@ function doAct(a){
      toast(`<b>${n} ${n===1?'child':'children'}</b> checked ${S.pkdir==='in'?'in':'out'} at ${t}`);
  render();break;}
 
-   case 'fkid': if(arg==='all')S.filters.clear();else S.filters.has(arg)?S.filters.delete(arg):S.filters.add(arg);render(true);break;
+   case 'fkid': if(arg==='all'||S.filters.has(arg))S.filters.clear();else S.filters=new Set([arg]);
+     if(openSheet)refreshSheet();render(true);break;
  case 'fact': if(arg==='all')S.filters.clear();else S.filters.has(arg)?S.filters.delete(arg):S.filters.add(arg);
  if(openSheet)refreshSheet();render(true);break;
    case 'mscope': S.mscope=arg;if(openSheet)refreshSheet();render(true);break;
