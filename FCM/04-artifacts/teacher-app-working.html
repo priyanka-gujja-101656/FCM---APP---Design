@@ -1178,7 +1178,7 @@ const now=()=>{const d=new Date();const h=d.getHours();const h12=h%12||12;
   return h12+':'+String(d.getMinutes()).padStart(2,'0')+' '+(h<12?'AM':'PM');};
 
 /* ---------- pieces ---------- */
-const DOT={here:'var(--present)',absent:'var(--amber)',out:null};
+const DOT={here:'var(--present)',absent:null,out:null};
 const dotFor=st=>DOT[st]?`<i style="background:${DOT[st]}"></i>`:'';
 function row(k,opts={}){
  const box=S.selecting?`<span class="cbx sq${S.sel.has(k.id)?' on':''}">${S.sel.has(k.id)?ic('check','ic sm','#FFFDFA','2.4'):''}</span>`:'';
@@ -1755,9 +1755,9 @@ const SHEETS={
   const dir=S.pkdir||'out';
  const people=(PICKUPS[k.id]||DEFAULT_PICKUPS.map(x=>x+' \u00b7 on file'));
  const sel=S.pick||people[0];
-  const radio=(v,name,rel)=>`<div class="row rad-row${sel===v?' on':''}" data-act="pk:${v}">
+  const radio=(v,name,rel,plain)=>`<div class="row rad-row${sel===v?' on':''}" data-act="pk:${v}">
  <span class="rad${sel===v?' on':''}"></span>
- <span class="av">${ini(name)}</span>
+ <span class="av">${plain?ic('person','ic sm','var(--ink-2)','1.8'):ini(name)}</span>
     <span class="rt"><b>${name}</b><small>${rel}</small></span></div>`;
   const other=sel==='Someone else';
  return `<span class="grab"></span>
@@ -1766,7 +1766,7 @@ const SHEETS={
  <span class="flabel">${dir==='out'?'Who is collecting':'Who dropped off'} ${k.name.split(' ')[0]}? <em class="reqd">Required</em></span>
  <div class="card list roomy">
     ${people.map(w=>radio(w,w.split(' \u00b7 ')[0],w.split(' \u00b7 ')[1]||'Authorized')).join('')}
- ${radio('Someone else','?','Not on the authorized list')}
+ ${radio('Someone else','Someone else','Not on the authorized list',true)}
  </div>
    ${other?`<div class="card ta"><span class="ta-l">Their name <em class="reqd">Required</em></span>
      <textarea id="someone" rows="1" placeholder="Who is it?">${S.someone}</textarea></div>`:''}
@@ -1774,7 +1774,7 @@ const SHEETS={
     <div class="field"><span class="fl">Time ${dir==='out'?'out':'in'}</span>
  <span class="fv"><input class="tinput" id="tmark" value="${S.tmark||now()}"></span></div>
    </div>
-   <button class="primary" data-act="dopickup">${ic(dir==='out'?'out':'in','ic','currentColor','1.8')}Check ${dir==='out'?'out':'in'} ${k.name.split(' ')[0]}</button>`;
+   <button class="${dir==='out'?'second':'primary'}" data-act="dopickup">${ic(dir==='out'?'out':'in','ic','currentColor','1.8')}Check ${dir==='out'?'out':'in'} ${k.name.split(' ')[0]}</button>`;
  },
  note(){
  const k=K(S.arg);
