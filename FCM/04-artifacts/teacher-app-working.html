@@ -1129,7 +1129,7 @@ let S={
  tab:'myroom', sub:null, arg:null,
  selecting:false, searchOpen:false, dir:'in', sel:new Set(), q:'', filters:new Set(), draftType:null,
  draft:{who:'all',picked:new Set(),req:'',det:'',time:null,vis:'parents',internal:'',sev:'low',witness:''},
- stack:[], openNote:new Set(), pick:null, room:'bluebell', tmark:null, someone:'', day:0, childTab:'general', famTab:'general', reportView:'list', confirm:null,
+ stack:[], openNote:new Set(), pick:null, room:'bluebell', tmark:null, day:0, childTab:'general', famTab:'general', reportView:'list', confirm:null,
  sort:'name', columns:new Set(['status','time','guardian','allergy']),
  compose:{to:null,fwd:false,subject:'',body:''},
  drafts:[{id:'d1',to:'Lin Family',subject:'Nap routine',body:'Hi [Family Name], a note about [Child Name] and naps…'}],
@@ -1759,17 +1759,13 @@ const SHEETS={
  <span class="rad${sel===v?' on':''}"></span>
  <span class="av">${plain?ic('person','ic sm','var(--ink-2)','1.8'):ini(name)}</span>
     <span class="rt"><b>${name}</b><small>${rel}</small></span></div>`;
-  const other=sel==='Someone else';
  return `<span class="grab"></span>
    <div class="sh-kid"><span class="av lg">${dotFor(k.status)}${ini(k.name)}</span>
     <span class="rt"><b>${k.name}</b><small>${dir==='out'?'Here since '+k.tin:'Not checked in'}</small></span></div>
  <span class="flabel">${dir==='out'?'Who is collecting':'Who dropped off'} ${k.name.split(' ')[0]}? <em class="reqd">Required</em></span>
  <div class="card list roomy">
     ${people.map(w=>radio(w,w.split(' \u00b7 ')[0],w.split(' \u00b7 ')[1]||'Authorized')).join('')}
- ${radio('Someone else','Someone else','Not on the authorized list',true)}
  </div>
-   ${other?`<div class="card ta"><span class="ta-l">Their name <em class="reqd">Required</em></span>
-     <textarea id="someone" rows="1" placeholder="Who is it?">${S.someone}</textarea></div>`:''}
  <div class="card fieldset">
     <div class="field"><span class="fl">Time ${dir==='out'?'out':'in'}</span>
  <span class="fv"><input class="tinput" id="tmark" value="${S.tmark||now()}"></span></div>
@@ -2004,24 +2000,18 @@ function doAct(a){
  case 'close': closeSheet();render(true);break;
  case 'dir': S.dir=arg;refreshSheet();break;
 
- case 'checkin': S.pkdir='in';S.pick=null;S.someone='';S.tmark=null;sheet('pickup',arg);break;
- case 'checkout': S.pkdir='out';S.pick=null;S.someone='';S.tmark=null;sheet('pickup',arg);break;
+ case 'checkin': S.pkdir='in';S.pick=null;S.tmark=null;sheet('pickup',arg);break;
+ case 'checkout': S.pkdir='out';S.pick=null;S.tmark=null;sheet('pickup',arg);break;
  case 'dopickup':{const k=K(S.arg);
  const people=(PICKUPS[k.id]||DEFAULT_PICKUPS.map(x=>x+' \u00b7 on file'));
  let who=S.pick||people[0];
      const tf=document.getElementById('tmark'); const t=(tf&&tf.value.trim())||now();
- if(who==='Someone else'){
- const sf=document.getElementById('someone'); const v=sf?sf.value.trim():'';
- if(!v){toast('Add their name');if(sf)sf.focus();break;}
- who=v+' \u00b7 not on the list';
- }
      if(S.pkdir==='in'){k.status='here';k.tin=t;k.who=who;k.collectedBy=null;
  closeSheet();toast(`<b>${k.name}</b> checked in at ${t}`);}
      else{k.status='out';k.tout=t;k.collectedBy=who;
  closeSheet();toast(`<b>${k.name}</b> checked out to ${who.split(' \u00b7 ')[0]}`);}
  render(true);break;}
-   case 'pk':{const sf=document.getElementById('someone'); if(sf)S.someone=sf.value;
- const tf=document.getElementById('tmark'); if(tf)S.tmark=tf.value;
+   case 'pk':{ const tf=document.getElementById('tmark'); if(tf)S.tmark=tf.value;
  S.pick=arg;refreshSheet();break;}
    case 'absent':{const k=K(arg);
  confirmAsk({title:`Mark ${k.name} absent?`,
