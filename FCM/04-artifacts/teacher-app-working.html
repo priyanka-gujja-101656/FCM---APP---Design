@@ -1111,6 +1111,7 @@ check:'<path d="M20 6 9 17l-5-5"/>',
 clock:'<circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/>',
 meal:'<path d="M5 3v8a2.5 2.5 0 0 0 5 0V3"/><path d="M7.5 11v10"/><path d="M16.5 21v-7a3.5 3.5 0 0 1 0-7h.5v14Z"/>',
 zzz:'<path d="M4 8h6l-6 8h6"/><path d="M13 5h5l-5 6h5"/><path d="M13 15h4l-4 5h4"/>',
+img:'<rect x="3.5" y="5" width="17" height="14" rx="2.5"/><circle cx="9" cy="10" r="1.6"/><path d="M4.5 17l4.6-4.3 3.2 3 2.6-2.4 4.6 4.2"/>',
 bottle:'<path d="M10 2h4v3l2 3v13H8V8l2-3Z"/><path d="M8 13h8"/>',
 moon:'<path d="M20 14.5A8 8 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z"/>',
 doc:'<path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8Z"/><path d="M14 3v5h5"/><path d="M9 13h6M9 16h4"/>',
@@ -1184,9 +1185,9 @@ let S={
  compose:{to:null,fwd:false,subject:'',body:''},
  drafts:[{id:'d1',to:'Lin Family',subject:'Nap routine',body:'Hi [Family Name], a note about [Child Name] and naps…'}],
  sent:[{id:'s1',to:'All Sunflower families',subject:'Picture day Thursday',t:'Mon'}],
- incidents:[{id:'i1',child:'Ella Park',room:'Pre-K 4',by:'Marcus Webb',t:'10:42 AM',
- vis:'Staff + Parents',sev:'Low',desc:'Tripped on the edge of the mat during free play. Small graze to the left elbow, cleaned and covered.',
- actions:'Cleaned and covered, comforted, returned to play.',witness:'Joy Adeyemi',status:'pending',note:''}],
+ incidents:[{id:'i1',child:'Hugo Baptiste',room:'Sunflower',by:'Joy Adeyemi',t:'11:40 AM',
+ vis:'Staff + Parents',sev:'Low',desc:'Tripped on the rug during free play. A minor scrape on the right knee, cleaned and covered.',
+ actions:'Cleaned and covered, comforted, returned to play.',witness:'Tara Rivera',status:'pending',note:''}],
  kids:[
  ['aiden','Aiden Brooks','here','7:14 AM','Dad'],['bea','Bea Okafor','here','7:22 AM','Grandma'],
  ['caleb','Caleb Ruiz','out','','',true],['dev','Dev Patel','here','7:30 AM','Mum'],
@@ -1203,11 +1204,12 @@ let S={
  ines:'Slept badly last night may need an early nap.'})[k[0]]||'',
  room:ROOM,collectedBy:null,dob:'12 Apr 2024',age:'2 yr 4 mo'})),
  feed:[
- {id:1,type:'food',title:'Lunch',sub:'Chicken, rice and green beans',who:'Whole room',t:'11:45 AM',by:'Tara Rivera',vis:'parents'},
- {id:2,type:'outdoor',title:'Outdoor play',sub:'Sandpit and trikes, 40 minutes',who:'Whole room',t:'10:20 AM',by:'Joy Adeyemi',vis:'parents'},
- {id:3,type:'incident',title:'Incident',sub:'Bumped knee, ice applied. Family notified.',who:'Dev Patel',t:'10:04 AM',by:'Tara Rivera',vis:'both'},
- {id:4,type:'art',title:'Art',sub:'Leaf printing',who:'8 children',t:'9:35 AM',by:'Tara Rivera',vis:'parents',photos:true},
- {id:5,type:'observation',title:'Circle time',sub:'Songs and the weather chart. Grace led the counting.',who:'Whole room',t:'9:00 AM',by:'Tara Rivera',vis:'parents'}
+ {id:1,type:'nap',title:'Nap',sub:'Slept from 12:40 to 2:05. Woke up settled.',who:'Aiden Brooks',t:'2:05 PM',by:'Tara Rivera',vis:'parents'},
+ {id:2,type:'photo',title:'Photo',sub:'Outdoor play album \u00b7 8 photos.',who:'Whole room',t:'12:15 PM',by:'Tara Rivera',vis:'parents',photos:true},
+ {id:3,type:'kudos',title:'Kudos',sub:'Shared the crayons without being asked.',who:'Grace Lin',t:'11:45 AM',by:'Tara Rivera',vis:'parents'},
+ {id:4,type:'incident',title:'Incident',sub:'Tripped on the rug. A minor scrape on the right knee, cleaned and covered.',who:'Hugo Baptiste',t:'11:40 AM',by:'Joy Adeyemi',vis:'both'},
+ {id:5,type:'food',title:'Lunch',sub:'Chicken, rice and green beans',who:'Whole room',t:'11:20 AM',by:'Tara Rivera',vis:'parents'},
+ {id:6,type:'observation',title:'Circle time',sub:'Songs and the weather chart. Grace led the counting.',who:'Whole room',t:'9:00 AM',by:'Tara Rivera',vis:'parents'}
  ],
  threads:[
  {id:'marta',who:'Marta Ruiz',kind:'family',kid:'Caleb',unread:true,t:'4:52',msgs:[{me:false,txt:'Did he finish his lunch? He was picky at breakfast.',t:'4:52 PM'}]},
@@ -1384,14 +1386,15 @@ function qchips(){
 function acard(a){
   const[f,i]=pal(a.type), t=TY[a.type];
   const pend=(a.type==='incident'||a.type==='accident')&&S.incidents.some(x=>x.status==='pending'&&x.child===a.who);
-  const thumbs=a.photos?`<div class="phrow">${'<span class="phb">'+ic('camera','ic','#B6BBC2','1.6')+'</span>'.repeat(3)}<span class="phb more">+5</span></div>`:'';
+  const thumb=`<span class="phb">${ic('img','ic','#B6BBC2','1.6')}</span>`;
+  const thumbs=a.photos?`<div class="phrow">${thumb.repeat(3)}<span class="phb more">+5</span></div>`:'';
   const act=a.photos?`<button class="mini lbl sec" data-act="act:${a.id}">${ic('camera','ic sm','currentColor','1.8')}View all</button>`
     :pend?`<button class="mini lbl pri" data-act="review:${S.incidents.find(x=>x.status==='pending').id}">Review</button>`:'';
   return `<div class="pcard${a.fresh?' new':''}" data-act="act:${a.id}">
     <div class="pc-h"><span class="pav" style="background:${f}">${ic(t.icon,'ic',i,'1.7')}</span>
      <span class="pc-t"><b>${a.who||'Whole room'}</b></span>
      <span class="pc-w">${a.t}</span></div>
-    <p class="pc-b">${a.sub}</p>${thumbs}
+    ${a.photos?thumbs+`<p class="pc-b">${a.sub}</p>`:`<p class="pc-b">${a.sub}</p>`}
     <div class="pc-f"><span class="pc-tags"><span class="ptag" style="background:${f};color:${i}">${t.label}</span></span>${act}</div></div>`;
 }
 function vActivities(){
