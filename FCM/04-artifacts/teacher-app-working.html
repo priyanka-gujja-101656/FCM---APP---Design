@@ -1319,6 +1319,13 @@
   letter-spacing:.005em}
 .opts.scroll{max-height:296px}
 .opts .opt+.opt{border-top:1px solid rgba(44,49,43,.07)}
+/* the message box takes the room the sheet has, instead of leaving it empty */
+#sheet.formsheet .sbody2.grow{display:flex;flex-direction:column}
+#sheet.formsheet .sbody2.grow>.grp2:last-of-type{flex:1 1 auto;display:flex;flex-direction:column;
+  min-height:210px;margin-bottom:0}
+#sheet.formsheet .sbody2.grow>.grp2:last-of-type>.grblock{flex:1 1 auto;display:flex;
+  flex-direction:column;min-height:0}
+#sheet.formsheet .sbody2.grow>.grp2:last-of-type textarea{flex:1 1 auto;min-height:120px}
 </style>
 <div class="stage">
  <div class="lead">
@@ -2419,7 +2426,7 @@ const SHEETS={
      <span class="on2">${name}${sub?`<i>${sub}</i>`:''}</span></div>`;};
   return `<span class="grab"></span>
    <div class="sh-row fixed"><h3 class="sh-h flat">New message</h3></div>
-   <div class="sbody2">
+   <div class="sbody2 grow">
    <div class="grp2">
     ${grow('copen:to','To',toLabel(),c.open==='to',!c.to.size,
      `<div class="scrollwrap"><div class="opts scroll" tabindex="0" role="group"
