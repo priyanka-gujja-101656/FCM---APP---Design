@@ -1326,6 +1326,9 @@
 #sheet.formsheet .sbody2.grow>.grp2:last-of-type>.grblock{flex:1 1 auto;display:flex;
   flex-direction:column;min-height:0}
 #sheet.formsheet .sbody2.grow>.grp2:last-of-type textarea{flex:1 1 auto;min-height:120px}
+/* select mode: the box and the avatar share one centre line */
+.row.rowstack .cbx{align-self:center;margin-top:0}
+.row.rowstack .av{align-self:center;margin-top:0}
 </style>
 <div class="stage">
  <div class="lead">
@@ -1382,6 +1385,8 @@
 
 <script>
 const I={
+clip:'<path d="M20 11.5 12 19.5a4.5 4.5 0 0 1-6.4-6.4l8-8a3 3 0 0 1 4.3 4.3l-8 8a1.5 1.5 0 0 1-2.1-2.1l7.3-7.3"/>',
+
 person:'<circle cx="12" cy="8" r="3.4"/><path d="M5 20a7 7 0 0 1 14 0"/>',
 
 chev:'<path d="M9 6l6 6-6 6"/>',
