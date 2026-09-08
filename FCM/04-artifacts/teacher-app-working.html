@@ -1493,7 +1493,7 @@ function calPop(){
     <button class="cnav${nextOk?'':' off'}" ${nextOk?'data-act="cmon:1"':''}>${ic('right','ic sm','var(--npds-gray-700)','2.2')}</button></div>
    <div class="calgrid head">${['S','M','T','W','T','F','S'].map(x=>`<span>${x}</span>`).join('')}</div>
    <div class="calgrid">${cells}</div>
-   <p class="hint2">A day after today cannot be logged.</p></div>`;
+   </div>`;
 }
 
 const MEALS=['Breakfast','Lunch','Snack','Bottle'];
@@ -2083,8 +2083,7 @@ const SHEETS={
       aria-label="Quantity, ${d.qty||'not chosen'}">${d.qty||'<u>Choose</u>'}${chev(d.qtyOpen)}</span>
      ${d.qtyOpen?`<div class="panel"><div class="opts">${qtySet().map(v=>`
       <div class="opt" data-act="qty:${v}"><span class="on2">${v}</span>
-       ${v===d.qty?ic('check','ic sm','var(--npds-blue-700)','2.6'):''}</div>`).join('')}</div></div>`:''}
-     <p class="hint2">${d.meal==='Bottle'?'Half ounce steps up to 8 oz.':'How much of the meal was eaten.'}</p>`:''}
+       ${v===d.qty?ic('check','ic sm','var(--npds-blue-700)','2.6'):''}</div>`).join('')}</div></div>`:''}`:''}
     <p class="lab3">Details <em>optional</em></p>
     <div class="ta3 b"><textarea id="det" rows="3" placeholder="Anything the family should know.">${d.det||''}</textarea></div>
    </div>
@@ -2256,14 +2255,12 @@ const SHEETS={
  <span class="flabel">Message <em class="reqd">Required</em></span>
    <div class="card ta tall"><textarea id="cbody" rows="4" placeholder="Write your message\u2026">${c.body}</textarea></div>
    <div class="attach">${ic('camera','ic','var(--npds-gray-700)','1.7')}<span>Attach a photo or today\u2019s report</span></div>
- <p class="sh-note">${c.to==='All '+ROOM+' families'?`Sends as ${S.kids.length} separate threads, so replies stay private between you and each family.`:'Goes to this recipient only.'}</p>
  <button class="primary" data-act="sendmsg">${ic('send','ic','currentColor','1.8')}Send</button>
  <button class="ghost" data-act="savedraft">Save as a draft</button>`;
  },
  recipients(){
   const q='';
  return `<span class="grab"></span><h3 class="sh-h">Send to</h3>
-   <p class="sh-note">Only families and staff in ${ROOM} Room.</p>
    <div class="card list roomy">
     <div class="row" data-act="setto:All ${ROOM} families">
      <span class="av">${ic('users','ic sm','var(--ink-2)','1.8')}</span>
@@ -2280,7 +2277,6 @@ const SHEETS={
  },
  templates(){
  return `<span class="grab"></span><h3 class="sh-h">Templates</h3>
-   <p class="sh-note">Placeholders fill in from the recipient when you use one.</p>
    <div class="card list roomy">${TEMPLATES.map(t=>`
      <div class="row" data-act="usetpl:${t.id}">
       <span class="av">${ic('file','ic sm','var(--ink-2)','1.8')}</span>
