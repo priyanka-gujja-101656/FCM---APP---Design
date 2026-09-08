@@ -2358,22 +2358,29 @@ const SHEETS={
 
  mfilter(){
   const scope=S.mscope||'all';
- const n=k=>S.threads.filter(t=>t.kind===k).length;
+  const n=k=>S.threads.filter(t=>t.kind===k).length;
   const res=mthreads().length;
+  const WHO=[['all','All',S.threads.length],['family','Parents',n('family')],
+    ['staff','Staff',n('staff')],['drafts','Drafts',S.drafts.length]];
+  const cur=(WHO.find(w=>w[0]===scope)||WHO[0]);
+  const STAT=[['all','All'],['unread',`Unread only${unread()?' \u00b7 '+unread():''}`]];
+  const st=S.munread?'unread':'all';
+  const slabel=(STAT.find(x=>x[0]===st)||STAT[0])[1];
   return `<span class="grab"></span><h3 class="sh-h">Filter messages</h3>
-   <span class="flabel">Who it is from</span>
-   <div class="chips wrapc">
-    <span class="ch${scope==='all'?' on':''}" data-act="mscope:all">Everyone ${S.threads.length}</span>
- <span class="ch${scope==='family'?' on':''}" data-act="mscope:family">Parents ${n('family')}</span>
- <span class="ch${scope==='staff'?' on':''}" data-act="mscope:staff">Staff ${n('staff')}</span></div>
- <span class="flabel">Status</span>
-   <div class="seg two"><span class="sg${S.munread?'':' on'}" data-act="munread:all">All</span>
- <span class="sg${S.munread?' on':''}" data-act="munread:unread">Unread only ${unread()}</span></div>
- <div class="card fieldset">
-    <div class="field"><span class="fl">From</span><span class="fv">Last 7 days ${ic('arrow','ic sm','var(--ink-3)')}</span></div>
- </div>
-   <button class="primary" data-act="close">${ic('filter','ic','currentColor','1.8')}Show ${res} ${res===1?'thread':'threads'}</button>
- <button class="ghost" data-act="mclear">Clear all filters</button>`;
+   <label class="lb"><i>Who it is from</i>
+    <span class="fx b${S.mfopen==='who'?' open':''}" data-act="mfdrop:who">${cur[1]}${cur[2]?' \u00b7 '+cur[2]:''}
+     <i class="cv${S.mfopen==='who'?' up':''}">${ic('chev','ic sm','var(--ink-3)','2.2')}</i></span></label>
+   ${S.mfopen==='who'?`<div class="kidbox opts">${WHO.map(([v,l,c])=>`
+    <div class="pr opt${scope===v?' on':''}" data-act="mscope:${v}"><span class="pn">${l}${c?` <i>${c}</i>`:''}</span>
+     ${scope===v?ic('check','ic sm','var(--npds-blue-700)','2.6'):''}</div>`).join('')}</div>`:''}
+   <label class="lb gap"><i>Status</i>
+    <span class="fx b${S.mfopen==='status'?' open':''}" data-act="mfdrop:status">${slabel}
+     <i class="cv${S.mfopen==='status'?' up':''}">${ic('chev','ic sm','var(--ink-3)','2.2')}</i></span></label>
+   ${S.mfopen==='status'?`<div class="kidbox opts">${STAT.map(([v,l])=>`
+    <div class="pr opt${st===v?' on':''}" data-act="munread:${v}"><span class="pn">${l}</span>
+     ${st===v?ic('check','ic sm','var(--npds-blue-700)','2.6'):''}</div>`).join('')}</div>`:''}
+   <button class="primary" data-act="close">${ic('filter','ic','currentColor','1.9')}Show ${res} ${res===1?'thread':'threads'}</button>
+   <button class="ghost" data-act="mclear">Clear all filters</button>`;
  },
  compose(){
   const c=S.compose, chev=on=>`<span class="rch${on?' up':''}">${ic('chev','ic sm','var(--npds-blue-700)','2.4')}</span>`;
@@ -2606,8 +2613,9 @@ function doAct(a){
       S.fopen=null;if(openSheet)refreshSheet();render(true);break;
     case 'fdrop': S.fopen=S.fopen===arg?null:arg;refreshSheet();break;
     case 'frange': S.frange=arg;S.fopen=null;refreshSheet();render(true);break;
-   case 'mscope': S.mscope=arg;if(openSheet)refreshSheet();render(true);break;
- case 'munread': S.munread=(arg==='unread');if(openSheet)refreshSheet();render(true);break;
+   case 'mscope': S.mscope=arg;S.mfopen=null;if(openSheet)refreshSheet();render(true);break;
+    case 'mfdrop': S.mfopen=S.mfopen===arg?null:arg;refreshSheet();break;
+ case 'munread': S.munread=(arg==='unread');S.mfopen=null;if(openSheet)refreshSheet();render(true);break;
  case 'newmsg': S.compose={to:new Set(),subject:'',body:'',att:false,open:null,showAll:false};sheet('compose');break;
     case 'copen': stashCompose();S.compose.open=S.compose.open===arg?null:arg;refreshSheet();break;
     case 'cto': stashCompose();S.compose.to.has(arg)?S.compose.to.delete(arg):S.compose.to.add(arg);refreshSheet();break;
@@ -2652,7 +2660,7 @@ function doAct(a){
           S.tab='messages';render();
           toast(n===1?`Sent to ${who}`:`Sent to ${n} families, one message each`);}});
       break;}
-   case 'mclear': S.mscope='all';S.munread=false;refreshSheet();render(true);break;
+   case 'mclear': S.mscope='all';S.munread=false;S.mfopen=null;refreshSheet();render(true);break;
  case 'cto': S.cto=arg;refreshSheet();break;
  case 'docompose':{closeSheet();toast(S.cto==='room'?'Sent to 19 families':S.cto==='staff'?'Sent to your room staff':'Message sent');break;}
     case 'who': stash();S.draft.whoOpen=!S.draft.whoOpen;S.draft.qtyOpen=false;S.draft.clockOpen=false;refreshSheet();break;
