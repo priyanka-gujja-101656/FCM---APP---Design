@@ -1028,6 +1028,8 @@
 
   /* ===== post an activity ===== */
   .sheet.tall{max-height:calc(100% - 42px);padding-bottom:34px}
+  .sheet.tall .tl3{background:#FFFDFA;border-color:rgba(44,49,43,.09);
+    box-shadow:0 2px 6px -3px rgba(40,55,38,.18)}
   .sheet.tall .sh-x{top:16px}
   .tlgrid3{display:grid;grid-template-columns:repeat(3,1fr);gap:11px}
   .tl3{display:flex;flex-direction:column;align-items:center;gap:9px;padding:16px 6px 15px;
@@ -1044,8 +1046,10 @@
   .bk svg{width:16px;height:16px}
   .tdot.sm{width:30px;height:30px;border-radius:999px;display:grid;place-items:center;flex:none}
   .tdot.sm svg{width:16px;height:16px}
-  .sc{background:rgba(255,255,255,.92);border:1px solid rgba(44,49,43,.06);border-radius:18px;
-    padding:13px 14px 15px;text-align:left;margin-bottom:12px}
+  .sheet.tall{background:rgba(240,240,234,.97)}
+  .sc{background:#FFFDFA;border:1px solid rgba(44,49,43,.09);border-radius:18px;
+    padding:13px 14px 15px;text-align:left;margin-bottom:12px;
+    box-shadow:0 2px 6px -3px rgba(40,55,38,.18)}
   .sc .sch{display:block;font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;
     color:var(--ink-2);margin-bottom:10px}
   .sc .sch em{font-style:normal;letter-spacing:.02em;text-transform:none;font-size:11px;
@@ -1494,25 +1498,28 @@ function wirePad(){
   c.addEventListener('pointerleave',()=>{sigCur=null});
 }
 function pickInPlace(){
-  const d=S.draft;
-  document.querySelectorAll('.kidbox .pr[data-act^="pick:"]').forEach(r=>{
-   const id=r.dataset.act.split(':')[1], on=d.everyone||d.picked.has(id);
-   r.classList.toggle('on',on);
-   const b=r.querySelector('.cb'); b.classList.toggle('on',on);
-   b.innerHTML=on?ic('check','ic sm','#FFFDFA','2.8'):'';});
-  const all=document.querySelector('.kidbox .pr[data-act="whoall"] .cb');
-  if(all){all.classList.toggle('on',d.everyone);
-   all.innerHTML=d.everyone?ic('check','ic sm','#FFFDFA','2.8'):'';}
-  const fld=document.querySelector('[data-act="who"]');
-  if(fld)fld.childNodes[0].nodeValue=d.everyone?'Whole room'
-    :(d.picked.size?`${d.picked.size} chosen`:'Choose children');
-  const em=document.querySelector('[data-act="who"] em');
+  const d=S.draft, q=s=>document.querySelectorAll?document.querySelectorAll(s):[];
+  q('.kidbox .pr[data-act^="pick:"]').forEach(r=>{
+    const id=r.dataset.act.split(':')[1], on=d.everyone||d.picked.has(id);
+    if(r.classList)r.classList.toggle('on',on);
+    const b=r.querySelector&&r.querySelector('.cb');
+    if(b&&b.classList){b.classList.toggle('on',on);b.innerHTML=on?ic('check','ic sm','#FFFDFA','2.8'):'';}
+  });
+  const all=document.querySelector&&document.querySelector('.kidbox .pr[data-act="whoall"] .cb');
+  if(all&&all.classList){all.classList.toggle('on',d.everyone);
+    all.innerHTML=d.everyone?ic('check','ic sm','#FFFDFA','2.8'):'';}
+  const fld=document.querySelector&&document.querySelector('[data-act="who"]');
+  if(fld&&fld.childNodes&&fld.childNodes[0])
+    fld.childNodes[0].nodeValue=d.everyone?'Whole room'
+      :(d.picked.size?`${d.picked.size} chosen`:'Choose children');
+  const em=document.querySelector&&document.querySelector('[data-act="who"] em');
   if(em)em.textContent=d.everyone?`${S.kids.length} children`:'';
   const n=d.everyone?S.kids.length:d.picked.size;
-  const btn=document.querySelector('.sheet .primary');
-  if(btn){btn.textContent=`Post to ${n} ${n===1?'family':'families'}`;
-   btn.classList.toggle('off',!n);btn.dataset.act=n?'asksave':'needwho';}
+  const btn=document.querySelector&&document.querySelector('.sheet .primary');
+  if(btn&&btn.classList){btn.textContent=`Post to ${n} ${n===1?'family':'families'}`;
+    btn.classList.toggle('off',!n);btn.dataset.act=n?'asksave':'needwho';}
 }
+
 
 /* ---------- routes ---------- */
 function vMyRoom(){
@@ -2346,8 +2353,29 @@ function doAct(a){
    case 'mclear': S.mscope='all';S.munread=false;refreshSheet();render(true);break;
  case 'cto': S.cto=arg;refreshSheet();break;
  case 'docompose':{closeSheet();toast(S.cto==='room'?'Sent to 19 families':S.cto==='staff'?'Sent to your room staff':'Message sent');break;}
- case 'who': S.draft.who=arg;stash();refreshSheet();break;
- case 'pick': S.draft.picked.has(arg)?S.draft.picked.delete(arg):S.draft.picked.add(arg);stash();refreshSheet();break;
+    case 'who': stash();S.draft.whoOpen=!S.draft.whoOpen;S.draft.qtyOpen=false;S.draft.clockOpen=false;refreshSheet();break;
+    case 'whoall': S.draft.everyone=!S.draft.everyone;S.draft.picked.clear();pickInPlace();break;
+    case 'showall': stash();S.draft.showAll=true;refreshSheet();break;
+    case 'showless': stash();S.draft.showAll=false;refreshSheet();break;
+    case 'meal': stash();S.draft.meal=arg;S.draft.qty='';S.draft.qtyOpen=false;refreshSheet();break;
+    case 'qtyopen': stash();S.draft.qtyOpen=!S.draft.qtyOpen;S.draft.whoOpen=false;refreshSheet();break;
+    case 'qty': stash();S.draft.qty=arg;S.draft.qtyOpen=false;refreshSheet();break;
+    case 'clock': stash();S.draft.clockOpen=!S.draft.clockOpen;S.draft.cmode='h';
+      S.draft.whoOpen=false;S.draft.qtyOpen=false;refreshSheet();break;
+    case 'clockdone': stash();S.draft.clockOpen=false;refreshSheet();break;
+    case 'cmode': S.draft.cmode=arg;repaintClock();break;
+    case 'ap': S.draft.t.ap=arg;repaintClock();break;
+    case 'clearsig':{SIG=[];S.draft.sig=false;
+      const c=document.getElementById('pad');
+      if(c)c.getContext('2d').clearRect(0,0,c.width,c.height);
+      const sh=document.querySelector('.sigh');if(sh)sh.classList.remove('gone');break;}
+    case 'pickdate': toast('The log posts to the day you are viewing');break;
+    case 'needwho': toast('Choose at least one child');break;
+    case 'pick':{const d=S.draft;
+      if(d.everyone){d.everyone=false;d.picked=new Set(S.kids.map(k=>k.id));}
+      d.picked.has(arg)?d.picked.delete(arg):d.picked.add(arg);
+      if(d.picked.size===S.kids.length){d.everyone=true;d.picked.clear();}
+      pickInPlace();break;}
  case 'needreq':{const el=document.getElementById('reqf');if(el){el.focus();}toast('That field is required');break;}
  case 'day': S.day=Math.min(0,S.day+Number(arg));S.selecting=false;S.sel.clear();render(true);break;
  case 'noop': toast('There is no register for a future day');break;
