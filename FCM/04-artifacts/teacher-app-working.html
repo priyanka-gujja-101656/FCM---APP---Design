@@ -1294,6 +1294,24 @@
   .sheet.tall .sh-kid{margin-top:2px}
   .sheet.tall .flabel{margin-top:12px}
   .sheet.tall .card.list.roomy{margin-bottom:12px}
+/* the sheet frame: header and footer hold still, the fields scroll between them */
+#sheet.formsheet{display:flex;flex-direction:column;overflow:hidden}
+#sheet.formsheet .sh-row.fixed{flex:none;padding-right:52px}
+#sheet.formsheet .sbody2{flex:1 1 auto;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;
+  padding:1px 1px 6px;margin:0 -1px}
+#sheet.formsheet .shfoot2{flex:none;padding-top:10px}
+#sheet.formsheet .shfoot2 .primary,#sheet.formsheet .shfoot2 .second{margin:0}
+/* back matches close, on the other side of the same row */
+.sheet .bk{width:40px;height:40px;border-radius:999px;background:#FFFDFA;
+  border:1.5px solid rgba(44,49,43,.22);box-shadow:0 1px 3px rgba(44,49,43,.1);
+  display:grid;place-items:center}
+.sheet .bk svg{width:19px;height:19px;stroke:#2C312B!important;stroke-width:2.3}
+.sheet .bk:active{background:rgba(44,49,43,.06)}
+/* a sent row keeps its avatar, with a small mark instead of a word */
+.av .sentmark{position:absolute;right:-3px;bottom:-2px;width:15px;height:15px;
+  background:#FFFDFA;border-radius:999px;padding:2px;box-shadow:0 0 0 1px rgba(44,49,43,.1)}
+.row .av{position:relative}
+.opts .on2 i{display:block;font-style:normal;font-size:12px;color:#6E7568;margin-top:1px}
 </style>
 <div class="stage">
  <div class="lead">
@@ -1407,7 +1425,7 @@ grid4:'<rect x="4" y="4" width="7" height="7" rx="2"/><rect x="13" y="4" width="
 people:'<circle cx="9" cy="8" r="3.2"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><circle cx="17.5" cy="9" r="2.4"/><path d="M17 20a5.6 5.6 0 0 1 4.5-5.4"/>',
 send:'<path d="M21 3 10.5 13.5M21 3l-6.8 18-3.7-7.5L3 9.8Z"/>',
 x:'<path d="M18 6 6 18M6 6l12 12"/>'};
-const ic=(k,c='ic',s='currentColor',w='1.7')=>`<svg class="${c}" viewBox="0 0 24 24" fill="none" stroke="${s}" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round">${I[k]||''}</svg>`;
+const ic=(k,c='ic',s='currentColor',w='1.7',extra='')=>`<svg class="${c}${extra?' '+extra:''}" viewBox="0 0 24 24" fill="none" stroke="${s}" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round">${I[k]||''}</svg>`;
 
 const TYPES=[
 ['observation','Observation','eye'],['food','Food','meal'],['nap','Nap','zzz'],
@@ -1625,7 +1643,7 @@ function kidList(){
     return `<div class="opt" data-act="pick:${k.id}" role="checkbox" tabindex="0" aria-checked="${on}"
      aria-label="${k.name}">
      <span class="cb${on?' on':''}">${on?ic('check','ic sm','#FFFDFA','2.8'):''}</span>
-     <span class="on2">${k.name}</span></div>`}).join('')}
+     <span class="on2">${k.name}<i>${famOf(k)}</i></span></div>`}).join('')}
    </div><span class="srail"><span class="sthumb"></span></span></div>`;
 }
 /* a grouped row: label, value, chevron. The panel sits below it, never over it. */
@@ -1889,10 +1907,12 @@ function vMessages(){
    if(!m)return -1;
    let h=+m[1]%12; if((m[3]||'').toUpperCase()==='PM')h+=12; return h*60+ +m[2];};
  const sentrows=(scope==='all'&&!S.munread&&!q)?S.sent.map(x=>({t:mins(x.t),
-   html:`<div class="row" data-act="sentitem:${x.id}">
-      <span class="av">${ic('send','ic sm','var(--ink-3)','1.8')}</span>
- <span class="rt"><b>${x.to}</b><small>${x.subject}</small></span>
-      <span class="rr"><span class="tm mute">${x.t}</span><span class="tag2">Sent</span></span></div>`})):[];
+   html:(()=>{const kid=S.kids.find(z=>z.name===x.to);
+     const par=x.parent||(kid?famOf(kid):'');
+     return `<div class="row" data-act="sentitem:${x.id}">
+      <span class="av">${ini(x.to)}${ic('send','ic sm','var(--ink-3)','1.9','sentmark')}</span>
+ <span class="rt"><b>${x.to}</b><small>${par?par+' \u00b7 ':''}\u201c${x.subject}\u201d</small></span>
+      <span class="rr"><span class="tm mute">${x.t}</span></span></div>`;})()})):[];
  rows=list.length?list.map(t=>`<div class="row" data-act="thread:${t.id}">
        <span class="av">${t.unread?'<i class="unreaddot"></i>':''}${ini(t.who)}</span>
  <span class="rt"><b>${t.who}</b><small>${t.kind==='staff'?t.role:'Parent of '+t.kid} \u00b7 \u201c${t.msgs[t.msgs.length-1].txt}\u201d</small></span>
@@ -2202,10 +2222,10 @@ const SHEETS={
   const n=d.everyone?S.kids.length:d.picked.size;
   const isFood=S.draftType==='food';
   return `<span class="grab"></span>
-   <div class="sh-row"><button class="bk" data-act="sheet:posttype" aria-label="Change the activity">${ic('left','ic sm','var(--npds-gray-700)','2.2')}</button>
+   <div class="sh-row fixed"><button class="bk" data-act="sheet:posttype" aria-label="Change the activity">${ic('left','ic sm','var(--npds-gray-700)','2.2')}</button>
     <span class="tdot sm" style="background:${f}">${ic(t.icon,'ic',i,'1.7')}</span>
     <h3 class="sh-h flat">${t.label}</h3></div>
-
+   <div class="sbody2">
    <div class="grp2">
     ${grow('who','Children',whoLabel(),d.whoOpen,false,kidList())}
     ${grow('pickdate','Date',dateStr(),d.dateOpen,false,calPop())}
@@ -2236,7 +2256,8 @@ const SHEETS={
         aria-selected="${d.vis===v}">${l}</span>`).join('')}</div></div>
    </div>
 
-   <button class="primary" data-act="asksave">Post to ${n} ${n===1?'family':'families'}</button>`;
+   </div>
+   <div class="shfoot2"><button class="primary" data-act="asksave">Post to ${n} ${n===1?'family':'families'}</button></div>`;
  },
 
  bulk(){
@@ -2390,7 +2411,8 @@ const SHEETS={
      <span class="cb${on?' on':''}">${on?ic('check','ic sm','#FFFDFA','2.8'):''}</span>
      <span class="on2">${name}${sub?`<i>${sub}</i>`:''}</span></div>`;};
   return `<span class="grab"></span>
-   <div class="sh-row"><h3 class="sh-h flat">New message</h3></div>
+   <div class="sh-row fixed"><h3 class="sh-h flat">New message</h3></div>
+   <div class="sbody2">
    <div class="grp2">
     ${grow('copen:to','To',toLabel(),c.open==='to',!c.to.size,
      `<div class="scrollwrap"><div class="opts scroll" tabindex="0" role="group"
@@ -2420,7 +2442,8 @@ const SHEETS={
         <b data-act="cdetach">${ic('x','ic sm','var(--npds-blue-700)','2.4')}</b></span>`
       :`<span class="attlink" data-act="cattach" role="button" tabindex="0">${ic('clip','ic sm','var(--npds-blue-700)','1.9')}Attach a photo</span>`}</div></div>
    </div>
-   <div class="cfoot2"><button class="second" data-act="savedraft">Save as a draft</button>
+   </div>
+   <div class="shfoot2 cfoot2"><button class="second" data-act="savedraft">Save as a draft</button>
     <button class="primary" data-act="sendmsg">${ic('send','ic','currentColor','1.8')}Send</button></div>`;
  },
  recipients(){
@@ -2453,7 +2476,13 @@ const SHEETS={
 };
 const STAFFN={osei:'Kwame Osei',joy:'Joy Adeyemi'};
 const plain=t=>t.replace(/<[^>]+>/g,'');
-const famOf=k=>{const f=FAMILIES.find(x=>x.kids.includes(k.name.split(' ')[0]));return f?f.primary:'';};
+const PGIVEN=['Dana','Marcus','Nia','Iris','Owen','Camille','Noor','Ruth','Sofia','Ken',
+ 'Elena','Paulo','Rania','Vikram','Lucia','Grant','Aoife','Devi','Anil'];
+const famOf=k=>{
+  const f=FAMILIES.find(x=>x.kids.includes(k.name.split(' ')[0]));
+  if(f)return f.primary;
+  const ix=Math.max(0,S.kids.findIndex(x=>x.id===k.id));
+  return `${PGIVEN[ix%PGIVEN.length]} ${k.name.split(' ').slice(-1)[0]}`;};
 function toLabel(){
   const t=S.compose.to;
   if(!t.size)return '<u>Choose who it goes to</u>';
@@ -2478,6 +2507,7 @@ function sheet(name,arg){
   $('#sheet').innerHTML=`<button class="sh-x" data-act="close" aria-label="Close">${ic('x','ic','var(--ink-2)','2')}</button>`+SHEETS[name]();
   $('#sheet').classList.toggle('tall',name==='log'||name==='posttype'||name==='compose'
     ||name==='pickup'||name==='bulk');
+  $('#sheet').classList.toggle('formsheet',name==='log'||name==='compose');
  $('#sheet').classList.add('on'); $('#scrim').classList.add('on');
   $('#sheet').scrollTop=0; wireDial(); wirePad(); wireScroll();
 }
@@ -2654,7 +2684,8 @@ function doAct(a){
       confirmAsk({title,
         body:n===1?'It cannot be undone.':'Each family gets their own message. It cannot be undone.',
         label:'Send',
-        act:()=>{S.sent.unshift({id:'s'+Date.now(),to:who,subject:c.subject,t:now()});
+        act:()=>{const kk=one?K(one):null;
+          S.sent.unshift({id:'s'+Date.now(),to:who,parent:kk?famOf(kk):'',subject:c.subject,t:now()});
           S.compose={to:new Set(),subject:'',body:'',att:false,open:null,showAll:false};
           closeSheet();S.mscope='all';S.munread=false;S.q='';S.searchOpen=false;
           S.tab='messages';render();
