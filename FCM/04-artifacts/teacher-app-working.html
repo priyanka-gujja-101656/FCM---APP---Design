@@ -1290,6 +1290,10 @@
   .card.list.short{max-height:calc(100vh - 430px);overflow-y:auto}
   .tag2{display:block;margin-top:3px;font-size:10.5px;font-weight:600;letter-spacing:.04em;
     text-transform:uppercase;color:#6E7568}
+  /* check in and out: start at the top, so the clock has room under the time row */
+  .sheet.tall .sh-kid{margin-top:2px}
+  .sheet.tall .flabel{margin-top:12px}
+  .sheet.tall .card.list.roomy{margin-bottom:12px}
 </style>
 <div class="stage">
  <div class="lead">
@@ -1881,15 +1885,21 @@ function vMessages(){
  }else{
     const list=S.threads.filter(t=>(scope==='all'||t.kind===scope)&&(!S.munread||t.unread)&&
  (!q||(t.who+' '+(t.kid||'')+' '+(t.role||'')+' '+t.msgs.map(m=>m.txt).join(' ')).toLowerCase().includes(q)));
- const sentrows=(scope==='all'&&!S.munread&&!q)?S.sent.map(x=>`<div class="row" data-act="sentitem:${x.id}">
+ const mins=v=>{const m=/^(\d{1,2}):(\d{2})\s*(AM|PM)?$/i.exec((v||'').trim());
+   if(!m)return -1;
+   let h=+m[1]%12; if((m[3]||'').toUpperCase()==='PM')h+=12; return h*60+ +m[2];};
+ const sentrows=(scope==='all'&&!S.munread&&!q)?S.sent.map(x=>({t:mins(x.t),
+   html:`<div class="row" data-act="sentitem:${x.id}">
       <span class="av">${ic('send','ic sm','var(--ink-3)','1.8')}</span>
  <span class="rt"><b>${x.to}</b><small>${x.subject}</small></span>
-      <span class="rr"><span class="tm mute">${x.t}</span><span class="tag2">Sent</span></span></div>`).join(''):'';
+      <span class="rr"><span class="tm mute">${x.t}</span><span class="tag2">Sent</span></span></div>`})):[];
  rows=list.length?list.map(t=>`<div class="row" data-act="thread:${t.id}">
        <span class="av">${t.unread?'<i class="unreaddot"></i>':''}${ini(t.who)}</span>
  <span class="rt"><b>${t.who}</b><small>${t.kind==='staff'?t.role:'Parent of '+t.kid} \u00b7 \u201c${t.msgs[t.msgs.length-1].txt}\u201d</small></span>
- <span class="rr"><span class="tm${t.unread?' accent':' mute'}">${t.t}</span></span></div>`).join('')+sentrows
- :(sentrows||'<div class="empty">No messages match.</div>');
+ <span class="rr"><span class="tm${t.unread?' accent':' mute'}">${t.t}</span></span></div>`)
+   .map((html,ix)=>({t:mins(list[ix].t),html}))
+   .concat(sentrows).sort((a,b)=>b.t-a.t).map(x=>x.html).join('')
+ :(sentrows.map(x=>x.html).join('')||'<div class="empty">No messages match.</div>');
  }
   const newbtn=`<button class="primary" data-act="newmsg">${ic('plus','ic','currentColor','1.9')}New message</button>`;
   const shown=scope==='drafts'?S.drafts.length:
@@ -2459,7 +2469,8 @@ function sheet(name,arg){
   if(arg!==undefined)S.arg=arg;
   openSheet=name;
   $('#sheet').innerHTML=`<button class="sh-x" data-act="close" aria-label="Close">${ic('x','ic','var(--ink-2)','2')}</button>`+SHEETS[name]();
-  $('#sheet').classList.toggle('tall',name==='log'||name==='posttype'||name==='compose');
+  $('#sheet').classList.toggle('tall',name==='log'||name==='posttype'||name==='compose'
+    ||name==='pickup'||name==='bulk');
  $('#sheet').classList.add('on'); $('#scrim').classList.add('on');
   $('#sheet').scrollTop=0; wireDial(); wirePad(); wireScroll();
 }
@@ -2629,12 +2640,16 @@ function doAct(a){
       if(!c.body.trim()){toast('Write a message first');refreshSheet();
         const e=document.getElementById('cbody');if(e)e.focus();break;}
       const n=c.to.size, who=plain(toLabel());
-      confirmAsk({title:n===1?`Send to ${who}?`:`Send to ${n} families?`,
-        body:n===1?'It cannot be unsent.':'Each one gets their own message. It cannot be unsent.',
+      const one=n===1?[...c.to][0]:null, isKid=one?!!K(one):false;
+      const title=n===1?(isKid?`Send to the ${who.split(' ').slice(-1)[0]} family?`:`Send to ${who}?`)
+        :`Send to ${n} families?`;
+      confirmAsk({title,
+        body:n===1?'It cannot be undone.':'Each family gets their own message. It cannot be undone.',
         label:'Send',
         act:()=>{S.sent.unshift({id:'s'+Date.now(),to:who,subject:c.subject,t:now()});
           S.compose={to:new Set(),subject:'',body:'',att:false,open:null,showAll:false};
-          closeSheet();S.mscope='sent';render();
+          closeSheet();S.mscope='all';S.munread=false;S.q='';S.searchOpen=false;
+          S.tab='messages';render();
           toast(n===1?`Sent to ${who}`:`Sent to ${n} families, one message each`);}});
       break;}
    case 'mclear': S.mscope='all';S.munread=false;refreshSheet();render(true);break;
@@ -2692,7 +2707,7 @@ function doAct(a){
       if(S.draftType==='food'&&!d.qty){toast('Choose a quantity first');break;}
       if(d.vis==='staff'){doAct('savelog');break;}
       confirmAsk({title:`Post to ${n} ${n===1?'family':'families'}?`,
-        body:`${t.label} will appear in their app tonight and cannot be unsent.`,
+        body:`${t.label} will appear in the parent app. It cannot be undone.`,
         label:'Post it',act:()=>doAct('savelog')});
       break;}
     case 'savelog':{stash();const t=TY[S.draftType];const d=S.draft;
