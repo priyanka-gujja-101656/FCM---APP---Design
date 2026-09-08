@@ -1190,6 +1190,34 @@
   .fx.b:focus-visible{outline:none;box-shadow:0 0 0 2px var(--npds-blue-500)}
   .sig{height:80px}
   .clockpop,.calpop{border:0;padding:0;margin:0;background:none;box-shadow:none}
+  /* ===== new message ===== */
+  .labrow{display:flex;align-items:center;justify-content:space-between;gap:10px;
+    margin:15px 0 6px;min-height:30px}
+  .labrow .lab3{margin:0}
+  .tplbtn{flex:none;display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;
+    color:var(--npds-blue-700);padding:7px 12px;border-radius:999px;background:var(--npds-blue-100);
+    cursor:pointer}
+  .tplbtn.on{background:var(--npds-blue-600);color:#FFFDFA}
+  .tplbtn.on svg{stroke:#FFFDFA!important}
+  .fx.field{padding:0 13px}
+  .fx.field input{width:100%;border:0;background:none;outline:none;font-family:inherit;
+    font-size:15px;color:var(--ink)}
+  .fx.field input::placeholder{color:var(--ink-3)}
+  .attrow{display:flex;margin:12px 0 0}
+  .attlink{display:inline-flex;align-items:center;gap:8px;font-size:13.5px;font-weight:600;
+    color:var(--npds-blue-700);padding:8px 2px;cursor:pointer}
+  .attchip{display:inline-flex;align-items:center;gap:8px;font-size:13.5px;font-weight:550;
+    color:var(--npds-blue-700);background:var(--npds-blue-100);border-radius:999px;
+    padding:8px 8px 8px 13px}
+  .attchip b{display:grid;place-items:center;width:22px;height:22px;border-radius:999px;
+    background:rgba(255,255,255,.75);cursor:pointer}
+  .attchip b svg{width:12px;height:12px}
+  .ophd{margin:10px 0 2px;font-size:10.5px;font-weight:600;letter-spacing:.09em;
+    text-transform:uppercase;color:var(--ink-3)}
+  .cfoot2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px}
+  .cfoot2 .primary,.cfoot2 .second{margin:0;width:100%}
+  .screen:has(.sheet.tall.on) #toast{top:54px;bottom:auto;transform:translate(-50%,-10px)}
+  .screen:has(.sheet.tall.on) #toast.on{transform:translate(-50%,0)}
 </style>
 <div class="stage">
  <div class="lead">
@@ -1348,7 +1376,7 @@ let S={
    t:{h:10,m:32,ap:'AM'},off:0,mOff:0,dateOpen:false,req:'',sev:'low',witness:'',internal:''},
  fopen:null, frange:'today', stack:[], openNote:new Set(), pick:null, room:'bluebell', tmark:null, day:0, childTab:'general', famTab:'general', reportView:'list', confirm:null,
 
- compose:{to:null,fwd:false,subject:'',body:''},
+ compose:{to:new Set(),subject:'',body:'',att:false,open:null,showAll:false},
  drafts:[{id:'d1',to:'Lin Family',subject:'Nap routine',body:'Hi [Family Name], a note about [Child Name] and naps…'}],
  sent:[{id:'s1',to:'All Sunflower families',subject:'Picture day Thursday',t:'Mon'}],
  incidents:[{id:'i1',child:'Hugo Baptiste',room:'Sunflower',by:'Joy Adeyemi',t:'11:40 AM',
@@ -1760,10 +1788,12 @@ function vMessages(){
  return `${topbar('Messages',unread()?`${unread()} waiting on you`:'All caught up',
  `${searchBtn()}<button class="ghost tb-inline" data-act="sheet:mfilter">Filters${((S.mscope&&S.mscope!=='all')?1:0)+(S.munread?1:0)?' ('+(((S.mscope&&S.mscope!=='all')?1:0)+(S.munread?1:0))+')':''}</button>`)}
  <div class="body pad">
-    <button class="primary" data-act="newmsg">${ic('plus','ic','currentColor','1.9')}New message</button>
+
  <div class="tabpill">${chip('all','Inbox',S.threads.length)}${chip('family','Parents',n('family'))}${chip('staff','Staff',n('staff'))}${chip('drafts','Drafts',S.drafts.length)}${chip('sent','Sent',S.sent.length)}</div>
  <div class="card list">${rows}</div>
-   </div>${dock(shown,S.threads.length,'thread','threads','Search messages')}`;
+   </div>
+   <div class="fabdock"><button class="primary" data-act="newmsg">${ic('plus','ic','currentColor','1.9')}New message</button></div>
+   ${dock(shown,S.threads.length,'thread','threads','Search messages')}`;
 }
 function vThread(){
  const t=S.threads.find(x=>x.id===S.arg);
@@ -2241,22 +2271,40 @@ const SHEETS={
  <button class="ghost" data-act="mclear">Clear all filters</button>`;
  },
  compose(){
-  const c=S.compose;
-  return `<span class="grab"></span><h3 class="sh-h">New message</h3>
-   <div class="card fieldset">
-    <div class="field" data-act="sheet:recipients"><span class="fl">To</span>
-     <span class="fv${c.to?'':' pale'}">${c.to||'Choose a recipient'} ${ic('arrow','ic sm','var(--ink-3)')}</span></div>
- <div class="field"><span class="fl">Forward to the director</span>
-     <span class="fv"><span class="sw${c.fwd?' on':''}" data-act="fwd"><i></i></span></span></div>
- </div>
-   <span class="flabel">Subject <em class="reqd">Required</em></span>
-   <div class="card ta"><textarea id="csub" rows="1" placeholder="What is this about?">${c.subject}</textarea></div>
-   <button class="second" data-act="sheet:templates">${ic('file','ic','var(--npds-gray-700)','1.8')}Start from a template</button>
- <span class="flabel">Message <em class="reqd">Required</em></span>
-   <div class="card ta tall"><textarea id="cbody" rows="4" placeholder="Write your message\u2026">${c.body}</textarea></div>
-   <div class="attach">${ic('camera','ic','var(--npds-gray-700)','1.7')}<span>Attach a photo or today\u2019s report</span></div>
- <button class="primary" data-act="sendmsg">${ic('send','ic','currentColor','1.8')}Send</button>
- <button class="ghost" data-act="savedraft">Save as a draft</button>`;
+  const c=S.compose, chev=on=>`<span class="rch${on?' up':''}">${ic('chev','ic sm','var(--npds-blue-700)','2.4')}</span>`;
+  const list=c.showAll?S.kids:S.kids.slice(0,5);
+  const line=(id,name,sub)=>{const on=c.to.has(id);
+    return `<div class="opt" data-act="cto:${id}">
+     <span class="cb${on?' on':''}">${on?ic('check','ic sm','#FFFDFA','2.8'):''}</span>
+     <span class="on2">${name}${sub?`<i>${sub}</i>`:''}</span></div>`;};
+  return `<span class="grab"></span>
+   <div class="sh-row"><h3 class="sh-h flat">New message</h3></div>
+   <div class="sc">
+    <p class="lab3">To</p>
+    <span class="fx b" data-act="copen:to" role="button" tabindex="0" aria-expanded="${c.open==='to'}"
+     aria-label="To, ${plain(toLabel())}">${toLabel()}${chev(c.open==='to')}</span>
+    ${c.open==='to'?`<div class="panel"><div class="opts">
+      ${list.map(k=>line(k.id,k.name,famOf(k))).join('')}
+      <div class="opt more" data-act="${c.showAll?'cless':'cmore'}">${c.showAll?'Show fewer':`Show all ${S.kids.length} children`}</div>
+      <p class="ophd">Staff</p>
+      ${line('osei','Kwame Osei','Director')}${line('joy','Joy Adeyemi','Assistant Teacher')}
+     </div></div>`:''}
+    <div class="labrow"><p class="lab3">Subject</p>
+     <span class="tplbtn${c.open==='tpl'?' on':''}" data-act="copen:tpl">${ic('file','ic sm','currentColor','1.8')}Template</span></div>
+    <span class="fx b field"><input id="csub" placeholder="What is this about?" value="${(c.subject||'').replace(/"/g,'&quot;')}"></span>
+    ${c.open==='tpl'?`<div class="panel"><div class="opts">${TEMPLATES.map(t=>`
+      <div class="opt" data-act="usetpl:${t.id}"><span class="on2">${t.name}</span>
+       ${ic('chev','ic sm','var(--ink-3)','2.2')}</div>`).join('')}</div></div>`:''}
+   </div>
+   <div class="sc">
+    <p class="lab3">Message</p>
+    <div class="ta3 b"><textarea id="cbody" rows="9" placeholder="Write your message">${c.body||''}</textarea></div>
+    ${c.att?`<div class="attrow"><span class="attchip">${ic('clip','ic sm','var(--npds-blue-700)','1.9')}Today’s photo
+      <b data-act="cdetach">${ic('x','ic sm','var(--npds-blue-700)','2.4')}</b></span></div>`
+     :`<div class="attrow"><span class="attlink" data-act="cattach">${ic('clip','ic sm','var(--npds-blue-700)','1.9')}Attach a photo</span></div>`}
+   </div>
+   <div class="cfoot2"><button class="second" data-act="savedraft">Save as a draft</button>
+    <button class="primary" data-act="sendmsg">${ic('send','ic','currentColor','1.8')}Send</button></div>`;
  },
  recipients(){
   const q='';
@@ -2286,6 +2334,15 @@ const SHEETS={
  }
 
 };
+const STAFFN={osei:'Kwame Osei',joy:'Joy Adeyemi'};
+const plain=t=>t.replace(/<[^>]+>/g,'');
+const famOf=k=>{const f=FAMILIES.find(x=>x.kids.includes(k.name.split(' ')[0]));return f?f.primary:'';};
+function toLabel(){
+  const t=S.compose.to;
+  if(!t.size)return '<u>Choose who it goes to</u>';
+  if(t.size===1){const id=[...t][0], k=K(id); return k?k.name:(STAFFN[id]||'1 selected');}
+  return `${t.size} selected`;
+}
 function stashCompose(){
  const g=id=>document.getElementById(id);
   const a=g('csub'),b=g('cbody');
@@ -2302,7 +2359,7 @@ function sheet(name,arg){
   if(arg!==undefined)S.arg=arg;
   openSheet=name;
   $('#sheet').innerHTML=`<button class="sh-x" data-act="close" aria-label="Close">${ic('x','ic','var(--ink-2)','2')}</button>`+SHEETS[name]();
-  $('#sheet').classList.toggle('tall',name==='log'||name==='posttype');
+  $('#sheet').classList.toggle('tall',name==='log'||name==='posttype'||name==='compose');
  $('#sheet').classList.add('on'); $('#scrim').classList.add('on');
   $('#sheet').scrollTop=0; wireDial(); wirePad();
 }
@@ -2438,35 +2495,44 @@ function doAct(a){
     case 'frange': S.frange=arg;S.fopen=null;refreshSheet();render(true);break;
    case 'mscope': S.mscope=arg;if(openSheet)refreshSheet();render(true);break;
  case 'munread': S.munread=(arg==='unread');if(openSheet)refreshSheet();render(true);break;
- case 'newmsg': S.compose={to:null,fwd:false,subject:'',body:''};sheet('compose');break;
- case 'setto': S.compose.to=arg;sheet('compose');break;
- case 'fwd': stashCompose();S.compose.fwd=!S.compose.fwd;refreshSheet();break;
- case 'usetpl':{stashCompose();const t=TEMPLATES.find(x=>x.id===arg);
- const fam=S.compose.to||'there';
- const kidName=(FAMILIES.find(f=>f.name===S.compose.to)?.kids[0])||'your child';
- S.compose.subject=S.compose.subject||t.name;
-     S.compose.body=t.body.replace(/\[Family Name\]/g,fam.replace(' Family','')).replace(/\[Child Name\]/g,kidName).replace(/\[Time\]/g,'5:30 PM');
- sheet('compose');toast('Template filled in');break;}
+ case 'newmsg': S.compose={to:new Set(),subject:'',body:'',att:false,open:null,showAll:false};sheet('compose');break;
+    case 'copen': stashCompose();S.compose.open=S.compose.open===arg?null:arg;refreshSheet();break;
+    case 'cto': stashCompose();S.compose.to.has(arg)?S.compose.to.delete(arg):S.compose.to.add(arg);refreshSheet();break;
+    case 'cmore': stashCompose();S.compose.showAll=true;refreshSheet();break;
+    case 'cless': stashCompose();S.compose.showAll=false;refreshSheet();break;
+    case 'cattach': stashCompose();S.compose.att=true;S.compose.open=null;refreshSheet();break;
+    case 'cdetach': stashCompose();S.compose.att=false;refreshSheet();break;
+    case 'usetpl':{stashCompose();const t=TEMPLATES.find(x=>x.id===arg);
+      const ids=[...S.compose.to], one=ids.length===1?K(ids[0]):null;
+      const kidName=one?one.name.split(' ')[0]:'your child';
+      const fam=one?(famOf(one)||'there'):'there';
+      S.compose.subject=S.compose.subject||t.name;
+      S.compose.body=t.body.replace(/\[Family Name\]/g,fam).replace(/\[Child Name\]/g,kidName).replace(/\[Time\]/g,'5:30 PM');
+      S.compose.open=null;refreshSheet();toast(`${t.name} written in`);break;}
  case 'tplsoon': toast('Template editing is not in this prototype');break;
  case 'opendraft':{const d=S.drafts.find(x=>x.id===arg);
- S.compose={to:d.to,fwd:false,subject:d.subject,body:d.body};sheet('compose');break;}
+      S.compose={to:new Set(),subject:d.subject,body:d.body,att:false,open:null,showAll:false};sheet('compose');break;}
  case 'sentitem': toast('Sent messages open read-only');break;
- case 'savedraft':{stashCompose();const c=S.compose;
- if(!c.to&&!c.subject&&!c.body){toast('Nothing to save yet');break;}
- S.drafts.unshift({id:'d'+Date.now(),to:c.to||'No recipient',subject:c.subject||'No subject',body:c.body||''});
- closeSheet();S.mscope='drafts';render();toast('Saved to drafts');break;}
- case 'sendmsg':{stashCompose();const c=S.compose;
- if(!c.to){toast('Choose a recipient first');break;}
- if(!c.subject.trim()){toast('Add a subject');const e=document.getElementById('csub');if(e)e.focus();break;}
- if(!c.body.trim()){toast('Write your message');const e=document.getElementById('cbody');if(e)e.focus();break;}
- const many=c.to==='All '+ROOM+' families';
- confirmAsk({title:many?`Send to ${S.kids.length} families?`:`Send to ${c.to}?`,
-       body:many?'Each family gets its own private thread. It cannot be unsent.':'It cannot be unsent.',
- label:'Send',
- act:()=>{S.sent.unshift({id:'s'+Date.now(),to:c.to,subject:c.subject,t:now()});
- S.compose={to:null,fwd:false,subject:'',body:''};closeSheet();S.mscope='sent';render();
- toast(c.fwd?'Sent \u00b7 director copied':'Message sent');}});
- break;}
+    case 'savedraft':{stashCompose();const c=S.compose;
+      if(!c.to.size&&!c.subject&&!c.body){toast('Nothing to save yet');break;}
+      S.drafts.unshift({id:'d'+Date.now(),to:c.to.size?plain(toLabel()):'No recipient',
+        subject:c.subject||'No subject',body:c.body||''});
+      closeSheet();S.mscope='drafts';render();toast('Saved to drafts');break;}
+    case 'sendmsg':{stashCompose();const c=S.compose;
+      if(!c.to.size){toast('Choose who it goes to first');c.open='to';refreshSheet();break;}
+      if(!c.subject.trim()){toast('A subject is needed');refreshSheet();
+        const e=document.getElementById('csub');if(e)e.focus();break;}
+      if(!c.body.trim()){toast('Write a message first');refreshSheet();
+        const e=document.getElementById('cbody');if(e)e.focus();break;}
+      const n=c.to.size, who=plain(toLabel());
+      confirmAsk({title:n===1?`Send to ${who}?`:`Send to ${n} families?`,
+        body:n===1?'It cannot be unsent.':'Each one gets their own message. It cannot be unsent.',
+        label:'Send',
+        act:()=>{S.sent.unshift({id:'s'+Date.now(),to:who,subject:c.subject,t:now()});
+          S.compose={to:new Set(),subject:'',body:'',att:false,open:null,showAll:false};
+          closeSheet();S.mscope='sent';render();
+          toast(n===1?`Sent to ${who}`:`Sent to ${n} families, one message each`);}});
+      break;}
    case 'mclear': S.mscope='all';S.munread=false;refreshSheet();render(true);break;
  case 'cto': S.cto=arg;refreshSheet();break;
  case 'docompose':{closeSheet();toast(S.cto==='room'?'Sent to 19 families':S.cto==='staff'?'Sent to your room staff':'Message sent');break;}
@@ -2538,7 +2604,7 @@ function doAct(a){
       toast(`${t.label} posted to ${n} ${n===1?'family':'families'}`);
       break;}
  case 'exportpdf': toast('PDF exported to your downloads');break;
- case 'msgfam':{S.compose={to:arg,fwd:false,subject:'',body:''};sheet('compose');break;}
+    case 'msgfam':{S.compose={to:new Set(),subject:'',body:'',att:false,open:null,showAll:false};sheet('compose');break;}
  case 'famsoon': case 'addmember': case 'soon': toast('Not in this prototype');break;
  case 'asksignout': confirmAsk({title:'Sign out?',
  body:'Anything you have not posted will be lost.',label:'Sign out',
