@@ -1025,6 +1025,117 @@
   .fabdock .primary{margin:0;width:100%;background:rgba(255,253,250,.97);
     backdrop-filter:blur(22px) saturate(1.05);-webkit-backdrop-filter:blur(22px) saturate(1.05);
     box-shadow:0 18px 34px -16px rgba(40,55,38,.55),0 2px 8px -2px rgba(40,55,38,.25)}
+
+  /* ===== post an activity ===== */
+  .sheet.tall{max-height:calc(100% - 42px);padding-bottom:34px}
+  .sheet.tall .sh-x{top:16px}
+  .tlgrid3{display:grid;grid-template-columns:repeat(3,1fr);gap:11px}
+  .tl3{display:flex;flex-direction:column;align-items:center;gap:9px;padding:16px 6px 15px;
+    border-radius:20px;background:rgba(255,255,255,.9);border:1px solid rgba(44,49,43,.07);
+    cursor:pointer;transition:transform .12s ease}
+  .tl3:active{transform:scale(.97)}
+  .tl3 b{font-size:12.5px;font-weight:500;color:var(--ink-2);text-align:center;line-height:1.25}
+  .tli3{width:52px;height:52px;border-radius:999px;display:grid;place-items:center}
+  .tli3 svg{width:25px;height:25px}
+  .sh-row{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+  .sh-h.flat{margin:0;flex:1}
+  .bk{flex:none;width:32px;height:32px;border:0;border-radius:999px;background:rgba(44,49,43,.06);
+    display:grid;place-items:center;padding:0;cursor:pointer}
+  .bk svg{width:16px;height:16px}
+  .tdot.sm{width:30px;height:30px;border-radius:999px;display:grid;place-items:center;flex:none}
+  .tdot.sm svg{width:16px;height:16px}
+  .sc{background:rgba(255,255,255,.92);border:1px solid rgba(44,49,43,.06);border-radius:18px;
+    padding:13px 14px 15px;text-align:left;margin-bottom:12px}
+  .sc .sch{display:block;font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;
+    color:var(--ink-2);margin-bottom:10px}
+  .sc .sch em{font-style:normal;letter-spacing:.02em;text-transform:none;font-size:11px;
+    font-weight:500;color:var(--ink-3);margin-left:5px}
+  .fx{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:46px;
+    font-size:15px;color:var(--ink);cursor:pointer;font-variant-numeric:tabular-nums;
+    transition:border-color .14s ease}
+  .fx em{font-style:normal;font-size:13px;color:var(--ink-3);margin-left:7px;flex:1}
+  .fx u{text-decoration:none;color:var(--ink-3)}
+  .fx.b{padding:0 13px;border-radius:12px;background:#fff;border:1px solid rgba(44,49,43,.13)}
+  .fx.b.live{border-color:var(--npds-blue-500)}
+  .fx.open{border-color:var(--npds-blue-500);border-radius:12px 12px 0 0}
+  .cv{display:grid;place-items:center}
+  .cv svg{transform:rotate(90deg)}
+  .cv.up svg{transform:rotate(-90deg)}
+  .lb{display:flex;flex-direction:column;gap:6px}
+  .lb.gap{margin-top:18px}
+  .lb i{font-style:normal;font-size:12.5px;color:var(--ink-2);font-weight:500}
+  .ff2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .kidbox{border:1px solid var(--npds-blue-500);border-top:0;border-radius:0 0 12px 12px;
+    background:#fff;padding:2px 12px 6px;margin-top:-1px;max-height:250px;overflow:auto;
+    scrollbar-width:none;animation:pop .18s ease}
+  .kidbox::-webkit-scrollbar{display:none}
+  .kidbox.opts{max-height:224px}
+  .kidbox .pr{display:flex;align-items:center;gap:12px;padding:12px 0;cursor:pointer;
+    border-bottom:1px solid var(--line);background:none;border-radius:0;box-shadow:none}
+  .kidbox .pr:last-child{border-bottom:0}
+  .pn{flex:1;font-size:15px;font-weight:450;color:var(--ink)}
+  .pn i{font-style:normal;font-size:13px;color:var(--ink-3);margin-left:7px}
+  .kidbox .pr.on .pn{font-weight:600}
+  .kidbox .pr.more{font-size:13.5px;font-weight:600;color:var(--npds-blue-700);padding:12px 0 8px}
+  .kidbox .pr.opt.on .pn{color:var(--npds-blue-700);font-weight:600}
+  .cb{width:21px;height:21px;border-radius:6px;flex:none;display:grid;place-items:center;
+    box-shadow:inset 0 0 0 1.5px rgba(44,49,43,.24);background:#fff}
+  .cb.on{background:var(--npds-blue-600);box-shadow:none}
+  .cb svg{width:13px;height:13px}
+  .chiprow{display:flex;flex-wrap:wrap;gap:8px}
+  .chp{display:inline-flex;align-items:center;min-height:42px;padding:0 17px;border-radius:999px;
+    font-size:14.5px;color:var(--ink-2);cursor:pointer;background:#fff;
+    box-shadow:inset 0 0 0 1px rgba(44,49,43,.13)}
+  .chp.on{color:var(--npds-blue-700);font-weight:600;background:var(--npds-blue-100);
+    box-shadow:inset 0 0 0 1.5px var(--npds-blue-500)}
+  .segpill{display:grid;grid-template-columns:repeat(3,1fr);gap:3px;padding:4px;border-radius:14px;
+    background:rgba(44,49,43,.055)}
+  .segpill .sgp{display:flex;align-items:center;justify-content:center;min-height:40px;
+    border-radius:11px;font-size:13px;color:var(--ink-2);cursor:pointer;text-align:center;
+    padding:0 5px;line-height:1.2}
+  .segpill .sgp.on{background:#fff;color:var(--npds-blue-700);font-weight:600;
+    box-shadow:0 1px 3px rgba(40,55,38,.16)}
+  .ta3.b{padding:11px 13px;border-radius:12px;background:#fff;border:1px solid rgba(44,49,43,.13)}
+  .ta3 textarea{width:100%;border:0;background:none;outline:none;resize:none;font-family:inherit;
+    font-size:15px;line-height:1.5;color:var(--ink)}
+  .ta3 textarea::placeholder{color:var(--ink-3)}
+  .sig{position:relative;height:84px;border-radius:12px;border:1px dashed rgba(44,49,43,.2);
+    background:#fff;overflow:hidden}
+  .sig canvas{position:absolute;inset:0;width:100%;height:100%;touch-action:none;cursor:crosshair}
+  .sigl{position:absolute;left:12px;bottom:7px;font-size:11px;color:var(--ink-3);pointer-events:none}
+  .sigh{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;gap:7px;
+    font-size:13.5px;color:var(--ink-3);pointer-events:none}
+  .sigh.gone{opacity:0}
+  .sigc{position:absolute;top:7px;right:9px;border:0;background:rgba(44,49,43,.06);
+    border-radius:999px;font-family:inherit;font-size:11.5px;font-weight:600;color:var(--ink-2);
+    padding:5px 11px;cursor:pointer}
+  .hint2{margin:8px 2px 0;font-size:11.5px;color:var(--ink-3)}
+  .clockpop{margin-top:12px;background:#fff;border:1px solid rgba(44,49,43,.13);border-radius:18px;
+    padding:12px;animation:pop .18s ease}
+  .cread{display:flex;align-items:center;gap:3px;justify-content:center;margin-bottom:8px;
+    font-variant-numeric:tabular-nums}
+  .cread b{font-size:24px;font-weight:500;color:var(--ink-3);padding:3px 9px;border-radius:9px;
+    cursor:pointer}
+  .cread b.on{color:var(--npds-blue-700);background:var(--npds-blue-100)}
+  .cread span{font-size:22px;color:var(--ink-3)}
+  .apw{display:flex;gap:3px;margin-left:10px;padding:3px;border-radius:11px;background:rgba(44,49,43,.055)}
+  .apw i{font-style:normal;font-size:12.5px;font-weight:600;color:var(--ink-3);padding:6px 10px;
+    border-radius:8px;cursor:pointer}
+  .apw i.on{background:#fff;color:var(--npds-blue-700);box-shadow:0 1px 2px rgba(40,55,38,.14)}
+  #dial{width:100%;max-width:246px;display:block;margin:0 auto;touch-action:none;cursor:pointer}
+  #dial .face{fill:rgba(44,49,43,.035);stroke:none}
+  #dial .tk{stroke:rgba(44,49,43,.18);stroke-width:1}
+  #dial .tk.big{stroke:rgba(44,49,43,.32);stroke-width:1.6}
+  #dial .cn circle{fill:transparent}
+  #dial .cn text{font-family:Inter,sans-serif;font-size:15px;font-weight:500;fill:var(--ink-2);
+    text-anchor:middle}
+  #dial .cn.on circle{fill:var(--npds-blue-600)}
+  #dial .cn.on text{fill:#FFFDFA;font-weight:600}
+  #dial .hh{stroke:var(--ink);stroke-width:5;stroke-linecap:round}
+  #dial .mh{stroke:var(--npds-blue-600);stroke-width:3;stroke-linecap:round}
+  #dial .pin{fill:var(--npds-blue-600)}
+  .cfoot{display:flex;justify-content:flex-end;margin-top:6px}
+  .cfoot .mini.lbl{min-height:34px;padding:0 16px;font-size:13px}
 </style>
 <div class="stage">
  <div class="lead">
@@ -1141,11 +1252,10 @@ x:'<path d="M18 6 6 18M6 6l12 12"/>'};
 const ic=(k,c='ic',s='currentColor',w='1.7')=>`<svg class="${c}" viewBox="0 0 24 24" fill="none" stroke="${s}" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round">${I[k]||''}</svg>`;
 
 const TYPES=[
-['arrival','Arrival','in'],['food','Food','meal'],['bottle','Bottle','bottle'],['nap','Nap','zzz'],
-['toilet','Toilet','diaper'],['outdoor','Outdoor','sun'],['learning','Learning','book'],['art','Art','art'],
-['observation','Observation','eye'],['kudos','Kudos','star'],['mood','Mood','smile'],['behavior','Behavior','flag'],
-['medication','Medication','pill'],['incident','Incident','alert'],['accident','Accident','bandage'],
-['note','Note','doc'],['photo','Photo','camera']];
+['observation','Observation','eye'],['food','Food','meal'],['nap','Nap','zzz'],
+['toilet','Toilet','diaper'],['note','Note','doc'],['kudos','Kudos','star'],
+['medication','Medication','pill'],['behavior','Behavior','flag'],['mood','Mood','smile'],
+['accident','Accident','bandage'],['incident','Incident','alert'],['photo','Photo / Video','camera']];
 const TY=Object.fromEntries(TYPES.map(t=>[t[0],{label:t[1],icon:t[2]}]));
 
 const ROOM='Sunflower';
@@ -1179,7 +1289,9 @@ const REQUIRED={"meal": "What was served", "bottle": "Amount taken", "nap": "Sta
 let S={
  tab:'myroom', sub:null, arg:null,
  selecting:false, searchOpen:false, dir:'in', sel:new Set(), q:'', filters:new Set(), draftType:null,
- draft:{who:'all',picked:new Set(),req:'',det:'',time:null,vis:'parents',internal:'',sev:'low',witness:''},
+ draft:{everyone:true,picked:new Set(),whoOpen:false,showAll:false,meal:'Lunch',qty:'',
+   qtyOpen:false,det:'',vis:'both',sig:false,clockOpen:false,cmode:'h',
+   t:{h:10,m:32,ap:'AM'},date:'Today',req:'',sev:'low',witness:'',internal:''},
  stack:[], openNote:new Set(), pick:null, room:'bluebell', tmark:null, day:0, childTab:'general', famTab:'general', reportView:'list', confirm:null,
 
  compose:{to:null,fwd:false,subject:'',body:''},
@@ -1294,6 +1406,113 @@ const homehead=()=>`<div class="head"><div class="room">
  <span class="glyph">${ic('sun','ic sm','var(--present)','1.6')}</span>
  <span><span class="room-name">Sunflower Room</span><span class="room-sub">Toddlers · Tara Rivera</span></span></div>
   <span class="hh-right">${searchBtn()}<span class="avatar">TR</span></span></div>`;
+
+
+/* ---------- post an activity: helpers ---------- */
+const MEALS=['Breakfast','Lunch','Snack','Bottle'];
+const OZ=['0.5 oz','1 oz','1.5 oz','2 oz','2.5 oz','3 oz','3.5 oz','4 oz','4.5 oz','5 oz',
+ '5.5 oz','6 oz','6.5 oz','7 oz','7.5 oz','8 oz'];
+const AMT=['Full','1/2','1/4','None'];
+const qtySet=()=>S.draft.meal==='Bottle'?OZ:AMT;
+const t2=n=>String(n).padStart(2,'0');
+const timeStr=()=>{const t=S.draft.t;return `${t.h}:${t2(t.m)} ${t.ap}`;};
+function whoField(){
+  const d=S.draft, all=S.kids.length;
+  const lbl=d.everyone?'Whole room':(d.picked.size?`${d.picked.size} chosen`:'Choose children');
+  const list=d.showAll?S.kids:S.kids.slice(0,4);
+  return `<span class="fx b${d.whoOpen?' open':''}" data-act="who">${lbl}
+   ${d.everyone?`<em>${all} children</em>`:''}
+   <i class="cv${d.whoOpen?' up':''}">${ic('chev','ic sm','var(--ink-3)','2.2')}</i></span>
+   ${d.whoOpen?`<div class="kidbox">
+    <div class="pr" data-act="whoall"><span class="cb${d.everyone?' on':''}">${d.everyone?ic('check','ic sm','#FFFDFA','2.8'):''}</span>
+     <span class="pn">Whole room <i>${all} children</i></span></div>
+    ${list.map(k=>{const on=d.everyone||d.picked.has(k.id);
+     return `<div class="pr${on?' on':''}" data-act="pick:${k.id}">
+      <span class="cb${on?' on':''}">${on?ic('check','ic sm','#FFFDFA','2.8'):''}</span>
+      <span class="pn">${k.name}</span></div>`}).join('')}
+    ${d.showAll?'<div class="pr more" data-act="showless">Show fewer</div>'
+      :`<div class="pr more" data-act="showall">Show all ${all}</div>`}</div>`:''}`;
+}
+function clockPop(){
+  const d=S.draft, T=d.t;
+  const ha=(T.h%12)*30+T.m*0.5, ma=T.m*6;
+  const num=[...Array(12)].map((_,x)=>{const n=x+1,a=(n*30-90)*Math.PI/180;
+   const px=120+Math.cos(a)*84, py=120+Math.sin(a)*84;
+   const on=(T.h%12||12)===n;
+   return `<g class="cn${on?' on':''}"><circle cx="${px}" cy="${py}" r="17"/>
+    <text x="${px}" y="${py+6}">${n}</text></g>`}).join('');
+  const tick=[...Array(60)].map((_,x)=>{const a=(x*6-90)*Math.PI/180, r1=x%5?104:100;
+   return `<line class="tk${x%5?'':' big'}" x1="${120+Math.cos(a)*r1}" y1="${120+Math.sin(a)*r1}"
+    x2="${120+Math.cos(a)*108}" y2="${120+Math.sin(a)*108}"/>`}).join('');
+  return `<div class="clockpop">
+   <div class="cread"><b class="${d.cmode==='h'?'on':''}" data-act="cmode:h">${T.h}</b><span>:</span>
+    <b class="${d.cmode==='m'?'on':''}" data-act="cmode:m">${t2(T.m)}</b>
+    <span class="apw"><i class="${T.ap==='AM'?'on':''}" data-act="ap:AM">AM</i>
+     <i class="${T.ap==='PM'?'on':''}" data-act="ap:PM">PM</i></span></div>
+   <svg id="dial" viewBox="0 0 240 240">
+    <circle class="face" cx="120" cy="120" r="112"/>${tick}${num}
+    <line class="hh" x1="120" y1="120" x2="${120+Math.cos((ha-90)*Math.PI/180)*54}"
+     y2="${120+Math.sin((ha-90)*Math.PI/180)*54}"/>
+    <line class="mh" x1="120" y1="120" x2="${120+Math.cos((ma-90)*Math.PI/180)*82}"
+     y2="${120+Math.sin((ma-90)*Math.PI/180)*82}"/>
+    <circle class="pin" cx="120" cy="120" r="5"/></svg>
+   <div class="cfoot"><button class="mini lbl sec" data-act="clockdone">Done</button></div></div>`;
+}
+let SIG=[],sigCur=null;
+function wireDial(){
+  const dl=document.getElementById('dial'); if(!dl)return;
+  const set=e=>{const r=dl.getBoundingClientRect();
+   const x=e.clientX-r.left-r.width/2, y=e.clientY-r.top-r.height/2;
+   let a=Math.atan2(y,x)*180/Math.PI+90; if(a<0)a+=360;
+   if(S.draft.cmode==='h'){const h=Math.round(a/30)%12;S.draft.t.h=h===0?12:h;}
+   else S.draft.t.m=Math.round(a/6)%60;
+   repaintClock();};
+  let down=false;
+  dl.addEventListener('pointerdown',e=>{down=true;dl.setPointerCapture(e.pointerId);set(e)});
+  dl.addEventListener('pointermove',e=>{if(down)set(e)});
+  dl.addEventListener('pointerup',()=>{down=false;
+   if(S.draft.cmode==='h'){S.draft.cmode='m';repaintClock();}});
+}
+function repaintClock(){
+  const w=document.querySelector('.clockpop'); if(!w)return;
+  w.outerHTML=clockPop(); wireDial();
+  const fld=document.querySelector('[data-act="clock"]');
+  if(fld)fld.childNodes[0].nodeValue=timeStr();
+}
+function wirePad(){
+  const c=document.getElementById('pad'); if(!c)return;
+  const ctx=c.getContext('2d'); ctx.lineWidth=3.2; ctx.lineCap='round'; ctx.strokeStyle='#2C312B';
+  SIG.forEach(st=>{for(let i=1;i<st.length;i++){ctx.beginPath();
+   ctx.moveTo(st[i-1][0],st[i-1][1]);ctx.lineTo(st[i][0],st[i][1]);ctx.stroke();}});
+  const pos=e=>{const r=c.getBoundingClientRect();
+   return [(e.clientX-r.left)*c.width/r.width,(e.clientY-r.top)*c.height/r.height]};
+  c.addEventListener('pointerdown',e=>{c.setPointerCapture(e.pointerId);sigCur=[pos(e)];SIG.push(sigCur);
+   S.draft.sig=true;const h=document.querySelector('.sigh');if(h)h.classList.add('gone')});
+  c.addEventListener('pointermove',e=>{if(!sigCur)return;const q=sigCur[sigCur.length-1],pt=pos(e);
+   ctx.beginPath();ctx.moveTo(q[0],q[1]);ctx.lineTo(pt[0],pt[1]);ctx.stroke();sigCur.push(pt)});
+  c.addEventListener('pointerup',()=>{sigCur=null});
+  c.addEventListener('pointerleave',()=>{sigCur=null});
+}
+function pickInPlace(){
+  const d=S.draft;
+  document.querySelectorAll('.kidbox .pr[data-act^="pick:"]').forEach(r=>{
+   const id=r.dataset.act.split(':')[1], on=d.everyone||d.picked.has(id);
+   r.classList.toggle('on',on);
+   const b=r.querySelector('.cb'); b.classList.toggle('on',on);
+   b.innerHTML=on?ic('check','ic sm','#FFFDFA','2.8'):'';});
+  const all=document.querySelector('.kidbox .pr[data-act="whoall"] .cb');
+  if(all){all.classList.toggle('on',d.everyone);
+   all.innerHTML=d.everyone?ic('check','ic sm','#FFFDFA','2.8'):'';}
+  const fld=document.querySelector('[data-act="who"]');
+  if(fld)fld.childNodes[0].nodeValue=d.everyone?'Whole room'
+    :(d.picked.size?`${d.picked.size} chosen`:'Choose children');
+  const em=document.querySelector('[data-act="who"] em');
+  if(em)em.textContent=d.everyone?`${S.kids.length} children`:'';
+  const n=d.everyone?S.kids.length:d.picked.size;
+  const btn=document.querySelector('.sheet .primary');
+  if(btn){btn.textContent=`Post to ${n} ${n===1?'family':'families'}`;
+   btn.classList.toggle('off',!n);btn.dataset.act=n?'asksave':'needwho';}
+}
 
 /* ---------- routes ---------- */
 function vMyRoom(){
@@ -1733,63 +1952,45 @@ const SHEETS={
  <button class="second" data-act="bulkfrom">${ic('listCheck','ic','var(--npds-gray-700)','1.8')}Bulk check in / out</button>`;
  },
  posttype(){
- return `<span class="grab"></span><h3 class="sh-h">Post an activity</h3>
-   <div class="tiles sheet-tiles">${TYPES.map(t=>tile(t)).join('')}</div>`;
+  return `<span class="grab"></span><h3 class="sh-h">Post an activity</h3>
+   <div class="tlgrid3">${TYPES.map(t=>{const[f,i]=pal(t[0]);
+    return `<span class="tl3" data-act="type:${t[0]}">
+     <i class="tli3" style="background:${f}">${ic(t[2],'ic',i,'1.6')}</i><b>${t[1]}</b></span>`}).join('')}</div>`;
  },
  log(){
- const t=TY[S.draftType], d=S.draft;
-  const req=REQUIRED[S.draftType]||null;
-  const risky=(S.draftType==='incident'||S.draftType==='accident');
- const who = d.who==='all' ? `Whole room · ${cnt('here')} children here` : `${d.picked.size} ${d.picked.size===1?'child':'children'} chosen`;
- const ready=(!req||(d.req||'').trim().length>0)&&(d.who==='all'||d.picked.size>0);
- const vb=(id,lbl,sub)=>`<div class="opt${d.vis===id?' on':''}" data-act="vis:${id}">
- <span class="cbx sq${d.vis===id?' on':''}">${d.vis===id?ic('check','ic sm','#fff','2.6'):''}</span>
- <span class="rt"><b>${lbl}</b><small>${sub}</small></span></div>`;
+  const d=S.draft, t=TY[S.draftType], [f,i]=pal(S.draftType);
+  const n=d.everyone?S.kids.length:d.picked.size;
+  const isFood=S.draftType==='food';
   return `<span class="grab"></span>
-   <h3 class="sh-h">${t.label}</h3>
-   <span class="flabel">Activity</span>
-   <div class="chips wrapc">${TYPES.map(x=>`<span class="ch${x[0]===S.draftType?' on':''}" data-act="type:${x[0]}">${x[1]}</span>`).join('')}</div>
-
- <span class="flabel">Children ${d.who==='some'&&!d.picked.size?'<em class="reqd">Pick at least one</em>':''}</span>
- <div class="seg two"><span class="sg${d.who==='all'?' on':''}" data-act="who:all">Whole room</span><span class="sg${d.who==='some'?' on':''}" data-act="who:some">Choose children</span></div>
- ${d.who==='some'?`<div class="card list roomy pick">${S.kids.filter(k=>k.status==='here').map(k=>`
- <div class="row" data-act="pick:${k.id}">
-      <span class="cbx sq${d.picked.has(k.id)?' on':''}">${d.picked.has(k.id)?ic('check','ic sm','#fff','2.6'):''}</span>
- <span class="av">${dotFor(k.status)}${ini(k.name)}</span>
-      <span class="rt"><b>${k.name}</b>${k.allergy?'<small>Peanut allergy</small>':''}</span></div>`).join('')}</div>`
- :`<p class="sh-note">${who} only children in ${ROOM} Room.</p>`}
-
-   <div class="card fieldset">
-    <div class="field"><span class="fl">Date</span><span class="fv">${dayLabel(0).replace('Today · ','')}</span></div>
- <div class="field"><span class="fl">Time</span><span class="fv">${d.time||now()} ${ic('clock','ic sm','var(--ink-3)')}</span></div>
- </div>
-
-   ${risky?`<span class="flabel">Severity</span>
-     <div class="seg"><span class="sg${d.sev==='low'?' on':''}" data-act="sev:low">Low</span>
- <span class="sg${d.sev==='medium'?' on':''}" data-act="sev:medium">Medium</span>
- <span class="sg${d.sev==='high'?' on':''}" data-act="sev:high">High</span></div>`:''}
-
- ${req?`<span class="flabel">${req} <em class="reqd">Required</em></span>
-     <div class="card ta"><textarea id="reqf" rows="2" placeholder="${req}\u2026">${d.req||''}</textarea></div>`:''}
-
- <span class="flabel">Details <em class="optl">Optional \u00b7 families read this</em></span>
-   <div class="card ta"><textarea id="det" rows="2" placeholder="What happened? Be specific.">${d.det||''}</textarea></div>
-
- ${risky?`<span class="flabel">Witness <em class="optl">Optional</em></span>
-     <div class="card ta"><textarea id="wit" rows="1" placeholder="Who else saw it?">${d.witness||''}</textarea></div>`:''}
-
- <span class="flabel">Staff note <em class="optl">Never sent to families</em></span>
-   <div class="card ta int"><textarea id="intn" rows="2" placeholder="Context for the team only.">${d.internal||''}</textarea></div>
-
- <div class="attach">${ic('camera','ic','var(--npds-gray-700)','1.7')}<span>Attach a photo</span></div>
-
- <span class="flabel">Who can see this</span>
-   <div class="card list roomy">${vb('parents','Families and staff','The family sees it in their app tonight')}${vb('staff','Staff only','Stays inside the room team')}${vb('both','Families, staff and the director','Escalates use for incidents')}</div>
-
- <button class="primary${ready?'':' off'}" data-act="${ready?'asksave':'needreq'}">${ic('check','ic','currentColor','1.8')}Post ${t.label.toLowerCase()}</button>`;
+   <div class="sh-row"><button class="bk" data-act="sheet:posttype" aria-label="Change the activity">${ic('left','ic sm','var(--npds-gray-700)','2.2')}</button>
+    <span class="tdot sm" style="background:${f}">${ic(t.icon,'ic',i,'1.7')}</span>
+    <h3 class="sh-h flat">${t.label}</h3></div>
+   <div class="sc"><span class="sch">Children</span>${whoField()}</div>
+   <div class="sc"><span class="sch">When</span>
+    <div class="ff2">
+     <label class="lb"><i>Date</i><span class="fx b" data-act="pickdate">${dayLabel(S.day).replace('Today · ','')}${ic('cal','ic sm','var(--ink-3)')}</span></label>
+     <label class="lb"><i>Time</i><span class="fx b${d.clockOpen?' live':''}" data-act="clock">${timeStr()}${ic('clock','ic sm','var(--ink-3)')}</span></label></div>
+    ${d.clockOpen?clockPop():''}</div>
+   ${isFood?`<div class="sc"><span class="sch">Meal</span>
+    <div class="chiprow">${MEALS.map(m=>`<span class="chp${m===d.meal?' on':''}" data-act="meal:${m}">${m}</span>`).join('')}</div>
+    <label class="lb gap"><i>Quantity</i>
+     <span class="fx b${d.qtyOpen?' open':''}" data-act="qtyopen">${d.qty||'<u>Choose</u>'}
+      <i class="cv${d.qtyOpen?' up':''}">${ic('chev','ic sm','var(--ink-3)','2.2')}</i></span></label>
+    ${d.qtyOpen?`<div class="kidbox opts">${qtySet().map(v=>`<div class="pr opt${v===d.qty?' on':''}" data-act="qty:${v}">
+      <span class="pn">${v}</span>${v===d.qty?ic('check','ic sm','var(--npds-blue-700)','2.6'):''}</div>`).join('')}</div>`:''}
+    <p class="hint2">${d.meal==='Bottle'?'Half ounce steps up to 8 oz.':'How much of the meal was eaten.'}</p></div>`:''}
+   <div class="sc"><span class="sch">Details <em>optional</em></span>
+    <div class="ta3 b"><textarea id="det" rows="3" placeholder="Anything the family should know.">${d.det||''}</textarea></div></div>
+   <div class="sc"><span class="sch">Signature</span>
+    <div class="sig"><canvas id="pad" width="640" height="168"></canvas>
+     <span class="sigl">Tara Rivera</span>
+     <span class="sigh${d.sig?' gone':''}">${ic('pen','ic sm','var(--ink-3)','1.8')}Sign here</span>
+     <button class="sigc" data-act="clearsig">Clear</button></div></div>
+   <div class="sc"><span class="sch">Who can see this</span>
+    <div class="segpill three">${[['parents','Parents'],['staff','Staff'],['both','Parents and staff']].map(([v,l])=>
+     `<span class="sgp${d.vis===v?' on':''}" data-act="vis:${v}">${l}</span>`).join('')}</div></div>
+   <button class="primary${n?'':' off'}" data-act="${n?'asksave':'needwho'}">Post to ${n} ${n===1?'family':'families'}</button>`;
  },
-
-
  bulk(){
  const n=S.sel.size, dir=S.pkdir||'out';
  return `<span class="grab"></span>
@@ -1979,10 +2180,17 @@ function sheet(name,arg){
   if(arg!==undefined)S.arg=arg;
   openSheet=name;
   $('#sheet').innerHTML=`<button class="sh-x" data-act="close" aria-label="Close">${ic('x','ic','var(--ink-2)','2')}</button>`+SHEETS[name]();
+  $('#sheet').classList.toggle('tall',name==='log'||name==='posttype');
  $('#sheet').classList.add('on'); $('#scrim').classList.add('on');
+  $('#sheet').scrollTop=0; wireDial(); wirePad();
 }
 function closeSheet(){openSheet=null;$('#sheet').classList.remove('on');$('#scrim').classList.remove('on');}
-function refreshSheet(){if(openSheet)$('#sheet').innerHTML=SHEETS[openSheet]();}
+function refreshSheet(){
+  if(!openSheet)return;
+  const el=$('#sheet'), y=el.scrollTop;
+  el.innerHTML=`<button class="sh-x" data-act="close" aria-label="Close">${ic('x','ic','var(--ink-2)','2')}</button>`+SHEETS[openSheet]();
+  el.scrollTop=y; wireDial(); wirePad();
+}
 
 /* ---------- confirm ---------- */
 let pending=null;
@@ -2147,47 +2355,39 @@ function doAct(a){
 
  case 'type': if(openSheet==='log')stash();
  S.draftType=arg;
-     if(openSheet!=='log'){S.draft={who:'all',picked:new Set(),req:'',det:'',time:null};}
+      if(openSheet!=='log'){
+        const nw=new Date(), hh=nw.getHours();
+        S.draft={everyone:true,picked:new Set(),whoOpen:false,showAll:false,meal:'Lunch',qty:'',
+          qtyOpen:false,det:'',vis:'both',sig:false,clockOpen:false,cmode:'h',
+          t:{h:hh%12||12,m:nw.getMinutes(),ap:hh<12?'AM':'PM'},req:'',sev:'low',witness:'',internal:''};
+        SIG=[];
+      }
  sheet('log');break;
  case 'vis': S.draft.vis=arg;stash();refreshSheet();break;
  case 'sev': S.draft.sev=arg;stash();refreshSheet();break;
- case 'asksave':{stash();const d=S.draft;const t=TY[S.draftType];
- const n=d.who==='all'?cnt('here'):d.picked.size;
- if(d.vis==='staff'){doAct('savelog');break;}
- confirmAsk({title:`Post to ${n} ${n===1?'family':'families'}?`,
- body:`${t.label} will appear in ${n===1?'their':'their'} app tonight and cannot be unsent.`,
- label:'Post it',act:()=>doAct('savelog')});
- break;}
-   case 'savelog':{stash();const t=TY[S.draftType];const d=S.draft;
- const n=d.who==='all'?cnt('here'):d.picked.size;
- if(d.who==='some'&&n===0){toast('Choose at least one child');break;}
- const names=d.who==='some'?[...d.picked].map(id=>K(id).name.split(' ')[0]).join(', '):null;
- const body=[d.req,d.det].filter(x=>x&&x.trim()).join(' ')||'Logged from the room.';
- S.feed.unshift({id:Date.now(),type:S.draftType,
-       title:`${t.label} · ${d.who==='all'?'whole room':names}`,
- sub:body,who:d.who==='all'?`${n} children`:names,t:d.time||now(),fresh:true,
- by:'Tara Rivera',vis:d.vis,internal:d.internal,
- sev:(S.draftType==='incident'||S.draftType==='accident')?d.sev:null,witness:d.witness});
- S.draft={who:'all',picked:new Set(),req:'',det:'',time:null,vis:'parents',internal:'',sev:'low',witness:''};
- closeSheet();S.tab='activities';S.sub=null;S.filters.clear();render();
- toast(`<b>${t.label}</b> posted for ${n} ${n===1?'child':'children'}`);break;}
-
- case 'note': sheet('note',arg);break;
- case 'notepill': S.openNote.has(arg)?S.openNote.delete(arg):S.openNote.add(arg);render(true);break;
- case 'rowmenu': sheet('rowactions',arg);break;
- case 'delnote':{const k=K(arg);k.note='';S.openNote.delete(arg);
- closeSheet();toast(`Note deleted for <b>${k.name}</b>`);render(true);break;}
-   case 'savenote':{const k=K(arg);const n=$('#nt');k.note=n?n.value.trim():'';
- closeSheet();toast(k.note?`Note saved for <b>${k.name}</b>`:`Note cleared`);render(true);break;}
-
-   case 'child': S.sub='child';S.childTab='general';S.arg=arg;render();break;
- case 'review': S.sub='review';S.arg=arg;render();break;
- case 'go': S.sub=arg;S.q='';S.searchOpen=false;render();break;
- case 'family': S.sub='family';S.famTab='general';S.arg=arg;render();break;
- case 'ctab': S.childTab=arg;render(true);break;
- case 'ftab': S.famTab=arg;render(true);break;
- case 'report': S.sub='report';S.arg=arg;S.reportView='list';render();break;
- case 'rv': S.reportView=arg;render(true);break;
+    case 'asksave':{stash();const d=S.draft;const t=TY[S.draftType];
+      const n=d.everyone?S.kids.length:d.picked.size;
+      if(S.draftType==='food'&&!d.qty){toast('Choose a quantity first');break;}
+      if(d.vis==='staff'){doAct('savelog');break;}
+      confirmAsk({title:`Post to ${n} ${n===1?'family':'families'}?`,
+        body:`${t.label} will appear in their app tonight and cannot be unsent.`,
+        label:'Post it',act:()=>doAct('savelog')});
+      break;}
+    case 'savelog':{stash();const t=TY[S.draftType];const d=S.draft;
+      const n=d.everyone?S.kids.length:d.picked.size;
+      if(!n){toast('Choose at least one child');break;}
+      const names=d.everyone?null:[...d.picked].map(id=>K(id)).filter(Boolean).map(k=>k.name.split(' ')[0]).join(', ');
+      const bits=[];
+      if(S.draftType==='food')bits.push(`${d.meal} \u00b7 ${d.qty}`);
+      if(d.det&&d.det.trim())bits.push(d.det.trim());
+      S.feed.unshift({id:Date.now(),type:S.draftType,title:t.label,
+        sub:bits.join('. ')||'Logged from the room.',
+        who:d.everyone?'Whole room':names,t:timeStr(),fresh:true,
+        by:'Tara Rivera',vis:d.vis,signed:d.sig,photos:S.draftType==='photo'});
+      SIG=[];
+      closeSheet();S.tab='activities';S.sub=null;S.filters.clear();render();
+      toast(`${t.label} posted to ${n} ${n===1?'family':'families'}`);
+      break;}
  case 'exportpdf': toast('PDF exported to your downloads');break;
  case 'msgfam':{S.compose={to:arg,fwd:false,subject:'',body:''};sheet('compose');break;}
  case 'famsoon': case 'addmember': case 'soon': toast('Not in this prototype');break;
