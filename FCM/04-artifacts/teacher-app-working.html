@@ -1288,6 +1288,8 @@
 .sh-x:active{background:rgba(44,49,43,.06)}
 [data-act]:focus-visible{outline:2px solid var(--npds-blue-600);outline-offset:-2px;border-radius:8px}
   .card.list.short{max-height:calc(100vh - 430px);overflow-y:auto}
+  .tag2{display:block;margin-top:3px;font-size:10.5px;font-weight:600;letter-spacing:.04em;
+    text-transform:uppercase;color:#6E7568}
 </style>
 <div class="stage">
  <div class="lead">
@@ -1860,28 +1862,27 @@ function vMessages(){
       <span class="av">${ic('pen','ic sm','var(--ink-3)','1.8')}</span>
  <span class="rt"><b>${d.to}</b><small>Draft \u00b7 ${d.subject} \u201c${d.body}\u201d</small></span>
       <span class="rr"><span class="tm mute">Draft</span></span></div>`).join(''):'<div class="empty">No drafts.</div>';
- }else if(scope==='sent'){
- rows=S.sent.map(x=>`<div class="row" data-act="sentitem:${x.id}">
-      <span class="av">${ic('send','ic sm','var(--ink-3)','1.8')}</span>
- <span class="rt"><b>${x.to}</b><small>Sent \u00b7 ${x.subject}</small></span>
-      <span class="rr"><span class="tm mute">${x.t}</span></span></div>`).join('');
  }else{
     const list=S.threads.filter(t=>(scope==='all'||t.kind===scope)&&(!S.munread||t.unread)&&
  (!q||(t.who+' '+(t.kid||'')+' '+(t.role||'')+' '+t.msgs.map(m=>m.txt).join(' ')).toLowerCase().includes(q)));
+ const sentrows=(scope==='all'&&!S.munread&&!q)?S.sent.map(x=>`<div class="row" data-act="sentitem:${x.id}">
+      <span class="av">${ic('send','ic sm','var(--ink-3)','1.8')}</span>
+ <span class="rt"><b>${x.to}</b><small>${x.subject}</small></span>
+      <span class="rr"><span class="tm mute">${x.t}</span><span class="tag2">Sent</span></span></div>`).join(''):'';
  rows=list.length?list.map(t=>`<div class="row" data-act="thread:${t.id}">
        <span class="av">${t.unread?'<i class="unreaddot"></i>':''}${ini(t.who)}</span>
  <span class="rt"><b>${t.who}</b><small>${t.kind==='staff'?t.role:'Parent of '+t.kid} \u00b7 \u201c${t.msgs[t.msgs.length-1].txt}\u201d</small></span>
- <span class="rr"><span class="tm${t.unread?' accent':' mute'}">${t.t}</span></span></div>`).join('')
- :'<div class="empty">No messages match.</div>';
+ <span class="rr"><span class="tm${t.unread?' accent':' mute'}">${t.t}</span></span></div>`).join('')+sentrows
+ :(sentrows||'<div class="empty">No messages match.</div>');
  }
   const newbtn=`<button class="primary" data-act="newmsg">${ic('plus','ic','currentColor','1.9')}New message</button>`;
-  const shown=scope==='drafts'?S.drafts.length:scope==='sent'?S.sent.length:
- S.threads.filter(t=>(scope==='all'||t.kind===scope)).length;
+  const shown=scope==='drafts'?S.drafts.length:
+ S.threads.filter(t=>(scope==='all'||t.kind===scope)).length+(scope==='all'?S.sent.length:0);
  return `${topbar('Messages',unread()?`${unread()} waiting on you`:'All caught up',
  `${searchBtn()}<button class="ghost tb-inline" data-act="sheet:mfilter">Filters${((S.mscope&&S.mscope!=='all')?1:0)+(S.munread?1:0)?' ('+(((S.mscope&&S.mscope!=='all')?1:0)+(S.munread?1:0))+')':''}</button>`)}
  <div class="body pad">
     ${S.searchOpen?newbtn:''}
- <div class="tabpill">${chip('all','Inbox',S.threads.length)}${chip('family','Parents',n('family'))}${chip('staff','Staff',n('staff'))}${chip('drafts','Drafts',S.drafts.length)}${chip('sent','Sent',S.sent.length)}</div>
+ <div class="tabpill">${chip('all','All',S.threads.length+S.sent.length)}${chip('family','Parents',n('family'))}${chip('staff','Staff',n('staff'))}${chip('drafts','Drafts',S.drafts.length)}</div>
  <div class="card list${S.searchOpen?' short':''}">${rows}</div>
    </div>
    ${S.searchOpen?'':`<div class="fabdock">${newbtn}</div>`}
