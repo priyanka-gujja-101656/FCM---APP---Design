@@ -1313,7 +1313,7 @@ let S={
  draft:{everyone:true,picked:new Set(),whoOpen:false,showAll:false,meal:'Lunch',qty:'',
    qtyOpen:false,det:'',vis:'both',sig:false,clockOpen:false,cmode:'h',
    t:{h:10,m:32,ap:'AM'},off:0,mOff:0,dateOpen:false,req:'',sev:'low',witness:'',internal:''},
- stack:[], openNote:new Set(), pick:null, room:'bluebell', tmark:null, day:0, childTab:'general', famTab:'general', reportView:'list', confirm:null,
+ fopen:null, frange:'today', stack:[], openNote:new Set(), pick:null, room:'bluebell', tmark:null, day:0, childTab:'general', famTab:'general', reportView:'list', confirm:null,
 
  compose:{to:null,fwd:false,subject:'',body:''},
  drafts:[{id:'d1',to:'Lin Family',subject:'Nap routine',body:'Hi [Family Name], a note about [Child Name] and naps…'}],
@@ -1474,7 +1474,8 @@ const t2=n=>String(n).padStart(2,'0');
 const timeStr=()=>{const t=S.draft.t;return `${t.h}:${t2(t.m)} ${t.ap}`;};
 function whoField(){
   const d=S.draft, all=S.kids.length;
-  const lbl=d.everyone?'Whole room':(d.picked.size?`${d.picked.size} chosen`:'Choose children');
+  const oneKid=d.picked.size===1?K([...d.picked][0]):null;
+  const lbl=d.everyone?'Whole room':(oneKid?oneKid.name:(d.picked.size?`${d.picked.size} selected`:'Choose children'));
   const list=d.showAll?S.kids:S.kids.slice(0,4);
   return `<span class="fx b${d.whoOpen?' open':''}" data-act="who">${lbl}
    ${d.everyone?`<em>${all} children</em>`:''}
@@ -1563,7 +1564,7 @@ function pickInPlace(){
   const fld=document.querySelector&&document.querySelector('[data-act="who"]');
   if(fld&&fld.childNodes&&fld.childNodes[0])
     fld.childNodes[0].nodeValue=d.everyone?'Whole room'
-      :(d.picked.size?`${d.picked.size} chosen`:'Choose children');
+      :(d.picked.size===1?K([...d.picked][0]).name:(d.picked.size?`${d.picked.size} selected`:'Choose children'));
   const em=document.querySelector&&document.querySelector('[data-act="who"] em');
   if(em)em.textContent=d.everyone?`${S.kids.length} children`:'';
   const n=d.everyone?S.kids.length:d.picked.size;
@@ -2114,16 +2115,30 @@ const SHEETS={
 
  filter(){
   const counts={};S.feed.forEach(a=>counts[a.type]=(counts[a.type]||0)+1);
-  const n=S.feed.filter(a=>!S.filters.size||S.filters.has(a.type)).length;
+  const sel=[...S.filters][0]||null;
+  const n=S.feed.filter(a=>!sel||a.type===sel).length;
+  const label=sel?`${TY[sel].label}${counts[sel]?' · '+counts[sel]:''}`:'All activities';
+  const RANGES=[['today','Today'],['week','This week'],['month','This month'],['all','All time']];
+  const range=S.frange||'today';
+  const rlabel=(RANGES.find(r=>r[0]===range)||RANGES[0])[1];
   return `<span class="grab"></span><h3 class="sh-h">Filter activities</h3>
-   <span class="flabel">Type</span>
-   <div class="chips wrapc">${TYPES.map(t=>`<span class="ch${S.filters.has(t[0])?' on':''}" data-act="fact:${t[0]}">${t[1]}${counts[t[0]]?' '+counts[t[0]]:''}</span>`).join('')}</div>
- <div class="card fieldset">
-    <div class="field"><span class="fl">From</span><span class="fv">3 Sep</span></div>
-    <div class="field"><span class="fl">To</span><span class="fv">3 Sep</span></div>
-   </div>
+   <label class="lb"><i>Type</i>
+    <span class="fx b${S.fopen==='type'?' open':''}" data-act="fdrop:type">${label}
+     <i class="cv${S.fopen==='type'?' up':''}">${ic('chev','ic sm','var(--ink-3)','2.2')}</i></span></label>
+   ${S.fopen==='type'?`<div class="kidbox opts">
+    <div class="pr opt${sel?'':' on'}" data-act="fact:all"><span class="pn">All activities</span>
+     ${sel?'':ic('check','ic sm','var(--npds-blue-700)','2.6')}</div>
+    ${TYPES.map(t=>`<div class="pr opt${sel===t[0]?' on':''}" data-act="fact:${t[0]}">
+     <span class="pn">${t[1]}${counts[t[0]]?` <i>${counts[t[0]]}</i>`:''}</span>
+     ${sel===t[0]?ic('check','ic sm','var(--npds-blue-700)','2.6'):''}</div>`).join('')}</div>`:''}
+   <label class="lb gap"><i>When</i>
+    <span class="fx b${S.fopen==='when'?' open':''}" data-act="fdrop:when">${rlabel}
+     <i class="cv${S.fopen==='when'?' up':''}">${ic('chev','ic sm','var(--ink-3)','2.2')}</i></span></label>
+   ${S.fopen==='when'?`<div class="kidbox opts">${RANGES.map(([v,l])=>`
+    <div class="pr opt${range===v?' on':''}" data-act="frange:${v}"><span class="pn">${l}</span>
+     ${range===v?ic('check','ic sm','var(--npds-blue-700)','2.6'):''}</div>`).join('')}</div>`:''}
    <button class="primary" data-act="close">${ic('filter','ic','currentColor','1.9')}Show ${n} ${n===1?'entry':'entries'}</button>
- <button class="ghost" data-act="clearf">Clear all filters</button>`;
+   <button class="ghost" data-act="clearf">Clear all filters</button>`;
  },
  relocate(){
   const n=S.sel.size||1;
@@ -2369,8 +2384,10 @@ function doAct(a){
 
    case 'fkid': if(arg==='all'||S.filters.has(arg))S.filters.clear();else S.filters=new Set([arg]);
      if(openSheet)refreshSheet();render(true);break;
- case 'fact': if(arg==='all')S.filters.clear();else S.filters.has(arg)?S.filters.delete(arg):S.filters.add(arg);
- if(openSheet)refreshSheet();render(true);break;
+    case 'fact': S.filters.clear();if(arg!=='all')S.filters.add(arg);
+      S.fopen=null;if(openSheet)refreshSheet();render(true);break;
+    case 'fdrop': S.fopen=S.fopen===arg?null:arg;refreshSheet();break;
+    case 'frange': S.frange=arg;S.fopen=null;refreshSheet();render(true);break;
    case 'mscope': S.mscope=arg;if(openSheet)refreshSheet();render(true);break;
  case 'munread': S.munread=(arg==='unread');if(openSheet)refreshSheet();render(true);break;
  case 'newmsg': S.compose={to:null,fwd:false,subject:'',body:''};sheet('compose');break;
@@ -2434,7 +2451,7 @@ function doAct(a){
  case 'needreq':{const el=document.getElementById('reqf');if(el){el.focus();}toast('That field is required');break;}
  case 'day': S.day=Math.min(0,S.day+Number(arg));S.selecting=false;S.sel.clear();render(true);break;
  case 'noop': toast('There is no register for a future day');break;
- case 'clearf': S.filters.clear();refreshSheet();render(true);break;
+    case 'clearf': S.filters.clear();S.frange='today';S.fopen=null;refreshSheet();render(true);break;
 
  case 'type': if(openSheet==='log')stash();
  S.draftType=arg;
