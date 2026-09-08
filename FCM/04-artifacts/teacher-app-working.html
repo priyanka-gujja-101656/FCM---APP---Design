@@ -1028,8 +1028,8 @@
 
   /* ===== post an activity ===== */
   .sheet.tall{top:42px;max-height:none;padding-bottom:34px}
-  .sheet.tall .tl3{background:#FFFDFA;border-color:rgba(44,49,43,.09);
-    box-shadow:0 2px 6px -3px rgba(40,55,38,.18)}
+  .sheet.tall .tl3{background:rgba(255,255,255,.66);border-color:rgba(255,255,255,.8);
+    box-shadow:0 1px 3px -1px rgba(40,55,38,.10)}
   .sheet.tall .sh-x{top:16px}
   .tlgrid3{display:grid;grid-template-columns:repeat(3,1fr);gap:11px}
   .tl3{display:flex;flex-direction:column;align-items:center;gap:9px;padding:16px 6px 15px;
@@ -1046,10 +1046,10 @@
   .bk svg{width:16px;height:16px}
   .tdot.sm{width:30px;height:30px;border-radius:999px;display:grid;place-items:center;flex:none}
   .tdot.sm svg{width:16px;height:16px}
-  .sheet.tall{background:rgba(240,240,234,.97)}
-  .sc{background:#FFFDFA;border:1px solid rgba(44,49,43,.09);border-radius:18px;
-    padding:13px 14px 15px;text-align:left;margin-bottom:12px;
-    box-shadow:0 2px 6px -3px rgba(40,55,38,.18)}
+  .sheet.tall{background:rgba(246,241,229,.97)}
+  .sc{background:rgba(255,255,255,.62);border:1px solid rgba(255,255,255,.75);border-radius:18px;
+    padding:14px 14px 16px;text-align:left;margin-bottom:9px;
+    box-shadow:0 1px 3px -1px rgba(40,55,38,.10)}
   .sc .sch{display:block;font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;
     color:var(--ink-2);margin-bottom:10px}
   .sc .sch em{font-style:normal;letter-spacing:.02em;text-transform:none;font-size:11px;
@@ -1157,6 +1157,39 @@
   .dc.off{color:var(--ink-3);opacity:.4;pointer-events:none}
   .dc.today{font-weight:700}
   .dc.on{background:var(--npds-blue-600);color:#FFFDFA;font-weight:600}
+
+  /* ===== post sheet: H2 conventions ===== */
+  .lab3{margin:15px 0 6px;font-size:12.5px;font-weight:500;color:var(--ink-2)}
+  .sc>.lab3:first-child{margin-top:0}
+  .lab3 em{font-style:normal;font-size:11.5px;font-weight:400;color:var(--ink-3);margin-left:5px}
+  .lbf{display:flex;flex-direction:column}
+  .lbf .lab3{margin:0 0 6px}
+  .lbf .fx.b{padding:0 11px;font-size:14.5px}
+  .ff2{margin-top:15px}
+  .rch{flex:none;width:26px;height:26px;border-radius:999px;display:grid;place-items:center;
+    background:var(--npds-blue-100)}
+  .rch svg{width:14px;height:14px;transform:rotate(90deg)}
+  .rch.up svg{transform:rotate(-90deg)}
+  .panel{background:#fff;border:1px solid rgba(44,49,43,.10);border-radius:14px;padding:6px 12px;
+    margin:8px 0 2px;animation:pop .18s ease}
+  .opts{display:flex;flex-direction:column;max-height:242px;overflow:auto;scrollbar-width:none}
+  .opts::-webkit-scrollbar{display:none}
+  .opt{display:flex;align-items:center;gap:12px;min-height:48px;padding:4px 0;cursor:pointer;
+    border-bottom:1px solid var(--line)}
+  .opt:last-child{border-bottom:0}
+  .on2{flex:1;font-size:15px;color:var(--ink)}
+  .on2 i{font-style:normal;font-size:13px;color:var(--ink-3);margin-left:7px}
+  .opt.more{font-size:13.5px;font-weight:600;color:var(--npds-blue-700)}
+  .mgrid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+  .mbn{display:flex;align-items:center;justify-content:center;min-height:46px;border-radius:12px;
+    font-size:14.5px;color:var(--ink-2);background:#fff;border:1px solid rgba(44,49,43,.13);
+    cursor:pointer;transition:background .14s ease,color .14s ease,border-color .14s ease}
+  .mbn.on{color:var(--npds-blue-700);font-weight:600;background:var(--npds-blue-100);
+    border-color:var(--npds-blue-500);box-shadow:inset 0 0 0 .5px var(--npds-blue-500)}
+  .fx u{text-decoration:none;color:var(--ink-3)}
+  .fx.b:focus-visible{outline:none;box-shadow:0 0 0 2px var(--npds-blue-500)}
+  .sig{height:80px}
+  .clockpop,.calpop{border:0;padding:0;margin:0;background:none;box-shadow:none}
 </style>
 <div class="stage">
  <div class="lead">
@@ -1435,10 +1468,8 @@ const MON=['January','February','March','April','May','June','July','August','Se
 const TODAY=new Date(2026,8,3);
 const draftDate=()=>{const dt=new Date(TODAY);dt.setDate(dt.getDate()+(S.draft.off||0));return dt;};
 function dateStr(){
-  const dt=draftDate(), off=S.draft.off||0;
-  if(off===0)return 'Today';
-  if(off===-1)return 'Yesterday';
-  return `${DAYS[dt.getDay()].slice(0,3)} ${dt.getDate()} ${MON[dt.getMonth()].slice(0,3)}`;
+  const dt=draftDate();
+  return `${t2(dt.getMonth()+1)}/${t2(dt.getDate())}/${String(dt.getFullYear()).slice(2)}`;
 }
 function calPop(){
   const sel=draftDate();
@@ -1472,23 +1503,23 @@ const AMT=['Full','1/2','1/4','None'];
 const qtySet=()=>S.draft.meal==='Bottle'?OZ:AMT;
 const t2=n=>String(n).padStart(2,'0');
 const timeStr=()=>{const t=S.draft.t;return `${t.h}:${t2(t.m)} ${t.ap}`;};
-function whoField(){
+function whoLabel(){
+  const d=S.draft;
+  if(d.everyone)return 'Whole room';
+  if(d.picked.size===1){const k=K([...d.picked][0]);return k?k.name:'1 selected';}
+  return d.picked.size?`${d.picked.size} selected`:'Choose children';
+}
+function kidList(){
   const d=S.draft, all=S.kids.length;
-  const oneKid=d.picked.size===1?K([...d.picked][0]):null;
-  const lbl=d.everyone?'Whole room':(oneKid?oneKid.name:(d.picked.size?`${d.picked.size} selected`:'Choose children'));
-  const list=d.showAll?S.kids:S.kids.slice(0,4);
-  return `<span class="fx b${d.whoOpen?' open':''}" data-act="who">${lbl}
-   ${d.everyone?`<em>${all} children</em>`:''}
-   <i class="cv${d.whoOpen?' up':''}">${ic('chev','ic sm','var(--ink-3)','2.2')}</i></span>
-   ${d.whoOpen?`<div class="kidbox">
-    <div class="pr" data-act="whoall"><span class="cb${d.everyone?' on':''}">${d.everyone?ic('check','ic sm','#FFFDFA','2.8'):''}</span>
-     <span class="pn">Whole room <i>${all} children</i></span></div>
-    ${list.map(k=>{const on=d.everyone||d.picked.has(k.id);
-     return `<div class="pr${on?' on':''}" data-act="pick:${k.id}">
-      <span class="cb${on?' on':''}">${on?ic('check','ic sm','#FFFDFA','2.8'):''}</span>
-      <span class="pn">${k.name}</span></div>`}).join('')}
-    ${d.showAll?'<div class="pr more" data-act="showless">Show fewer</div>'
-      :`<div class="pr more" data-act="showall">Show all ${all}</div>`}</div>`:''}`;
+  const list=d.showAll?S.kids:S.kids.slice(0,5);
+  return `<div class="opts">
+   <div class="opt" data-act="whoall"><span class="cb${d.everyone?' on':''}">${d.everyone?ic('check','ic sm','#FFFDFA','2.8'):''}</span>
+    <span class="on2">Whole room <i>${all} children</i></span></div>
+   ${list.map(k=>{const on=d.everyone||d.picked.has(k.id);
+    return `<div class="opt" data-act="pick:${k.id}">
+     <span class="cb${on?' on':''}">${on?ic('check','ic sm','#FFFDFA','2.8'):''}</span>
+     <span class="on2">${k.name}</span></div>`}).join('')}
+   <div class="opt more" data-act="${d.showAll?'showless':'showall'}">${d.showAll?'Show fewer':`Show all ${all}`}</div></div>`;
 }
 function clockPop(){
   const d=S.draft, T=d.t;
@@ -1552,13 +1583,13 @@ function wirePad(){
 }
 function pickInPlace(){
   const d=S.draft, q=s=>document.querySelectorAll?document.querySelectorAll(s):[];
-  q('.kidbox .pr[data-act^="pick:"]').forEach(r=>{
+  q('.panel .opt[data-act^="pick:"]').forEach(r=>{
     const id=r.dataset.act.split(':')[1], on=d.everyone||d.picked.has(id);
     if(r.classList)r.classList.toggle('on',on);
     const b=r.querySelector&&r.querySelector('.cb');
     if(b&&b.classList){b.classList.toggle('on',on);b.innerHTML=on?ic('check','ic sm','#FFFDFA','2.8'):'';}
   });
-  const all=document.querySelector&&document.querySelector('.kidbox .pr[data-act="whoall"] .cb');
+  const all=document.querySelector&&document.querySelector('.panel .opt[data-act="whoall"] .cb');
   if(all&&all.classList){all.classList.toggle('on',d.everyone);
     all.innerHTML=d.everyone?ic('check','ic sm','#FFFDFA','2.8'):'';}
   const fld=document.querySelector&&document.querySelector('[data-act="who"]');
@@ -2021,36 +2052,57 @@ const SHEETS={
   const d=S.draft, t=TY[S.draftType], [f,i]=pal(S.draftType);
   const n=d.everyone?S.kids.length:d.picked.size;
   const isFood=S.draftType==='food';
+  const chev=on=>`<span class="rch${on?' up':''}">${ic('chev','ic sm','var(--npds-blue-700)','2.4')}</span>`;
   return `<span class="grab"></span>
    <div class="sh-row"><button class="bk" data-act="sheet:posttype" aria-label="Change the activity">${ic('left','ic sm','var(--npds-gray-700)','2.2')}</button>
     <span class="tdot sm" style="background:${f}">${ic(t.icon,'ic',i,'1.7')}</span>
     <h3 class="sh-h flat">${t.label}</h3></div>
-   <div class="sc"><span class="sch">Children</span>${whoField()}</div>
-   <div class="sc"><span class="sch">When</span>
+
+   <div class="sc">
+    <p class="lab3">Children</p>
+    <span class="fx b" data-act="who" role="button" tabindex="0" aria-expanded="${d.whoOpen}"
+     aria-label="Children, ${d.everyone?'whole room':(d.picked.size===1?K([...d.picked][0]).name:d.picked.size+' selected')}">${whoLabel()}
+     ${d.everyone?`<em>${S.kids.length} children</em>`:''}${chev(d.whoOpen)}</span>
+    ${d.whoOpen?`<div class="panel">${kidList()}</div>`:''}
     <div class="ff2">
-     <label class="lb"><i>Date</i><span class="fx b${d.dateOpen?' live':''}" data-act="pickdate">${dateStr()}${ic('cal','ic sm','var(--ink-3)')}</span></label>
-     <label class="lb"><i>Time</i><span class="fx b${d.clockOpen?' live':''}" data-act="clock">${timeStr()}${ic('clock','ic sm','var(--ink-3)')}</span></label></div>
-    ${d.dateOpen?calPop():''}${d.clockOpen?clockPop():''}</div>
-   ${isFood?`<div class="sc"><span class="sch">Meal</span>
-    <div class="chiprow">${MEALS.map(m=>`<span class="chp${m===d.meal?' on':''}" data-act="meal:${m}">${m}</span>`).join('')}</div>
-    <label class="lb gap"><i>Quantity</i>
-     <span class="fx b${d.qtyOpen?' open':''}" data-act="qtyopen">${d.qty||'<u>Choose</u>'}
-      <i class="cv${d.qtyOpen?' up':''}">${ic('chev','ic sm','var(--ink-3)','2.2')}</i></span></label>
-    ${d.qtyOpen?`<div class="kidbox opts">${qtySet().map(v=>`<div class="pr opt${v===d.qty?' on':''}" data-act="qty:${v}">
-      <span class="pn">${v}</span>${v===d.qty?ic('check','ic sm','var(--npds-blue-700)','2.6'):''}</div>`).join('')}</div>`:''}
-    <p class="hint2">${d.meal==='Bottle'?'Half ounce steps up to 8 oz.':'How much of the meal was eaten.'}</p></div>`:''}
-   <div class="sc"><span class="sch">Details <em>optional</em></span>
-    <div class="ta3 b"><textarea id="det" rows="3" placeholder="Anything the family should know.">${d.det||''}</textarea></div></div>
-   <div class="sc"><span class="sch">Signature</span>
-    <div class="sig"><canvas id="pad" width="640" height="168"></canvas>
+     <label class="lbf"><span class="lab3">Date</span>
+      <span class="fx b" data-act="pickdate" role="button" tabindex="0" aria-expanded="${d.dateOpen}"
+       aria-label="Date, ${dateStr()}">${dateStr()}${ic('cal','ic sm','var(--ink-3)')}</span></label>
+     <label class="lbf"><span class="lab3">Time</span>
+      <span class="fx b" data-act="clock" role="button" tabindex="0" aria-expanded="${d.clockOpen}"
+       aria-label="Time, ${timeStr()}">${timeStr()}${ic('clock','ic sm','var(--ink-3)')}</span></label></div>
+    ${d.dateOpen?`<div class="panel">${calPop()}</div>`:''}
+    ${d.clockOpen?`<div class="panel">${clockPop()}</div>`:''}
+   </div>
+
+   <div class="sc">
+    ${isFood?`<p class="lab3">Meal</p>
+     <div class="mgrid">${MEALS.map(m=>`<span class="mbn${m===d.meal?' on':''}" data-act="meal:${m}">${m}</span>`).join('')}</div>
+     <p class="lab3">Quantity</p>
+     <span class="fx b" data-act="qtyopen" role="button" tabindex="0" aria-expanded="${d.qtyOpen}"
+      aria-label="Quantity, ${d.qty||'not chosen'}">${d.qty||'<u>Choose</u>'}${chev(d.qtyOpen)}</span>
+     ${d.qtyOpen?`<div class="panel"><div class="opts">${qtySet().map(v=>`
+      <div class="opt" data-act="qty:${v}"><span class="on2">${v}</span>
+       ${v===d.qty?ic('check','ic sm','var(--npds-blue-700)','2.6'):''}</div>`).join('')}</div></div>`:''}
+     <p class="hint2">${d.meal==='Bottle'?'Half ounce steps up to 8 oz.':'How much of the meal was eaten.'}</p>`:''}
+    <p class="lab3">Details <em>optional</em></p>
+    <div class="ta3 b"><textarea id="det" rows="3" placeholder="Anything the family should know.">${d.det||''}</textarea></div>
+   </div>
+
+   <div class="sc">
+    <p class="lab3">Signature</p>
+    <div class="sig"><canvas id="pad" width="640" height="150"></canvas>
      <span class="sigl">Tara Rivera</span>
      <span class="sigh${d.sig?' gone':''}">${ic('pen','ic sm','var(--ink-3)','1.8')}Sign here</span>
-     <button class="sigc" data-act="clearsig">Clear</button></div></div>
-   <div class="sc"><span class="sch">Who can see this</span>
+     <button class="sigc" data-act="clearsig">Clear</button></div>
+    <p class="lab3">Who can see this</p>
     <div class="segpill three">${[['parents','Parents'],['staff','Staff'],['both','Parents and staff']].map(([v,l])=>
-     `<span class="sgp${d.vis===v?' on':''}" data-act="vis:${v}">${l}</span>`).join('')}</div></div>
-   <button class="primary${n?'':' off'}" data-act="${n?'asksave':'needwho'}">Post to ${n} ${n===1?'family':'families'}</button>`;
+     `<span class="sgp${d.vis===v?' on':''}" data-act="vis:${v}">${l}</span>`).join('')}</div>
+   </div>
+
+   <button class="primary" data-act="asksave">Post to ${n} ${n===1?'family':'families'}</button>`;
  },
+
  bulk(){
  const n=S.sel.size, dir=S.pkdir||'out';
  return `<span class="grab"></span>
