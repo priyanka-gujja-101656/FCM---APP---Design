@@ -1140,6 +1140,23 @@
   #dial .pin{fill:var(--npds-blue-600)}
   .cfoot{display:flex;justify-content:flex-end;margin-top:6px}
   .cfoot .mini.lbl{min-height:34px;padding:0 16px;font-size:13px}
+  .calpop{margin-top:12px;background:#FFFDFA;border:1px solid rgba(44,49,43,.13);
+    border-radius:18px;padding:12px 12px 6px;animation:pop .18s ease}
+  .calhd{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+  .calhd b{font-size:14.5px;font-weight:600;letter-spacing:-.005em}
+  .cnav{width:30px;height:30px;border:0;border-radius:999px;background:rgba(44,49,43,.06);
+    display:grid;place-items:center;padding:0;cursor:pointer}
+  .cnav.off{opacity:.35;pointer-events:none}
+  .cnav svg{width:15px;height:15px}
+  .calgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px}
+  .calgrid.head span{text-align:center;font-size:10.5px;font-weight:600;color:var(--ink-3);
+    letter-spacing:.06em;padding-bottom:4px}
+  .dc{aspect-ratio:1;display:grid;place-items:center;border-radius:999px;font-size:13.5px;
+    color:var(--ink);cursor:pointer;font-variant-numeric:tabular-nums}
+  .dc.pad{pointer-events:none}
+  .dc.off{color:var(--ink-3);opacity:.4;pointer-events:none}
+  .dc.today{font-weight:700}
+  .dc.on{background:var(--npds-blue-600);color:#FFFDFA;font-weight:600}
 </style>
 <div class="stage">
  <div class="lead">
@@ -1295,7 +1312,7 @@ let S={
  selecting:false, searchOpen:false, dir:'in', sel:new Set(), q:'', filters:new Set(), draftType:null,
  draft:{everyone:true,picked:new Set(),whoOpen:false,showAll:false,meal:'Lunch',qty:'',
    qtyOpen:false,det:'',vis:'both',sig:false,clockOpen:false,cmode:'h',
-   t:{h:10,m:32,ap:'AM'},date:'Today',req:'',sev:'low',witness:'',internal:''},
+   t:{h:10,m:32,ap:'AM'},off:0,mOff:0,dateOpen:false,req:'',sev:'low',witness:'',internal:''},
  stack:[], openNote:new Set(), pick:null, room:'bluebell', tmark:null, day:0, childTab:'general', famTab:'general', reportView:'list', confirm:null,
 
  compose:{to:null,fwd:false,subject:'',body:''},
@@ -1413,6 +1430,41 @@ const homehead=()=>`<div class="head"><div class="room">
 
 
 /* ---------- post an activity: helpers ---------- */
+const MON=['January','February','March','April','May','June','July','August','September',
+ 'October','November','December'];
+const TODAY=new Date(2026,8,3);
+const draftDate=()=>{const dt=new Date(TODAY);dt.setDate(dt.getDate()+(S.draft.off||0));return dt;};
+function dateStr(){
+  const dt=draftDate(), off=S.draft.off||0;
+  if(off===0)return 'Today';
+  if(off===-1)return 'Yesterday';
+  return `${DAYS[dt.getDay()].slice(0,3)} ${dt.getDate()} ${MON[dt.getMonth()].slice(0,3)}`;
+}
+function calPop(){
+  const sel=draftDate();
+  const view=new Date(TODAY.getFullYear(),TODAY.getMonth()+(S.draft.mOff||0),1);
+  const y=view.getFullYear(), m=view.getMonth();
+  const first=new Date(y,m,1).getDay(), len=new Date(y,m+1,0).getDate();
+  const same=(a,b)=>a.getFullYear()===b.getFullYear()&&a.getMonth()===b.getMonth()&&a.getDate()===b.getDate();
+  const nextOk=(y<TODAY.getFullYear())||(y===TODAY.getFullYear()&&m<TODAY.getMonth());
+  let cells='';
+  for(let i=0;i<first;i++)cells+='<span class="dc pad"></span>';
+  for(let n=1;n<=len;n++){
+    const dt=new Date(y,m,n);
+    const future=dt>TODAY;
+    const off=Math.round((dt-TODAY)/86400000);
+    cells+=`<span class="dc${same(dt,sel)?' on':''}${same(dt,TODAY)?' today':''}${future?' off':''}"
+      ${future?'':`data-act="setdate:${off}"`}>${n}</span>`;
+  }
+  return `<div class="calpop">
+   <div class="calhd"><button class="cnav" data-act="cmon:-1">${ic('left','ic sm','var(--npds-gray-700)','2.2')}</button>
+    <b>${MON[m]} ${y}</b>
+    <button class="cnav${nextOk?'':' off'}" ${nextOk?'data-act="cmon:1"':''}>${ic('right','ic sm','var(--npds-gray-700)','2.2')}</button></div>
+   <div class="calgrid head">${['S','M','T','W','T','F','S'].map(x=>`<span>${x}</span>`).join('')}</div>
+   <div class="calgrid">${cells}</div>
+   <p class="hint2">A day after today cannot be logged.</p></div>`;
+}
+
 const MEALS=['Breakfast','Lunch','Snack','Bottle'];
 const OZ=['0.5 oz','1 oz','1.5 oz','2 oz','2.5 oz','3 oz','3.5 oz','4 oz','4.5 oz','5 oz',
  '5.5 oz','6 oz','6.5 oz','7 oz','7.5 oz','8 oz'];
@@ -1975,9 +2027,9 @@ const SHEETS={
    <div class="sc"><span class="sch">Children</span>${whoField()}</div>
    <div class="sc"><span class="sch">When</span>
     <div class="ff2">
-     <label class="lb"><i>Date</i><span class="fx b" data-act="pickdate">${dayLabel(S.day).replace('Today · ','')}${ic('cal','ic sm','var(--ink-3)')}</span></label>
+     <label class="lb"><i>Date</i><span class="fx b${d.dateOpen?' live':''}" data-act="pickdate">${dateStr()}${ic('cal','ic sm','var(--ink-3)')}</span></label>
      <label class="lb"><i>Time</i><span class="fx b${d.clockOpen?' live':''}" data-act="clock">${timeStr()}${ic('clock','ic sm','var(--ink-3)')}</span></label></div>
-    ${d.clockOpen?clockPop():''}</div>
+    ${d.dateOpen?calPop():''}${d.clockOpen?clockPop():''}</div>
    ${isFood?`<div class="sc"><span class="sch">Meal</span>
     <div class="chiprow">${MEALS.map(m=>`<span class="chp${m===d.meal?' on':''}" data-act="meal:${m}">${m}</span>`).join('')}</div>
     <label class="lb gap"><i>Quantity</i>
@@ -2369,7 +2421,10 @@ function doAct(a){
       const c=document.getElementById('pad');
       if(c)c.getContext('2d').clearRect(0,0,c.width,c.height);
       const sh=document.querySelector('.sigh');if(sh)sh.classList.remove('gone');break;}
-    case 'pickdate': toast('The log posts to the day you are viewing');break;
+    case 'pickdate': stash();S.draft.dateOpen=!S.draft.dateOpen;S.draft.clockOpen=false;
+      S.draft.whoOpen=false;S.draft.qtyOpen=false;S.draft.mOff=0;refreshSheet();break;
+    case 'cmon': S.draft.mOff=(S.draft.mOff||0)+Number(arg);refreshSheet();break;
+    case 'setdate': stash();S.draft.off=Number(arg);S.draft.dateOpen=false;refreshSheet();break;
     case 'needwho': toast('Choose at least one child');break;
     case 'pick':{const d=S.draft;
       if(d.everyone){d.everyone=false;d.picked=new Set(S.kids.map(k=>k.id));}
@@ -2387,7 +2442,8 @@ function doAct(a){
         const nw=new Date(), hh=nw.getHours();
         S.draft={everyone:true,picked:new Set(),whoOpen:false,showAll:false,meal:'Lunch',qty:'',
           qtyOpen:false,det:'',vis:'both',sig:false,clockOpen:false,cmode:'h',
-          t:{h:hh%12||12,m:nw.getMinutes(),ap:hh<12?'AM':'PM'},req:'',sev:'low',witness:'',internal:''};
+          t:{h:hh%12||12,m:nw.getMinutes(),ap:hh<12?'AM':'PM'},
+          off:S.day,mOff:0,dateOpen:false,req:'',sev:'low',witness:'',internal:''};
         SIG=[];
       }
  sheet('log');break;
@@ -2410,7 +2466,7 @@ function doAct(a){
       if(d.det&&d.det.trim())bits.push(d.det.trim());
       S.feed.unshift({id:Date.now(),type:S.draftType,title:t.label,
         sub:bits.join('. ')||'Logged from the room.',
-        who:d.everyone?'Whole room':names,t:timeStr(),fresh:true,
+        who:d.everyone?'Whole room':names,t:timeStr(),fresh:true,day:d.off||0,
         by:'Tara Rivera',vis:d.vis,signed:d.sig,photos:S.draftType==='photo'});
       SIG=[];
       closeSheet();S.tab='activities';S.sub=null;S.filters.clear();render();
