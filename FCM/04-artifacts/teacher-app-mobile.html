@@ -2633,6 +2633,22 @@ function doAct(a){
      S.q='';S.searchOpen=false;render();break;}
  case 'sheet': sheet(arg==='inout'?'inout':arg);break;
  case 'close': closeSheet();render(true);break;
+    /* restored: these were dropped by mistake when the post sheet was rewritten */
+    case 'rowmenu': sheet('rowactions',arg);break;
+    case 'note': sheet('note',arg);break;
+    case 'savenote':{const k=K(arg);const n=$('#nt');k.note=n?n.value.trim():'';
+      closeSheet();toast(k.note?`Note saved for <b>${k.name}</b>`:'Note cleared');render(true);break;}
+    case 'delnote':{const k=K(arg);k.note='';S.openNote.delete(arg);
+      closeSheet();toast(`Note deleted for <b>${k.name}</b>`);render(true);break;}
+    case 'notepill': S.openNote.has(arg)?S.openNote.delete(arg):S.openNote.add(arg);render(true);break;
+    case 'child': closeSheet();S.sub='child';S.childTab='general';S.arg=arg;render();break;
+    case 'ctab': S.childTab=arg;render(true);break;
+    case 'family': S.sub='family';S.famTab='general';S.arg=arg;render();break;
+    case 'ftab': S.famTab=arg;render(true);break;
+    case 'report': S.sub='report';S.arg=arg;S.reportView='list';render();break;
+    case 'rv': S.reportView=arg;render(true);break;
+    case 'review': S.sub='review';S.arg=arg;render();break;
+    case 'go': S.sub=arg;S.q='';S.searchOpen=false;render();break;
  case 'dir': S.dir=arg;refreshSheet();break;
 
  case 'checkin': S.pkdir='in';S.pick=null;S.markOpen=false;parseMark(now());sheet('pickup',arg);break;
