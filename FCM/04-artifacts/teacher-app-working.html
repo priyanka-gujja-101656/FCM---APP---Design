@@ -1287,6 +1287,7 @@
 .sh-x svg{width:19px;height:19px;stroke:#2C312B;stroke-width:2.3}
 .sh-x:active{background:rgba(44,49,43,.06)}
 [data-act]:focus-visible{outline:2px solid var(--npds-blue-600);outline-offset:-2px;border-radius:8px}
+  .card.list.short{max-height:calc(100vh - 430px);overflow-y:auto}
 </style>
 <div class="stage">
  <div class="lead">
@@ -1873,16 +1874,17 @@ function vMessages(){
  <span class="rr"><span class="tm${t.unread?' accent':' mute'}">${t.t}</span></span></div>`).join('')
  :'<div class="empty">No messages match.</div>';
  }
+  const newbtn=`<button class="primary" data-act="newmsg">${ic('plus','ic','currentColor','1.9')}New message</button>`;
   const shown=scope==='drafts'?S.drafts.length:scope==='sent'?S.sent.length:
  S.threads.filter(t=>(scope==='all'||t.kind===scope)).length;
  return `${topbar('Messages',unread()?`${unread()} waiting on you`:'All caught up',
  `${searchBtn()}<button class="ghost tb-inline" data-act="sheet:mfilter">Filters${((S.mscope&&S.mscope!=='all')?1:0)+(S.munread?1:0)?' ('+(((S.mscope&&S.mscope!=='all')?1:0)+(S.munread?1:0))+')':''}</button>`)}
  <div class="body pad">
-
+    ${S.searchOpen?newbtn:''}
  <div class="tabpill">${chip('all','Inbox',S.threads.length)}${chip('family','Parents',n('family'))}${chip('staff','Staff',n('staff'))}${chip('drafts','Drafts',S.drafts.length)}${chip('sent','Sent',S.sent.length)}</div>
- <div class="card list">${rows}</div>
+ <div class="card list${S.searchOpen?' short':''}">${rows}</div>
    </div>
-   <div class="fabdock"><button class="primary" data-act="newmsg">${ic('plus','ic','currentColor','1.9')}New message</button></div>
+   ${S.searchOpen?'':`<div class="fabdock">${newbtn}</div>`}
    ${dock(shown,S.threads.length,'thread','threads','Search messages')}`;
 }
 function vThread(){
