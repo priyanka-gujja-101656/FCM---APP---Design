@@ -1316,7 +1316,14 @@
 .av .sentmark{position:absolute;right:-3px;bottom:-2px;width:15px;height:15px;
   background:#FFFDFA;border-radius:999px;padding:2px;box-shadow:0 0 0 1px rgba(44,49,43,.1)}
 .row .av{position:relative}
-.opts .on2 i{display:block;font-style:normal;font-size:12px;color:#6E7568;margin-top:1px}
+/* a child and their parent: two lines on one left edge, with room to breathe */
+.opts .opt{min-height:60px;padding:9px 2px}
+.opts .on2{display:flex;flex-direction:column;align-items:flex-start;gap:3px;
+  line-height:1.25;text-indent:0}
+.opts .on2 i{display:block;font-style:normal;font-size:12.5px;color:#6E7568;margin:0;
+  letter-spacing:.005em}
+.opts.scroll{max-height:296px}
+.opts .opt+.opt{border-top:1px solid rgba(44,49,43,.07)}
 /* ============================================================
    Mobile build: no frame, no page, the app fills the phone.
    Everything here only overrides the review-page chrome.
@@ -1325,23 +1332,22 @@ html,body{margin:0;padding:0;height:100%;background:var(--sky-1);
   -webkit-tap-highlight-color:transparent;overscroll-behavior:none}
 body{overflow:hidden}
 .stage{display:block;gap:0;align-items:stretch;padding:0;margin:0;max-width:none}
-/* the bezel becomes the window */
+/* the bezel becomes the window. The fixed device IS the visual viewport, so the
+   screen fills it at 100% and never competes with a dvh of its own. */
 .device{position:fixed;inset:0;width:auto;height:auto;padding:0;border-radius:0;
   background:none;box-shadow:none}
-.screen{width:100%;height:100%;border-radius:0;
-  height:100dvh;
-  padding-top:env(safe-area-inset-top);
-  padding-bottom:env(safe-area-inset-bottom)}
+.screen{width:100%;height:100%;border-radius:0;padding-top:env(safe-area-inset-top)}
 /* the painted status bar goes: the real one is right there */
 .status{display:none}
 /* the room illustration keeps its proportions on any height */
 .scene svg{height:100%;width:100%}
 /* chrome should not select or long-press like a web page */
 .nav,.topbar,.tabpill,.chips,.searchdock,.sh-row,.grab{-webkit-user-select:none;user-select:none}
-/* the tab bar sits above the home bar */
-.nav{padding-bottom:calc(10px + env(safe-area-inset-bottom))}
+/* the tab bar sits above the home bar, and the floating button clears the tab bar */
+.nav{padding-bottom:calc(20px + env(safe-area-inset-bottom))}
+.fabdock{bottom:calc(100px + env(safe-area-inset-bottom))}
 /* sheets and the scrim answer to the real viewport, not a 844px box */
-.sheet{max-height:calc(100dvh - 54px)}
+.sheet{max-height:calc(100% - 54px)}
 .sheet.tall{top:calc(10px + env(safe-area-inset-top));max-height:none}
 .screen:has(.sheet.tall.on) #toast{top:calc(20px + env(safe-area-inset-top))}
 /* narrow phones: give the content back its edges */
@@ -1355,6 +1361,7 @@ body{overflow:hidden}
 /* short phones: the sheets must not outgrow the window */
 @media (max-height:700px){
   .sheet.tall{top:calc(6px + env(safe-area-inset-top))}
+  .fabdock{bottom:calc(94px + env(safe-area-inset-bottom))}
   #dial{max-width:206px}
 }
 </style>
