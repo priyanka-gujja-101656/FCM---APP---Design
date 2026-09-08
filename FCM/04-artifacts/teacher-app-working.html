@@ -1216,8 +1216,80 @@
     text-transform:uppercase;color:var(--ink-3)}
   .cfoot2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px}
   .cfoot2 .primary,.cfoot2 .second{margin:0;width:100%}
-  .screen:has(.sheet.tall.on) #toast{top:54px;bottom:auto;transform:translate(-50%,-10px)}
+  .screen:has(.sheet.tall.on) #toast{top:54px;bottom:auto;left:50%;right:auto;max-width:78%;
+    transform:translate(-50%,-10px)}
   .screen:has(.sheet.tall.on) #toast.on{transform:translate(-50%,0)}
+/* ===== grouped rows in the sheets: one block per group of facts ===== */
+.grp2{background:#fff;border:1px solid rgba(44,49,43,.13);border-radius:12px;overflow:hidden;
+  margin:0 0 12px}
+.grow{border-top:1px solid rgba(44,49,43,.09)}
+.grp2>.grow:first-child{border-top:0}
+.gr{display:flex;align-items:center;gap:12px;min-height:48px;padding:0 13px;cursor:pointer}
+.gr i{font-style:normal;font-size:11.5px;color:#6E7568;flex:none;min-width:74px;max-width:104px}
+.gr i em{font-style:normal;color:#8D958A}
+.gvv{flex:1;min-width:0;font-size:15px;color:var(--ink);white-space:nowrap;overflow:hidden;
+  text-overflow:ellipsis}
+.gvv.pale,.gvv u{text-decoration:none;color:#6E7568}
+.gr .rch{margin-left:auto;flex:none}
+.gr.on{background:rgba(24,157,210,.05)}
+.gr.combo{padding-right:13px}
+.gvin{flex:1;min-width:0;border:0;background:none;outline:none;font-family:inherit;font-size:15px;
+  color:var(--ink);padding:14px 0;min-height:46px}
+.gvin::placeholder{color:#6E7568}
+.gr.combo:focus-within{background:rgba(24,157,210,.05);box-shadow:inset 0 0 0 2px var(--npds-blue-600);
+  border-radius:8px}
+/* an opaque panel that sits below its row and pushes the rest down, never over it */
+.gpanel{position:relative;margin:0 8px 10px;padding:6px 10px 8px;background:#FFFDFA;
+  border:1px solid rgba(44,49,43,.15);border-radius:14px;box-shadow:0 2px 8px rgba(44,49,43,.07);
+  max-height:330px;overflow-y:auto}
+.grblock{border-top:1px solid rgba(44,49,43,.09);padding:11px 13px 13px}
+.grp2>.grblock:first-child{border-top:0}
+.grblock>i{font-style:normal;display:block;font-size:11.5px;color:#6E7568;margin-bottom:6px}
+.grblock>i em{font-style:normal;color:#8D958A}
+.grblock textarea{width:100%;border:0;background:none;outline:none;resize:none;font-family:inherit;
+  font-size:15px;line-height:1.5;color:var(--ink)}
+.grblock textarea::placeholder{color:#6E7568}
+.inatt2{display:flex;align-items:center;gap:10px;border-top:1px solid rgba(44,49,43,.09);
+  margin-top:10px;padding:11px 0 2px}
+/* the signing space */
+.sigwrap{position:relative;border:1px dashed rgba(44,49,43,.22);border-radius:10px;
+  background:rgba(255,255,255,.6);height:96px;overflow:hidden}
+.sigwrap canvas{width:100%;height:96px;display:block;touch-action:none;cursor:crosshair}
+.sigh3{position:absolute;left:0;right:0;top:36px;display:flex;align-items:center;gap:6px;
+  justify-content:center;font-size:13px;color:var(--ink-3);pointer-events:none;transition:opacity .18s}
+.sigh3.gone{opacity:0}
+.sigc2{position:absolute;right:8px;bottom:7px;font-size:11.5px;font-weight:600;
+  color:var(--npds-blue-700);background:rgba(255,255,255,.9);border:1px solid var(--npds-blue-100);
+  border-radius:999px;padding:4px 11px}
+/* who can see this */
+.segpill2{display:flex;background:rgba(44,49,43,.055);border-radius:999px;padding:4px;gap:2px}
+.segpill2 .sgp{flex:1;text-align:center;font-size:13.5px;font-weight:550;color:var(--ink-2);
+  padding:13px 4px;border-radius:999px;cursor:pointer;white-space:nowrap}
+.segpill2 .sgp.on{background:#fff;color:var(--npds-blue-700);box-shadow:0 1px 3px rgba(44,49,43,.1)}
+/* the child list scrolls, with a rail you can see */
+.scrollwrap{position:relative;padding-right:14px}
+.srail{position:absolute;right:2px;top:8px;bottom:8px;width:5px;border-radius:999px;
+  background:rgba(44,49,43,.11)}
+.sthumb{position:absolute;left:0;right:0;top:0;border-radius:999px;background:rgba(44,49,43,.36);
+  transition:transform .06s linear}
+.opts.scroll{max-height:262px;overflow-y:auto;padding-right:4px}
+.opts.scroll::-webkit-scrollbar{width:0}
+.opts.scroll:focus-visible{outline:2px solid var(--npds-blue-600);outline-offset:2px;border-radius:8px}
+/* templates: title with the opening line under it */
+.opt.tall2{align-items:flex-start;padding:10px 2px;min-height:0}
+.opt.tall2 .on2{display:block;line-height:1.3;font-size:14.5px}
+.opt.tall2 .on2 i{display:block;font-style:normal;font-size:12px;color:#6E7568;margin-top:2px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:230px}
+/* close: a solid, obvious way out */
+.sh-x{width:40px;height:40px;border-radius:999px;background:#FFFDFA;
+  border:1.5px solid rgba(44,49,43,.22);box-shadow:0 1px 3px rgba(44,49,43,.1);
+  display:grid;place-items:center}
+.sh-x svg{width:19px;height:19px;stroke:#2C312B;stroke-width:2.3}
+.sh-x:active{background:rgba(44,49,43,.06)}
+[data-act]:focus-visible{outline:2px solid var(--npds-blue-600);outline-offset:-2px;border-radius:8px}
+  .card.list.short{max-height:calc(100vh - 430px);overflow-y:auto}
+  .tag2{display:block;margin-top:3px;font-size:10.5px;font-weight:600;letter-spacing:.04em;
+    text-transform:uppercase;color:#6E7568}
 </style>
 <div class="stage">
  <div class="lead">
@@ -1539,15 +1611,37 @@ function whoLabel(){
 }
 function kidList(){
   const d=S.draft, all=S.kids.length;
-  const list=d.showAll?S.kids:S.kids.slice(0,5);
-  return `<div class="opts">
-   <div class="opt" data-act="whoall"><span class="cb${d.everyone?' on':''}">${d.everyone?ic('check','ic sm','#FFFDFA','2.8'):''}</span>
+  return `<div class="scrollwrap"><div class="opts scroll" tabindex="0" role="group"
+    aria-label="Children, ${all}, scrollable">
+   <div class="opt" data-act="whoall" role="checkbox" tabindex="0" aria-checked="${d.everyone}"
+    aria-label="Whole room, ${all} children"><span class="cb${d.everyone?' on':''}">${d.everyone?ic('check','ic sm','#FFFDFA','2.8'):''}</span>
     <span class="on2">Whole room <i>${all} children</i></span></div>
-   ${list.map(k=>{const on=d.everyone||d.picked.has(k.id);
-    return `<div class="opt" data-act="pick:${k.id}">
+   ${S.kids.map(k=>{const on=d.everyone||d.picked.has(k.id);
+    return `<div class="opt" data-act="pick:${k.id}" role="checkbox" tabindex="0" aria-checked="${on}"
+     aria-label="${k.name}">
      <span class="cb${on?' on':''}">${on?ic('check','ic sm','#FFFDFA','2.8'):''}</span>
      <span class="on2">${k.name}</span></div>`}).join('')}
-   <div class="opt more" data-act="${d.showAll?'showless':'showall'}">${d.showAll?'Show fewer':`Show all ${all}`}</div></div>`;
+   </div><span class="srail"><span class="sthumb"></span></span></div>`;
+}
+/* a grouped row: label, value, chevron. The panel sits below it, never over it. */
+function grow(act,label,val,open,pale,panel){
+  return `<div class="grow"><div class="gr${open?' on':''}" data-act="${act}" role="button" tabindex="0"
+    aria-expanded="${open}" aria-label="${label}, ${String(val).replace(/<[^>]+>/g,'')}">
+    <i>${label}</i><span class="gvv${pale?' pale':''}">${val}</span>
+    <span class="rch${open?' up':''}">${ic('chev','ic sm','var(--npds-blue-700)','2.4')}</span></div>
+   ${open&&panel?`<div class="gpanel">${panel}</div>`:''}</div>`;
+}
+function wireScroll(){
+  const sc=document.querySelector('.opts.scroll'); if(!sc)return;
+  const th=document.querySelector('.sthumb'), rail=document.querySelector('.srail');
+  if(!th||!rail)return;
+  const draw=()=>{const rh=rail.clientHeight;
+    const h=Math.max(36,Math.round(rh*sc.clientHeight/sc.scrollHeight));
+    th.style.height=h+'px';
+    const max=sc.scrollHeight-sc.clientHeight;
+    th.style.transform=`translateY(${max?Math.round((rh-h)*sc.scrollTop/max):0}px)`;};
+  if(!sc.addEventListener)return;
+  draw(); sc.addEventListener('scroll',draw,{passive:true});
 }
 function clockPop(){
   const d=S.draft, T=d.t;
@@ -1592,8 +1686,8 @@ function wireDial(){
 function repaintClock(){
   const w=document.querySelector('.clockpop'); if(!w)return;
   w.outerHTML=clockPop(); wireDial();
-  const fld=document.querySelector('[data-act="clock"]');
-  if(fld)fld.childNodes[0].nodeValue=timeStr();
+  const fld=document.querySelector('.gr[data-act="clock"] .gvv');
+  if(fld)fld.textContent=timeStr();
 }
 function wirePad(){
   const c=document.getElementById('pad'); if(!c)return;
@@ -1611,21 +1705,20 @@ function wirePad(){
 }
 function pickInPlace(){
   const d=S.draft, q=s=>document.querySelectorAll?document.querySelectorAll(s):[];
-  q('.panel .opt[data-act^="pick:"]').forEach(r=>{
+  q('.gpanel .opt[data-act^="pick:"]').forEach(r=>{
     const id=r.dataset.act.split(':')[1], on=d.everyone||d.picked.has(id);
     if(r.classList)r.classList.toggle('on',on);
+    if(r.setAttribute)r.setAttribute('aria-checked',String(on));
     const b=r.querySelector&&r.querySelector('.cb');
     if(b&&b.classList){b.classList.toggle('on',on);b.innerHTML=on?ic('check','ic sm','#FFFDFA','2.8'):'';}
   });
-  const all=document.querySelector&&document.querySelector('.panel .opt[data-act="whoall"] .cb');
+  const arow=document.querySelector&&document.querySelector('.gpanel .opt[data-act="whoall"]');
+  if(arow&&arow.setAttribute)arow.setAttribute('aria-checked',String(d.everyone));
+  const all=arow&&arow.querySelector?arow.querySelector('.cb'):null;
   if(all&&all.classList){all.classList.toggle('on',d.everyone);
     all.innerHTML=d.everyone?ic('check','ic sm','#FFFDFA','2.8'):'';}
-  const fld=document.querySelector&&document.querySelector('[data-act="who"]');
-  if(fld&&fld.childNodes&&fld.childNodes[0])
-    fld.childNodes[0].nodeValue=d.everyone?'Whole room'
-      :(d.picked.size===1?K([...d.picked][0]).name:(d.picked.size?`${d.picked.size} selected`:'Choose children'));
-  const em=document.querySelector&&document.querySelector('[data-act="who"] em');
-  if(em)em.textContent=d.everyone?`${S.kids.length} children`:'';
+  const v=document.querySelector&&document.querySelector('.gr[data-act="who"] .gvv');
+  if(v)v.textContent=whoLabel();
   const n=d.everyone?S.kids.length:d.picked.size;
   const btn=document.querySelector&&document.querySelector('.sheet .primary');
   if(btn&&btn.classList){btn.textContent=`Post to ${n} ${n===1?'family':'families'}`;
@@ -1769,30 +1862,30 @@ function vMessages(){
       <span class="av">${ic('pen','ic sm','var(--ink-3)','1.8')}</span>
  <span class="rt"><b>${d.to}</b><small>Draft \u00b7 ${d.subject} \u201c${d.body}\u201d</small></span>
       <span class="rr"><span class="tm mute">Draft</span></span></div>`).join(''):'<div class="empty">No drafts.</div>';
- }else if(scope==='sent'){
- rows=S.sent.map(x=>`<div class="row" data-act="sentitem:${x.id}">
-      <span class="av">${ic('send','ic sm','var(--ink-3)','1.8')}</span>
- <span class="rt"><b>${x.to}</b><small>Sent \u00b7 ${x.subject}</small></span>
-      <span class="rr"><span class="tm mute">${x.t}</span></span></div>`).join('');
  }else{
     const list=S.threads.filter(t=>(scope==='all'||t.kind===scope)&&(!S.munread||t.unread)&&
  (!q||(t.who+' '+(t.kid||'')+' '+(t.role||'')+' '+t.msgs.map(m=>m.txt).join(' ')).toLowerCase().includes(q)));
+ const sentrows=(scope==='all'&&!S.munread&&!q)?S.sent.map(x=>`<div class="row" data-act="sentitem:${x.id}">
+      <span class="av">${ic('send','ic sm','var(--ink-3)','1.8')}</span>
+ <span class="rt"><b>${x.to}</b><small>${x.subject}</small></span>
+      <span class="rr"><span class="tm mute">${x.t}</span><span class="tag2">Sent</span></span></div>`).join(''):'';
  rows=list.length?list.map(t=>`<div class="row" data-act="thread:${t.id}">
        <span class="av">${t.unread?'<i class="unreaddot"></i>':''}${ini(t.who)}</span>
  <span class="rt"><b>${t.who}</b><small>${t.kind==='staff'?t.role:'Parent of '+t.kid} \u00b7 \u201c${t.msgs[t.msgs.length-1].txt}\u201d</small></span>
- <span class="rr"><span class="tm${t.unread?' accent':' mute'}">${t.t}</span></span></div>`).join('')
- :'<div class="empty">No messages match.</div>';
+ <span class="rr"><span class="tm${t.unread?' accent':' mute'}">${t.t}</span></span></div>`).join('')+sentrows
+ :(sentrows||'<div class="empty">No messages match.</div>');
  }
-  const shown=scope==='drafts'?S.drafts.length:scope==='sent'?S.sent.length:
- S.threads.filter(t=>(scope==='all'||t.kind===scope)).length;
+  const newbtn=`<button class="primary" data-act="newmsg">${ic('plus','ic','currentColor','1.9')}New message</button>`;
+  const shown=scope==='drafts'?S.drafts.length:
+ S.threads.filter(t=>(scope==='all'||t.kind===scope)).length+(scope==='all'?S.sent.length:0);
  return `${topbar('Messages',unread()?`${unread()} waiting on you`:'All caught up',
  `${searchBtn()}<button class="ghost tb-inline" data-act="sheet:mfilter">Filters${((S.mscope&&S.mscope!=='all')?1:0)+(S.munread?1:0)?' ('+(((S.mscope&&S.mscope!=='all')?1:0)+(S.munread?1:0))+')':''}</button>`)}
  <div class="body pad">
-
- <div class="tabpill">${chip('all','Inbox',S.threads.length)}${chip('family','Parents',n('family'))}${chip('staff','Staff',n('staff'))}${chip('drafts','Drafts',S.drafts.length)}${chip('sent','Sent',S.sent.length)}</div>
- <div class="card list">${rows}</div>
+    ${S.searchOpen?newbtn:''}
+ <div class="tabpill">${chip('all','All',S.threads.length+S.sent.length)}${chip('family','Parents',n('family'))}${chip('staff','Staff',n('staff'))}${chip('drafts','Drafts',S.drafts.length)}</div>
+ <div class="card list${S.searchOpen?' short':''}">${rows}</div>
    </div>
-   <div class="fabdock"><button class="primary" data-act="newmsg">${ic('plus','ic','currentColor','1.9')}New message</button></div>
+   ${S.searchOpen?'':`<div class="fabdock">${newbtn}</div>`}
    ${dock(shown,S.threads.length,'thread','threads','Search messages')}`;
 }
 function vThread(){
@@ -2082,51 +2175,39 @@ const SHEETS={
   const d=S.draft, t=TY[S.draftType], [f,i]=pal(S.draftType);
   const n=d.everyone?S.kids.length:d.picked.size;
   const isFood=S.draftType==='food';
-  const chev=on=>`<span class="rch${on?' up':''}">${ic('chev','ic sm','var(--npds-blue-700)','2.4')}</span>`;
   return `<span class="grab"></span>
    <div class="sh-row"><button class="bk" data-act="sheet:posttype" aria-label="Change the activity">${ic('left','ic sm','var(--npds-gray-700)','2.2')}</button>
     <span class="tdot sm" style="background:${f}">${ic(t.icon,'ic',i,'1.7')}</span>
     <h3 class="sh-h flat">${t.label}</h3></div>
 
-   <div class="sc">
-    <p class="lab3">Children</p>
-    <span class="fx b" data-act="who" role="button" tabindex="0" aria-expanded="${d.whoOpen}"
-     aria-label="Children, ${d.everyone?'whole room':(d.picked.size===1?K([...d.picked][0]).name:d.picked.size+' selected')}">${whoLabel()}
-     ${d.everyone?`<em>${S.kids.length} children</em>`:''}${chev(d.whoOpen)}</span>
-    ${d.whoOpen?`<div class="panel">${kidList()}</div>`:''}
-    <div class="ff2">
-     <label class="lbf"><span class="lab3">Date</span>
-      <span class="fx b" data-act="pickdate" role="button" tabindex="0" aria-expanded="${d.dateOpen}"
-       aria-label="Date, ${dateStr()}">${dateStr()}${ic('cal','ic sm','var(--ink-3)')}</span></label>
-     <label class="lbf"><span class="lab3">Time</span>
-      <span class="fx b" data-act="clock" role="button" tabindex="0" aria-expanded="${d.clockOpen}"
-       aria-label="Time, ${timeStr()}">${timeStr()}${ic('clock','ic sm','var(--ink-3)')}</span></label></div>
-    ${d.dateOpen?`<div class="panel">${calPop()}</div>`:''}
-    ${d.clockOpen?`<div class="panel">${clockPop()}</div>`:''}
+   <div class="grp2">
+    ${grow('who','Children',whoLabel(),d.whoOpen,false,kidList())}
+    ${grow('pickdate','Date',dateStr(),d.dateOpen,false,calPop())}
+    ${grow('clock','Time',timeStr(),d.clockOpen,false,clockPop())}
    </div>
 
-   <div class="sc">
-    ${isFood?`<p class="lab3">Meal</p>
-     <div class="mgrid">${MEALS.map(m=>`<span class="mbn${m===d.meal?' on':''}" data-act="meal:${m}">${m}</span>`).join('')}</div>
-     <p class="lab3">Quantity</p>
-     <span class="fx b" data-act="qtyopen" role="button" tabindex="0" aria-expanded="${d.qtyOpen}"
-      aria-label="Quantity, ${d.qty||'not chosen'}">${d.qty||'<u>Choose</u>'}${chev(d.qtyOpen)}</span>
-     ${d.qtyOpen?`<div class="panel"><div class="opts">${qtySet().map(v=>`
-      <div class="opt" data-act="qty:${v}"><span class="on2">${v}</span>
-       ${v===d.qty?ic('check','ic sm','var(--npds-blue-700)','2.6'):''}</div>`).join('')}</div></div>`:''}`:''}
-    <p class="lab3">Details <em>optional</em></p>
-    <div class="ta3 b"><textarea id="det" rows="3" placeholder="Anything the family should know.">${d.det||''}</textarea></div>
+   <div class="grp2">
+    ${isFood?grow('mealopen','Meal',d.meal,d.mealOpen,false,
+      `<div class="opts" role="radiogroup">${MEALS.map(m=>`
+       <div class="opt" data-act="meal:${m}" role="radio" tabindex="0" aria-checked="${m===d.meal}">
+        <span class="on2">${m}</span>${m===d.meal?ic('check','ic sm','var(--npds-blue-700)','2.6'):''}</div>`).join('')}</div>`):''}
+    ${isFood?grow('qtyopen','Quantity',d.qty||'Choose',d.qtyOpen,!d.qty,
+      `<div class="opts" role="radiogroup">${qtySet().map(v=>`
+       <div class="opt" data-act="qty:${v}" role="radio" tabindex="0" aria-checked="${v===d.qty}">
+        <span class="on2">${v}</span>${v===d.qty?ic('check','ic sm','var(--npds-blue-700)','2.6'):''}</div>`).join('')}</div>`):''}
+    <div class="grblock"><i>Details <em>optional</em></i>
+     <textarea id="det" rows="3" placeholder="Anything the family should know.">${d.det||''}</textarea></div>
    </div>
 
-   <div class="sc">
-    <p class="lab3">Signature</p>
-    <div class="sig"><canvas id="pad" width="640" height="150"></canvas>
-     <span class="sigl">Tara Rivera</span>
-     <span class="sigh${d.sig?' gone':''}">${ic('pen','ic sm','var(--ink-3)','1.8')}Sign here</span>
-     <button class="sigc" data-act="clearsig">Clear</button></div>
-    <p class="lab3">Who can see this</p>
-    <div class="segpill three">${[['parents','Parents'],['staff','Staff'],['both','Parents and staff']].map(([v,l])=>
-     `<span class="sgp${d.vis===v?' on':''}" data-act="vis:${v}">${l}</span>`).join('')}</div>
+   <div class="grp2">
+    <div class="grblock"><i>Signature</i>
+     <div class="sigwrap"><canvas id="pad" width="640" height="150"></canvas>
+      <span class="sigh3${d.sig?' gone':''}">${ic('pen','ic sm','var(--ink-3)','1.8')}Sign here</span>
+      <button class="sigc2" data-act="clearsig">Clear</button></div></div>
+    <div class="grblock"><i>Who can see this</i>
+     <div class="segpill2" role="tablist">${[['parents','Parents'],['staff','Staff'],['both','Parents &amp; staff']].map(([v,l])=>
+      `<span class="sgp${d.vis===v?' on':''}" data-act="vis:${v}" role="tab" tabindex="0"
+        aria-selected="${d.vis===v}">${l}</span>`).join('')}</div></div>
    </div>
 
    <button class="primary" data-act="asksave">Post to ${n} ${n===1?'family':'families'}</button>`;
@@ -2279,29 +2360,34 @@ const SHEETS={
      <span class="on2">${name}${sub?`<i>${sub}</i>`:''}</span></div>`;};
   return `<span class="grab"></span>
    <div class="sh-row"><h3 class="sh-h flat">New message</h3></div>
-   <div class="sc">
-    <p class="lab3">To</p>
-    <span class="fx b" data-act="copen:to" role="button" tabindex="0" aria-expanded="${c.open==='to'}"
-     aria-label="To, ${plain(toLabel())}">${toLabel()}${chev(c.open==='to')}</span>
-    ${c.open==='to'?`<div class="panel"><div class="opts">
-      ${list.map(k=>line(k.id,k.name,famOf(k))).join('')}
-      <div class="opt more" data-act="${c.showAll?'cless':'cmore'}">${c.showAll?'Show fewer':`Show all ${S.kids.length} children`}</div>
-      <p class="ophd">Staff</p>
-      ${line('osei','Kwame Osei','Director')}${line('joy','Joy Adeyemi','Assistant Teacher')}
-     </div></div>`:''}
-    <div class="labrow"><p class="lab3">Subject</p>
-     <span class="tplbtn${c.open==='tpl'?' on':''}" data-act="copen:tpl">${ic('file','ic sm','currentColor','1.8')}Template</span></div>
-    <span class="fx b field"><input id="csub" placeholder="What is this about?" value="${(c.subject||'').replace(/"/g,'&quot;')}"></span>
-    ${c.open==='tpl'?`<div class="panel"><div class="opts">${TEMPLATES.map(t=>`
-      <div class="opt" data-act="usetpl:${t.id}"><span class="on2">${t.name}</span>
-       ${ic('chev','ic sm','var(--ink-3)','2.2')}</div>`).join('')}</div></div>`:''}
+   <div class="grp2">
+    ${grow('copen:to','To',toLabel(),c.open==='to',!c.to.size,
+     `<div class="scrollwrap"><div class="opts scroll" tabindex="0" role="group"
+       aria-label="Children, ${S.kids.length}, scrollable">
+       ${S.kids.map(k=>line(k.id,k.name,famOf(k))).join('')}
+       <p class="ophd">Staff</p>
+       ${line('osei','Kwame Osei','Director')}${line('joy','Joy Adeyemi','Assistant Teacher')}
+      </div><span class="srail"><span class="sthumb"></span></span></div>`)}
+    <div class="grow"><div class="gr combo${c.open==='tpl'?' on':''}">
+      <i>Subject</i>
+      <input class="gvin" id="csub" type="text" value="${(c.subject||'').replace(/"/g,'&quot;')}"
+        placeholder="What is this about?" role="combobox" aria-expanded="${c.open==='tpl'}"
+        aria-label="Subject, type or pick a template">
+      <span class="rch${c.open==='tpl'?' up':''}" data-act="copen:tpl" role="button" tabindex="0"
+        aria-label="Pick a template">${ic('chev','ic sm','var(--npds-blue-700)','2.4')}</span></div>
+     ${c.open==='tpl'?`<div class="gpanel"><div class="opts" role="listbox" aria-label="Templates">
+       ${TEMPLATES.map(t=>`<div class="opt tall2" data-act="usetpl:${t.id}" role="option" tabindex="0"
+         aria-selected="${c.subject===t.name}"><span class="on2">${t.name}<i>${t.body.slice(0,46)}</i></span>
+         ${c.subject===t.name?ic('check','ic sm','var(--npds-blue-700)','2.6'):''}</div>`).join('')}</div></div>`:''}
+    </div>
    </div>
-   <div class="sc">
-    <p class="lab3">Message</p>
-    <div class="ta3 b"><textarea id="cbody" rows="9" placeholder="Write your message">${c.body||''}</textarea></div>
-    ${c.att?`<div class="attrow"><span class="attchip">${ic('clip','ic sm','var(--npds-blue-700)','1.9')}Today’s photo
-      <b data-act="cdetach">${ic('x','ic sm','var(--npds-blue-700)','2.4')}</b></span></div>`
-     :`<div class="attrow"><span class="attlink" data-act="cattach">${ic('clip','ic sm','var(--npds-blue-700)','1.9')}Attach a photo</span></div>`}
+   <div class="grp2">
+    <div class="grblock"><i>Message</i>
+     <textarea id="cbody" rows="8" placeholder="Write your message">${c.body||''}</textarea>
+     <div class="inatt2">${c.att
+      ?`<span class="attchip">${ic('clip','ic sm','var(--npds-blue-700)','1.9')}Today\u2019s photo
+        <b data-act="cdetach">${ic('x','ic sm','var(--npds-blue-700)','2.4')}</b></span>`
+      :`<span class="attlink" data-act="cattach" role="button" tabindex="0">${ic('clip','ic sm','var(--npds-blue-700)','1.9')}Attach a photo</span>`}</div></div>
    </div>
    <div class="cfoot2"><button class="second" data-act="savedraft">Save as a draft</button>
     <button class="primary" data-act="sendmsg">${ic('send','ic','currentColor','1.8')}Send</button></div>`;
@@ -2361,14 +2447,14 @@ function sheet(name,arg){
   $('#sheet').innerHTML=`<button class="sh-x" data-act="close" aria-label="Close">${ic('x','ic','var(--ink-2)','2')}</button>`+SHEETS[name]();
   $('#sheet').classList.toggle('tall',name==='log'||name==='posttype'||name==='compose');
  $('#sheet').classList.add('on'); $('#scrim').classList.add('on');
-  $('#sheet').scrollTop=0; wireDial(); wirePad();
+  $('#sheet').scrollTop=0; wireDial(); wirePad(); wireScroll();
 }
 function closeSheet(){openSheet=null;$('#sheet').classList.remove('on');$('#scrim').classList.remove('on');}
 function refreshSheet(){
   if(!openSheet)return;
   const el=$('#sheet'), y=el.scrollTop;
   el.innerHTML=`<button class="sh-x" data-act="close" aria-label="Close">${ic('x','ic','var(--ink-2)','2')}</button>`+SHEETS[openSheet]();
-  el.scrollTop=y; wireDial(); wirePad();
+  el.scrollTop=y; wireDial(); wirePad(); wireScroll();
 }
 
 /* ---------- confirm ---------- */
@@ -2506,7 +2592,9 @@ function doAct(a){
       const ids=[...S.compose.to], one=ids.length===1?K(ids[0]):null;
       const kidName=one?one.name.split(' ')[0]:'your child';
       const fam=one?(famOf(one)||'there'):'there';
-      S.compose.subject=S.compose.subject||t.name;
+      const mine=(S.compose.body||'').trim()&&!TEMPLATES.some(x=>S.compose.body.startsWith(x.body.slice(0,18)));
+      S.compose.subject=t.name;
+      if(mine){toast('Subject changed. Your message was kept.');S.compose.open=null;refreshSheet();break;}
       S.compose.body=t.body.replace(/\[Family Name\]/g,fam).replace(/\[Child Name\]/g,kidName).replace(/\[Time\]/g,'5:30 PM');
       S.compose.open=null;refreshSheet();toast(`${t.name} written in`);break;}
  case 'tplsoon': toast('Template editing is not in this prototype');break;
@@ -2540,8 +2628,11 @@ function doAct(a){
     case 'whoall': S.draft.everyone=!S.draft.everyone;S.draft.picked.clear();pickInPlace();break;
     case 'showall': stash();S.draft.showAll=true;refreshSheet();break;
     case 'showless': stash();S.draft.showAll=false;refreshSheet();break;
-    case 'meal': stash();S.draft.meal=arg;S.draft.qty='';S.draft.qtyOpen=false;refreshSheet();break;
-    case 'qtyopen': stash();S.draft.qtyOpen=!S.draft.qtyOpen;S.draft.whoOpen=false;refreshSheet();break;
+    case 'meal': S.draft.mealOpen=false; stash();S.draft.meal=arg;S.draft.qty='';S.draft.qtyOpen=false;refreshSheet();break;
+    case 'qtyopen': stash();S.draft.qtyOpen=!S.draft.qtyOpen;S.draft.whoOpen=false;
+      S.draft.mealOpen=false;S.draft.dateOpen=false;S.draft.clockOpen=false;refreshSheet();break;
+    case 'mealopen': stash();S.draft.mealOpen=!S.draft.mealOpen;S.draft.whoOpen=false;
+      S.draft.qtyOpen=false;S.draft.dateOpen=false;S.draft.clockOpen=false;refreshSheet();break;
     case 'qty': stash();S.draft.qty=arg;S.draft.qtyOpen=false;refreshSheet();break;
     case 'clock': stash();S.draft.clockOpen=!S.draft.clockOpen;S.draft.cmode='h';
       S.draft.whoOpen=false;S.draft.qtyOpen=false;refreshSheet();break;
