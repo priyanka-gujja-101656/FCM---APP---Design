@@ -1446,6 +1446,7 @@ let S={
  draft:{everyone:true,picked:new Set(),whoOpen:false,showAll:false,meal:'Lunch',qty:'',
    qtyOpen:false,det:'',vis:'both',sig:false,clockOpen:false,cmode:'h',
    t:{h:10,m:32,ap:'AM'},off:0,mOff:0,dateOpen:false,req:'',sev:'low',witness:'',internal:''},
+ mark:{h:9,m:0,ap:'AM'}, markMode:'h', markOpen:false,
  fopen:null, frange:'today', stack:[], openNote:new Set(), pick:null, room:'bluebell', tmark:null, day:0, childTab:'general', famTab:'general', reportView:'list', confirm:null,
 
  compose:{to:new Set(),subject:'',body:'',att:false,open:null,showAll:false},
@@ -1643,8 +1644,21 @@ function wireScroll(){
   if(!sc.addEventListener)return;
   draw(); sc.addEventListener('scroll',draw,{passive:true});
 }
-function clockPop(){
-  const d=S.draft, T=d.t;
+let CLK='draft';
+const clkT=()=>CLK==='draft'?S.draft.t:S.mark;
+const clkMode=()=>CLK==='draft'?S.draft.cmode:S.markMode;
+const setClkMode=v=>{if(CLK==='draft')S.draft.cmode=v;else S.markMode=v;};
+const markStr=()=>`${S.mark.h}:${t2(S.mark.m)} ${S.mark.ap}`;
+function parseMark(str){
+  const m=/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i.exec((str||'').trim());
+  S.mark=m?{h:+m[1],m:+m[2],ap:m[3].toUpperCase()}
+   :(()=>{const d=new Date();return {h:d.getHours()%12||12,m:d.getMinutes(),ap:d.getHours()<12?'AM':'PM'};})();
+  S.markMode='h';
+}
+function clockPop(which='draft'){
+  CLK=which;
+  const T=which==='draft'?S.draft.t:S.mark, mode=which==='draft'?S.draft.cmode:S.markMode;
+  const pfx=which==='draft'?'':'m';
   const ha=(T.h%12)*30+T.m*0.5, ma=T.m*6;
   const num=[...Array(12)].map((_,x)=>{const n=x+1,a=(n*30-90)*Math.PI/180;
    const px=120+Math.cos(a)*84, py=120+Math.sin(a)*84;
@@ -1655,10 +1669,10 @@ function clockPop(){
    return `<line class="tk${x%5?'':' big'}" x1="${120+Math.cos(a)*r1}" y1="${120+Math.sin(a)*r1}"
     x2="${120+Math.cos(a)*108}" y2="${120+Math.sin(a)*108}"/>`}).join('');
   return `<div class="clockpop">
-   <div class="cread"><b class="${d.cmode==='h'?'on':''}" data-act="cmode:h">${T.h}</b><span>:</span>
-    <b class="${d.cmode==='m'?'on':''}" data-act="cmode:m">${t2(T.m)}</b>
-    <span class="apw"><i class="${T.ap==='AM'?'on':''}" data-act="ap:AM">AM</i>
-     <i class="${T.ap==='PM'?'on':''}" data-act="ap:PM">PM</i></span></div>
+   <div class="cread"><b class="${mode==='h'?'on':''}" data-act="${pfx}cmode:h" role="button" tabindex="0">${T.h}</b><span>:</span>
+    <b class="${mode==='m'?'on':''}" data-act="${pfx}cmode:m" role="button" tabindex="0">${t2(T.m)}</b>
+    <span class="apw"><i class="${T.ap==='AM'?'on':''}" data-act="${pfx}ap:AM" role="button" tabindex="0">AM</i>
+     <i class="${T.ap==='PM'?'on':''}" data-act="${pfx}ap:PM" role="button" tabindex="0">PM</i></span></div>
    <svg id="dial" viewBox="0 0 240 240">
     <circle class="face" cx="120" cy="120" r="112"/>${tick}${num}
     <line class="hh" x1="120" y1="120" x2="${120+Math.cos((ha-90)*Math.PI/180)*54}"
@@ -1666,7 +1680,7 @@ function clockPop(){
     <line class="mh" x1="120" y1="120" x2="${120+Math.cos((ma-90)*Math.PI/180)*82}"
      y2="${120+Math.sin((ma-90)*Math.PI/180)*82}"/>
     <circle class="pin" cx="120" cy="120" r="5"/></svg>
-   <div class="cfoot"><button class="mini lbl sec" data-act="clockdone">Done</button></div></div>`;
+   </div>`;
 }
 let SIG=[],sigCur=null;
 function wireDial(){
@@ -1674,20 +1688,22 @@ function wireDial(){
   const set=e=>{const r=dl.getBoundingClientRect();
    const x=e.clientX-r.left-r.width/2, y=e.clientY-r.top-r.height/2;
    let a=Math.atan2(y,x)*180/Math.PI+90; if(a<0)a+=360;
-   if(S.draft.cmode==='h'){const h=Math.round(a/30)%12;S.draft.t.h=h===0?12:h;}
-   else S.draft.t.m=Math.round(a/6)%60;
+   const T=clkT();
+   if(clkMode()==='h'){const h=Math.round(a/30)%12;T.h=h===0?12:h;}
+   else T.m=Math.round(a/6)%60;
    repaintClock();};
   let down=false;
   dl.addEventListener('pointerdown',e=>{down=true;dl.setPointerCapture(e.pointerId);set(e)});
   dl.addEventListener('pointermove',e=>{if(down)set(e)});
   dl.addEventListener('pointerup',()=>{down=false;
-   if(S.draft.cmode==='h'){S.draft.cmode='m';repaintClock();}});
+   if(clkMode()==='h'){setClkMode('m');repaintClock();}});
 }
 function repaintClock(){
   const w=document.querySelector('.clockpop'); if(!w)return;
-  w.outerHTML=clockPop(); wireDial();
-  const fld=document.querySelector('.gr[data-act="clock"] .gvv');
-  if(fld)fld.textContent=timeStr();
+  const which=CLK;
+  w.outerHTML=clockPop(which); wireDial();
+  const fld=document.querySelector(which==='draft'?'.gr[data-act="clock"] .gvv':'.gr[data-act="mclock"] .gvv');
+  if(fld)fld.textContent=which==='draft'?timeStr():markStr();
 }
 function wirePad(){
   const c=document.getElementById('pad'); if(!c)return;
@@ -1730,7 +1746,7 @@ function pickInPlace(){
 function vMyRoom(){
   const h=cnt('here'),a=cnt('absent'),ni=S.kids.filter(k=>k.status==='out').length,tot=S.kids.length;
  const line = ni>0 ? `Good morning, Tara.<br>Your room is all set!` : `All set, Tara.<br>Everyone is here.`;
-  const sub  = ni>0 ? `<b>${ni} not checked in yet.</b> Circle time is at 9:00.` : `<b>${h} here.</b> Next up is outdoor play at 10:20.`;
+  const sub  = ni>0 ? `<b>${ni} not checked in yet.</b>` : `<b>${h} here.</b>`;
   const q=S.q.trim().toLowerCase();
   const hits=q?S.kids.filter(k=>k.name.toLowerCase().includes(q)):[];
   if(S.searchOpen&&q){
@@ -2217,9 +2233,8 @@ const SHEETS={
  const n=S.sel.size, dir=S.pkdir||'out';
  return `<span class="grab"></span>
    <h3 class="sh-h">Check ${dir==='out'?'out':'in'} ${n} ${n===1?'child':'children'}</h3>
- <div class="card fieldset">
-    <div class="field"><span class="fl">Time ${dir==='out'?'out':'in'}</span>
- <span class="fv"><input class="tinput" id="btmark" value="${S.tmark||now()}"></span></div>
+ <div class="grp2">
+    ${grow('mclock',`Time ${dir==='out'?'out':'in'}`,markStr(),S.markOpen,false,clockPop('mark'))}
    </div>
    <button class="primary" data-act="dobulk">${ic(dir==='out'?'out':'in','ic','currentColor','1.8')}Check ${dir==='out'?'out':'in'} ${n}</button>`;
  },
@@ -2257,9 +2272,8 @@ const SHEETS={
  <div class="card list roomy">
     ${people.map(w=>radio(w,w.split(' \u00b7 ')[0],w.split(' \u00b7 ')[1]||'Authorized',!named)).join('')}
  </div>
- <div class="card fieldset">
-    <div class="field"><span class="fl">Time ${dir==='out'?'out':'in'}</span>
- <span class="fv"><input class="tinput" id="tmark" value="${S.tmark||now()}"></span></div>
+ <div class="grp2">
+    ${grow('mclock',`Time ${dir==='out'?'out':'in'}`,markStr(),S.markOpen,false,clockPop('mark'))}
    </div>
    <button class="${dir==='out'?'second':'primary'}" data-act="dopickup">${ic(dir==='out'?'out':'in','ic','currentColor','1.8')}Check ${dir==='out'?'out':'in'} ${k.name.split(' ')[0]}</button>`;
  },
@@ -2522,19 +2536,18 @@ function doAct(a){
  case 'close': closeSheet();render(true);break;
  case 'dir': S.dir=arg;refreshSheet();break;
 
- case 'checkin': S.pkdir='in';S.pick=null;S.tmark=null;sheet('pickup',arg);break;
- case 'checkout': S.pkdir='out';S.pick=null;S.tmark=null;sheet('pickup',arg);break;
+ case 'checkin': S.pkdir='in';S.pick=null;S.markOpen=false;parseMark(now());sheet('pickup',arg);break;
+ case 'checkout': S.pkdir='out';S.pick=null;S.markOpen=false;parseMark(now());sheet('pickup',arg);break;
  case 'dopickup':{const k=K(S.arg);
  const people=(PICKUPS[k.id]||DEFAULT_PICKUPS.map(x=>x+' \u00b7 on file'));
  let who=S.pick||people[0];
-     const tf=document.getElementById('tmark'); const t=(tf&&tf.value.trim())||now();
+     const t=markStr();
      if(S.pkdir==='in'){k.status='here';k.tin=t;k.who=who;k.collectedBy=null;
  closeSheet();toast(`<b>${k.name}</b> checked in at ${t}`);}
      else{k.status='out';k.tout=t;k.collectedBy=who;
  closeSheet();toast(`<b>${k.name}</b> checked out to ${who.split(' \u00b7 ')[0]}`);}
  render(true);break;}
-   case 'pk':{ const tf=document.getElementById('tmark'); if(tf)S.tmark=tf.value;
- S.pick=arg;refreshSheet();break;}
+   case 'pk': S.pick=arg;refreshSheet();break;
    case 'absent':{const k=K(arg);
  confirmAsk({title:`Mark ${k.name} absent?`,
        body:'This goes on the day\u2019s attendance record and their family can see it.',
@@ -2563,9 +2576,12 @@ function doAct(a){
  S.sel.clear();S.selecting=false;
      toast(`<b>${n} ${n===1?'child':'children'}</b> ${arg==='in'?'checked in':arg==='out'?'checked out':'marked absent'}`);render();break;}
  case 'nosel': toast('Tick a child first');break;
- case 'bulksheet': S.pkdir=arg;S.tmark=null;sheet('bulk');break;
+ case 'bulksheet': S.pkdir=arg;S.markOpen=false;parseMark(now());sheet('bulk');break;
+    case 'mclock': S.markOpen=!S.markOpen;refreshSheet();break;
+    case 'mcmode': S.markMode=arg;repaintClock();break;
+    case 'map': S.mark.ap=arg;repaintClock();break;
  case 'dobulk':{const n=S.sel.size; if(!n)break;
- const tf=document.getElementById('btmark'); const t=(tf&&tf.value.trim())||now();
+ const t=markStr();
  S.sel.forEach(id=>{const k=K(id);
        if(S.pkdir==='in'){k.status='here';k.tin=t;k.who=null;k.collectedBy=null;}
  else{k.status='out';k.tout=t;k.collectedBy=null;}});
