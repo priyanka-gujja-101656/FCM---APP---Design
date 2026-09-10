@@ -1606,13 +1606,13 @@ function row(k,opts={}){
  right=act+`<button class="dotsb" data-act="rowmenu:${k.id}" aria-label="More for ${k.name}">${ic('dots','ic','var(--ink-3)','1.9')}</button>`;
  }
   }
-  const act=S.selecting?`data-act="sel:${k.id}"`:'';
+  const act=S.selecting?`data-act="sel:${k.id}"`:(opts.rowact?`data-act="${opts.rowact}" role="button" tabindex="0"`:'');
  const expanded=(!S.selecting&&k.note&&S.openNote.has(k.id))
     ? `<div class="noterow"><span class="nr-i">${ic('doc','ic sm','currentColor','1.8')}</span><p>${k.note}</p></div>` : '';
  return `<div class="rowwrap">
    <div class="row rowstack${S.sel.has(k.id)?' picked':''}" ${act}>${box}
  <span class="av">${dotFor(k.status)}${ini(k.name)}</span>
-    <span class="rt"><b ${S.selecting?'':`data-act="child:${k.id}"`}>${k.name}</b><small>${sub}</small>${tags}</span>
+    <span class="rt"><b ${(S.selecting||opts.rowact)?'':`data-act="child:${k.id}"`}>${k.name}</b><small>${sub}</small>${tags}</span>
  <span class="rr">${right}</span></div>
    ${expanded}</div>`;
 }
@@ -2259,7 +2259,8 @@ const SHEETS={
     <span class="sg${S.dir==='in'?' on':''}" data-act="dir:in">${ic('in','ic','currentColor','1.8')}Check in</span>
  <span class="sg${S.dir==='out'?' on':''}" data-act="dir:out">${ic('out','ic','currentColor','1.8')}Check out</span></div>
  <p class="sh-note">${S.dir==='in'?`${pool.length} ${pool.length===1?'child is':'children are'} not in the room.`:`${pool.length} ${pool.length===1?'child is':'children are'} here now.`}</p>
- <div class="card list roomy">${pool.length?pool.slice(0,5).map(k=>row(k,{right:`<button class="mini lg ${S.dir==='in'?'pri':'sec'}" data-act="${S.dir==='in'?'checkin':'checkout'}:${k.id}" aria-label="${S.dir==='in'?'Check in':'Check out'} ${k.name}">${ic(S.dir==='in'?'in':'out','ic','currentColor','1.9')}</button>`})).join(''):`<div class="empty">${S.dir==='in'?'Everyone is checked in.':'Nobody left to check out.'}</div>`}</div>
+ <div class="card list roomy">${pool.length?pool.slice(0,5).map(k=>row(k,{rowact:`${S.dir==='in'?'checkin':'checkout'}:${k.id}`,
+   right:`<span class="mini lg ${S.dir==='in'?'pri':'sec'}" aria-hidden="true">${ic(S.dir==='in'?'in':'out','ic','currentColor','1.9')}</span>`})).join(''):`<div class="empty">${S.dir==='in'?'Everyone is checked in.':'Nobody left to check out.'}</div>`}</div>
  <button class="second" data-act="bulkfrom">${ic('listCheck','ic','var(--npds-gray-700)','1.8')}Bulk check in / out</button>`;
  },
  posttype(){
