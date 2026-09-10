@@ -2467,6 +2467,10 @@ const SHEETS={
     ${grow('copen:to','To',toLabel(),c.open==='to',!c.to.size,
      `<div class="scrollwrap"><div class="opts scroll" tabindex="0" role="group"
        aria-label="Children, ${S.kids.length}, scrollable">
+       <div class="opt" data-act="ctoall" role="checkbox" tabindex="0" aria-checked="${allKids()}"
+        aria-label="Whole room, ${S.kids.length} children">
+        <span class="cb${allKids()?' on':''}">${allKids()?ic('check','ic sm','#FFFDFA','2.8'):''}</span>
+        <span class="on2">Whole room <i>${S.kids.length} children</i></span></div>
        ${S.kids.map(k=>line(k.id,k.name,famOf(k))).join('')}
        <p class="ophd">Staff</p>
        ${line('osei','Kwame Osei','Director')}${line('joy','Joy Adeyemi','Assistant Teacher')}
@@ -2533,9 +2537,12 @@ const famOf=k=>{
   if(f)return f.primary;
   const ix=Math.max(0,S.kids.findIndex(x=>x.id===k.id));
   return `${PGIVEN[ix%PGIVEN.length]} ${k.name.split(' ').slice(-1)[0]}`;};
+const allKids=()=>S.kids.length>0&&S.kids.every(k=>S.compose.to.has(k.id));
 function toLabel(){
   const t=S.compose.to;
   if(!t.size)return '<u>Choose who it goes to</u>';
+  if(allKids()){const extra=t.size-S.kids.length;
+    return extra?`Whole room and ${extra} more`:'Whole room';}
   if(t.size===1){const id=[...t][0], k=K(id); return k?k.name:(STAFFN[id]||'1 selected');}
   return `${t.size} selected`;
 }
@@ -2715,6 +2722,10 @@ function doAct(a){
  case 'newmsg': S.compose={to:new Set(),subject:'',body:'',att:false,open:null,showAll:false};sheet('compose');break;
     case 'copen': stashCompose();S.compose.open=S.compose.open===arg?null:arg;refreshSheet();break;
     case 'cto': stashCompose();S.compose.to.has(arg)?S.compose.to.delete(arg):S.compose.to.add(arg);refreshSheet();break;
+    case 'ctoall': stashCompose();
+      if(allKids())S.kids.forEach(k=>S.compose.to.delete(k.id));
+      else S.kids.forEach(k=>S.compose.to.add(k.id));
+      refreshSheet();break;
     case 'cmore': stashCompose();S.compose.showAll=true;refreshSheet();break;
     case 'cless': stashCompose();S.compose.showAll=false;refreshSheet();break;
     case 'cattach': stashCompose();S.compose.att=true;S.compose.open=null;refreshSheet();break;
