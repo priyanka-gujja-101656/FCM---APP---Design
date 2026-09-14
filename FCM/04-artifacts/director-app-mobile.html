@@ -926,6 +926,8 @@
   .noteitem+.noteitem{border-top:1px solid var(--line)}
   .noteitem p{margin:0;font-size:14.5px;line-height:1.5;color:var(--ink)}
   .noteitem small{display:block;font-size:12.5px;color:var(--ink-3);margin-top:7px}
+  .quick.three{grid-template-columns:repeat(3,1fr)}
+  .quick.three .primary,.quick.three .second{padding:11px 4px;font-size:12.5px;gap:6px}
 </style>
 </head>
 <body>
@@ -1891,9 +1893,7 @@ function vFamily(){
      +secl('Contact')
      +`<div class="card fieldstack">${stack('Phone',m(f.phone))+stack('Email',m(f.email))
        +stack('Address',f.address?m(f.address):'Not on file')}</div>`
-     +`<div class="quick">
-       <button class="primary q" data-act="soon:Call ${f.contact}">${ic('phone','ic sm','var(--npds-blue-700)','1.9')}Call</button>
-       <button class="second q" data-act="newmsg">${ic('chat','ic sm','var(--npds-gray-700)','1.9')}Message</button></div>`;
+     ;
   } else if(t==='students'){
     panel=secl('Enrolled',kids.length,'soon:Add a student to this family','Add')
      +`<div class="card list tight desc">${kids.length?kids.map(kidRow).join('')
@@ -1953,9 +1953,10 @@ function vFamily(){
      ${f.balance>0?`<span class="alg neg">${m(money0(f.balance))} due</span>`:'<span class="alg">Current</span>'}
      ${kids.some(k=>k.subsidy)?'<span class="alg">TN CCAP</span>':''}
     </div>
-    <div style="padding:0 16px 16px"><div class="quick">
-     <button class="primary q" data-act="acct:${f.id}">${ic('card','ic sm','var(--npds-blue-700)','1.9')}Account</button>
+    <div style="padding:0 16px 16px"><div class="quick three">
+     <button class="primary q" data-act="soon:Call ${f.contact}">${ic('phone','ic sm','var(--npds-blue-700)','1.9')}Call</button>
      <button class="second q" data-act="newmsg">${ic('chat','ic sm','var(--npds-gray-700)','1.9')}Message</button>
+     <button class="second q" data-act="acct:${f.id}">${ic('card','ic sm','var(--npds-gray-700)','1.9')}Account</button>
     </div></div>
    </div>
    <div class="tabpill">${TABS.map(([v,l])=>`<button class="tp${t===v?' on':''}" data-act="ftab:${v}">${l}</button>`).join('')}</div>
@@ -1991,9 +1992,7 @@ function vStaffDetail(){
       +fr('Hired',dateLabel(st.hire))}</div>`
      +secl('Contact')
      +`<div class="card fieldstack">${stack('Phone',m(st.phone))+stack('Email',m(st.email))}</div>`
-     +`<div class="quick">
-       <button class="primary q" data-act="soon:Call ${st.name}">${ic('phone','ic sm','var(--npds-blue-700)','1.9')}Call</button>
-       <button class="second q" data-act="newmsg">${ic('chat','ic sm','var(--npds-gray-700)','1.9')}Message</button></div>`;
+     ;
   } else if(t==='hr'){
     panel=`<div class="card sum">
       <span class="su"><b>${st.hours}</b><small>HRS THIS WEEK</small></span>
