@@ -759,7 +759,6 @@
   /* last word, matching the teacher app's own final overrides */
   .sp-mid b{font-size:13.5px}
   .dotsb{width:26px;height:32px;margin-right:-4px}
-  .row.rowstack{padding-top:17px;padding-bottom:17px}
   /* measured against the teacher app, element by element */
   .ghost.tb-inline{min-height:34px;padding:7px 15px;font-size:13.5px;margin:0;width:auto}
   .spine{gap:6px}
@@ -772,6 +771,11 @@
      buttons, so they need it stated */
   .tp,.row,.act,.qr,.rs-b,.kpi,.arow,.caprow,.sh-opt{line-height:1.5}
   .row.rowstack .rr{min-height:40px}
+  /* the teacher's general rules, which I had been patching screen by screen */
+  .card.list .row{padding-top:17px;padding-bottom:17px}
+  .sheet .card.list .row{padding:15px 13px}
+  /* .qr is a span there and a button here, so it arrives with button padding */
+  .qr{padding:0}
 </style>
 </head>
 <body>
@@ -1371,7 +1375,7 @@ function vActivities(){
    ${S.searchOpen?postbtn:''}
    ${datespine()}
    ${qchips()}
-   <div class="feedhd"><b>Activity log</b><span>${scope.length} posts</span></div>
+   <div class="feedhd lab"><b>Activity log</b><span>${scope.length} posts</span></div>
    <div class="pfeed${S.searchOpen?' short':''}">${list.length?list.map(acard).join('')
      :'<div class="card"><div class="empty">Nothing matches.</div></div>'}</div>
   </div>
@@ -1395,7 +1399,7 @@ function vMessages(){
    <div class="card list">${list.length?list.map(t=>`<button class="row" data-act="thread:${t.id}">
      <span class="av">${m(t.ini)}${t.unread?'<i class="unreaddot"></i>':''}</span>
      <span class="rt"><b>${m(t.who)}</b><small>${t.sub} · “${t.msgs[t.msgs.length-1].t}”</small></span>
-     <span class="rr"><span class="tm${t.unread?' accent':' mute'}">${t.at}</span></span></button>`).join('')
+     <span class="rr"><span class="tm mute">${t.at}</span></span></button>`).join('')
     :'<div class="empty">No messages match.</div>'}</div>
   </div>
   ${S.searchOpen?'':`<div class="fabdock">${newbtn}</div>`}
