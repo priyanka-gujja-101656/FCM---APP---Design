@@ -870,6 +870,27 @@
   .ratio .rv{font-weight:600;color:var(--present)}
   .ratio.over{background:rgba(176,138,86,.18)}
   .ratio.over .rv{color:var(--warn)}
+  /* the teacher's tall sheet: it opens near the top and fills */
+  .sheet.full{top:calc(10px + env(safe-area-inset-top));bottom:0;max-height:none;
+    padding:10px 22px calc(34px + env(safe-area-inset-bottom));
+    background:rgba(246,241,229,.97);display:flex;flex-direction:column}
+  @media (min-width:600px){.sheet.full{padding-bottom:34px}}
+  .sheet.full .grab{width:44px;height:5px;margin:4px auto 18px}
+  .sheet.full .sh-h{font-size:21px;margin:0 0 16px}
+  .sheet.full .sh-h.flat{margin:0}
+  .sheet.full .sh-sub{margin:-10px 0 16px}
+  .sh-x{width:40px;height:40px}
+  .sh-x svg{width:17px;height:17px}
+  /* the signing space */
+  .sigwrap{position:relative;border:1px dashed rgba(44,49,43,.22);border-radius:10px;
+    background:rgba(255,255,255,.6);height:96px;overflow:hidden}
+  .sigwrap canvas{width:100%;height:96px;display:block;touch-action:none;cursor:crosshair}
+  .sigh3{position:absolute;left:0;right:0;top:36px;display:flex;align-items:center;gap:6px;
+    justify-content:center;font-size:13px;color:var(--ink-3);pointer-events:none;transition:opacity .18s}
+  .sigh3.gone{opacity:0}
+  .sigc2{position:absolute;right:8px;bottom:7px;font-size:11.5px;font-weight:600;
+    color:var(--npds-blue-700);background:rgba(255,255,255,.9);border:1px solid var(--npds-blue-100);
+    border-radius:999px;padding:4px 11px;font-family:inherit}
 </style>
 </head>
 <body>
@@ -923,6 +944,12 @@ const I={
 person:'<circle cx="12" cy="8" r="3.4"/><path d="M5 20a7 7 0 0 1 14 0"/>',
 chev:'<path d="M9 6l6 6-6 6"/>',
 moon:'<path d="M20 14.5A8 8 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z"/>',
+clip:'<path d="M20 11.5 12 19.5a4.5 4.5 0 0 1-6.4-6.4l8-8a3 3 0 0 1 4.3 4.3l-8 8a1.5 1.5 0 0 1-2.1-2.1l7.3-7.3"/>',
+diaper:'<path d="M4 5h16v5a9 9 0 0 1-8 9 9 9 0 0 1-8-9Z"/><path d="M8 12h8"/>',
+pill:'<rect x="2.6" y="8.6" width="18.8" height="6.8" rx="3.4" transform="rotate(-45 12 12)"/><path d="M8.5 8.5 15.5 15.5"/>',
+flag:'<path d="M5 21V4h9l-1 3 1 3H5"/><path d="M14 4h5v6h-5"/>',
+smile:'<circle cx="12" cy="12" r="9"/><path d="M8.5 14.5a4.5 4.5 0 0 0 7 0"/><path d="M9 9.5h.01M15 9.5h.01"/>',
+bandage:'<rect x="2.5" y="8.5" width="19" height="7" rx="3.5" transform="rotate(-45 12 12)"/><path d="M11 11h.01M13 13h.01M13 11h.01M11 13h.01"/>',
 swap:'<path d="M4 8h13l-3-3M20 16H7l3 3"/>',
 arrow:'<path d="M5 12h14M13 6l6 6-6 6"/>',
 dots:'<circle cx="12" cy="5.2" r="1.55"/><circle cx="12" cy="12" r="1.55"/><circle cx="12" cy="18.8" r="1.55"/>',
@@ -1355,15 +1382,26 @@ function filtersBtn(screen){
   return `<button class="ghost tb-inline" data-act="sheet:filters">Filters${c?' ('+c+')':''}</button>`;
 }
 /* activity palette: pastel ring and tint, never the interactive blue */
-const PAL={incident:['#F4E3DE','#9A4B39'],meal:['#F6EBD9','#8A6A3C'],nap:['#E4EBF3','#4A6480'],
-  photo:['#E4EEE7','#3F6354'],kudos:['#E4EEE7','#3F6354'],note:['#E4EEE7','#3F6354']};
+const PAL={incident:['#F4E3DE','#9A4B39'],accident:['#F4E3DE','#9A4B39'],
+  behavior:['#F4E3DE','#9A4B39'],medication:['#F4E3DE','#9A4B39'],
+  meal:['#F6EBD9','#8A6A3C'],toilet:['#F6EBD9','#8A6A3C'],
+  nap:['#E4EBF3','#4A6480'],mood:['#E4EBF3','#4A6480'],
+  photo:['#E4EEE7','#3F6354'],kudos:['#E4EEE7','#3F6354'],note:['#E4EEE7','#3F6354'],
+  observation:['#E4EEE7','#3F6354']};
 const pal=t=>PAL[t]||['rgba(44,49,43,.055)','var(--ink-2)'];
-const TY={incident:{label:'Incident',icon:'alert'},meal:{label:'Food',icon:'meal'},nap:{label:'Nap',icon:'zzz'},
-  photo:{label:'Photo',icon:'img'},kudos:{label:'Kudos',icon:'star'},note:{label:'Observation',icon:'book'}};
+const TY={incident:{label:'Incident',icon:'alert'},accident:{label:'Accident',icon:'bandage'},
+  behavior:{label:'Behavior',icon:'flag'},medication:{label:'Medication',icon:'pill'},
+  meal:{label:'Food',icon:'meal'},toilet:{label:'Toilet',icon:'diaper'},
+  nap:{label:'Nap',icon:'zzz'},mood:{label:'Mood',icon:'smile'},
+  photo:{label:'Photo',icon:'img'},kudos:{label:'Kudos',icon:'star'},
+  note:{label:'Observation',icon:'book'},observation:{label:'Note',icon:'doc'}};
 const QUICK=[['photo','Photo'],['meal','Food'],['nap','Nap'],['incident','Incident']];
 /* the teacher's grid of activity types */
-const POST_TYPES=[['note','Observation','book'],['meal','Food','meal'],['nap','Nap','zzz'],
-  ['kudos','Kudos','star'],['incident','Incident','alert'],['photo','Photo / Video','camera']];
+const POST_TYPES=[
+  ['note','Observation','book'],['meal','Food','meal'],['nap','Nap','zzz'],
+  ['toilet','Toilet','diaper'],['observation','Note','doc'],['kudos','Kudos','star'],
+  ['medication','Medication','pill'],['behavior','Behavior','flag'],['mood','Mood','smile'],
+  ['accident','Accident','bandage'],['incident','Incident','alert'],['photo','Photo / Video','camera']];
 /* A director posts across rooms, so the room is the first thing the form asks. */
 const TEMPLATES=[
  {id:'t1',name:'Pickup reminder',body:'Hi [Family Name], a quick reminder that [Child Name] needs collecting by [Time] today.'},
@@ -1381,7 +1419,7 @@ function toLabel(){
     const r=ROOMS.find(x=>x.id===id); if(r) return `Everyone in ${r.name}`;}
   return `${n} recipients`;
 }
-let draft={type:'note',room:null,picked:new Set(),everyone:true,open:null,det:'',vis:'parents'};
+let draft={type:'note',room:null,picked:new Set(),everyone:true,open:null,det:'',vis:'parents',sig:false};
 function draftKids(){ return draft.room?kidsIn(draft.room):[]; }
 function draftCount(){ return draft.everyone?draftKids().length:draft.picked.size; }
 function whoLabel(){
@@ -2121,7 +2159,7 @@ function vSettings(){
    ============================================================ */
 function sheet(kind,arg){
   const sh=$('#sheet');
-  let html='', tall=false, form=false;
+  let html='', tall=false, form=false, full=false;
   if(kind==='checkin'||kind==='checkout'){
     /* the teacher app's pickup sheet, unchanged: who, then the time, then one button */
     const k=K(arg), out=kind==='checkout';
@@ -2199,7 +2237,7 @@ function sheet(kind,arg){
       ${ic('swap','ic','currentColor','1.8')}Move to ${target.name}</button>
      <button class="ghost" data-act="close">Cancel</button>`;
   } else if(kind==='compose'){
-    tall=true; form=true;
+    full=true; form=true;
     const c=compose;
     const line=(id,name,sub)=>{const on=c.to.has(id);
       return `<button class="opt" data-act="cto:${id}">
@@ -2243,7 +2281,7 @@ function sheet(kind,arg){
      <div class="shfoot2 cfoot2"><button class="second" data-act="savedraft">Save as a draft</button>
       <button class="primary" data-act="sendmsg">${ic('send','ic','currentColor','1.8')}Send</button></div>`;
   } else if(kind==='posttype'){
-    tall=true;
+    full=true;
     html=`<span class="grab"></span>
      <button class="sh-x" data-act="close" aria-label="Close">${ic('x','ic sm','var(--ink-2)','2.1')}</button>
      <h3 class="sh-h">Post an activity</h3>
@@ -2251,7 +2289,7 @@ function sheet(kind,arg){
        return `<button class="tl3" data-act="ptype:${t}">
         <i class="tli3" style="background:${f}">${ic(g,'ic',i2,'1.6')}</i><b>${l}</b></button>`;}).join('')}</div>`;
   } else if(kind==='log'){
-    tall=true; form=true;
+    full=true; form=true;
     const ty=POST_TYPES.find(x=>x[0]===draft.type)||POST_TYPES[0];
     const [f,i2]=pal(draft.type);
     const n2=draftCount();
@@ -2282,6 +2320,10 @@ function sheet(kind,arg){
         <textarea id="det" rows="3" placeholder="Anything the family should know.">${esc(draft.det)}</textarea></div>
       </div>
       <div class="grp2">
+       <div class="grblock"><i>Signature</i>
+        <div class="sigwrap"><canvas id="pad" width="640" height="192"></canvas>
+         <span class="sigh3${draft.sig?' gone':''}">${ic('pen','ic sm','var(--ink-3)','1.8')}Sign here</span>
+         <button class="sigc2" data-act="clearsig">Clear</button></div></div>
        <div class="grblock"><i>Who can see this</i>
         <div class="segpill2">${[['parents','Parents'],['staff','Staff'],['both','Parents &amp; staff']].map(([v,l])=>
           `<button class="sgp${draft.vis===v?' on':''}" data-act="dvis:${v}">${l}</button>`).join('')}</div></div>
@@ -2429,6 +2471,8 @@ function sheet(kind,arg){
   if(kind==='relocate')S.relArg=arg;
   sh.classList.toggle('tall',tall);
   sh.classList.toggle('formsheet',form);
+  sh.classList.toggle('full',full);
+  setTimeout(wirePad,0);
   $('#scrim').classList.add('on');
   sh.classList.add('on');
 }
@@ -2436,7 +2480,21 @@ function stashCompose(){
   const su=$('#csub'), bo=$('#cbody');
   if(su)compose.subject=su.value; if(bo)compose.body=bo.value;
 }
-function closeSheet(){$('#scrim').classList.remove('on');$('#sheet').classList.remove('on','tall','formsheet');}
+/* a signature is drawn, so it needs the canvas wired every time the sheet redraws */
+function wirePad(){
+  const c=$('#pad'); if(!c||c.dataset.on)return; c.dataset.on='1';
+  const x=c.getContext('2d'); x.lineWidth=3; x.lineCap='round'; x.strokeStyle='#2C312B';
+  let drawing=false;
+  const pos=e=>{const r=c.getBoundingClientRect();const t=e.touches?e.touches[0]:e;
+    return [(t.clientX-r.left)*(c.width/r.width),(t.clientY-r.top)*(c.height/r.height)];};
+  const start=e=>{drawing=true;x.beginPath();x.moveTo(...pos(e));
+    draft.sig=true;$('.sigh3')?.classList.add('gone');e.preventDefault();};
+  const move=e=>{if(!drawing)return;x.lineTo(...pos(e));x.stroke();e.preventDefault();};
+  const end=()=>{drawing=false;};
+  c.addEventListener('pointerdown',start);c.addEventListener('pointermove',move);
+  window.addEventListener('pointerup',end);
+}
+function closeSheet(){$('#scrim').classList.remove('on');$('#sheet').classList.remove('on','tall','formsheet','full');}
 
 /* ============================================================
    render + actions
@@ -2606,7 +2664,9 @@ function doAct(a){
       closeSheet();toast(`Sent to ${n2} ${n2===1?'recipient':'recipients'}`);
       compose={to:new Set(),subject:'',body:'',att:false,open:null,room:null};
       render(true);break;}
-    case 'ptype': draft.type=arg;draft.open=draft.room?null:'room';sheet('log');break;
+    case 'clearsig':{const c=$('#pad'); if(c)c.getContext('2d').clearRect(0,0,c.width,c.height);
+      draft.sig=false;$('.sigh3')?.classList.remove('gone');break;}
+    case 'ptype': draft.type=arg;draft.open=null;sheet('log');break;
     case 'dopen':{const d=$('#det'); if(d)draft.det=d.value;
       draft.open=draft.open===arg?null:arg;sheet('log');break;}
     case 'droom': draft.room=arg;draft.everyone=true;draft.picked.clear();draft.open='who';sheet('log');break;
@@ -2625,7 +2685,7 @@ function doAct(a){
         review:false,body:draft.det||`${ty[1]} logged for ${whoLabel().toLowerCase()}.`});
       closeSheet();
       toast(`Posted to ${n2} ${n2===1?'family':'families'}`);
-      draft={type:'note',room:null,picked:new Set(),everyone:true,open:null,det:'',vis:'parents'};
+      draft={type:'note',room:null,picked:new Set(),everyone:true,open:null,det:'',vis:'parents',sig:false};
       render(true);break;}
     case 'soon': toast(esc(arg));break;
   }
