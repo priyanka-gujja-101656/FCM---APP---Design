@@ -920,7 +920,12 @@
   /* the heading row now holds a control, so it needs the room for one */
   .flabel:has(.seclab-act){align-items:center;margin:14px 2px 2px}
   /* a profile row's subtitle is a sentence, not a data line, so it wraps */
-  .card.desc .rt small{white-space:normal}
+  .card.desc .rt small,.card.desc .rt b{white-space:normal}
+  /* a note is a paragraph with a byline, not a title with a subtitle */
+  .noteitem{padding:15px 12px}
+  .noteitem+.noteitem{border-top:1px solid var(--line)}
+  .noteitem p{margin:0;font-size:14.5px;line-height:1.5;color:var(--ink)}
+  .noteitem small{display:block;font-size:12.5px;color:var(--ink-3);margin-top:7px}
 </style>
 </head>
 <body>
@@ -1148,6 +1153,13 @@ const balOf=fid=>{const f=F(fid);return f?f.balance:0;};
 const outstanding=()=>FAMILIES.reduce((s,f)=>s+f.balance,0);
 
 /* the base app's student record. Everything the seven tabs read. */
+/* what the family and staff tabs read, mirroring the base app */
+const FAM_DETAIL={}, STAFF_DETAIL={};
+const FAM_NOTES={'f-garcia':[{at:'12 Jun',by:'Dana Mitchell',t:'Card declined twice. Maria says a replacement is on the way.'}],
+  'f-thompson':[{at:'2 Jun',by:'Dana Mitchell',t:'Kim asked about the sibling discount from September.'}]};
+const TIMEOFF={'s2':[{id:'to1',from:'14 Jul',to:'18 Jul',type:'Annual leave',status:'pending',note:'Family holiday'}],
+  's3':[{id:'to2',from:'3 Jun',to:'3 Jun',type:'Sick',status:'approved',note:''}],
+  's4':[{id:'to3',from:'22 May',to:'23 May',type:'Unpaid',status:'declined',note:'Ratio cover unavailable'}]};
 const KID_DETAIL={};
 const DOB={c1:'2022-03-14',c2:'2023-01-08',c3:'2024-02-20',c4:'2025-04-02',c5:'2022-06-30',c6:'2021-09-12',
   c7:'2023-05-19',c8:'2022-11-03',c9:'2024-07-25',c10:'2021-12-01',c11:'2023-08-16',c12:'2025-01-27'};
@@ -1182,6 +1194,12 @@ function certState(d){
   if(!d) return 'exp';
   const days=(new Date(d)-new Date('2026-06-22'))/864e5;
   return days<0?'exp':days<45?'warn':'ok';
+}
+/* the base app's review clock: overdue, due inside 60 days, or fine */
+function reviewStatus(d){
+  if(!d) return 'none';
+  const days=(new Date(d)-new Date('2026-06-22'))/864e5;
+  return days<0?'overdue':days<60?'due':'ok';
 }
 function staffAlerts(s){
   const a=[];
@@ -1560,6 +1578,30 @@ function tightestRatio(){
   return worst?worst.ratio:'1:6';
 }
 const licensedSeats=()=>ROOMS.reduce((s,r)=>s+r.cap,0);
+FAMILIES.forEach(f=>{
+  const kids=kidsOf(f.id), monthly=kids.length*TUITION;
+  FAM_DETAIL[f.id]={
+    monthly,
+    ledger:[{d:'Jun 1, 2026',t:'Tuition · June',type:'charge',a:monthly},
+            {d:'Jun 1, 2026',t:f.autopay?'Autopay payment':'Payment received',type:'payment',a:monthly-f.balance},
+            {d:'May 1, 2026',t:'Tuition · May',type:'charge',a:monthly},
+            {d:'May 1, 2026',t:f.autopay?'Autopay payment':'Payment received',type:'payment',a:monthly}]
+           .filter(x=>x.a>0),
+    notes:FAM_NOTES[f.id]||[],
+    card:f.autopay?'Visa ending 4412':null,
+    notify:{due:true,failed:f.balance>0,receipt:f.autopay}
+  };
+});
+STAFF.forEach(st=>{
+  STAFF_DETAIL[st.id]={
+    period:'2 Jun – 15 Jun',
+    periodHours:(st.hours*2).toFixed(1),
+    overtime:st.id==='s3'?2.0:st.id==='s2'?1.5:0,
+    lastReview:st.id==='s1'?'1 Aug 2025':st.id==='s2'?'15 Jul 2025':st.id==='s3'?'1 Jun 2025':'10 Sep 2025',
+    emergency:st.id==='s1'?[]:[{name:'Next of kin on file',rel:'Partner',phone:'(901) 555-0'+(500+STAFF.indexOf(st))}],
+    timeoff:TIMEOFF[st.id]||[]
+  };
+});
 const unreadCount=()=>THREADS.filter(t=>t.unread).length;
 const inRoom=x=>S.room==='all'||x===S.room;
 
@@ -1834,49 +1876,91 @@ function vFamilies(){
 }
 function vFamily(){
   const f=F(S.arg); if(!f) return vFamilies();
-  const kids=kidsOf(f.id);
+  const d=FAM_DETAIL[f.id], kids=kidsOf(f.id);
   const inv=INVOICES.filter(i=>i.fam===f.id);
-  const tabs=[['general','General'],['students','Students'],['billing','Billing']];
+  const threads=THREADS.filter(t=>kids.some(k=>t.sub.includes(k.name))||t.who===f.contact);
+  const TABS=[['general','General'],['students','Students'],['ledger','Ledger'],
+              ['messages','Messages'],['notes','Notes'],['autopay','Autopay']];
+  const t=S.famTab;
+  const fr=(l,v,cls='')=>`<div class="field"><span class="fl">${l}</span><span class="fv ${cls}"><span>${v}</span></span></div>`;
+  const stack=(l,v,cls='')=>`<div class="fs2"><i>${l}</i><b class="${cls}">${v}</b></div>`;
   let panel='';
-  if(S.famTab==='general'){
-    panel=`<div class="card fieldset">
-      <div class="field"><span class="fl">Primary contact</span><span class="fv"><span>${m(f.contact)}</span></span></div>
-      <div class="field"><span class="fl">Phone</span><span class="fv"><span>${m(f.phone)}</span></span></div>
-      <div class="field"><span class="fl">Email</span><span class="fv"><span>${m(f.email)}</span></span></div>
-      <div class="field"><span class="fl">Address</span><span class="fv"><span>${f.address?m(f.address):'Not on file'}</span></span></div>
-      <div class="field"><span class="fl">Autopay</span><span class="fv ${f.autopay?'ok':''}"><span>${f.autopay?'Enrolled':'Not enrolled'}</span></span></div>
-     </div>
-     <div class="quick">
-      <button class="primary q" data-act="soon:Call ${f.contact}">${ic('phone','ic sm','var(--npds-blue-700)','1.8')}Call</button>
-      <button class="second q" data-act="soon:Message ${f.contact}">${ic('chat','ic sm','var(--npds-gray-700)','1.8')}Message</button>
-     </div>`;
-  } else if(S.famTab==='students'){
-    panel=`<div class="card list tight">${kids.map(kidRow).join('')||'<div class="empty">No students.</div>'}</div>`;
-  } else {
+  if(t==='general'){
+    panel=`<div class="card fieldset">${fr('Family name',m(f.name))+fr('Primary contact',m(f.contact))
+      +fr('Autopay',f.autopay?'Enrolled':'Not enrolled',f.autopay?'ok':'')}</div>`
+     +secl('Contact')
+     +`<div class="card fieldstack">${stack('Phone',m(f.phone))+stack('Email',m(f.email))
+       +stack('Address',f.address?m(f.address):'Not on file')}</div>`
+     +`<div class="quick">
+       <button class="primary q" data-act="soon:Call ${f.contact}">${ic('phone','ic sm','var(--npds-blue-700)','1.9')}Call</button>
+       <button class="second q" data-act="newmsg">${ic('chat','ic sm','var(--npds-gray-700)','1.9')}Message</button></div>`;
+  } else if(t==='students'){
+    panel=secl('Enrolled',kids.length,'soon:Add a student to this family','Add')
+     +`<div class="card list tight desc">${kids.length?kids.map(kidRow).join('')
+       :emptyRow('No students are enrolled under this family yet.')}</div>`;
+  } else if(t==='ledger'){
     panel=`<div class="card sum">
-      <span class="su"><b>${m(money0(f.balance))}</b><small>BALANCE</small></span>
-      <span class="su"><b>${m(money0(kids.length*TUITION))}</b><small>MONTHLY</small></span>
-      <span class="su"><b>${f.autopay?'On':'Off'}</b><small>AUTOPAY</small></span>
-     </div>
-     <div class="flabel">Invoices</div>
-     <div class="card list tight">
-      ${inv.map(invRow).join('')||'<div class="empty">No invoices.</div>'}
-     </div>
-     <button class="primary" data-act="acct:${f.id}">Open account</button>`;
+      <span class="su"><b class="${f.balance>0?'neg':'ok'}">${m(money0(f.balance))}</b><small>BALANCE DUE</small></span>
+      <span class="su"><b>${m(money0(d.monthly))}</b><small>MONTHLY</small></span>
+      <span class="su"><b>${kids.length}</b><small>ENROLLED</small></span></div>`
+     +secl('Activity',d.ledger.length)
+     +`<div class="card list tight">${d.ledger.map(x=>`<div class="row">
+       <span class="tile-i">${ic(x.type==='charge'?'receipt':'dollar','ic sm',x.type==='charge'?'var(--ink-2)':'var(--present)','1.8')}</span>
+       <span class="rt"><b>${x.t}</b><small>${x.d}</small></span>
+       <span class="tm ${x.type==='payment'?'':'neg'}">${x.type==='payment'?'−':'+'}${m(money0(x.a))}</span></div>`).join('')}</div>`
+     +secl('Invoices',inv.length)
+     +`<div class="card list tight desc">${inv.length?inv.map(invRow).join('')
+       :emptyRow('Nothing has been invoiced to this family yet.')}</div>`;
+  } else if(t==='messages'){
+    panel=secl('Threads',threads.length||'none','newmsg','New')
+     +`<div class="card list tight desc">${threads.length?threads.map(x=>`<button class="row" data-act="thread:${x.id}">
+       <span class="av">${m(x.ini)}${x.unread?'<i class="unreaddot"></i>':''}</span>
+       <span class="rt"><b>${m(x.who)}</b><small>${x.sub} · “${x.msgs[x.msgs.length-1].t}”</small></span>
+       <span class="rr"><span class="tm mute">${x.at}</span></span></button>`).join('')
+       :emptyRow('Nothing has been sent to or from this family.')}</div>`;
+  } else if(t==='notes'){
+    panel=secl('Internal notes',d.notes.length||'none','soon:Add a note','Add')
+     +`<div class="card list tight">${d.notes.length?d.notes.map(x=>`<div class="noteitem">
+       <p>${esc(x.t)}</p><small>${x.by} · ${x.at}</small></div>`).join('')
+       :emptyRow('Notes here are staff-only. Families never see them.')}</div>`;
+  } else {
+    const sw=(on,label,sub)=>`<div class="row">
+      <span class="rt"><b>${label}</b><small>${sub}</small></span>
+      <span class="pillv ${on?'':'mute'}">${on?'On':'Off'}</span></div>`;
+    panel=`<div class="card fieldset">${fr('Autopay',f.autopay?'Enrolled':'Not enrolled',f.autopay?'ok':'')
+      +fr('Payment method',d.card?m(d.card):'None on file',d.card?'':'neg')
+      +fr('Charges on',f.autopay?'1st of the month':'—')}</div>`
+     +`<button class="second" data-act="soon:${f.autopay?'Change the card on file':'Enrol '+f.name+' in autopay'}" style="width:100%">
+       ${f.autopay?'Change payment method':'Enable autopay'}</button>`
+     +secl('Notifications')
+     +`<div class="card list tight desc">
+       ${sw(d.notify.due,'Payment due reminder','Three days before it is taken')}
+       ${sw(d.notify.failed,'Failed payment alert','The moment a charge is declined')}
+       ${sw(d.notify.receipt,'Payment receipt','Every time a payment goes through')}</div>`;
   }
-  return `${topbar(m(f.name)+' family',m(f.contact),maskBtn())}<div class="body">
+  return `${topbar(m(f.name)+' family',m(f.contact),
+    `<button class="ghost tb-inline" data-act="soon:Edit the ${f.name} family">Edit</button>`)}
+  <div class="body">
    <div class="card">
     <div class="hero">
      <span class="av xl">${m(f.name[0])}</span>
-     <span class="hero-t"><b>${m(f.name)}</b><small>${kids.length} enrolled · ${f.balance>0?m(money(f.balance))+' due':'balance clear'}</small></span>
+     <span class="hero-t"><b>${m(f.name)} family</b>
+      <small>${kids.length} enrolled · ${f.balance>0?m(money(f.balance))+' due':'balance clear'}</small></span>
     </div>
     <div class="flags">
-     ${f.autopay?`<span class="flag">${ic('sync','ic sm','var(--ink-2)','1.8')}Autopay on</span>`:`<span class="flag warn">${ic('card','ic sm','var(--warn)','1.8')}No autopay</span>`}
-     ${f.balance>0?`<span class="flag neg">${ic('alert','ic sm','var(--neg)','1.8')}${m(money0(f.balance))} due</span>`:`<span class="flag">${ic('check','ic sm','var(--ink-2)','1.8')}Current</span>`}
+     <span class="alg">${m(f.contact)}</span>
+     ${f.autopay?'<span class="alg">Autopay on</span>':'<span class="alg warn">No autopay</span>'}
+     ${f.balance>0?`<span class="alg neg">${m(money0(f.balance))} due</span>`:'<span class="alg">Current</span>'}
+     ${kids.some(k=>k.subsidy)?'<span class="alg">TN CCAP</span>':''}
     </div>
+    <div style="padding:0 16px 16px"><div class="quick">
+     <button class="primary q" data-act="acct:${f.id}">${ic('card','ic sm','var(--npds-blue-700)','1.9')}Account</button>
+     <button class="second q" data-act="newmsg">${ic('chat','ic sm','var(--npds-gray-700)','1.9')}Message</button>
+    </div></div>
    </div>
-   <div class="seg three">${tabs.map(([v,l])=>`<button class="sg${S.famTab===v?' on':''}" data-act="ftab:${v}">${l}</button>`).join('')}</div>
+   <div class="tabpill">${TABS.map(([v,l])=>`<button class="tp${t===v?' on':''}" data-act="ftab:${v}">${l}</button>`).join('')}</div>
    ${panel}
+   <div style="height:8px"></div>
   </div>`;
 }
 function vStaff(){
@@ -1893,49 +1977,88 @@ function vStaff(){
   </div>`;
 }
 function vStaffDetail(){
-  const s=ST(S.arg); if(!s) return vStaff();
-  const al=staffAlerts(s);
-  const tabs=[['overview','Overview'],['creds','Credentials'],['sched','Schedule']];
+  const st=ST(S.arg); if(!st) return vStaff();
+  const d=STAFF_DETAIL[st.id], al=staffAlerts(st);
+  const pending=d.timeoff.filter(x=>x.status==='pending').length;
+  const TABS=[['info','Info'],['hr','Hours & pay'],['certs','Certifications'],
+              ['emerg','Emergency'],['timeoff','Time off']];
+  const t=S.staffTab;
+  const fr=(l,v,cls='')=>`<div class="field"><span class="fl">${l}</span><span class="fv ${cls}"><span>${v}</span></span></div>`;
+  const stack=(l,v,cls='')=>`<div class="fs2"><i>${l}</i><b class="${cls}">${v}</b></div>`;
   let panel='';
-  if(S.staffTab==='overview'){
-    panel=`<div class="card fieldset">
-      <div class="field"><span class="fl">Role</span><span class="fv"><span>${s.role}</span></span></div>
-      <div class="field"><span class="fl">Assigned</span><span class="fv"><span>${s.room}</span></span></div>
-      <div class="field"><span class="fl">Phone</span><span class="fv"><span>${m(s.phone)}</span></span></div>
-      <div class="field"><span class="fl">Email</span><span class="fv"><span>${m(s.email)}</span></span></div>
-      <div class="field"><span class="fl">Hired</span><span class="fv"><span>${dateLabel(s.hire)}</span></span></div>
-      <div class="field"><span class="fl">Pay</span><span class="fv"><span>${m(s.wage)}</span></span></div>
-     </div>`;
-  } else if(S.staffTab==='creds'){
-    const line=(name,date)=>{const st=certState(date);
-      return `<div class="field"><span class="fl">${name}</span>
-       <span class="fv ${st==='ok'?'ok':st==='exp'?'neg':''}">
-        <span>${dateLabel(date)}</span>
-        ${st==='ok'?'':`<span class="pillv ${st==='exp'?'neg':'warn'}">${st==='exp'?'Expired':'Soon'}</span>`}
-       </span></div>`;};
-    panel=`<div class="card fieldset">
-      ${line('State cert',s.cert)}${line('First aid / CPR',s.firstAid)}${line('CDA credential',s.cda)}
-      <div class="field"><span class="fl">Annual review</span><span class="fv"><span>${dateLabel(s.review)}</span></span></div>
-     </div>
-     ${al.length?`<button class="primary" data-act="soon:Renewal reminder sent to ${s.name}">Send renewal reminder</button>`:''}`;
+  if(t==='info'){
+    panel=`<div class="card fieldset">${fr('Role',st.role)+fr('Assigned room',st.room)
+      +fr('Hired',dateLabel(st.hire))}</div>`
+     +secl('Contact')
+     +`<div class="card fieldstack">${stack('Phone',m(st.phone))+stack('Email',m(st.email))}</div>`
+     +`<div class="quick">
+       <button class="primary q" data-act="soon:Call ${st.name}">${ic('phone','ic sm','var(--npds-blue-700)','1.9')}Call</button>
+       <button class="second q" data-act="newmsg">${ic('chat','ic sm','var(--npds-gray-700)','1.9')}Message</button></div>`;
+  } else if(t==='hr'){
+    panel=`<div class="card sum">
+      <span class="su"><b>${st.hours}</b><small>HRS THIS WEEK</small></span>
+      <span class="su"><b>${d.periodHours}</b><small>PAY PERIOD</small></span>
+      <span class="su"><b class="${d.overtime?'neg':''}">${d.overtime.toFixed(1)}</b><small>OVERTIME</small></span></div>`
+     +secl('Pay')
+     +`<div class="card fieldset">${fr('Wage',m(st.wage))+fr('Pay type',st.wage==='Salaried'?'Salaried':'Hourly')
+       +fr('Pay period',d.period)}</div>`
+     +secl('Review',reviewStatus(st.review)==='overdue'?'overdue':reviewStatus(st.review)==='due'?'due soon':'on track')
+     +`<div class="card fieldset">${fr('Last review',dateLabel(d.lastReview))
+       +fr('Next annual review',dateLabel(st.review),reviewStatus(st.review)==='ok'?'':'neg')}</div>`
+     +`<div class="quick">
+       <button class="second q" data-act="soon:Timesheet for ${st.name}">View timesheet</button>
+       <button class="second q" data-act="soon:Review scheduled for ${st.name}">Schedule review</button></div>`;
+  } else if(t==='certs'){
+    const line=(name,date)=>{const cs=certState(date);
+      return `<div class="row"><span class="av">${ic('badge','ic sm',cs==='ok'?'var(--present)':cs==='exp'?'var(--neg)':'var(--warn)','1.8')}</span>
+       <span class="rt"><b>${name}</b><small>${dateLabel(date)}</small></span>
+       <span class="pillv ${cs==='ok'?'':cs==='exp'?'neg':'warn'}">${cs==='ok'?'Valid':cs==='exp'?'Expired':'Soon'}</span></div>`;};
+    panel=secl('Credentials',al.length?al.length+' need attention':'all valid','soon:Upload a certificate','Upload')
+     +`<div class="card list tight">
+       ${line('State cert',st.cert)}${line('First aid / CPR',st.firstAid)}${line('CDA credential',st.cda)}</div>`
+     +(al.length?`<button class="primary" data-act="soon:Renewal reminder sent to ${st.name}" style="width:100%">
+        Remind ${st.name.split(' ')[0]} to renew</button>`:'');
+  } else if(t==='emerg'){
+    panel=secl('Emergency contacts',d.emergency.length||'none','soon:Add an emergency contact','Add')
+     +`<div class="card list tight desc">${d.emergency.length
+       ? d.emergency.map(x=>`<div class="row"><span class="av">${ic('person','ic sm','var(--ink-2)','1.8')}</span>
+          <span class="rt"><b>${m(x.name)}</b><small>${x.rel} · ${m(x.phone)}</small></span></div>`).join('')
+       : emptyRow('Nobody is listed to call if something happens to '+st.name.split(' ')[0]+' at work.')}</div>`;
   } else {
-    panel=`<div class="card fieldset">
-      <div class="field"><span class="fl">Scheduled hours</span><span class="fv"><span>${s.hours} hrs / week</span></span></div>
-      <div class="field"><span class="fl">This week</span><span class="fv"><span>Mon–Fri · 7:30–4:00</span></span></div>
-      <div class="field"><span class="fl">Time off</span><span class="fv"><span>None requested</span></span></div>
-     </div>
-     <button class="second" data-act="go:scheduling">Open scheduling</button>`;
+    const pill=x=>x.status==='approved'?'<span class="pillv">Approved</span>'
+      :x.status==='declined'?'<span class="pillv neg">Declined</span>':'<span class="pillv warn">Pending</span>';
+    panel=secl('Requests',pending?pending+' waiting on you':'none waiting','soon:Request time off','Request')
+     +`<div class="card list tight desc">${d.timeoff.length?d.timeoff.map(x=>`<div class="row">
+       <span class="av">${ic('cal','ic sm','var(--ink-2)','1.8')}</span>
+       <span class="rt"><b>${x.from}${x.to!==x.from?' – '+x.to:''}</b><small>${x.type}${x.note?' · '+x.note:''}</small></span>
+       ${pill(x)}</div>
+       ${x.status==='pending'?`<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 12px 14px">
+         <button class="primary q" data-act="soon:${st.name.split(' ')[0]}'s leave approved">Approve</button>
+         <button class="second q" data-act="soon:${st.name.split(' ')[0]}'s leave declined">Decline</button></div>`:''}`).join('')
+       :emptyRow(st.name.split(' ')[0]+' has not requested any time off.')}</div>`;
   }
-  return `${topbar(s.name,s.role)}<div class="body">
+  return `${topbar(st.name,st.role,
+    `<button class="ghost tb-inline" data-act="soon:Edit ${st.name}">Edit</button>`)}
+  <div class="body">
    <div class="card">
     <div class="hero">
-     <span class="av xl">${s.ini}</span>
-     <span class="hero-t"><b>${s.name}</b><small>${s.room} · ${s.hours} hrs / week</small></span>
+     <span class="av xl">${st.ini}</span>
+     <span class="hero-t"><b>${st.name}</b><small>${st.room} · ${st.hours} hrs / week</small></span>
     </div>
-    ${al.length?`<div class="flags">${al.map(a=>`<span class="flag warn">${ic('clock','ic sm','var(--warn)','1.8')}${a.kind} · ${a.name}</span>`).join('')}</div>`:''}
+    <div class="flags">
+     <span class="alg">${st.role}</span>
+     ${al.length?`<span class="alg warn">${al.length} credential ${al.length===1?'alert':'alerts'}</span>`:'<span class="alg">Credentials valid</span>'}
+     ${pending?`<span class="alg warn">${pending} leave request</span>`:''}
+     ${reviewStatus(st.review)==='overdue'?'<span class="alg neg">Review overdue</span>':''}
+    </div>
+    <div style="padding:0 16px 16px"><div class="quick">
+     <button class="primary q" data-act="soon:Call ${st.name}">${ic('phone','ic sm','var(--npds-blue-700)','1.9')}Call</button>
+     <button class="second q" data-act="newmsg">${ic('chat','ic sm','var(--npds-gray-700)','1.9')}Message</button>
+    </div></div>
    </div>
-   <div class="seg three">${tabs.map(([v,l])=>`<button class="sg${S.staffTab===v?' on':''}" data-act="stab:${v}">${l}</button>`).join('')}</div>
+   <div class="tabpill">${TABS.map(([v,l])=>`<button class="tp${t===v?' on':''}" data-act="stab:${v}">${l}</button>`).join('')}</div>
    ${panel}
+   <div style="height:8px"></div>
   </div>`;
 }
 
@@ -2686,7 +2809,7 @@ function doAct(a){
     case 'room': S.sub='room';S.arg=arg;render();break;
     case 'child': S.sub='child';S.arg=arg;S.childTab='general';render();break;
     case 'family': S.sub='family';S.arg=arg;S.famTab='general';render();break;
-    case 'staffm': S.sub='staffm';S.arg=arg;S.staffTab='overview';render();break;
+    case 'staffm': S.sub='staffm';S.arg=arg;S.staffTab='info';render();break;
     case 'acct': S.sub='acct';S.arg=arg;S.acctTab='activity';render();break;
     case 'inv': S.sub='inv';S.arg=arg;render();break;
     case 'claim': S.sub='claim';S.arg=arg;S.subTab='mismatches';render();break;
