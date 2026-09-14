@@ -837,6 +837,32 @@
     padding:1px 1px 6px;margin:0 -1px}
   #sheet.formsheet .shfoot2{flex:none;padding-top:10px}
   #sheet.formsheet .shfoot2 .primary{margin:0;width:100%}
+  /* ===== new message: the teacher's compose sheet ===== */
+  .cb{width:21px;height:21px;border-radius:6px;flex:none;display:grid;place-items:center;
+    box-shadow:inset 0 0 0 1.5px rgba(44,49,43,.24);background:#fff}
+  .cb.on{background:var(--npds-blue-600);box-shadow:none}
+  .cb svg{width:13px;height:13px}
+  .gr.combo{padding-right:13px}
+  .gvin{flex:1;min-width:0;border:0;background:none;outline:none;font-family:inherit;font-size:15px;
+    color:var(--ink);padding:14px 0;min-height:46px}
+  .gvin::placeholder{color:#6E7568}
+  .attlink{display:inline-flex;align-items:center;gap:8px;font-size:13.5px;font-weight:600;
+    color:var(--npds-blue-700);padding:8px 2px;background:none;border:0;font-family:inherit}
+  .attchip{display:inline-flex;align-items:center;gap:8px;font-size:13.5px;font-weight:550;
+    color:var(--npds-blue-700);background:var(--npds-blue-100);border-radius:999px;padding:8px 8px 8px 13px}
+  .attchip b{display:grid;place-items:center;width:22px;height:22px;border-radius:999px;
+    background:rgba(255,255,255,.75);cursor:pointer}
+  .attchip b svg{width:12px;height:12px}
+  .inatt2{display:flex;align-items:center;gap:10px;border-top:1px solid rgba(44,49,43,.09);
+    margin-top:10px;padding:11px 0 2px}
+  .ophd{margin:10px 0 2px;font-size:10.5px;font-weight:600;letter-spacing:.09em;
+    text-transform:uppercase;color:var(--ink-3)}
+  .cfoot2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px}
+  .cfoot2 .primary,.cfoot2 .second{margin:0;width:100%}
+  .opt.tall2{align-items:flex-start;padding:10px 2px;min-height:0}
+  .opt.tall2 .on2{display:block;line-height:1.3;font-size:14.5px}
+  .opt.tall2 .on2 i{display:block;font-style:normal;font-size:12px;color:#6E7568;margin-top:2px;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:230px}
 </style>
 </head>
 <body>
@@ -1332,6 +1358,22 @@ const QUICK=[['photo','Photo'],['meal','Food'],['nap','Nap'],['incident','Incide
 const POST_TYPES=[['note','Observation','book'],['meal','Food','meal'],['nap','Nap','zzz'],
   ['kudos','Kudos','star'],['incident','Incident','alert'],['photo','Photo / Video','camera']];
 /* A director posts across rooms, so the room is the first thing the form asks. */
+const TEMPLATES=[
+ {id:'t1',name:'Pickup reminder',body:'Hi [Family Name], a quick reminder that [Child Name] needs collecting by [Time] today.'},
+ {id:'t2',name:'Illness notice',body:'Hi [Family Name], [Child Name] is not feeling well and may need collecting early. We will keep you posted.'},
+ {id:'t3',name:'Fees due',body:'Hi [Family Name], your [Month] invoice is now due. You can pay from the app, or catch me at the door.'},
+ {id:'t4',name:'Great day',body:'Hi [Family Name], [Child Name] had a lovely day today. Ask them about it at dinner!'}
+];
+let compose={to:new Set(),subject:'',body:'',att:false,open:null,room:null};
+function toLabel(){
+  const n=compose.to.size;
+  if(!n) return 'Choose who';
+  if(n===1){const id=[...compose.to][0];
+    const k=K(id); if(k) return m(k.name);
+    const st=ST(id); if(st) return st.name;
+    const r=ROOMS.find(x=>x.id===id); if(r) return `Everyone in ${r.name}`;}
+  return `${n} recipients`;
+}
 let draft={type:'note',room:null,picked:new Set(),everyone:true,open:null,det:'',vis:'parents'};
 function draftKids(){ return draft.room?kidsIn(draft.room):[]; }
 function draftCount(){ return draft.everyone?draftKids().length:draft.picked.size; }
@@ -1472,7 +1514,7 @@ function vMessages(){
     &&(!q||(t.who+' '+t.sub+' '+t.msgs.map(x=>x.t).join(' ')).toLowerCase().includes(q)));
   const chip=(id,lbl,c)=>`<button class="tp${S.msgScope===id?' on':''}" data-act="msgs:${id}">${lbl} ${c}</button>`;
   const unread=scope.filter(t=>t.unread).length;
-  const newbtn=`<button class="primary" data-act="soon:New message">${ic('plus','ic','currentColor','1.9')}New message</button>`;
+  const newbtn=`<button class="primary" data-act="newmsg">${ic('plus','ic','currentColor','1.9')}New message</button>`;
   return `${topbar('Messages',unread?`${unread} waiting on you`:'All caught up',
    `${searchBtn()}${filtersBtn('messages')}`)}
   <div class="body">
@@ -2121,6 +2163,50 @@ function sheet(kind,arg){
         <span class="caprow-sub">${r.teachers} teacher${r.teachers===1?'':'s'} on duty · ${r.cap-kids.length} seats open</span>
        </button>`;}).join('')}</div>
      <div class="sh-foot"><button class="second" data-act="close">Close</button></div>`;
+  } else if(kind==='compose'){
+    tall=true; form=true;
+    const c=compose;
+    const line=(id,name,sub)=>{const on=c.to.has(id);
+      return `<button class="opt" data-act="cto:${id}">
+       <span class="cb${on?' on':''}">${on?ic('check','ic sm','#FFFDFA','2.8'):''}</span>
+       <span class="on2">${name}${sub?`<i>${sub}</i>`:''}</span></button>`;};
+    const toPanel=`<div class="opts">
+      <p class="ophd">Whole rooms</p>
+      ${ROOMS.map(r=>line(r.id,r.name,kidsIn(r.id).length+' children')).join('')}
+      <p class="ophd">Families</p>
+      ${KIDS.map(k=>line(k.id,m(k.name),m(F(k.fam).contact))).join('')}
+      <p class="ophd">Staff</p>
+      ${STAFF.filter(x=>x.id!=='s1').map(x=>line(x.id,x.name,x.role)).join('')}
+     </div>`;
+    html=`<span class="grab"></span>
+     <div class="sh-row fixed"><h3 class="sh-h flat">New message</h3></div>
+     <button class="sh-x" data-act="close" aria-label="Close">${ic('x','ic sm','var(--ink-2)','2.1')}</button>
+     <div class="sbody2">
+      <div class="grp2">
+       ${grow('copen:to','To',toLabel(),c.open==='to',!c.to.size,toPanel)}
+       <div class="grow"><div class="gr combo${c.open==='tpl'?' on':''}">
+         <i>Subject</i>
+         <input class="gvin" id="csub" type="text" value="${esc(c.subject).replace(/"/g,'&quot;')}"
+           placeholder="What is this about?">
+         <span class="rch${c.open==='tpl'?' up':''}" data-act="copen:tpl" role="button" tabindex="0"
+           aria-label="Pick a template">${ic('chev','ic sm','var(--npds-blue-700)','2.4')}</span></div>
+        ${c.open==='tpl'?`<div class="gpanel"><div class="opts">
+          ${TEMPLATES.map(t=>`<button class="opt tall2" data-act="usetpl:${t.id}">
+            <span class="on2">${t.name}<i>${t.body.slice(0,46)}</i></span>
+            ${c.subject===t.name?ic('check','ic sm','var(--npds-blue-700)','2.6'):''}</button>`).join('')}</div></div>`:''}
+       </div>
+      </div>
+      <div class="grp2">
+       <div class="grblock"><i>Message</i>
+        <textarea id="cbody" rows="8" placeholder="Write your message">${esc(c.body)}</textarea>
+        <div class="inatt2">${c.att
+         ?`<span class="attchip">${ic('clip','ic sm','var(--npds-blue-700)','1.9')}Today\u2019s photo
+           <b data-act="cdetach">${ic('x','ic sm','var(--npds-blue-700)','2.4')}</b></span>`
+         :`<button class="attlink" data-act="cattach">${ic('clip','ic sm','var(--npds-blue-700)','1.9')}Attach a photo</button>`}</div></div>
+      </div>
+     </div>
+     <div class="shfoot2 cfoot2"><button class="second" data-act="savedraft">Save as a draft</button>
+      <button class="primary" data-act="sendmsg">${ic('send','ic','currentColor','1.8')}Send</button></div>`;
   } else if(kind==='posttype'){
     tall=true;
     html=`<span class="grab"></span>
@@ -2310,6 +2396,10 @@ function sheet(kind,arg){
   $('#scrim').classList.add('on');
   sh.classList.add('on');
 }
+function stashCompose(){
+  const su=$('#csub'), bo=$('#cbody');
+  if(su)compose.subject=su.value; if(bo)compose.body=bo.value;
+}
 function closeSheet(){$('#scrim').classList.remove('on');$('#sheet').classList.remove('on','tall','formsheet');}
 
 /* ============================================================
@@ -2453,6 +2543,28 @@ function doAct(a){
       if(t)t.msgs.push({d:'out',t:v,at:new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'})});
       S.draft='';render();break;}
 
+    case 'newmsg': compose={to:new Set(),subject:'',body:'',att:false,open:'to',room:null};sheet('compose');break;
+    case 'copen': stashCompose();compose.open=compose.open===arg?null:arg;sheet('compose');break;
+    case 'cto': stashCompose();compose.to.has(arg)?compose.to.delete(arg):compose.to.add(arg);sheet('compose');break;
+    case 'usetpl':{stashCompose();const t=TEMPLATES.find(x=>x.id===arg);
+      compose.subject=t.name;compose.body=t.body;compose.open=null;sheet('compose');break;}
+    case 'cattach': stashCompose();compose.att=true;compose.open=null;sheet('compose');break;
+    case 'cdetach': stashCompose();compose.att=false;sheet('compose');break;
+    case 'savedraft': stashCompose();closeSheet();toast('Saved as a draft');break;
+    case 'sendmsg':{stashCompose();
+      if(!compose.to.size){toast('Choose who this is for');break;}
+      if(!compose.body.trim()){toast('Write a message first');break;}
+      const n2=compose.to.size;
+      const first=[...compose.to][0];
+      const who=(K(first)&&F(K(first).fam).contact)||(ST(first)&&ST(first).name)||roomName(first);
+      THREADS.unshift({id:'t'+Date.now(),who:m(who),ini:(who||'?').slice(0,2).toUpperCase(),
+        scope:ST(first)?'staff':'family',sub:compose.subject||'From Dana',
+        rid:K(first)?K(first).room:(ROOMS.find(r=>r.id===first)?first:'r-prek4'),
+        unread:false,at:new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'}),
+        msgs:[{d:'out',t:compose.body.trim(),at:new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'})}]});
+      closeSheet();toast(`Sent to ${n2} ${n2===1?'recipient':'recipients'}`);
+      compose={to:new Set(),subject:'',body:'',att:false,open:null,room:null};
+      render(true);break;}
     case 'ptype': draft.type=arg;draft.open=draft.room?null:'room';sheet('log');break;
     case 'dopen':{const d=$('#det'); if(d)draft.det=d.value;
       draft.open=draft.open===arg?null:arg;sheet('log');break;}
