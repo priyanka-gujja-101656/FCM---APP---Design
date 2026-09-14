@@ -2134,7 +2134,8 @@ function vAccount(){
       <div class="field"><span class="fl">Statement day</span><span class="fv"><span>1st of month</span></span></div>
      </div>`;
   }
-  return `${topbar(m(f.name)+' account',f.balance>0?m(money(f.balance))+' due':'Balance clear',maskBtn())}<div class="body">
+  return `${topbar(m(f.name)+' account',f.balance>0?m(money(f.balance))+' due':'Balance clear',
+    `${maskBtn()}<button class="dotsb" data-act="acctactions:${f.id}" aria-label="More actions">${ic('dots','ic','var(--ink-3)','1.9')}</button>`)}<div class="body">
    <div class="card sum">
     <span class="su"><b class="${f.balance>0?'neg':'ok'}">${m(money0(f.balance))}</b><small>BALANCE</small></span>
     <span class="su"><b>${m(money0(monthly))}</b><small>MONTHLY</small></span>
@@ -2142,13 +2143,10 @@ function vAccount(){
    </div>
    <div class="quick">
      <button class="primary q" data-act="payment:${f.id}">${ic('dollar','ic sm','var(--npds-blue-700)','1.9')}Record payment</button>
-     <button class="second q" data-act="charge:${f.id}">${ic('receipt','ic sm','var(--npds-gray-700)','1.9')}Add charge</button>
+     ${f.balance>0
+       ?`<button class="second q" data-act="remind:${f.id}">${ic('mail','ic sm','var(--npds-gray-700)','1.9')}Send reminder</button>`
+       :`<button class="second q" data-act="charge:${f.id}">${ic('receipt','ic sm','var(--npds-gray-700)','1.9')}Add charge</button>`}
     </div>
-   <div class="quick">
-     <button class="second q" data-act="credit:${f.id}">${ic('dollar','ic sm','var(--npds-gray-700)','1.9')}Apply credit</button>
-     <button class="second q" data-act="statement:${f.id}">${ic('doc','ic sm','var(--npds-gray-700)','1.9')}Send statement</button>
-    </div>
-   ${f.balance>0?`<button class="second" data-act="remind:${f.id}" style="width:100%">Send a reminder</button>`:''}
    <div class="seg three">${tabs.map(([v,l])=>`<button class="sg${S.acctTab===v?' on':''}" data-act="atab:${v}">${l}</button>`).join('')}</div>
    ${panel}
   </div>`;
@@ -2188,7 +2186,8 @@ function vInvoices(){
 function vInvoice(){
   const i=IN(S.arg); if(!i) return vInvoices();
   const st=invStatus(i), total=invTotal(i);
-  return `${topbar('Invoice #'+i.id.replace('inv-',''),`${m(i.family)} · ${i.period}`,maskBtn())}<div class="body">
+  return `${topbar('Invoice #'+i.id.replace('inv-',''),`${m(i.family)} · ${i.period}`,
+    `${maskBtn()}${st!=='void'?`<button class="dotsb" data-act="invactions:${i.id}" aria-label="More actions">${ic('dots','ic','var(--ink-3)','1.9')}</button>`:''}`)}<div class="body">
    <div class="card">
     <div class="hero">
      <span class="av xl">${ic('receipt','ic lg','var(--ink-2)','1.6')}</span>
@@ -2211,12 +2210,7 @@ function vInvoice(){
    ${st!=='paid'&&st!=='void'?`<div class="quick">
      <button class="primary q" data-act="markpaid:${i.id}">${ic('dollar','ic sm','var(--npds-blue-700)','1.9')}Record payment</button>
      <button class="second q" data-act="sendinv:${i.id}">${ic('send','ic sm','var(--npds-gray-700)','1.9')}Send to family</button>
-    </div>
-   <div class="quick">
-     <button class="second q" data-act="credit:${i.fam}">${ic('receipt','ic sm','var(--npds-gray-700)','1.9')}Apply credit</button>
-     <button class="second q" data-act="void:${i.id}">${ic('x','ic sm','var(--npds-gray-700)','1.9')}Void</button>
-    </div>
-   <button class="second" data-act="remind:${i.fam}" style="width:100%">Send a reminder</button>`:''}
+    </div>`:''}
    <button class="ghost" data-act="family:${i.fam}">Open ${m(i.family)} family</button>
   </div>`;
 }
@@ -2518,6 +2512,44 @@ function sheet(kind,arg){
      <button class="primary${sel===k.room||over?' off':''}" data-act="${sel===k.room||over?'noop':'domove:'+k.id}" style="width:100%">
       ${ic('swap','ic','currentColor','1.8')}Move to ${target.name}</button>
      <button class="ghost" data-act="close">Cancel</button>`;
+  } else if(kind==='acctactions'){
+    const f=F(arg), d=FAM_DETAIL[f.id];
+    const item=(i2,l,sub,act)=>`<button class="row" data-act="${act}">
+      <span class="av">${ic(i2,'ic sm','var(--ink-2)','1.8')}</span>
+      <span class="rt"><b>${l}</b><small>${sub}</small></span>
+      ${ic('arrow','ic sm','var(--ink-3)')}</button>`;
+    html=`<span class="grab"></span>
+     <button class="sh-x" data-act="close" aria-label="Close">${ic('x','ic sm','var(--ink-2)','2.1')}</button>
+     <div class="sh-kid"><span class="av lg">${m(f.name[0])}</span>
+      <span class="rt"><b>${m(f.name)} account</b><small>${f.balance>0?m(money(f.balance))+' due':'Balance clear'}</small></span></div>
+     <div class="card list roomy desc">
+      ${f.balance>0
+        ? item('receipt','Add a charge','Late fee, enrichment, supplies',`charge:${f.id}`)
+        : item('mail','Send a reminder','A nudge about what is owed',`remind:${f.id}`)}
+      ${item('dollar','Apply a credit','Overpayment, scholarship, adjustment',`credit:${f.id}`)}
+      ${item('doc','Send a statement','Every entry on the account, as one document',`statement:${f.id}`)}
+      ${item('card',d.card?'Change payment method':'Add a payment method',d.card?m(d.card):'Nothing on file',`soon:${d.card?'Change the card on file':'Add a card'}`)}
+      ${item('chat','Message the family',m(f.contact),'newmsg')}
+     </div>
+     <button class="ghost" data-act="close">Close</button>`;
+  } else if(kind==='invactions'){
+    const i2=IN(arg), f=F(i2.fam);
+    const item=(ic2,l,sub,act)=>`<button class="row" data-act="${act}">
+      <span class="av">${ic(ic2,'ic sm','var(--ink-2)','1.8')}</span>
+      <span class="rt"><b>${l}</b><small>${sub}</small></span>
+      ${ic('arrow','ic sm','var(--ink-3)')}</button>`;
+    html=`<span class="grab"></span>
+     <button class="sh-x" data-act="close" aria-label="Close">${ic('x','ic sm','var(--ink-2)','2.1')}</button>
+     <div class="sh-kid"><span class="av lg">${ic('receipt','ic','var(--ink-2)','1.7')}</span>
+      <span class="rt"><b>Invoice #${arg.replace('inv-','')}</b><small>${m(i2.family)} · ${m(money(invTotal(i2)))}</small></span></div>
+     <div class="card list roomy desc">
+      ${item('mail','Send a reminder','A nudge about this invoice',`remind:${i2.fam}`)}
+      ${item('dollar','Apply a credit','Reduces what this family owes',`credit:${i2.fam}`)}
+      ${item('print','Print or export','PDF or CSV','sheet:print')}
+      ${item('house',`Open the ${m(i2.family)} family`,'Contacts, ledger and autopay',`family:${i2.fam}`)}
+      ${item('x','Void this invoice','It stops counting toward the balance',`void:${arg}`)}
+     </div>
+     <button class="ghost" data-act="close">Close</button>`;
   } else if(kind==='charge'){
     const f=F(arg);
     html=`<span class="grab"></span>
@@ -3014,6 +3046,8 @@ function doAct(a){
     case 'domove':{const k=K(arg);const to=ROOMS.find(r=>r.id===S.moveTo);
       k.room=S.moveTo;closeSheet();toast(`<b>${k.name}</b> moved to ${to.name}`);
       S.moveTo=null;render(true);break;}
+    case 'acctactions': S.finArg=arg;sheet('acctactions',arg);break;
+    case 'invactions': S.finArg=arg;sheet('invactions',arg);break;
     case 'creason': fin.reason=arg;sheet($('#sheet').dataset.kind,S.finArg);break;
     case 'charge': fin.reason=CREDIT_REASONS[0];S.finArg=arg;sheet('charge',arg);break;
     case 'docharge':{const f=F(arg);const w=($('#cwhat')?.value||'Charge').trim();
