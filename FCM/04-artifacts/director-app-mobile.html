@@ -116,6 +116,7 @@
   .greet p{margin:0;font-size:13px;line-height:1.5;color:var(--ink-2)}
   .greet b{color:var(--ink);font-weight:600}
 
+  .flabel span{color:var(--ink-3);letter-spacing:0;text-transform:none;font-size:12.5px}
   .flabel{font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3);
     font-weight:600;margin:10px 2px -4px;display:flex;align-items:center;justify-content:space-between}
 
@@ -329,7 +330,7 @@
     {outline:2px solid var(--accent);outline-offset:3px}
 
   /* ===== ported from the teacher app: spine, tabpill, feed, dock ===== */
-  .tabpill{display:flex;gap:4px;flex:none;padding:4px;border-radius:999px;
+  .tabpill{display:flex;gap:4px;flex:none;padding:4px;border-radius:999px;scroll-snap-type:x proximity;
     background:rgba(255,255,255,.58);border:1px solid rgba(255,255,255,.6);
     overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;
     box-shadow:0 8px 20px -18px rgba(40,55,38,.4)}
@@ -392,7 +393,8 @@
   .ta textarea{width:100%;border:0;background:none;font-family:inherit;font-size:13.5px;line-height:1.5;
     color:var(--ink);outline:none;resize:none}
   .noterow p{margin:0;font-size:13.5px;line-height:1.5;color:var(--ink)}
-  .alg.warn{color:var(--warn);background:rgba(176,138,86,.2)}
+  .alg.warn{color:var(--warn);background:rgba(176,138,86,.14);box-shadow:inset 0 0 0 1px rgba(176,138,86,.5)}
+  .alg.neg{color:var(--neg);background:rgba(155,74,62,.08);box-shadow:inset 0 0 0 1px rgba(155,74,62,.35)}
   .searchdock{position:absolute;left:16px;right:16px;bottom:calc(100px + env(safe-area-inset-bottom));z-index:6;
     animation:dockup .24s cubic-bezier(.32,.72,0,1)}
   @keyframes dockup{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
@@ -1117,6 +1119,37 @@ const invStatus=i=>S.paid[i.id]?'paid':i.status;
 const balOf=fid=>{const f=F(fid);return f?f.balance:0;};
 const outstanding=()=>FAMILIES.reduce((s,f)=>s+f.balance,0);
 
+/* the base app's student record. Everything the seven tabs read. */
+const KID_DETAIL={};
+const DOB={c1:'2022-03-14',c2:'2023-01-08',c3:'2024-02-20',c4:'2025-04-02',c5:'2022-06-30',c6:'2021-09-12',
+  c7:'2023-05-19',c8:'2022-11-03',c9:'2024-07-25',c10:'2021-12-01',c11:'2023-08-16',c12:'2025-01-27'};
+const PREF={c1:'Millie',c3:'Sofi',c6:'No',c10:'Li'};
+const SEVERITY={Peanut:'Anaphylaxis · EpiPen on site',Dairy:'Intolerance · no milk products',
+  'Tree-nut':'Anaphylaxis · EpiPen on site',Egg:'Mild · avoid baked egg'};
+KIDS.forEach((k,idx)=>{
+  const f=F(k.fam);
+  KID_DETAIL[k.id]={
+    dob:DOB[k.id], preferred:PREF[k.id]||null, pid:'LH-0'+(240+idx),
+    enrolled:'Active', start:'4 Aug 2025',
+    address:f.address||'On file with the '+f.name+' family',
+    pickups:[{name:f.contact,rel:'Parent · primary',photo:true},
+             {name:'Grandparent on file',rel:'Authorized',photo:true},
+             {name:'Neighbour · A. Reid',rel:'Authorized · emergencies only',photo:false}],
+    restrictions:k.id==='c4'?[{who:'R. Thompson',note:'No contact. Court order 2025-114 on file.'}]:[],
+    emergency:[{name:f.contact,rel:'Parent',phone:f.phone},
+               {name:'Second contact on file',rel:'Family friend',phone:'(901) 555-0400'}],
+    meds:k.allergy==='Peanut'||k.allergy==='Tree-nut'?[{name:'EpiPen Jr',dose:'0.15mg · as needed',by:'Room cabinet'}]:[],
+    immun:{status:k.id==='c7'?'2 due':'Up to date',due:k.id==='c7'?'MMR booster, due 12 Jul':null},
+    physician:'Dr. Alvarez · (901) 555-0300',
+    hospital:"Le Bonheur Children's Hospital",
+    docs:[{n:'Enrollment agreement',ok:true},{n:'Immunization record',ok:k.id!=='c7'},
+          {n:'Photo release',ok:true},{n:'Emergency card',ok:true}],
+    consent:{trips:true, sunscreen:k.id!=='c1', meds:!!k.allergy},
+    custody:k.id==='c4'?'Restricted · see below':'No restrictions on file'
+  };
+});
+
+
 function certState(d){
   if(!d) return 'exp';
   const days=(new Date(d)-new Date('2026-06-22'))/864e5;
@@ -1618,66 +1651,125 @@ function vStudents(){
 }
 function vChild(){
   const k=K(S.arg); if(!k) return vStudents();
-  const f=F(k.fam);
+  const d=KID_DETAIL[k.id], f=F(k.fam);
   const sibs=kidsOf(k.fam).filter(x=>x.id!==k.id);
-  const tabs=[['overview','Overview'],['family','Family'],['health','Health']];
+  const unsigned=Object.entries(d.consent).filter(([,v])=>!v).length;
+  const docsMissing=d.docs.filter(x=>!x.ok).length;
+  const TABS=[['general','General'],['pickup','Pickup'],['custody','Custody'],['medical','Medical'],
+              ['docs','Docs'],['consent','Consent'],['activity','Activity']];
+  const t=S.childTab;
+  const fs=rows=>`<div class="card fieldset">${rows}</div>`;
+  const fr=(l,v,cls='')=>`<div class="field"><span class="fl">${l}</span><span class="fv ${cls}"><span>${v}</span></span></div>`;
+  const person=(name,sub,right='')=>`<div class="row">
+    <span class="av">${ic('person','ic sm','var(--ink-2)','1.8')}</span>
+    <span class="rt"><b>${m(name)}</b><small>${sub}</small></span>${right}</div>`;
+
   let panel='';
-  if(S.childTab==='overview'){
-    panel=`<div class="card fieldset">
-      <div class="field"><span class="fl">Classroom</span><span class="fv"><span>${roomName(k.room)}</span></span></div>
-      <div class="field"><span class="fl">Age</span><span class="fv"><span>${k.age}</span></span></div>
-      <div class="field"><span class="fl">Status today</span><span class="fv ${k.status==='here'?'ok':''}"><span>${k.status==='here'?'In at '+k.tin:k.status==='absent'?'Absent':'Not in yet'}</span></span></div>
-      <div class="field"><span class="fl">Subsidy</span><span class="fv"><span>${k.subsidy?'TN CCAP':'Private pay'}</span></span></div>
-      <div class="field"><span class="fl">Enrolled</span><span class="fv"><span>Aug 2025</span></span></div>
-     </div>
-     <div class="flabel">Recent</div>
-     <div class="card list tight">
-      ${ACTIVITIES.filter(a=>a.kid===k.name).map(a=>`<div class="fe">
-        <span class="fi${a.review?' warn':''}">${ic(a.icon,'ic sm','var(--ink-2)','1.8')}</span>
-        <span class="ft"><b>${a.title}</b><small>${a.by} · ${a.room}</small></span>
-        <span class="fw">${a.at}</span></div>`).join('')
-        ||'<div class="empty">No posts today.</div>'}
-     </div>`;
-  } else if(S.childTab==='family'){
-    panel=`<div class="card fieldset">
-      <div class="field"><span class="fl">Family</span><span class="fv"><span>${m(f.name)}</span></span></div>
-      <div class="field"><span class="fl">Primary contact</span><span class="fv"><span>${m(f.contact)}</span></span></div>
-      <div class="field"><span class="fl">Phone</span><span class="fv"><span>${m(f.phone)}</span></span></div>
-      <div class="field"><span class="fl">Email</span><span class="fv"><span>${m(f.email)}</span></span></div>
-      <div class="field"><span class="fl">Balance</span><span class="fv ${f.balance>0?'neg':'ok'}"><span>${m(money(f.balance))}</span></span></div>
-     </div>
-     ${sibs.length?`<div class="flabel">Siblings</div><div class="card list tight">${sibs.map(kidRow).join('')}</div>`:''}
-     <div class="quick">
-      <button class="primary q" data-act="family:${f.id}">Open family</button>
-      <button class="second q" data-act="soon:Message ${f.contact}">Message</button>
-     </div>`;
+  if(t==='general'){
+    panel=fs(fr('Date of birth',dateLabel(d.dob))+fr('Age',k.age)
+      +(d.preferred?fr('Preferred name',m(d.preferred)):'')
+      +fr('Person ID',d.pid)+fr('Classroom',roomName(k.room))
+      +fr('Enrollment',d.enrolled,'ok')+fr('Start date',d.start)
+      +fr('Subsidy',k.subsidy?'TN CCAP':'Private pay')
+      +fr('Address',m(d.address)))
+      +`<div class="flabel">Family</div>`
+      +`<div class="card list tight">
+         ${person(f.contact,'Primary payer · '+f.name+' family',ic('chev','ic sm','var(--ink-3)'))}
+         ${sibs.length?sibs.map(x=>person(x.name,'Sibling · '+roomName(x.room))).join('')
+           :'<div class="empty">No siblings enrolled.</div>'}</div>`
+      +`<button class="second" data-act="family:${f.id}" style="width:100%">Open the ${m(f.name)} family</button>`;
+  } else if(t==='pickup'){
+    panel=`<div class="flabel">Authorized pickups <span>${d.pickups.length}</span></div>
+     <div class="card list tight">${d.pickups.map(x=>person(x.name,x.rel,
+       x.photo?'<span class="pillv">Photo</span>':'<span class="pillv mute">No photo</span>')).join('')}</div>
+     <button class="second" data-act="soon:Add an authorized pickup" style="width:100%">Add authorized pickup</button>
+     <div class="flabel">Pickup restrictions</div>
+     <div class="card list tight">${d.restrictions.length
+       ? d.restrictions.map(r=>`<div class="row"><span class="av">${ic('alert','ic sm','var(--neg)','1.8')}</span>
+          <span class="rt"><b>${m(r.who)}</b><small>${r.note}</small></span></div>`).join('')
+       : '<div class="empty">No pickup restrictions on file.</div>'}</div>
+     <div class="flabel">Emergency contacts</div>
+     <div class="card list tight">${d.emergency.map(x=>person(x.name,x.rel+' · '+m(x.phone))).join('')}</div>`;
+  } else if(t==='custody'){
+    const has=d.restrictions.length>0;
+    panel=fs(fr('Legal custody',m(d.custody),has?'neg':'ok'))
+     +(has?`<div class="card" style="padding:14px 16px;display:flex;gap:10px;align-items:flex-start;background:rgba(155,74,62,.09)">
+        ${ic('alert','ic sm','var(--neg)','1.8')}<span style="font-size:13px;line-height:1.5;color:var(--ink-2)">
+        <b style="color:var(--neg)">${m(d.restrictions[0].who)} must not collect ${m(k.name.split(' ')[0])}.</b>
+        Every adult at the door is checked against this before release.</span></div>`:'')
+     +`<div class="flabel">Court documents</div>
+      <div class="card list tight">${has
+        ? person('Court order 2025-114','Filed 3 Feb 2025 · verified',ic('chev','ic sm','var(--ink-3)'))
+        : '<div class="empty">No documents uploaded.</div>'}</div>
+      <button class="second" data-act="soon:Add a restriction" style="width:100%">Add restriction</button>`;
+  } else if(t==='medical'){
+    panel=`<div class="flabel">Allergies</div>
+     <div class="card list tight">${k.allergy
+       ? `<div class="row"><span class="av">${ic('allergy','ic sm','var(--neg)','1.8')}</span>
+          <span class="rt"><b>${k.allergy}</b><small>${SEVERITY[k.allergy]||'On file'}</small></span></div>`
+       : '<div class="empty">No allergies on file.</div>'}</div>
+     <div class="flabel">Medications</div>
+     <div class="card list tight">${d.meds.length
+       ? d.meds.map(x=>person(x.name,x.dose+' · '+x.by)).join('')
+       : '<div class="empty">No medications on file.</div>'}</div>
+     ${fs(fr('Immunizations',d.immun.status,d.immun.due?'neg':'ok')
+       +(d.immun.due?fr('Outstanding',d.immun.due,'neg'):'')
+       +fr('Physician',m(d.physician))+fr('Hospital',d.hospital))}`;
+  } else if(t==='docs'){
+    panel=`<div class="card list tight">${d.docs.map(x=>`<div class="row">
+       <span class="av">${ic('doc','ic sm','var(--ink-2)','1.8')}</span>
+       <span class="rt"><b>${x.n}</b><small>${x.ok?'Verified':'Not on file'}</small></span>
+       <span class="pillv ${x.ok?'':'warn'}">${x.ok?'Verified':'Missing'}</span></div>`).join('')}</div>
+      <button class="second" data-act="soon:Upload a document" style="width:100%">Upload document</button>`;
+  } else if(t==='consent'){
+    const line=(key,label,sub)=>`<div class="row">
+      <span class="av">${ic(d.consent[key]?'check':'alert','ic sm',d.consent[key]?'var(--present)':'var(--warn)','1.9')}</span>
+      <span class="rt"><b>${label}</b><small>${sub}</small></span>
+      <span class="pillv ${d.consent[key]?'':'warn'}">${d.consent[key]?'Signed':'Not signed'}</span></div>`;
+    panel=`<div class="card list tight">
+      ${line('trips','Field trips','Off-site outings within Memphis')}
+      ${line('sunscreen','Sunscreen application','Applied before outside time')}
+      ${line('meds','Emergency medication','EpiPen or inhaler without calling first')}</div>
+      ${unsigned?`<button class="primary" data-act="soon:Reminder sent to ${f.contact}" style="width:100%">
+        Ask ${m(f.contact.split(' ')[0])} to sign</button>`:''}`;
   } else {
-    panel=`<div class="card fieldset">
-      <div class="field"><span class="fl">Allergies</span><span class="fv ${k.allergy?'neg':'ok'}"><span>${k.allergy||'None on file'}</span></span></div>
-      <div class="field"><span class="fl">Medications</span><span class="fv"><span>None</span></span></div>
-      <div class="field"><span class="fl">Immunizations</span><span class="fv ok"><span>Up to date</span></span></div>
-      <div class="field"><span class="fl">Physician</span><span class="fv"><span>${m('Dr. Alvarez · (901) 555-0300')}</span></span></div>
-      <div class="field"><span class="fl">Photo release</span><span class="fv ok"><span>Signed</span></span></div>
-     </div>
-     ${k.allergy?`<div class="card" style="padding:13px 15px;display:flex;gap:9px;align-items:flex-start;background:rgba(155,74,62,.1)">
-       ${ic('allergy','ic sm','var(--neg)','1.8')}
-       <span style="font-size:11.5px;line-height:1.5;color:var(--ink-2)"><b style="color:var(--neg)">${k.allergy} allergy.</b> Kitchen and room staff are flagged at every meal.</span>
-      </div>`:''}`;
+    const posts=ACTIVITIES.filter(a=>a.kid===k.name);
+    panel=`<div class="card list tight">${posts.length?posts.map(a=>`<div class="fe">
+      <span class="fi${a.review?' warn':''}">${ic(a.icon,'ic sm','var(--ink-2)','1.8')}</span>
+      <span class="ft"><b>${a.title}</b><small>${a.by} · ${a.room}</small></span>
+      <span class="fw">${a.at}</span></div>`).join('')
+      :'<div class="empty">No activity logged today.</div>'}</div>
+      <button class="second" data-act="sheet:posttype" style="width:100%">Post activity</button>`;
   }
-  return `${topbar(m(k.name),`${roomName(k.room)} · ${k.age}`,maskBtn())}<div class="body">
+
+  return `${topbar(m(k.name),`${roomName(k.room)} · ${k.age}`,
+    `<button class="ghost tb-inline" data-act="soon:Edit ${k.name}">Edit</button>`)}
+  <div class="body">
    <div class="card">
     <div class="hero">
      <span class="av xl">${m(k.ini)}${statusDot(k)}</span>
-     <span class="hero-t"><b>${m(k.name)}</b><small>${roomName(k.room)} · ${k.status==='here'?'in at '+k.tin:k.status==='absent'?'absent today':'not in yet'}</small></span>
+     <span class="hero-t"><b>${m(k.name)}</b>
+      <small>${k.status==='here'?'In at '+k.tin+(k.who?' · with '+k.who:''):k.status==='absent'?'Absent today':'Not checked in'}</small></span>
     </div>
     <div class="flags">
-     ${k.allergy?`<span class="flag neg">${ic('allergy','ic sm','var(--neg)','1.8')}${k.allergy}</span>`:''}
-     ${k.subsidy?`<span class="flag">${ic('bills','ic sm','var(--ink-2)','1.8')}TN CCAP</span>`:''}
-     <span class="flag">${ic('house','ic sm','var(--ink-2)','1.8')}${m(F(k.fam).name)}</span>
+     ${d.preferred?`<span class="alg">${m(d.preferred)}</span>`:''}
+     <span class="alg">${roomName(k.room)}</span>
+     ${k.allergy?`<span class="alg neg">${k.allergy}</span>`:''}
+     ${k.subsidy?'<span class="alg">TN CCAP</span>':''}
+     ${d.restrictions.length?'<span class="alg neg">Custody order</span>':''}
+     ${unsigned?`<span class="alg warn">${unsigned} consent unsigned</span>`:''}
+     ${docsMissing?`<span class="alg warn">${docsMissing} doc missing</span>`:''}
     </div>
+    <div style="padding:0 16px 16px"><div class="quick">
+     ${k.status==='here'
+       ?`<button class="primary q" data-act="checkout:${k.id}">${ic('out','ic sm','var(--npds-blue-700)','1.9')}Check out</button>`
+       :`<button class="primary q" data-act="checkin:${k.id}">${ic('in','ic sm','var(--npds-blue-700)','1.9')}Check in</button>`}
+     <button class="second q" data-act="newmsg">${ic('chat','ic sm','var(--npds-gray-700)','1.9')}Message</button>
+    </div></div>
    </div>
-   <div class="seg three">${tabs.map(([v,l])=>`<button class="sg${S.childTab===v?' on':''}" data-act="ctab:${v}">${l}</button>`).join('')}</div>
+   <div class="tabpill">${TABS.map(([v,l])=>`<button class="tp${t===v?' on':''}" data-act="ctab:${v}">${l}</button>`).join('')}</div>
    ${panel}
+   <div style="height:8px"></div>
   </div>`;
 }
 function vFamilies(){
@@ -2550,7 +2642,7 @@ function doAct(a){
       closeSheet();S.selecting=false;S.sel.clear();render();break;}
     case 'go': S.sub=arg;S.q='';render();break;
     case 'room': S.sub='room';S.arg=arg;render();break;
-    case 'child': S.sub='child';S.arg=arg;S.childTab='overview';render();break;
+    case 'child': S.sub='child';S.arg=arg;S.childTab='general';render();break;
     case 'family': S.sub='family';S.arg=arg;S.famTab='general';render();break;
     case 'staffm': S.sub='staffm';S.arg=arg;S.staffTab='overview';render();break;
     case 'acct': S.sub='acct';S.arg=arg;S.acctTab='activity';render();break;
