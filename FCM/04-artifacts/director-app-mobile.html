@@ -776,6 +776,67 @@
   .sheet .card.list .row{padding:15px 13px}
   /* .qr is a span there and a button here, so it arrives with button padding */
   .qr{padding:0}
+
+  /* ===== post an activity: the teacher app's two sheets, verbatim ===== */
+  .sheet.tall{background:rgba(246,241,229,.97)}
+  .tlgrid3{display:grid;grid-template-columns:repeat(3,1fr);gap:11px}
+  .tl3{display:flex;flex-direction:column;align-items:center;gap:9px;padding:16px 6px 15px;
+    border-radius:20px;background:rgba(255,255,255,.9);border:1px solid rgba(44,49,43,.07);
+    cursor:pointer;transition:transform .12s ease;font-family:inherit;width:100%}
+  .tl3:active{transform:scale(.97)}
+  .tl3 b{font-size:12.5px;font-weight:500;color:var(--ink-2);text-align:center;line-height:1.25}
+  .tli3{width:52px;height:52px;border-radius:999px;display:grid;place-items:center}
+  .tli3 svg{width:25px;height:25px}
+  .sh-row{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+  .sh-h.flat{margin:0;flex:1}
+  .bk{flex:none;width:40px;height:40px;border-radius:999px;background:#FFFDFA;
+    border:1.5px solid rgba(44,49,43,.22);box-shadow:0 1px 3px rgba(44,49,43,.1);
+    display:grid;place-items:center;padding:0}
+  .bk svg{width:16px;height:16px}
+  .tdot{width:30px;height:30px;border-radius:999px;display:grid;place-items:center;flex:none}
+  .tdot svg{width:16px;height:16px}
+  .grp2{background:#fff;border:1px solid rgba(44,49,43,.13);border-radius:12px;overflow:hidden;margin:0 0 12px}
+  .grow{border-top:1px solid rgba(44,49,43,.09)}
+  .grp2>.grow:first-child{border-top:0}
+  .gr{display:flex;align-items:center;gap:12px;min-height:48px;padding:0 13px;cursor:pointer;
+    width:100%;background:none;border:0;font-family:inherit;text-align:left}
+  .gr i{font-style:normal;font-size:11.5px;color:#6E7568;flex:none;min-width:74px;max-width:104px}
+  .gvv{flex:1;min-width:0;font-size:15px;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .gvv.pale{color:#6E7568}
+  .gr .rch{margin-left:auto;flex:none}
+  .gr.on{background:rgba(24,157,210,.05)}
+  .rch{flex:none;width:26px;height:26px;border-radius:999px;display:grid;place-items:center;
+    background:var(--npds-blue-100)}
+  .rch svg{width:14px;height:14px;transform:rotate(90deg)}
+  .rch.up svg{transform:rotate(-90deg)}
+  .gpanel{position:relative;margin:0 8px 10px;padding:6px 10px 8px;background:#FFFDFA;
+    border:1px solid rgba(44,49,43,.15);border-radius:14px;box-shadow:0 2px 8px rgba(44,49,43,.07);
+    max-height:330px;overflow-y:auto}
+  .grblock{border-top:1px solid rgba(44,49,43,.09);padding:11px 13px 13px}
+  .grp2>.grblock:first-child{border-top:0}
+  .grblock>i{font-style:normal;display:block;font-size:11.5px;color:#6E7568;margin-bottom:6px}
+  .grblock>i em{font-style:normal;color:#8D958A}
+  .grblock textarea{width:100%;border:0;background:none;outline:none;resize:none;font-family:inherit;
+    font-size:15px;line-height:1.5;color:var(--ink)}
+  .grblock textarea::placeholder{color:#6E7568}
+  .opts{display:flex;flex-direction:column;max-height:242px;overflow:auto;scrollbar-width:none}
+  .opts::-webkit-scrollbar{display:none}
+  .opt{display:flex;align-items:center;gap:12px;min-height:48px;padding:4px 0;cursor:pointer;
+    border-bottom:1px solid var(--line);width:100%;background:none;border-left:0;border-right:0;
+    border-top:0;font-family:inherit;text-align:left}
+  .opt:last-child{border-bottom:0}
+  .on2{flex:1;font-size:15px;color:var(--ink)}
+  .on2 i{font-style:normal;font-size:13px;color:var(--ink-3);margin-left:7px}
+  .segpill2{display:flex;background:rgba(44,49,43,.055);border-radius:999px;padding:4px;gap:2px}
+  .segpill2 .sgp{flex:1;text-align:center;font-size:13.5px;font-weight:550;color:var(--ink-2);
+    padding:13px 4px;border-radius:999px;cursor:pointer;white-space:nowrap;background:none;border:0;font-family:inherit}
+  .segpill2 .sgp.on{background:#fff;color:var(--npds-blue-700);box-shadow:0 1px 3px rgba(44,49,43,.1)}
+  #sheet.formsheet{display:flex;flex-direction:column;overflow:hidden}
+  #sheet.formsheet .sh-row.fixed{flex:none;padding-right:52px}
+  #sheet.formsheet .sbody2{flex:1 1 auto;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;
+    padding:1px 1px 6px;margin:0 -1px}
+  #sheet.formsheet .shfoot2{flex:none;padding-top:10px}
+  #sheet.formsheet .shfoot2 .primary{margin:0;width:100%}
 </style>
 </head>
 <body>
@@ -1132,7 +1193,7 @@ function vHome(){
 
     <div class="quick">
      <button class="primary q" data-act="go:attendance">${ic('in','ic sm','var(--npds-blue-700)','1.9')}Check in / out</button>
-     <button class="second q" data-act="sheet:post">${ic('pen','ic sm','var(--npds-gray-700)','1.9')}Post activity</button>
+     <button class="second q" data-act="sheet:posttype">${ic('pen','ic sm','var(--npds-gray-700)','1.9')}Post activity</button>
     </div>
    </div>
   </div>`;
@@ -1267,9 +1328,30 @@ const pal=t=>PAL[t]||['rgba(44,49,43,.055)','var(--ink-2)'];
 const TY={incident:{label:'Incident',icon:'alert'},meal:{label:'Food',icon:'meal'},nap:{label:'Nap',icon:'zzz'},
   photo:{label:'Photo',icon:'img'},kudos:{label:'Kudos',icon:'star'},note:{label:'Observation',icon:'book'}};
 const QUICK=[['photo','Photo'],['meal','Food'],['nap','Nap'],['incident','Incident']];
+/* the teacher's grid of activity types */
+const POST_TYPES=[['note','Observation','book'],['meal','Food','meal'],['nap','Nap','zzz'],
+  ['kudos','Kudos','star'],['incident','Incident','alert'],['photo','Photo / Video','camera']];
+/* A director posts across rooms, so the room is the first thing the form asks. */
+let draft={type:'note',room:null,picked:new Set(),everyone:true,open:null,det:'',vis:'parents'};
+function draftKids(){ return draft.room?kidsIn(draft.room):[]; }
+function draftCount(){ return draft.everyone?draftKids().length:draft.picked.size; }
+function whoLabel(){
+  if(!draft.room) return 'Pick a room first';
+  if(draft.everyone) return `Everyone in ${roomShort(draft.room)}`;
+  const n=draft.picked.size;
+  if(!n) return 'Nobody yet';
+  if(n===1) return K([...draft.picked][0]).name;
+  return `${n} children`;
+}
+function grow(act,label,val,open,pale,panel){
+  return `<div class="grow"><button class="gr${open?' on':''}" data-act="${act}" aria-expanded="${open}">
+    <i>${label}</i><span class="gvv${pale?' pale':''}">${val}</span>
+    <span class="rch${open?' up':''}">${ic('chev','ic sm','var(--npds-blue-700)','2.4')}</span></button>
+   ${open&&panel?`<div class="gpanel">${panel}</div>`:''}</div>`;
+}
 function qchips(){
   return `<div class="qrrow">${QUICK.map(([t,l])=>{const[f,i]=pal(t);
-    return `<button class="qr" data-act="soon:New ${l.toLowerCase()} post"><i class="qri" style="box-shadow:inset 0 0 0 1.5px ${f}">
+    return `<button class="qr" data-act="ptype:${t}"><i class="qri" style="box-shadow:inset 0 0 0 1.5px ${f}">
       ${ic(TY[t].icon,'ic',i,'1.75')}</i>${l}</button>`;}).join('')}</div>`;
 }
 function acard(a){
@@ -1368,7 +1450,7 @@ function vActivities(){
   const scope=ACTIVITIES.filter(a=>inRoom(a.rid));
   const list=scope.filter(a=>(!S.actFilter.size||S.actFilter.has(a.type))
     &&(!q||(a.title+' '+a.body+' '+a.kid+' '+TY[a.type].label).toLowerCase().includes(q)));
-  const postbtn=`<button class="primary" data-act="soon:Post an activity">${ic('plus','ic','currentColor','1.9')}Post activity</button>`;
+  const postbtn=`<button class="primary" data-act="sheet:posttype">${ic('plus','ic','currentColor','1.9')}Post activity</button>`;
   return `${topbar('Activities','',
    `${searchBtn()}${filtersBtn('activities')}`)}
   <div class="body">
@@ -1990,7 +2072,7 @@ function vSettings(){
    ============================================================ */
 function sheet(kind,arg){
   const sh=$('#sheet');
-  let html='', tall=false;
+  let html='', tall=false, form=false;
   if(kind==='checkin'||kind==='checkout'){
     /* the teacher app's pickup sheet, unchanged: who, then the time, then one button */
     const k=K(arg), out=kind==='checkout';
@@ -2039,6 +2121,52 @@ function sheet(kind,arg){
         <span class="caprow-sub">${r.teachers} teacher${r.teachers===1?'':'s'} on duty · ${r.cap-kids.length} seats open</span>
        </button>`;}).join('')}</div>
      <div class="sh-foot"><button class="second" data-act="close">Close</button></div>`;
+  } else if(kind==='posttype'){
+    tall=true;
+    html=`<span class="grab"></span>
+     <button class="sh-x" data-act="close" aria-label="Close">${ic('x','ic sm','var(--ink-2)','2.1')}</button>
+     <h3 class="sh-h">Post an activity</h3>
+     <div class="tlgrid3">${POST_TYPES.map(([t,l,g])=>{const[f,i2]=pal(t);
+       return `<button class="tl3" data-act="ptype:${t}">
+        <i class="tli3" style="background:${f}">${ic(g,'ic',i2,'1.6')}</i><b>${l}</b></button>`;}).join('')}</div>`;
+  } else if(kind==='log'){
+    tall=true; form=true;
+    const ty=POST_TYPES.find(x=>x[0]===draft.type)||POST_TYPES[0];
+    const [f,i2]=pal(draft.type);
+    const n2=draftCount();
+    const roomPanel=`<div class="opts">${ROOMS.map(r=>`<button class="opt" data-act="droom:${r.id}">
+      <span class="on2">${r.name}<i>${kidsIn(r.id).length} enrolled</i></span>
+      ${draft.room===r.id?ic('check','ic sm','var(--npds-blue-700)','2.6'):''}</button>`).join('')}</div>`;
+    const kidPanel=draft.room?`<div class="opts">
+      <button class="opt" data-act="dall"><span class="on2">Everyone in ${roomShort(draft.room)}</span>
+       ${draft.everyone?ic('check','ic sm','var(--npds-blue-700)','2.6'):''}</button>
+      ${draftKids().map(k=>`<button class="opt" data-act="dkid:${k.id}">
+        <span class="on2">${m(k.name)}<i>${k.age}</i></span>
+        ${(!draft.everyone&&draft.picked.has(k.id))?ic('check','ic sm','var(--npds-blue-700)','2.6'):''}</button>`).join('')}
+     </div>`:'<div class="opts"><button class="opt"><span class="on2">Pick a room first</span></button></div>';
+    html=`<span class="grab"></span>
+     <div class="sh-row fixed">
+      <button class="bk" data-act="sheet:posttype" aria-label="Change the activity">${ic('left','ic sm','var(--npds-gray-700)','2.2')}</button>
+      <span class="tdot" style="background:${f}">${ic(ty[2],'ic',i2,'1.7')}</span>
+      <h3 class="sh-h flat">${ty[1]}</h3></div>
+     <button class="sh-x" data-act="close" aria-label="Close">${ic('x','ic sm','var(--ink-2)','2.1')}</button>
+     <div class="sbody2">
+      <div class="grp2">
+       ${grow('dopen:room','Room',draft.room?roomName(draft.room):'Choose',draft.open==='room',!draft.room,roomPanel)}
+       ${grow('dopen:who','Children',whoLabel(),draft.open==='who',!draft.room,kidPanel)}
+       ${grow('dopen:when','Date',dayLabel(0),false,false,'')}
+      </div>
+      <div class="grp2">
+       <div class="grblock"><i>Details <em>optional</em></i>
+        <textarea id="det" rows="3" placeholder="Anything the family should know.">${esc(draft.det)}</textarea></div>
+      </div>
+      <div class="grp2">
+       <div class="grblock"><i>Who can see this</i>
+        <div class="segpill2">${[['parents','Parents'],['staff','Staff'],['both','Parents &amp; staff']].map(([v,l])=>
+          `<button class="sgp${draft.vis===v?' on':''}" data-act="dvis:${v}">${l}</button>`).join('')}</div></div>
+      </div>
+     </div>
+     <div class="shfoot2"><button class="primary" data-act="dopost">Post to ${n2} ${n2===1?'family':'families'}</button></div>`;
   } else if(kind==='post'){
     html=`<span class="grab"></span>
      <button class="sh-x" data-act="close" aria-label="Close">${ic('x','ic sm','var(--ink-2)','2.1')}</button>
@@ -2178,10 +2306,11 @@ function sheet(kind,arg){
   sh.innerHTML=html;
   sh.dataset.kind=kind; if(kind==='checkin'||kind==='checkout')S.pickArg=arg;
   sh.classList.toggle('tall',tall);
+  sh.classList.toggle('formsheet',form);
   $('#scrim').classList.add('on');
   sh.classList.add('on');
 }
-function closeSheet(){$('#scrim').classList.remove('on');$('#sheet').classList.remove('on','tall');}
+function closeSheet(){$('#scrim').classList.remove('on');$('#sheet').classList.remove('on','tall','formsheet');}
 
 /* ============================================================
    render + actions
@@ -2324,7 +2453,27 @@ function doAct(a){
       if(t)t.msgs.push({d:'out',t:v,at:new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'})});
       S.draft='';render();break;}
 
-    case 'dopost': closeSheet();toast(`Activity draft started for ${esc(arg)}`);break;
+    case 'ptype': draft.type=arg;draft.open=draft.room?null:'room';sheet('log');break;
+    case 'dopen':{const d=$('#det'); if(d)draft.det=d.value;
+      draft.open=draft.open===arg?null:arg;sheet('log');break;}
+    case 'droom': draft.room=arg;draft.everyone=true;draft.picked.clear();draft.open='who';sheet('log');break;
+    case 'dall': draft.everyone=true;draft.picked.clear();sheet('log');break;
+    case 'dkid':{draft.everyone=false;
+      draft.picked.has(arg)?draft.picked.delete(arg):draft.picked.add(arg);sheet('log');break;}
+    case 'dvis':{const d=$('#det'); if(d)draft.det=d.value; draft.vis=arg;sheet('log');break;}
+    case 'dopost':{const d=$('#det'); if(d)draft.det=d.value;
+      const ty=POST_TYPES.find(x=>x[0]===draft.type);
+      const n2=draftCount();
+      if(!draft.room||!n2){toast('Pick a room and who it is for');break;}
+      ACTIVITIES.unshift({id:'a'+Date.now(),kid:draft.everyone?'Room':K([...draft.picked][0]).name,
+        ini:'DM',type:draft.type,icon:ty[2],title:ty[1],by:CENTER.director,
+        room:roomName(draft.room),rid:draft.room,
+        at:new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'}),
+        review:false,body:draft.det||`${ty[1]} logged for ${whoLabel().toLowerCase()}.`});
+      closeSheet();
+      toast(`Posted to ${n2} ${n2===1?'family':'families'}`);
+      draft={type:'note',room:null,picked:new Set(),everyone:true,open:null,det:'',vis:'parents'};
+      render(true);break;}
     case 'soon': toast(esc(arg));break;
   }
 }
