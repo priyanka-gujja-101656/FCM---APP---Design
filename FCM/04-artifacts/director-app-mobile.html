@@ -910,8 +910,15 @@
     font-size:14px;line-height:1.45}
   .emptyrow .plus{width:40px;height:40px;border-radius:50%;border:1px dashed rgba(44,49,43,.24);
     display:grid;place-items:center;flex:none}
-  .seclab-act{letter-spacing:0;text-transform:none;font-size:12.5px;color:var(--npds-blue-700);
-    font-weight:600;background:none;border:0;font-family:inherit;padding:0}
+  /* a section's Add is a button, in the app's own small-action shape */
+  .seclab-act{height:32px;min-height:32px;padding:0 13px;border-radius:999px;
+    border:1px solid var(--npds-gray-500);background:rgba(255,255,255,.92);color:var(--npds-gray-700);
+    display:inline-flex;align-items:center;gap:6px;font-family:inherit;font-size:12.5px;font-weight:500;
+    letter-spacing:0;text-transform:none;white-space:nowrap}
+  .seclab-act:hover{background:#f0f1f2;border-color:var(--npds-gray-700)}
+  .seclab-act svg{width:14px;height:14px;stroke:currentColor}
+  /* the heading row now holds a control, so it needs the room for one */
+  .flabel:has(.seclab-act){align-items:center;margin:14px 2px 2px}
   /* a profile row's subtitle is a sentence, not a data line, so it wraps */
   .card.desc .rt small{white-space:normal}
 </style>
@@ -1672,7 +1679,7 @@ function vStudents(){
 }
 function secl(label,state,act,actLabel){
   return `<div class="flabel"><span style="color:var(--ink-3)">${label}${state?' · '+state:''}</span>
-    ${act?`<button class="seclab-act" data-act="${act}">${actLabel}</button>`:''}</div>`;
+    ${act?`<button class="seclab-act" data-act="${act}">${ic('plus','ic sm','currentColor','2')}${actLabel}</button>`:''}</div>`;
 }
 function emptyRow(meaning){
   return `<div class="emptyrow"><span class="plus">${ic('plus','ic sm','var(--ink-3)','2')}</span>${meaning}</div>`;
