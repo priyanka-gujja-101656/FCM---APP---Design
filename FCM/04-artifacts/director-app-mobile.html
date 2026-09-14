@@ -1125,7 +1125,7 @@ const THREADS=[
         {d:'out',t:'Thank you for letting us know. He is marked absent for today.',at:'7:22 AM'}]}];
 
 /* ---------- state ---------- */
-const S={tab:'home',sub:null,arg:null,stack:[],q:'',mask:false,moveTo:null,relArg:null,selecting:false,sel:new Set(),openNote:new Set(),pick:null,pickArg:null,searchOpen:false,day:0,actFilter:new Set(),
+const S={tab:'home',sub:null,arg:null,stack:[],q:'',mask:false,moveTo:null,relArg:null,finArg:null,voided:{},selecting:false,sel:new Set(),openNote:new Set(),pick:null,pickArg:null,searchOpen:false,day:0,actFilter:new Set(),
   homeTab:'actions',room:'all',attFilter:'all',invFilter:'all',subTab:'mismatches',
   childTab:'overview',famTab:'general',staffTab:'overview',acctTab:'activity',msgScope:'all',
   resolved:{},paid:{},assistant:[],draft:''};
@@ -1150,7 +1150,7 @@ const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'
    names can be blurred without leaving the screen */
 const m=v=>S.mask?'<span class="masked">**</span>':v;
 const invTotal=i=>i.lines.reduce((s,l)=>s+l.q*l.r,0);
-const invStatus=i=>S.paid[i.id]?'paid':i.status;
+const invStatus=i=>S.voided[i.id]?'void':S.paid[i.id]?'paid':i.status;
 const balOf=fid=>{const f=F(fid);return f?f.balance:0;};
 const outstanding=()=>FAMILIES.reduce((s,f)=>s+f.balance,0);
 
@@ -1490,6 +1490,12 @@ const TEMPLATES=[
  {id:'t3',name:'Fees due',body:'Hi [Family Name], your [Month] invoice is now due. You can pay from the app, or catch me at the door.'},
  {id:'t4',name:'Great day',body:'Hi [Family Name], [Child Name] had a lovely day today. Ask them about it at dinner!'}
 ];
+/* the base app's credit reasons */
+const CREDIT_REASONS=['Overpayment','Scholarship','Adjustment','Subsidy correction','Other'];
+const VOID_REASONS=['Issued in error','Duplicate','Family withdrew','Replaced by another invoice'];
+let fin={amount:'',method:'Card',reason:CREDIT_REASONS[0],lines:[],open:null};
+const nextInvId=()=>'inv-'+String(INVOICES.length+12).padStart(3,'0');
+function invBalance(i){ return invTotal(i)-(i.paid||0); }
 let compose={to:new Set(),subject:'',body:'',att:false,open:null,room:null};
 function toLabel(){
   const n=compose.to.size;
@@ -2134,17 +2140,23 @@ function vAccount(){
     <span class="su"><b>${m(money0(monthly))}</b><small>MONTHLY</small></span>
     <span class="su"><b>${kids.length}</b><small>ENROLLED</small></span>
    </div>
-   ${f.balance>0?`<div class="quick">
-     <button class="primary q" data-act="remind:${f.id}">Send reminder</button>
-     <button class="second q" data-act="payment:${f.id}">Record payment</button>
-    </div>`:''}
+   <div class="quick">
+     <button class="primary q" data-act="payment:${f.id}">${ic('dollar','ic sm','var(--npds-blue-700)','1.9')}Record payment</button>
+     <button class="second q" data-act="charge:${f.id}">${ic('receipt','ic sm','var(--npds-gray-700)','1.9')}Add charge</button>
+    </div>
+   <div class="quick">
+     <button class="second q" data-act="credit:${f.id}">${ic('dollar','ic sm','var(--npds-gray-700)','1.9')}Apply credit</button>
+     <button class="second q" data-act="statement:${f.id}">${ic('doc','ic sm','var(--npds-gray-700)','1.9')}Send statement</button>
+    </div>
+   ${f.balance>0?`<button class="second" data-act="remind:${f.id}" style="width:100%">Send a reminder</button>`:''}
    <div class="seg three">${tabs.map(([v,l])=>`<button class="sg${S.acctTab===v?' on':''}" data-act="atab:${v}">${l}</button>`).join('')}</div>
    ${panel}
   </div>`;
 }
 function invRow(i){
   const st=invStatus(i);
-  const pill=st==='paid'?'<span class="pillv">Paid</span>':st==='overdue'?'<span class="pillv neg">Overdue</span>':'<span class="pillv info">Open</span>';
+  const pill=st==='void'?'<span class="pillv mute">Void</span>':st==='paid'?'<span class="pillv">Paid</span>'
+    :st==='overdue'?'<span class="pillv neg">Overdue</span>':'<span class="pillv info">Open</span>';
   return `<button class="row" data-act="inv:${i.id}">
    <span class="tile-i">${ic('receipt','ic sm','var(--ink-2)','1.8')}</span>
    <span class="rt"><b>${m(i.family)} · ${i.period}</b><small>#${i.id.replace('inv-','')} · due ${i.due}</small></span>
@@ -2166,6 +2178,11 @@ function vInvoices(){
       `<button class="sg${S.invFilter===v?' on':''}" data-act="inf:${v}">${l} <b>${n}</b></button>`).join('')}
    </div>
    <div class="card list tight">${list.map(invRow).join('')||'<div class="empty">No invoices match.</div>'}</div>
+   <div class="quick">
+    <button class="primary q" data-act="newinv">${ic('plus','ic sm','var(--npds-blue-700)','1.9')}New invoice</button>
+    <button class="second q" data-act="sheet:print">${ic('doc','ic sm','var(--npds-gray-700)','1.9')}Export</button>
+   </div>
+   <div style="height:8px"></div>
   </div>`;
 }
 function vInvoice(){
@@ -2175,10 +2192,11 @@ function vInvoice(){
    <div class="card">
     <div class="hero">
      <span class="av xl">${ic('receipt','ic lg','var(--ink-2)','1.6')}</span>
-     <span class="hero-t"><b>${m(money(total))}</b><small>${st==='paid'?'Paid in full':st==='overdue'?'Overdue since '+i.due:'Due '+i.due}</small></span>
+     <span class="hero-t"><b>${m(money(total))}</b><small>${st==='void'?'Voided · no longer owed':st==='paid'?'Paid in full':st==='overdue'?'Overdue since '+i.due:'Due '+i.due}</small></span>
     </div>
     <div class="flags">
-     ${st==='paid'?'<span class="flag">Paid</span>':st==='overdue'?`<span class="flag neg">${ic('alert','ic sm','var(--neg)','1.8')}Overdue</span>`:'<span class="flag">Open</span>'}
+     ${st==='void'?'<span class="flag">Void</span>':st==='paid'?'<span class="flag">Paid</span>'
+       :st==='overdue'?`<span class="flag neg">${ic('alert','ic sm','var(--neg)','1.8')}Overdue</span>`:'<span class="flag">Open</span>'}
      <span class="flag">${ic('cal','ic sm','var(--ink-2)','1.8')}Issued ${i.issued}</span>
     </div>
    </div>
@@ -2187,10 +2205,18 @@ function vInvoice(){
     ${i.lines.map(l=>`<div class="li"><span>${l.d}${l.q>1?' × '+l.q:''}</span><b>${m(money(l.q*l.r))}</b></div>`).join('')}
     <div class="li total"><span>Total</span><b>${m(money(total))}</b></div>
    </div>
-   ${st!=='paid'?`<div class="quick">
-     <button class="primary q" data-act="markpaid:${i.id}">Mark paid</button>
-     <button class="second q" data-act="remind:${i.fam}">Send reminder</button>
-    </div>`:''}
+   ${st==='void'?`<div class="card" style="padding:14px 16px;display:flex;gap:10px;align-items:flex-start;background:rgba(44,49,43,.05)">
+     ${ic('alert','ic sm','var(--ink-3)','1.8')}<span style="font-size:13px;line-height:1.5;color:var(--ink-2)">
+     <b>Voided.</b> ${S.voided[i.id]}. It no longer counts toward the family balance.</span></div>`:''}
+   ${st!=='paid'&&st!=='void'?`<div class="quick">
+     <button class="primary q" data-act="markpaid:${i.id}">${ic('dollar','ic sm','var(--npds-blue-700)','1.9')}Record payment</button>
+     <button class="second q" data-act="sendinv:${i.id}">${ic('send','ic sm','var(--npds-gray-700)','1.9')}Send to family</button>
+    </div>
+   <div class="quick">
+     <button class="second q" data-act="credit:${i.fam}">${ic('receipt','ic sm','var(--npds-gray-700)','1.9')}Apply credit</button>
+     <button class="second q" data-act="void:${i.id}">${ic('x','ic sm','var(--npds-gray-700)','1.9')}Void</button>
+    </div>
+   <button class="second" data-act="remind:${i.fam}" style="width:100%">Send a reminder</button>`:''}
    <button class="ghost" data-act="family:${i.fam}">Open ${m(i.family)} family</button>
   </div>`;
 }
@@ -2492,6 +2518,96 @@ function sheet(kind,arg){
      <button class="primary${sel===k.room||over?' off':''}" data-act="${sel===k.room||over?'noop':'domove:'+k.id}" style="width:100%">
       ${ic('swap','ic','currentColor','1.8')}Move to ${target.name}</button>
      <button class="ghost" data-act="close">Cancel</button>`;
+  } else if(kind==='charge'){
+    const f=F(arg);
+    html=`<span class="grab"></span>
+     <button class="sh-x" data-act="close" aria-label="Close">${ic('x','ic sm','var(--ink-2)','2.1')}</button>
+     <h3 class="sh-h">Add a charge</h3>
+     <p class="sh-sub">${m(f.name)} family · balance ${m(money(f.balance))}</p>
+     <div class="grp2">
+      <div class="gr"><i>What for</i><input class="gvin" id="cwhat" placeholder="Late fee, enrichment, supplies"></div>
+      <div class="gr"><i>Amount</i><input class="gvin" id="camt" inputmode="decimal" placeholder="0.00"></div>
+     </div>
+     <button class="primary" data-act="docharge:${f.id}" style="width:100%">Add to the account</button>`;
+  } else if(kind==='credit'){
+    const f=F(arg);
+    html=`<span class="grab"></span>
+     <button class="sh-x" data-act="close" aria-label="Close">${ic('x','ic sm','var(--ink-2)','2.1')}</button>
+     <h3 class="sh-h">Apply a credit</h3>
+     <p class="sh-sub">${m(f.name)} family · balance ${m(money(f.balance))}</p>
+     <div class="grp2">
+      <div class="gr"><i>Amount</i><input class="gvin" id="camt" inputmode="decimal" placeholder="0.00"></div>
+     </div>
+     <div class="flabel" style="margin:0 2px 9px">Reason</div>
+     <div class="chips" style="margin-bottom:18px">
+      ${CREDIT_REASONS.map(r=>`<button class="ch${fin.reason===r?' on':''}" data-act="creason:${r}">${r}</button>`).join('')}
+     </div>
+     <button class="primary" data-act="docredit:${f.id}" style="width:100%">Apply credit</button>`;
+  } else if(kind==='statement'){
+    const f=F(arg), d=FAM_DETAIL[f.id];
+    html=`<span class="grab"></span>
+     <button class="sh-x" data-act="close" aria-label="Close">${ic('x','ic sm','var(--ink-2)','2.1')}</button>
+     <h3 class="sh-h">Send a statement</h3>
+     <p class="sh-sub">Everything on the account, as one document</p>
+     <div class="card fieldset" style="margin-bottom:14px">
+      <div class="field"><span class="fl">To</span><span class="fv"><span>${m(f.email)}</span></span></div>
+      <div class="field"><span class="fl">Period</span><span class="fv"><span>Apr – Jun 2026</span></span></div>
+      <div class="field"><span class="fl">Entries</span><span class="fv"><span>${d.ledger.length}</span></span></div>
+      <div class="field"><span class="fl">Closing balance</span><span class="fv ${f.balance>0?'neg':'ok'}"><span>${m(money(f.balance))}</span></span></div>
+     </div>
+     <button class="primary" data-act="dostatement:${f.id}" style="width:100%">Email the statement</button>`;
+  } else if(kind==='newinv'){
+    const total=fin.lines.reduce((a,l)=>a+l.amt,0);
+    html=`<span class="grab"></span>
+     <button class="sh-x" data-act="close" aria-label="Close">${ic('x','ic sm','var(--ink-2)','2.1')}</button>
+     <h3 class="sh-h">New invoice</h3>
+     <div class="grp2">
+      ${grow('iopen:fam','Family',fin.fam?m(F(fin.fam).name):'Choose',fin.open==='fam',!fin.fam,
+        `<div class="opts">${FAMILIES.map(f=>`<button class="opt" data-act="ifam:${f.id}">
+          <span class="on2">${m(f.name)}<i>${kidsOf(f.id).length} enrolled</i></span>
+          ${fin.fam===f.id?ic('check','ic sm','var(--npds-blue-700)','2.6'):''}</button>`).join('')}</div>`)}
+      <div class="gr"><i>Period</i><span class="gvv">June 2026</span></div>
+      <div class="gr"><i>Due</i><span class="gvv">Jun 15, 2026</span></div>
+     </div>
+     <div class="flabel" style="margin:0 2px 9px">Line items</div>
+     <div class="card list tight" style="margin-bottom:12px">${fin.lines.length
+       ? fin.lines.map((l,ix)=>`<div class="row"><span class="rt"><b>${esc(l.d)}</b></span>
+          <span class="tm">${m(money(l.amt))}</span>
+          <button class="dotsb" data-act="rmline:${ix}" aria-label="Remove">${ic('x','ic sm','var(--ink-3)','2')}</button></div>`).join('')
+       : emptyRow('Add at least one line before sending.')}</div>
+     <div class="grp2">
+      <div class="gr"><i>Description</i><input class="gvin" id="lwhat" placeholder="Tuition, activity fee"></div>
+      <div class="gr"><i>Amount</i><input class="gvin" id="lamt" inputmode="decimal" placeholder="0.00"></div>
+     </div>
+     <button class="second" data-act="addline" style="width:100%;margin-bottom:12px">Add line item</button>
+     <div class="card sum" style="margin-bottom:14px"><span class="su" style="grid-column:1/-1">
+       <b>${m(money(total))}</b><small>INVOICE TOTAL</small></span></div>
+     <button class="primary${(!fin.fam||!fin.lines.length)?' off':''}"
+       data-act="${(!fin.fam||!fin.lines.length)?'noop':'docreateinv'}" style="width:100%">Create and send</button>`;
+  } else if(kind==='void'){
+    const i2=IN(arg);
+    html=`<span class="grab"></span>
+     <button class="sh-x" data-act="close" aria-label="Close">${ic('x','ic sm','var(--ink-2)','2.1')}</button>
+     <h3 class="sh-h">Void invoice #${arg.replace('inv-','')}</h3>
+     <p class="sh-sub">${m(i2.family)} · ${m(money(invTotal(i2)))} · this cannot be undone</p>
+     <div class="flabel" style="margin:0 2px 9px">Why</div>
+     <div class="chips" style="margin-bottom:18px">
+      ${VOID_REASONS.map(r=>`<button class="ch${fin.reason===r?' on':''}" data-act="creason:${r}">${r}</button>`).join('')}
+     </div>
+     <button class="primary" data-act="dovoid:${arg}" style="width:100%">Void this invoice</button>
+     <button class="ghost" data-act="close">Cancel</button>`;
+  } else if(kind==='sendinv'){
+    const i2=IN(arg), f=F(i2.fam);
+    html=`<span class="grab"></span>
+     <button class="sh-x" data-act="close" aria-label="Close">${ic('x','ic sm','var(--ink-2)','2.1')}</button>
+     <h3 class="sh-h">Send to the family</h3>
+     <p class="sh-sub">Invoice #${arg.replace('inv-','')} · ${m(money(invTotal(i2)))}</p>
+     <button class="sh-opt" data-act="dosendinv:email"><span class="tile-i">${ic('mail','ic sm','var(--ink-2)','1.8')}</span>
+      <span style="flex:1"><b>Email it</b><small>${m(f.email)}</small></span></button>
+     <button class="sh-opt" data-act="dosendinv:app"><span class="tile-i">${ic('chat','ic sm','var(--ink-2)','1.8')}</span>
+      <span style="flex:1"><b>Send in the app</b><small>${m(f.contact)} sees it as a message</small></span></button>
+     <button class="sh-opt" data-act="dosendinv:both"><span class="tile-i">${ic('send','ic sm','var(--ink-2)','1.8')}</span>
+      <span style="flex:1"><b>Both</b><small>Email and a message</small></span></button>`;
   } else if(kind==='compose'){
     full=true; form=true;
     const c=compose;
@@ -2898,6 +3014,43 @@ function doAct(a){
     case 'domove':{const k=K(arg);const to=ROOMS.find(r=>r.id===S.moveTo);
       k.room=S.moveTo;closeSheet();toast(`<b>${k.name}</b> moved to ${to.name}`);
       S.moveTo=null;render(true);break;}
+    case 'creason': fin.reason=arg;sheet($('#sheet').dataset.kind,S.finArg);break;
+    case 'charge': fin.reason=CREDIT_REASONS[0];S.finArg=arg;sheet('charge',arg);break;
+    case 'docharge':{const f=F(arg);const w=($('#cwhat')?.value||'Charge').trim();
+      const a=parseFloat($('#camt')?.value||'0');
+      if(!(a>0)){toast('Enter an amount');break;}
+      f.balance+=a;FAM_DETAIL[f.id].ledger.unshift({d:dateLabel(new Date()),t:w,type:'charge',a});
+      closeSheet();toast(`${m(money(a))} charged to ${f.name}`);render(true);break;}
+    case 'credit': fin.reason=CREDIT_REASONS[0];S.finArg=arg;sheet('credit',arg);break;
+    case 'docredit':{const f=F(arg);const a=parseFloat($('#camt')?.value||'0');
+      if(!(a>0)){toast('Enter an amount');break;}
+      f.balance=Math.max(0,f.balance-a);
+      FAM_DETAIL[f.id].ledger.unshift({d:dateLabel(new Date()),t:'Credit · '+fin.reason,type:'payment',a});
+      closeSheet();toast(`${m(money(a))} credited · ${fin.reason.toLowerCase()}`);render(true);break;}
+    case 'statement': S.finArg=arg;sheet('statement',arg);break;
+    case 'dostatement':{const f=F(arg);closeSheet();toast(`Statement emailed to ${m(f.contact)}`);break;}
+    case 'newinv': fin={amount:'',method:'Card',reason:CREDIT_REASONS[0],lines:[],open:'fam',fam:null};sheet('newinv');break;
+    case 'iopen': fin.open=fin.open===arg?null:arg;sheet('newinv');break;
+    case 'ifam': fin.fam=arg;fin.open=null;sheet('newinv');break;
+    case 'addline':{const d2=($('#lwhat')?.value||'').trim(),a=parseFloat($('#lamt')?.value||'0');
+      if(!d2||!(a>0)){toast('Give the line a description and an amount');break;}
+      fin.lines.push({d:d2,amt:a});sheet('newinv');break;}
+    case 'rmline': fin.lines.splice(Number(arg),1);sheet('newinv');break;
+    case 'docreateinv':{const f=F(fin.fam);const id=nextInvId();
+      INVOICES.unshift({id,fam:f.id,family:f.name,period:'June 2026',issued:dateLabel(new Date()),
+        due:'Jun 15, 2026',status:'open',
+        lines:fin.lines.map(l=>({d:l.d,q:1,r:l.amt}))});
+      f.balance+=fin.lines.reduce((a,l)=>a+l.amt,0);
+      closeSheet();toast(`Invoice #${id.replace('inv-','')} created and sent`);
+      fin.lines=[];render(true);break;}
+    case 'void': fin.reason=VOID_REASONS[0];S.finArg=arg;sheet('void',arg);break;
+    case 'dovoid':{const i2=IN(arg);S.voided[arg]=fin.reason;
+      const f=F(i2.fam); f.balance=Math.max(0,f.balance-invTotal(i2));
+      closeSheet();toast(`Invoice #${arg.replace('inv-','')} voided · ${fin.reason.toLowerCase()}`);
+      render(true);break;}
+    case 'sendinv': S.finArg=arg;sheet('sendinv',arg);break;
+    case 'dosendinv': closeSheet();
+      toast(arg==='email'?'Invoice emailed':arg==='app'?'Invoice sent in the app':'Invoice emailed and sent in the app');break;
     case 'newmsg': compose={to:new Set(),subject:'',body:'',att:false,open:'to',room:null};sheet('compose');break;
     case 'copen': stashCompose();compose.open=compose.open===arg?null:arg;sheet('compose');break;
     case 'cto': stashCompose();compose.to.has(arg)?compose.to.delete(arg):compose.to.add(arg);sheet('compose');break;
