@@ -453,6 +453,179 @@
   .hint{margin:2px 4px 0;font-size:11.5px;line-height:1.45;color:var(--ink-3);
     display:flex;align-items:flex-start;gap:8px;padding:12px 14px;border-radius:16px;background:rgba(44,49,43,.055)}
 
+
+  /* ================================================================
+     Ported verbatim from teacher-app-mobile.html: the TYPE SCALE block.
+     The director app was built from the file's earlier rules and never
+     picked up this pass, which is why every row read a size small.
+     ================================================================ */
+  /* ================= TYPE SCALE: legible, roomier ================= */
+  .screen{font-size:15px;line-height:1.5}
+  .status{font-size:14px;padding:16px 26px 0}
+
+  .topbar{padding:16px 18px 14px;gap:12px}
+  .tb-title{font-size:17px;letter-spacing:-.014em}
+  .tb-sub{font-size:12.5px;margin-top:3px}
+  .ghost.tb-inline{min-height:34px;padding:7px 15px;font-size:13.5px;margin:0;width:auto}
+
+  .head{padding:18px 20px 2px}
+  .room-name{font-size:15.5px}
+  .room-sub{font-size:12.5px;margin-top:3px}
+  .avatar{width:40px;height:40px;font-size:13.5px}
+
+  .body{padding:10px 18px 0;gap:14px}
+  .body.pad{padding-top:6px}
+
+  .greet{padding:22px 22px 20px}
+  .greet h2{font-size:25px;line-height:1.24;margin:0 0 9px}
+  .greet p{font-size:15px;line-height:1.5}
+
+  .pulse{padding:22px 22px 22px}
+  .pulse-top{margin-bottom:16px}
+  .pulse-count{font-size:34px}
+  .pulse-count em{font-size:16px}
+  .pulse-label{font-size:13.5px;margin-top:7px}
+  .chip{font-size:11.5px;padding:6px 11px}
+  .bar{height:8px;margin-bottom:16px}
+  .legend{font-size:12.5px;gap:8px 16px}
+  .dot{width:8px;height:8px}
+
+  /* home: three small stats inside the second card, making it taller */
+  .rowsplit{display:grid;grid-template-columns:repeat(3,1fr);margin-top:18px;padding-top:16px;
+    border-top:1px solid var(--line)}
+  .rs-b{text-align:center;border-left:1px solid var(--line)}
+  .rs-b:first-child{border-left:0}
+  .rs-b b{display:block;font-size:20px;font-weight:450;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+  .rs-b small{display:block;font-size:11.5px;color:var(--ink-3);margin-top:5px}
+  .quick{margin-top:18px;gap:10px}
+
+  .ahead{padding:20px 8px 12px}
+  .ahead h3{font-size:12px;margin:0 0 8px;padding:0 14px}
+  .moment{padding:13px 14px;gap:13px}
+  .mi{width:36px;height:36px;border-radius:12px}
+  .mt b{font-size:15px}
+  .mt small{font-size:12.5px;margin-top:3px}
+  .mw{font-size:13.5px}
+
+  .searchbox{padding:13px 16px;gap:11px}
+  .searchbox input{font-size:15px}
+  .ch{font-size:13px;padding:8px 14px}
+  .chips{gap:8px;padding:1px 0}
+  .sg{font-size:14px;padding:10px 0}
+  .seg{padding:4px;gap:4px}
+  .seg.three{grid-template-columns:repeat(3,1fr)}
+  .seg.big .sg{display:flex;align-items:center;justify-content:center;gap:8px;padding:13px 0;font-size:14.5px}
+
+  .list{padding:6px 6px}
+  .list.roomy .row{padding:14px 12px}
+  .row{padding:13px 12px;gap:13px}
+  .av{width:40px;height:40px;font-size:13px}
+  .av i{width:12px;height:12px;right:-1px;bottom:-1px}
+  .av.lg{width:48px;height:48px;font-size:15px}
+  .av.xl{width:60px;height:60px;font-size:18px}
+  .rt b{font-size:15px}
+  .rt small{font-size:12.5px;margin-top:3px}
+  .rr{gap:12px}
+  .tm{font-size:13.5px;min-width:42px}
+  .lhead{padding:13px 16px 10px;font-size:11.5px}
+  .empty{font-size:14px;padding:34px 14px;line-height:1.6}
+  .hint{font-size:13px;line-height:1.55;margin:0 4px}
+  .linkish{color:var(--npds-blue-700);font-weight:600;cursor:pointer;text-decoration:underline;
+    text-decoration-thickness:1px;text-underline-offset:2px}
+
+  /* checkbox: square, not a radio */
+  .cbx,.cbx.sq{border-radius:6px!important;width:24px;height:24px}
+  .cbx.on,.cbx.sq.on{background:var(--npds-blue-600);box-shadow:none}
+  .row.picked{background:var(--npds-blue-100)}
+
+  /* feed */
+  .feed{padding:6px 6px}
+  .fe{padding:15px 13px;gap:13px}
+  .fi{width:38px;height:38px;border-radius:12px}
+  .ft b{font-size:15px}
+  .ft small{font-size:13px;margin-top:4px;line-height:1.45}
+  .fmeta{display:block;font-size:11.5px;color:var(--ink-3);margin-top:6px;
+    letter-spacing:.03em;text-transform:uppercase;font-weight:600}
+  .fw{font-size:13px}
+
+  /* sheets */
+  .sheet{padding:14px 22px 104px}
+  .sh-h{font-size:21px;margin:0 0 16px}
+  .sh-note{margin:0;font-size:13.5px;line-height:1.5;color:var(--ink-2)}
+  .grab{width:44px;height:5px;margin-bottom:18px}
+  .sheet>*+*{margin-top:14px}
+  .sheet .flabel{display:flex;align-items:center;gap:8px;font-size:12px;margin-bottom:-4px}
+  .reqd{font-style:normal;font-size:10.5px;letter-spacing:.05em;color:#8a4b2f;
+    background:rgba(176,138,86,.22);padding:3px 8px;border-radius:999px;font-weight:600}
+  .optl{font-style:normal;font-size:10.5px;letter-spacing:.05em;color:var(--ink-3);font-weight:500;text-transform:none}
+  .fieldset{padding:4px 18px}
+  .field{padding:15px 0;gap:14px}
+  .fl{font-size:13.5px}
+  .fv{font-size:15px}
+  .ta{padding:16px 18px}
+  .ta-l{font-size:12px;margin-bottom:9px}
+  .ta p,.ta textarea{font-size:14.5px;line-height:1.55}
+  .attach{padding:14px 20px;font-size:14px;gap:11px}
+  .prev{padding:15px 18px;font-size:13.5px;margin-top:16px}
+  .sh-kid{gap:14px;margin-bottom:18px}
+  .mini.lg{width:44px;height:44px;min-height:44px}
+  .primary.off,.second.off{opacity:.45}
+
+  /* selection bar with four real actions */
+  .selbar{flex-direction:column;align-items:stretch;gap:11px;padding:14px 16px 26px}
+  .sb-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+  .sb-head b{font-size:14.5px;font-weight:600}
+  .sb-head a{font-size:13px}
+  .sb-acts{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+  .primary.sm,.second.sm{min-height:42px;padding:10px 12px;font-size:13.5px;gap:7px;margin:0;width:100%}
+
+  /* messages: real estate */
+  .mlist{display:flex;flex-direction:column;gap:11px}
+  .mcard{background:var(--card);border:1px solid rgba(255,255,255,.55);border-radius:20px;
+    padding:16px 17px 17px;box-shadow:0 12px 26px -20px rgba(40,55,38,.4);cursor:pointer;
+    transition:transform .12s ease,background .16s ease}
+  .mcard:hover{background:rgba(255,255,255,.9)}
+  .mcard:active{transform:scale(.99)}
+  .mcard.unread{box-shadow:inset 3px 0 0 var(--npds-blue-500),0 12px 26px -20px rgba(40,55,38,.4)}
+  .mc-top{display:flex;align-items:center;gap:13px}
+  .mc-who{flex:1;min-width:0}
+  .mc-who b{display:block;font-size:15.5px;font-weight:600;letter-spacing:-.008em}
+  .mc-tag{display:inline-block;margin-top:5px;font-size:11px;font-weight:600;letter-spacing:.03em;
+    padding:4px 10px;border-radius:999px}
+  .mc-tag.family{color:#3C6355;background:rgba(78,114,99,.16)}
+  .mc-tag.staff{color:var(--npds-blue-700);background:var(--npds-blue-100)}
+  .mc-time{font-size:12.5px;color:var(--ink-3);flex:none;display:flex;align-items:center;gap:7px;
+    font-variant-numeric:tabular-nums}
+  .udot{width:8px;height:8px;border-radius:50%;background:var(--npds-blue-500);display:block}
+  .mc-prev{margin:13px 0 0;font-size:14px;line-height:1.5;color:var(--ink-2)}
+  .mc-prev em{font-style:normal;color:var(--ink-3);font-weight:600}
+
+  /* the teacher's register row, verbatim */
+  .row.rowstack{align-items:flex-start;padding-top:15px;padding-bottom:15px}
+  .row.rowstack .av{margin-top:1px}
+  .row.rowstack .rr{margin-top:2px;gap:6px}
+  .row.rowstack .rt b{font-size:15.5px;font-weight:550;letter-spacing:-.008em}
+  .row.rowstack .rt small{font-size:13px;color:var(--ink-3);margin-top:4px;font-variant-numeric:tabular-nums}
+
+  .row.rowstack{gap:11px}
+  .row.rowstack .rt{flex:1 1 auto;min-width:0}
+  .row.rowstack .rt b{white-space:normal!important;overflow:visible!important;
+    text-overflow:clip!important;line-height:1.25;font-size:15px}
+  .row.rowstack .rt small{white-space:normal!important;overflow:visible!important;
+    text-overflow:clip!important;line-height:1.35}
+  .row.rowstack .rr{flex:0 0 auto}
+  /* a tighter action so the name gets the width */
+  .row.rowstack .mini.lbl{height:34px;min-height:34px;padding:0 12px;font-size:12.5px;gap:6px}
+  .row.rowstack .mini.lbl svg{width:15px;height:15px}
+  .dotsb{width:26px;height:32px;margin-right:-4px}
+.row.rowstack .cbx{align-self:center;margin-top:0}
+.row.rowstack .av{align-self:center;margin-top:0}
+/* ============================================================
+  .sp-mid b{white-space:normal;overflow:visible;text-overflow:clip;font-size:13.5px}
+
+  /* director-only corrections that must survive the port */
+  .body{padding:10px 16px 20px}
+  .body.low{padding-top:30px}
   /* nav */
   .nav{position:relative;z-index:4;flex:none;background:rgba(253,254,251,.84);
     backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);border-top:1px solid rgba(255,255,255,.6);
@@ -568,6 +741,9 @@
     .topbar{padding-left:14px;padding-right:14px}
     .sheet{padding-left:16px;padding-right:16px}
   }
+  /* last word, matching the teacher app's own final overrides */
+  .sp-mid b{font-size:13.5px}
+  .dotsb{width:26px;height:32px;margin-right:-4px}
 </style>
 </head>
 <body>
@@ -1085,7 +1261,7 @@ function attRow(k){
     :`${roomName(k.room)} · not checked in`;
   if(S.selecting){
     const on=S.sel.has(k.id);
-    return `<div class="row att${on?' picked':''}" data-act="sel:${k.id}">
+    return `<div class="row rowstack${on?' picked':''}" data-act="sel:${k.id}">
      <span class="cbx${on?' on':''}">${on?ic('check','ic sm','#fff','2.6'):''}</span>
      <span class="av">${m(k.ini)}${statusDot(k)}</span>
      <span class="rt"><b>${m(k.name)}</b><small>${sub}</small></span>
@@ -1094,7 +1270,7 @@ function attRow(k){
   const act=k.status==='here'
     ? `<button class="mini lbl sec" data-act="checkout:${k.id}" aria-label="Check out ${k.name}">${ic('out','ic sm','currentColor','1.9')}Check out</button>`
     : `<button class="mini lbl pri" data-act="checkin:${k.id}" aria-label="Check in ${k.name}">${ic('in','ic sm','currentColor','1.9')}Check in</button>`;
-  return `<div class="row att">
+  return `<div class="row rowstack">
    <span class="av">${m(k.ini)}${statusDot(k)}</span>
    <span class="rt" data-act="child:${k.id}"><b>${m(k.name)}</b><small>${sub}</small>
     ${(k.allergy||k.note)?`<span class="tagrow">
