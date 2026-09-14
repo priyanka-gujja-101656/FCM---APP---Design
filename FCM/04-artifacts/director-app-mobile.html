@@ -893,6 +893,27 @@
   .sigc2{position:absolute;right:8px;bottom:7px;font-size:11.5px;font-weight:600;
     color:var(--npds-blue-700);background:rgba(255,255,255,.9);border:1px solid var(--npds-blue-100);
     border-radius:999px;padding:4px 11px;font-family:inherit}
+  /* a flex column shrinks its children below their content unless told not to.
+     This is what clipped every empty card in half. */
+  .body>*{flex:none}
+  /* a value that is an address, a hospital or a name with a phone number needs
+     the width of the card, not the half left over beside its label */
+  .fieldstack{padding:6px 18px}
+  .fs2{padding:13px 0;border-bottom:1px solid var(--line)}
+  .fs2:last-child{border-bottom:0}
+  .fs2 i{font-style:normal;display:block;font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;
+    color:var(--ink-3);font-weight:600;margin-bottom:4px}
+  .fs2 b{display:block;font-size:15px;font-weight:500;line-height:1.4}
+  .fs2 b.ok{color:var(--present)} .fs2 b.neg{color:var(--neg)}
+  /* an empty section says what the emptiness means, not "no records" */
+  .emptyrow{display:flex;align-items:center;gap:12px;padding:16px 12px;color:var(--ink-3);
+    font-size:14px;line-height:1.45}
+  .emptyrow .plus{width:40px;height:40px;border-radius:50%;border:1px dashed rgba(44,49,43,.24);
+    display:grid;place-items:center;flex:none}
+  .seclab-act{letter-spacing:0;text-transform:none;font-size:12.5px;color:var(--npds-blue-700);
+    font-weight:600;background:none;border:0;font-family:inherit;padding:0}
+  /* a profile row's subtitle is a sentence, not a data line, so it wraps */
+  .card.desc .rt small{white-space:normal}
 </style>
 </head>
 <body>
@@ -1649,6 +1670,13 @@ function vStudents(){
    <div class="card list tight">${list.map(kidRow).join('')||'<div class="empty">No students match.</div>'}</div>
   </div>`;
 }
+function secl(label,state,act,actLabel){
+  return `<div class="flabel"><span style="color:var(--ink-3)">${label}${state?' · '+state:''}</span>
+    ${act?`<button class="seclab-act" data-act="${act}">${actLabel}</button>`:''}</div>`;
+}
+function emptyRow(meaning){
+  return `<div class="emptyrow"><span class="plus">${ic('plus','ic sm','var(--ink-3)','2')}</span>${meaning}</div>`;
+}
 function vChild(){
   const k=K(S.arg); if(!k) return vStudents();
   const d=KID_DETAIL[k.id], f=F(k.fam);
@@ -1670,26 +1698,26 @@ function vChild(){
       +(d.preferred?fr('Preferred name',m(d.preferred)):'')
       +fr('Person ID',d.pid)+fr('Classroom',roomName(k.room))
       +fr('Enrollment',d.enrolled,'ok')+fr('Start date',d.start)
-      +fr('Subsidy',k.subsidy?'TN CCAP':'Private pay')
-      +fr('Address',m(d.address)))
-      +`<div class="flabel">Family</div>`
+      +fr('Subsidy',k.subsidy?'TN CCAP':'Private pay'))
+      +secl('Address')
+      +`<div class="card fieldstack"><div class="fs2"><i>Home</i><b>${m(d.address)}</b></div></div>`
+      +secl('Family',f.name)
       +`<div class="card list tight">
-         ${person(f.contact,'Primary payer · '+f.name+' family',ic('chev','ic sm','var(--ink-3)'))}
+         ${person(f.contact,'Primary payer · '+m(f.name)+' family',ic('chev','ic sm','var(--ink-3)'))}
          ${sibs.length?sibs.map(x=>person(x.name,'Sibling · '+roomName(x.room))).join('')
-           :'<div class="empty">No siblings enrolled.</div>'}</div>`
+           :emptyRow(m(k.name.split(' ')[0])+' is the only child enrolled from this family.')}</div>`
       +`<button class="second" data-act="family:${f.id}" style="width:100%">Open the ${m(f.name)} family</button>`;
   } else if(t==='pickup'){
-    panel=`<div class="flabel">Authorized pickups <span>${d.pickups.length}</span></div>
-     <div class="card list tight">${d.pickups.map(x=>person(x.name,x.rel,
-       x.photo?'<span class="pillv">Photo</span>':'<span class="pillv mute">No photo</span>')).join('')}</div>
-     <button class="second" data-act="soon:Add an authorized pickup" style="width:100%">Add authorized pickup</button>
-     <div class="flabel">Pickup restrictions</div>
-     <div class="card list tight">${d.restrictions.length
+    panel=secl('Authorized pickups',d.pickups.length,'soon:Add an authorized pickup','Add')
+     +`<div class="card list tight">${d.pickups.map(x=>person(x.name,x.rel,
+       x.photo?'<span class="pillv">Photo</span>':'<span class="pillv mute">No photo</span>')).join('')}</div>`
+     +secl('Pickup restrictions',d.restrictions.length||'none','soon:Add a restriction','Add')
+     +`<div class="card list tight">${d.restrictions.length
        ? d.restrictions.map(r=>`<div class="row"><span class="av">${ic('alert','ic sm','var(--neg)','1.8')}</span>
           <span class="rt"><b>${m(r.who)}</b><small>${r.note}</small></span></div>`).join('')
-       : '<div class="empty">No pickup restrictions on file.</div>'}</div>
-     <div class="flabel">Emergency contacts</div>
-     <div class="card list tight">${d.emergency.map(x=>person(x.name,x.rel+' · '+m(x.phone))).join('')}</div>`;
+       : emptyRow(`Anyone on the list above may collect ${m(k.name.split(' ')[0])}.`)}</div>`
+     +secl('Emergency contacts',d.emergency.length,'soon:Add an emergency contact','Add')
+     +`<div class="card list tight">${d.emergency.map(x=>person(x.name,x.rel+' · '+m(x.phone))).join('')}</div>`;
   } else if(t==='custody'){
     const has=d.restrictions.length>0;
     panel=fs(fr('Legal custody',m(d.custody),has?'neg':'ok'))
@@ -1703,30 +1731,36 @@ function vChild(){
         : '<div class="empty">No documents uploaded.</div>'}</div>
       <button class="second" data-act="soon:Add a restriction" style="width:100%">Add restriction</button>`;
   } else if(t==='medical'){
-    panel=`<div class="flabel">Allergies</div>
-     <div class="card list tight">${k.allergy
+    panel=secl('Allergies',k.allergy?k.allergy.toLowerCase():'none','soon:Add an allergy','Add')
+     +`<div class="card list tight">${k.allergy
        ? `<div class="row"><span class="av">${ic('allergy','ic sm','var(--neg)','1.8')}</span>
           <span class="rt"><b>${k.allergy}</b><small>${SEVERITY[k.allergy]||'On file'}</small></span></div>`
-       : '<div class="empty">No allergies on file.</div>'}</div>
-     <div class="flabel">Medications</div>
-     <div class="card list tight">${d.meds.length
+       : emptyRow('Nothing to avoid at meals or activities.')}</div>`
+     +secl('Medications',d.meds.length||'none','soon:Add a medication','Add')
+     +`<div class="card list tight">${d.meds.length
        ? d.meds.map(x=>person(x.name,x.dose+' · '+x.by)).join('')
-       : '<div class="empty">No medications on file.</div>'}</div>
-     ${fs(fr('Immunizations',d.immun.status,d.immun.due?'neg':'ok')
-       +(d.immun.due?fr('Outstanding',d.immun.due,'neg'):'')
-       +fr('Physician',m(d.physician))+fr('Hospital',d.hospital))}`;
+       : emptyRow('Nothing is given to ' + m(k.name.split(' ')[0]) + ' at the centre.')}</div>`
+     +secl('Care team')
+     +`<div class="card fieldstack">
+       <div class="fs2"><i>Immunizations</i><b class="${d.immun.due?'neg':'ok'}">${d.immun.status}</b></div>
+       ${d.immun.due?`<div class="fs2"><i>Outstanding</i><b class="neg">${d.immun.due}</b></div>`:''}
+       <div class="fs2"><i>Physician</i><b>${m(d.physician)}</b></div>
+       <div class="fs2"><i>Hospital</i><b>${d.hospital}</b></div>
+      </div>`;
   } else if(t==='docs'){
-    panel=`<div class="card list tight">${d.docs.map(x=>`<div class="row">
+    panel=secl('Documents',docsMissing?docsMissing+' missing':'all verified','soon:Upload a document','Upload')
+     +`<div class="card list tight">${d.docs.map(x=>`<div class="row">
        <span class="av">${ic('doc','ic sm','var(--ink-2)','1.8')}</span>
        <span class="rt"><b>${x.n}</b><small>${x.ok?'Verified':'Not on file'}</small></span>
        <span class="pillv ${x.ok?'':'warn'}">${x.ok?'Verified':'Missing'}</span></div>`).join('')}</div>
       <button class="second" data-act="soon:Upload a document" style="width:100%">Upload document</button>`;
   } else if(t==='consent'){
+    const head=secl('Consent',unsigned?unsigned+' unsigned':'all signed');
     const line=(key,label,sub)=>`<div class="row">
       <span class="av">${ic(d.consent[key]?'check':'alert','ic sm',d.consent[key]?'var(--present)':'var(--warn)','1.9')}</span>
       <span class="rt"><b>${label}</b><small>${sub}</small></span>
       <span class="pillv ${d.consent[key]?'':'warn'}">${d.consent[key]?'Signed':'Not signed'}</span></div>`;
-    panel=`<div class="card list tight">
+    panel=head+`<div class="card list tight desc">
       ${line('trips','Field trips','Off-site outings within Memphis')}
       ${line('sunscreen','Sunscreen application','Applied before outside time')}
       ${line('meds','Emergency medication','EpiPen or inhaler without calling first')}</div>
@@ -1734,11 +1768,12 @@ function vChild(){
         Ask ${m(f.contact.split(' ')[0])} to sign</button>`:''}`;
   } else {
     const posts=ACTIVITIES.filter(a=>a.kid===k.name);
-    panel=`<div class="card list tight">${posts.length?posts.map(a=>`<div class="fe">
+    panel=secl('Today',posts.length?posts.length+' posts':'nothing yet')
+     +`<div class="card list tight">${posts.length?posts.map(a=>`<div class="fe">
       <span class="fi${a.review?' warn':''}">${ic(a.icon,'ic sm','var(--ink-2)','1.8')}</span>
       <span class="ft"><b>${a.title}</b><small>${a.by} · ${a.room}</small></span>
       <span class="fw">${a.at}</span></div>`).join('')
-      :'<div class="empty">No activity logged today.</div>'}</div>
+      :emptyRow('Nothing has been posted for '+m(k.name.split(' ')[0])+' today.')}</div>
       <button class="second" data-act="sheet:posttype" style="width:100%">Post activity</button>`;
   }
 
