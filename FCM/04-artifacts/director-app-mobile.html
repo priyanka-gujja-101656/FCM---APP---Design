@@ -189,6 +189,7 @@
   .pillv.warn{color:var(--warn);background:rgba(176,138,86,.2)}
   .pillv.neg{color:var(--neg);background:rgba(155,74,62,.14)}
   .pillv.info{color:var(--npds-blue-700);background:var(--npds-blue-100)}
+  .primary.off{opacity:.45}
   .pillv.mute{color:var(--ink-3);background:rgba(44,49,43,.07)}
   .badgen{min-width:20px;height:20px;padding:0 6px;border-radius:99px;background:var(--npds-blue-600);color:#fff;
     font-size:10.5px;font-weight:700;display:grid;place-items:center;font-variant-numeric:tabular-nums}
@@ -863,6 +864,12 @@
   .opt.tall2 .on2{display:block;line-height:1.3;font-size:14.5px}
   .opt.tall2 .on2 i{display:block;font-style:normal;font-size:12px;color:#6E7568;margin-top:2px;
     white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:230px}
+  .ratio{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:13px 15px;
+    border-radius:14px;background:rgba(78,114,99,.12);font-size:12.5px;margin-bottom:12px}
+  .ratio .rl{color:var(--ink-2)}
+  .ratio .rv{font-weight:600;color:var(--present)}
+  .ratio.over{background:rgba(176,138,86,.18)}
+  .ratio.over .rv{color:var(--warn)}
 </style>
 </head>
 <body>
@@ -1054,7 +1061,7 @@ const THREADS=[
         {d:'out',t:'Thank you for letting us know. He is marked absent for today.',at:'7:22 AM'}]}];
 
 /* ---------- state ---------- */
-const S={tab:'home',sub:null,arg:null,stack:[],q:'',mask:false,selecting:false,sel:new Set(),openNote:new Set(),pick:null,pickArg:null,searchOpen:false,day:0,actFilter:new Set(),
+const S={tab:'home',sub:null,arg:null,stack:[],q:'',mask:false,moveTo:null,relArg:null,selecting:false,sel:new Set(),openNote:new Set(),pick:null,pickArg:null,searchOpen:false,day:0,actFilter:new Set(),
   homeTab:'actions',room:'all',attFilter:'all',invFilter:'all',subTab:'mismatches',
   childTab:'overview',famTab:'general',staffTab:'overview',acctTab:'activity',msgScope:'all',
   resolved:{},paid:{},assistant:[],draft:''};
@@ -2163,6 +2170,34 @@ function sheet(kind,arg){
         <span class="caprow-sub">${r.teachers} teacher${r.teachers===1?'':'s'} on duty · ${r.cap-kids.length} seats open</span>
        </button>`;}).join('')}</div>
      <div class="sh-foot"><button class="second" data-act="close">Close</button></div>`;
+  } else if(kind==='relocate'){
+    const k=K(arg), sel=S.moveTo||k.room;
+    const target=ROOMS.find(r=>r.id===sel);
+    const per=Number(target.ratio.split(':')[1]);
+    const after=here(kidsIn(sel))+(sel===k.room?0:1);
+    const staffNeeded=Math.ceil(after/per);
+    const onDuty=target.teachers;
+    const over=staffNeeded>onDuty;
+    html=`<span class="grab"></span>
+     <button class="sh-x" data-act="close" aria-label="Close">${ic('x','ic sm','var(--ink-2)','2.1')}</button>
+     <h3 class="sh-h">Move ${m(k.name.split(' ')[0])}</h3>
+     <span class="flabel" style="margin:0 2px 9px">Which room?</span>
+     <div class="card list roomy">${ROOMS.map(r=>{
+       const inRm=here(kidsIn(r.id));
+       const left=`${inRm} of ${r.cap} · room for ${Math.max(0,r.cap-inRm)}`;
+       return `<button class="row rad-row${sel===r.id?' on':''}" data-act="moveto:${r.id}">
+        <span class="rad${sel===r.id?' on':''}"></span>
+        <span class="av">${ic('users','ic sm','var(--ink-2)','1.8')}</span>
+        <span class="rt"><b>${r.name}</b><small>ratio ${r.ratio} · ${left}</small></span>
+        ${r.id===k.room?'<span class="pillv mute">Now</span>':''}</button>`;}).join('')}</div>
+     <div class="ratio${over?' over':''}">
+      <span class="rl">${target.name} after the move</span>
+      <span class="rv">${after} ${after===1?'child':'children'} · ${onDuty} staff${over?' · needs '+staffNeeded:''}</span></div>
+     ${over?`<p class="hint" style="margin:0 0 12px">${ic('alert','ic sm','var(--warn)','1.8')}
+       That puts ${target.name} over ratio ${target.ratio}. Assign another adult before you move ${m(k.name.split(' ')[0])}.</p>`:''}
+     <button class="primary${sel===k.room||over?' off':''}" data-act="${sel===k.room||over?'noop':'domove:'+k.id}" style="width:100%">
+      ${ic('swap','ic','currentColor','1.8')}Move to ${target.name}</button>
+     <button class="ghost" data-act="close">Cancel</button>`;
   } else if(kind==='compose'){
     tall=true; form=true;
     const c=compose;
@@ -2350,7 +2385,7 @@ function sheet(kind,arg){
       <span class="rt"><b>${m(k.name)}</b><small>${roomName(k.room)} · ${k.status==='here'?'in at '+k.tin:k.status==='absent'?'absent today':'not checked in'}</small></span></div>
      <div class="card list roomy">
       ${item('moon','Mark absent','Confirms first, the family can see it',`doabsent:${k.id}`)}
-      ${item('swap','Move to another room','Checks the ratio before it moves',`soon:Room move for ${k.name}`)}
+      ${item('swap','Move to another room','Checks the ratio before it moves',`relocate:${k.id}`)}
       ${item('pen',k.note?'Edit today\u2019s note':'Add a note for today','For today only',`note:${k.id}`)}
      </div>
      <button class="ghost" data-act="close">Close</button>`;
@@ -2391,6 +2426,7 @@ function sheet(kind,arg){
   }
   sh.innerHTML=html;
   sh.dataset.kind=kind; if(kind==='checkin'||kind==='checkout')S.pickArg=arg;
+  if(kind==='relocate')S.relArg=arg;
   sh.classList.toggle('tall',tall);
   sh.classList.toggle('formsheet',form);
   $('#scrim').classList.add('on');
@@ -2543,6 +2579,11 @@ function doAct(a){
       if(t)t.msgs.push({d:'out',t:v,at:new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'})});
       S.draft='';render();break;}
 
+    case 'relocate': S.moveTo=null;sheet('relocate',arg);break;
+    case 'moveto': S.moveTo=arg;sheet('relocate',S.relArg);break;
+    case 'domove':{const k=K(arg);const to=ROOMS.find(r=>r.id===S.moveTo);
+      k.room=S.moveTo;closeSheet();toast(`<b>${k.name}</b> moved to ${to.name}`);
+      S.moveTo=null;render(true);break;}
     case 'newmsg': compose={to:new Set(),subject:'',body:'',att:false,open:'to',room:null};sheet('compose');break;
     case 'copen': stashCompose();compose.open=compose.open===arg?null:arg;sheet('compose');break;
     case 'cto': stashCompose();compose.to.has(arg)?compose.to.delete(arg):compose.to.add(arg);sheet('compose');break;
