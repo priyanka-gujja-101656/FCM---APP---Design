@@ -36,6 +36,8 @@
   }
 
   *{box-sizing:border-box}
+  /* buttons do not inherit type on their own; every row in this app is a button */
+  button{font-family:inherit;font-size:inherit;color:inherit}
   html,body{margin:0;padding:0;height:100%;background:var(--sky-1);
     -webkit-tap-highlight-color:transparent;overscroll-behavior:none}
   body{overflow:hidden;color:var(--ink);
@@ -600,6 +602,15 @@
   .mc-prev{margin:13px 0 0;font-size:14px;line-height:1.5;color:var(--ink-2)}
   .mc-prev em{font-style:normal;color:var(--ink-3);font-weight:600}
 
+  .row.msg{padding:16px 13px;align-items:flex-start}
+  .row.msg .av{margin-top:2px}
+  .row.msg .rt b{font-size:15px}
+  .row.msg .rt small{font-size:12.5px;margin-top:4px}
+  .row.msg .rt small.prev{font-size:13.5px;color:var(--ink-2);margin-top:7px;line-height:1.45;
+    white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .row.msg .rr{margin-top:3px}
+  .row.msg.unread{box-shadow:inset 3px 0 0 var(--npds-blue-500)}
+
   /* the teacher's register row, verbatim */
   .row.rowstack{align-items:flex-start;padding-top:15px;padding-bottom:15px}
   .row.rowstack .av{margin-top:1px}
@@ -618,6 +629,10 @@
   .row.rowstack .mini.lbl{height:34px;min-height:34px;padding:0 12px;font-size:12.5px;gap:6px}
   .row.rowstack .mini.lbl svg{width:15px;height:15px}
   .dotsb{width:26px;height:32px;margin-right:-4px}
+  .dotsb svg{width:18px;height:18px}
+  .rowwrap{border-radius:14px}
+  .rowwrap+.rowwrap{border-top:1px solid var(--line)}
+  .card.list .rowwrap .row+.row{border-top:0}
 .row.rowstack .cbx{align-self:center;margin-top:0}
 .row.rowstack .av{align-self:center;margin-top:0}
 /* ============================================================
@@ -744,6 +759,19 @@
   /* last word, matching the teacher app's own final overrides */
   .sp-mid b{font-size:13.5px}
   .dotsb{width:26px;height:32px;margin-right:-4px}
+  .row.rowstack{padding-top:17px;padding-bottom:17px}
+  /* measured against the teacher app, element by element */
+  .ghost.tb-inline{min-height:34px;padding:7px 15px;font-size:13.5px;margin:0;width:auto}
+  .spine{gap:6px}
+  .sp-b{width:38px;height:38px;min-height:38px}
+  .sp-f{height:38px;min-height:38px}
+  .body{padding:6px 18px 0}
+  .body.low{padding:30px 18px 0}
+  .row.rowstack .rt small{margin-top:4px}
+  /* the teacher draws these as spans, which inherit the 1.5 ratio; ours are
+     buttons, so they need it stated */
+  .tp,.row,.act,.qr,.rs-b,.kpi,.arow,.caprow,.sh-opt{line-height:1.5}
+  .row.rowstack .rr{min-height:40px}
 </style>
 </head>
 <body>
@@ -854,12 +882,12 @@ const CENTER={name:'Little Harding',date:'Mon, Jun 22',director:'Dana Mitchell',
 const TUITION=850;
 
 const ROOMS=[
- {id:'r-infants',  name:'Infants',     cap:8,  ratio:'1:4', teachers:1},
- {id:'r-toddlerA', name:'Toddlers A',  cap:10, ratio:'1:6', teachers:1},
- {id:'r-toddlerB', name:'Toddlers B',  cap:10, ratio:'1:6', teachers:1},
- {id:'r-prek3',    name:'Pre-K 3',     cap:14, ratio:'1:9', teachers:1},
- {id:'r-prek4',    name:'Pre-K 4',     cap:16, ratio:'1:10',teachers:1},
- {id:'r-kinder',   name:'Kinder Prep', cap:16, ratio:'1:12',teachers:1}];
+ {id:'r-infants',  name:'Infants',     short:'Infants', cap:8,  ratio:'1:4', teachers:1},
+ {id:'r-toddlerA', name:'Toddlers A',  short:'Todd A',  cap:10, ratio:'1:6', teachers:1},
+ {id:'r-toddlerB', name:'Toddlers B',  short:'Todd B',  cap:10, ratio:'1:6', teachers:1},
+ {id:'r-prek3',    name:'Pre-K 3',     short:'Pre-K 3', cap:14, ratio:'1:9', teachers:1},
+ {id:'r-prek4',    name:'Pre-K 4',     short:'Pre-K 4', cap:16, ratio:'1:10',teachers:1},
+ {id:'r-kinder',   name:'Kinder Prep', short:'Kinder',  cap:16, ratio:'1:12',teachers:1}];
 
 const KIDS=[
  {id:'c1',who:'Dad', name:'Amelia Walsh',    ini:'AW', age:'4 yr', room:'r-prek4',   fam:'f-walsh',    status:'here',   tin:'7:52 AM', allergy:null,      subsidy:false},
@@ -949,6 +977,7 @@ const ST=id=>STAFF.find(s=>s.id===id);
 const IN=id=>INVOICES.find(i=>i.id===id);
 const CL=id=>CLAIMS.find(c=>c.id===id);
 const roomName=id=>{const r=ROOMS.find(x=>x.id===id);return r?r.name:'—';};
+const roomShort=id=>{const r=ROOMS.find(x=>x.id===id);return r?(r.short||r.name):'—';};
 const kidsIn=id=>KIDS.filter(k=>k.room===id);
 const kidsOf=fid=>KIDS.filter(k=>k.fam===fid);
 const here=list=>list.filter(k=>k.status==='here').length;
@@ -1225,7 +1254,7 @@ function filterCount(screen){
 }
 function filtersBtn(screen){
   const c=filterCount(screen);
-  return `<button class="second tb-inline" data-act="sheet:filters">Filters${c?' ('+c+')':''}</button>`;
+  return `<button class="ghost tb-inline" data-act="sheet:filters">Filters${c?' ('+c+')':''}</button>`;
 }
 /* activity palette: pastel ring and tint, never the interactive blue */
 const PAL={incident:['#F4E3DE','#9A4B39'],meal:['#F6EBD9','#8A6A3C'],nap:['#E4EBF3','#4A6480'],
@@ -1255,10 +1284,11 @@ function acard(a){
    </div>`;
 }
 function attRow(k){
-  const sub=k.status==='here'?`${roomName(k.room)} · ${k.tin}${k.who?' · with '+k.who:''}`
-    :k.status==='absent'?`${roomName(k.room)} · absent`
-    :k.out?`${roomName(k.room)} · out${k.collectedBy?' · with '+k.collectedBy:''}`
-    :`${roomName(k.room)} · not checked in`;
+  const rm=S.room==='all'?roomShort(k.room)+' · ':'';
+  const sub=k.status==='here'?`${rm}${k.tin}${S.room==='all'?'':(k.who?' · with '+k.who:'')}`
+    :k.status==='absent'?`${rm}absent`
+    :k.out?`${rm}out${S.room==='all'?'':(k.collectedBy?' · with '+k.collectedBy:'')}`
+    :`${rm}not checked in`;
   if(S.selecting){
     const on=S.sel.has(k.id);
     return `<div class="row rowstack${on?' picked':''}" data-act="sel:${k.id}">
@@ -1270,7 +1300,8 @@ function attRow(k){
   const act=k.status==='here'
     ? `<button class="mini lbl sec" data-act="checkout:${k.id}" aria-label="Check out ${k.name}">${ic('out','ic sm','currentColor','1.9')}Check out</button>`
     : `<button class="mini lbl pri" data-act="checkin:${k.id}" aria-label="Check in ${k.name}">${ic('in','ic sm','currentColor','1.9')}Check in</button>`;
-  return `<div class="row rowstack">
+  return `<div class="rowwrap">
+   <div class="row rowstack">
    <span class="av">${m(k.ini)}${statusDot(k)}</span>
    <span class="rt" data-act="child:${k.id}"><b>${m(k.name)}</b><small>${sub}</small>
     ${(k.allergy||k.note)?`<span class="tagrow">
@@ -1279,8 +1310,9 @@ function attRow(k){
      </span>`:''}</span>
    <span class="rr">${act}
     <button class="dotsb" data-act="rowmenu:${k.id}" aria-label="More for ${k.name}">${ic('dots','ic','var(--ink-3)','1.9')}</button></span>
-  </div>
-  ${(k.note&&S.openNote.has(k.id))?`<div class="noterow"><span class="nr-i">${ic('doc','ic sm','currentColor','1.8')}</span><p>${esc(k.note)}</p></div>`:''}`;
+   </div>
+   ${(k.note&&S.openNote.has(k.id))?`<div class="noterow"><span class="nr-i">${ic('doc','ic sm','currentColor','1.8')}</span><p>${esc(k.note)}</p></div>`:''}
+  </div>`;
 }
 /* the tightest ratio any room is operating at today, since that is the one
    that would fail an inspection first */
