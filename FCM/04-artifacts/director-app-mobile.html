@@ -1174,7 +1174,7 @@ const S={tab:'home',sub:null,arg:null,stack:[],q:'',mask:false,moveTo:null,relAr
   homeTab:'actions',room:'all',attFilter:'all',invFilter:'all',subTab:'mismatches',
   childTab:'overview',famTab:'general',staffTab:'overview',acctTab:'activity',msgScope:'all',
   resolved:{},paid:{},assistant:[],draft:'',
-  mark:{h:7,m:32,ap:'AM'},markMode:'h',markOpen:false};
+  mark:{h:7,m:32,ap:'AM'},markMode:'h',markOpen:false,dir:'in'};
 
 /* ---------- helpers ---------- */
 const $=(s,r=document)=>r.querySelector(s);
@@ -1382,7 +1382,7 @@ function vHome(){
     </div>
 
     <div class="quick">
-     <button class="primary q" data-act="go:attendance">${ic('in','ic sm','var(--npds-blue-700)','1.9')}Check in / out</button>
+     <button class="primary q" data-act="sheet:inout">${ic('in','ic sm','var(--npds-blue-700)','1.9')}Check in / out</button>
      <button class="second q" data-act="sheet:posttype">${ic('pen','ic sm','var(--npds-gray-700)','1.9')}Post activity</button>
     </div>
    </div>
@@ -2802,8 +2802,35 @@ function sheet(kind,arg){
      </div>
      <div class="shfoot2 cfoot2"><button class="second" data-act="savedraft">Save as a draft</button>
       <button class="primary" data-act="sendmsg">${ic('send','ic','currentColor','1.8')}Send</button></div>`;
+  } else if(kind==='inout'){
+    /* the teacher app's inout sheet. A director covers every room, so each line
+       says which room the child is in, and the way out is the full register. */
+    const inn=S.dir==='in';
+    const pool=KIDS.filter(k=>inRoom(k.room)).filter(k=>inn?k.status!=='here':k.status==='here')
+      .slice().sort((a,b)=>a.name.localeCompare(b.name));
+    const scope=S.room==='all'?'':` in ${roomName(S.room)}`;
+    html=`<span class="grab"></span>
+     <button class="sh-x" data-act="close" aria-label="Close">${ic('x','ic sm','var(--ink-2)','2.1')}</button>
+     <h3 class="sh-h">Check children in or out</h3>
+     <div class="seg two big">
+      <button class="sg${inn?' on':''}" data-act="dir:in">${ic('in','ic sm','currentColor','1.8')}Check in</button>
+      <button class="sg${inn?'':' on'}" data-act="dir:out">${ic('out','ic sm','currentColor','1.8')}Check out</button></div>
+     <p class="sh-note">${pool.length
+       ? `${pool.length} ${pool.length===1?'child is':'children are'} ${inn?'not in yet':'here now'}${scope}.`
+       : inn?`Everyone${scope||' '} is checked in.`:`Nobody left to check out${scope}.`}</p>
+     <div class="card list roomy">${pool.length?pool.slice(0,5).map(k=>`
+       <div class="row rowstack">
+        <span class="av">${m(k.ini)}${statusDot(k)}</span>
+        <span class="rt" data-act="${inn?'checkin':'checkout'}:${k.id}"><b>${m(k.name)}</b>
+         <small>${roomShort(k.room)} · ${k.status==='here'?'in at '+k.tin:k.status==='absent'?'absent today':'not checked in'}</small></span>
+        <span class="rr"><button class="mini lbl ${inn?'pri':'sec'}" data-act="${inn?'checkin':'checkout'}:${k.id}"
+          aria-label="Check ${inn?'in':'out'} ${k.name}">${ic(inn?'in':'out','ic sm','currentColor','1.9')}Check ${inn?'in':'out'}</button></span>
+       </div>`).join(''):`<div class="empty">${inn?'Everyone is checked in.':'Nobody left to check out.'}</div>`}</div>
+     ${pool.length>5?`<p class="sh-note">${pool.length-5} more in the register.</p>`:''}
+     <button class="second" data-act="go:attendance" style="width:100%">${ic('listCheck','ic sm','var(--npds-gray-700)','1.8')}Open the register</button>`;
   } else if(kind==='posttype'){
-    full=true;
+    /* twelve tiles hug the bottom of the screen in the teacher app rather than
+       filling it — full height left a third of the sheet empty */
     html=`<span class="grab"></span>
      <button class="sh-x" data-act="close" aria-label="Close">${ic('x','ic sm','var(--ink-2)','2.1')}</button>
      <h3 class="sh-h">Post an activity</h3>
@@ -3090,6 +3117,7 @@ function doAct(a){
     case 'savenote':{const k=K(arg);const t=$('#nt');k.note=t?t.value.trim():'';
       closeSheet();toast(k.note?`Note saved for <b>${k.name}</b>`:'Note cleared');render(true);break;}
     case 'notepill': S.openNote.has(arg)?S.openNote.delete(arg):S.openNote.add(arg);render(true);break;
+    case 'dir': S.dir=arg;sheet('inout');break;
     case 'pk': S.pick=arg;sheet($('#sheet').dataset.kind||'checkout',S.pickArg);break;
     case 'mclock': S.markOpen=!S.markOpen;sheet($('#sheet').dataset.kind||'checkout',S.pickArg);
       /* the dial opens below the fold on a small phone, so bring it up to meet the thumb */
