@@ -1334,6 +1334,19 @@
 /* select mode: the box and the avatar share one centre line */
 .row.rowstack .cbx{align-self:center;margin-top:0}
 .row.rowstack .av{align-self:center;margin-top:0}
+/* filter panel: search, then checkboxes, multi select */
+.fsearch{display:flex;align-items:center;gap:8px;padding:8px 2px 10px;
+  border-bottom:1px solid rgba(44,49,43,.09);margin-bottom:2px}
+.fsearch input{flex:1;min-width:0;border:0;background:none;outline:none;font-family:inherit;
+  font-size:14.5px;color:var(--ink);min-height:36px;-webkit-appearance:none}
+.fsearch input::placeholder{color:#6E7568}
+.fsearch input::-webkit-search-cancel-button{display:none}
+.fclear{flex:none;font-family:inherit;font-size:11.5px;font-weight:600;color:var(--npds-blue-700);
+  background:var(--npds-blue-100);border:0;border-radius:999px;padding:6px 11px;min-height:32px}
+.fscroll{max-height:216px;overflow-y:auto}
+.kidbox .pr.opt{display:flex;align-items:center;gap:12px}
+.kidbox .pr.opt .cb{flex:none}
+.fnone{margin:14px 2px;font-size:13.5px;color:#6E7568}
 /* ============================================================
    Mobile build: no frame, no page, the app fills the phone.
    Everything here only overrides the review-page chrome.
@@ -1520,7 +1533,7 @@ let S={
    qtyOpen:false,det:'',vis:'both',sig:false,clockOpen:false,cmode:'h',
    t:{h:10,m:32,ap:'AM'},off:0,mOff:0,dateOpen:false,req:'',sev:'low',witness:'',internal:''},
  mark:{h:9,m:0,ap:'AM'}, markMode:'h', markOpen:false,
- fopen:null, frange:'today', stack:[], openNote:new Set(), pick:null, room:'bluebell', tmark:null, day:0, childTab:'general', famTab:'general', reportView:'list', confirm:null,
+ fopen:null, fq:'', frange:'today', stack:[], openNote:new Set(), pick:null, room:'bluebell', tmark:null, day:0, childTab:'general', famTab:'general', reportView:'list', confirm:null,
 
  compose:{to:new Set(),subject:'',body:'',att:false,open:null,showAll:false},
  drafts:[{id:'d1',to:'Lin Family',subject:'Nap routine',body:'Hi [Family Name], a note about [Child Name] and naps…'}],
@@ -1704,6 +1717,12 @@ function grow(act,label,val,open,pale,panel){
     <i>${label}</i><span class="gvv${pale?' pale':''}">${val}</span>
     <span class="rch${open?' up':''}">${ic('chev','ic sm','var(--npds-blue-700)','2.4')}</span></div>
    ${open&&panel?`<div class="gpanel">${panel}</div>`:''}</div>`;
+}
+function wireFq(){
+  const q=document.getElementById('fq'); if(!q||!q.addEventListener)return;
+  q.addEventListener('input',e=>{S.fq=e.target.value;S.fqFocus=true;refreshSheet();});
+  if(S.fqFocus){S.fqFocus=false;q.focus();
+    try{q.setSelectionRange(q.value.length,q.value.length)}catch(e){}}
 }
 function wireScroll(){
   const sc=document.querySelector('.opts.scroll'); if(!sc)return;
@@ -2373,9 +2392,13 @@ const SHEETS={
 
  filter(){
   const counts={};S.feed.forEach(a=>counts[a.type]=(counts[a.type]||0)+1);
-  const sel=[...S.filters][0]||null;
-  const n=S.feed.filter(a=>!sel||a.type===sel).length;
-  const label=sel?`${TY[sel].label}${counts[sel]?' · '+counts[sel]:''}`:'All activities';
+  const on=S.filters, k=on.size;
+  const n=S.feed.filter(a=>!k||on.has(a.type)).length;
+  const label=!k?'All activities'
+    :(k===1?`${TY[[...on][0]].label}${counts[[...on][0]]?' · '+counts[[...on][0]]:''}`
+           :`${k} types · ${n}`);
+  const fq=(S.fq||'').trim().toLowerCase();
+  const shown=TYPES.filter(t=>!fq||t[1].toLowerCase().includes(fq));
   const RANGES=[['today','Today'],['week','This week'],['month','This month'],['all','All time']];
   const range=S.frange||'today';
   const rlabel=(RANGES.find(r=>r[0]===range)||RANGES[0])[1];
@@ -2384,11 +2407,18 @@ const SHEETS={
     <span class="fx b${S.fopen==='type'?' open':''}" data-act="fdrop:type">${label}
      <i class="cv${S.fopen==='type'?' up':''}">${ic('chev','ic sm','var(--ink-3)','2.2')}</i></span></label>
    ${S.fopen==='type'?`<div class="kidbox opts">
-    <div class="pr opt${sel?'':' on'}" data-act="fact:all"><span class="pn">All activities</span>
-     ${sel?'':ic('check','ic sm','var(--npds-blue-700)','2.6')}</div>
-    ${TYPES.map(t=>`<div class="pr opt${sel===t[0]?' on':''}" data-act="fact:${t[0]}">
-     <span class="pn">${t[1]}${counts[t[0]]?` <i>${counts[t[0]]}</i>`:''}</span>
-     ${sel===t[0]?ic('check','ic sm','var(--npds-blue-700)','2.6'):''}</div>`).join('')}</div>`:''}
+    <div class="fsearch">${ic('search','ic sm','var(--ink-3)','2')}
+     <input id="fq" type="search" value="${(S.fq||'').replace(/"/g,'&quot;')}"
+      placeholder="Search activity types" aria-label="Search activity types" autocomplete="off">
+     ${k?`<button class="fclear" data-act="fact:all">Clear ${k}</button>`:''}</div>
+    <div class="fscroll">
+    ${shown.length?shown.map(t=>{const sel=on.has(t[0]);
+     return `<div class="pr opt" data-act="fact:${t[0]}" role="checkbox" tabindex="0"
+      aria-checked="${sel}" aria-label="${t[1]}">
+      <span class="cb${sel?' on':''}">${sel?ic('check','ic sm','#FFFDFA','2.8'):''}</span>
+      <span class="pn">${t[1]}${counts[t[0]]?` <i>${counts[t[0]]}</i>`:''}</span></div>`}).join('')
+     :`<p class="fnone">No type matches "${(S.fq||'').replace(/</g,'&lt;')}".</p>`}
+    </div></div>`:''}
    <label class="lb gap"><i>When</i>
     <span class="fx b${S.fopen==='when'?' open':''}" data-act="fdrop:when">${rlabel}
      <i class="cv${S.fopen==='when'?' up':''}">${ic('chev','ic sm','var(--ink-3)','2.2')}</i></span></label>
@@ -2561,20 +2591,21 @@ function stash(){
 let openSheet=null;
 function sheet(name,arg){
   if(arg!==undefined)S.arg=arg;
+  if(name==='filter'||name==='mfilter'){S.fopen=null;S.fq='';S.mfopen=null;}
   openSheet=name;
   $('#sheet').innerHTML=`<button class="sh-x" data-act="close" aria-label="Close">${ic('x','ic','var(--ink-2)','2')}</button>`+SHEETS[name]();
   $('#sheet').classList.toggle('tall',name==='log'||name==='posttype'||name==='compose'
     ||name==='pickup'||name==='bulk');
   $('#sheet').classList.toggle('formsheet',name==='log'||name==='compose');
  $('#sheet').classList.add('on'); $('#scrim').classList.add('on');
-  $('#sheet').scrollTop=0; wireDial(); wirePad(); wireScroll();
+  $('#sheet').scrollTop=0; wireDial(); wirePad(); wireScroll(); wireFq();
 }
 function closeSheet(){openSheet=null;$('#sheet').classList.remove('on');$('#scrim').classList.remove('on');}
 function refreshSheet(){
   if(!openSheet)return;
   const el=$('#sheet'), y=el.scrollTop;
   el.innerHTML=`<button class="sh-x" data-act="close" aria-label="Close">${ic('x','ic','var(--ink-2)','2')}</button>`+SHEETS[openSheet]();
-  el.scrollTop=y; wireDial(); wirePad(); wireScroll();
+  el.scrollTop=y; wireDial(); wirePad(); wireScroll(); wireFq();
 }
 
 /* ---------- confirm ---------- */
@@ -2713,9 +2744,11 @@ function doAct(a){
 
    case 'fkid': if(arg==='all'||S.filters.has(arg))S.filters.clear();else S.filters=new Set([arg]);
      if(openSheet)refreshSheet();render(true);break;
-    case 'fact': S.filters.clear();if(arg!=='all')S.filters.add(arg);
-      S.fopen=null;if(openSheet)refreshSheet();render(true);break;
-    case 'fdrop': S.fopen=S.fopen===arg?null:arg;refreshSheet();break;
+    case 'fact':
+      if(arg==='all')S.filters.clear();
+      else S.filters.has(arg)?S.filters.delete(arg):S.filters.add(arg);
+      if(openSheet)refreshSheet();render(true);break;
+    case 'fdrop': S.fopen=S.fopen===arg?null:arg;if(S.fopen!=='type')S.fq='';refreshSheet();break;
     case 'frange': S.frange=arg;S.fopen=null;refreshSheet();render(true);break;
    case 'mscope': S.mscope=arg;S.mfopen=null;if(openSheet)refreshSheet();render(true);break;
     case 'mfdrop': S.mfopen=S.mfopen===arg?null:arg;refreshSheet();break;
@@ -2804,7 +2837,7 @@ function doAct(a){
  case 'needreq':{const el=document.getElementById('reqf');if(el){el.focus();}toast('That field is required');break;}
  case 'day': S.day=Math.min(0,S.day+Number(arg));S.selecting=false;S.sel.clear();render(true);break;
  case 'noop': toast('There is no register for a future day');break;
-    case 'clearf': S.filters.clear();S.frange='today';S.fopen=null;refreshSheet();render(true);break;
+    case 'clearf': S.fq=''; S.filters.clear();S.frange='today';S.fopen=null;refreshSheet();render(true);break;
 
  case 'type': if(openSheet==='log')stash();
  S.draftType=arg;
