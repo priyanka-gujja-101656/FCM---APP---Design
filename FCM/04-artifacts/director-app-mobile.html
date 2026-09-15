@@ -928,6 +928,24 @@
   .noteitem small{display:block;font-size:12.5px;color:var(--ink-3);margin-top:7px}
   .quick.three{grid-template-columns:repeat(3,1fr)}
   .quick.three .primary,.quick.three .second{padding:11px 4px;font-size:12.5px;gap:6px}
+  /* the status badge sits on the avatar, not inside it */
+  .av .stb{position:absolute;right:-3px;bottom:-3px;width:19px;height:19px;border-radius:50%;
+    display:grid;place-items:center;box-shadow:0 0 0 2.5px #F5F4EF;z-index:2}
+  .av .stb svg{width:11px;height:11px}
+  .stb.in{background:var(--present)}
+  .stb.out{background:#8A6A3C}
+  .stb.na{background:#FBFAF6;box-shadow:0 0 0 2.5px #F5F4EF,inset 0 0 0 1.6px var(--absent)}
+  /* 1.4.11: blue-500 measured 2.99:1 against the card and missed 3:1. blue-700 is 6.37:1 */
+  .mini.lbl.pri,.primary{border-color:var(--npds-blue-700)}
+  /* the room becomes a heading while the roster is every room */
+  .roomhd{font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3);
+    font-weight:600;padding:15px 12px 8px;display:flex;justify-content:space-between;align-items:baseline}
+  .roomhd em{font-style:normal;letter-spacing:0;text-transform:none;font-size:12.5px;font-weight:400}
+  .card.list .roomhd+.row{border-top:0}
+  /* the teacher app's rows are always two lines, so centring the avatar read as
+     top-aligned. An allergy tag adds a third, and centre starts to sag — hold the
+     avatar against the name. */
+  .row.rowstack:has(.tagrow) .av{align-self:flex-start;margin-top:1px}
 </style>
 </head>
 <body>
@@ -980,6 +998,7 @@
 const I={
 person:'<circle cx="12" cy="8" r="3.4"/><path d="M5 20a7 7 0 0 1 14 0"/>',
 chev:'<path d="M9 6l6 6-6 6"/>',
+dash:'<path d="M5 12h14"/>',
 moon:'<path d="M20 14.5A8 8 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z"/>',
 clip:'<path d="M20 11.5 12 19.5a4.5 4.5 0 0 1-6.4-6.4l8-8a3 3 0 0 1 4.3 4.3l-8 8a1.5 1.5 0 0 1-2.1-2.1l7.3-7.3"/>',
 diaper:'<path d="M4 5h16v5a9 9 0 0 1-8 9 9 9 0 0 1-8-9Z"/><path d="M8 12h8"/>',
@@ -1278,9 +1297,12 @@ function hubRow(act,glyph,tint,name,desc){
     ${ic('chev','ic sm','var(--ink-3)')}
   </button>`;
 }
+/* WCAG 1.4.1: the shape says it before the colour does — a tick for in, a dash
+   for absent, a hollow ring for not yet checked in. */
 function statusDot(k){
-  const c=k.status==='here'?'var(--present)':k.status==='absent'?'var(--amber)':'var(--absent)';
-  return `<i style="background:${c}"></i>`;
+  if(k.status==='here')   return `<i class="stb in" aria-hidden="true">${ic('check','','#fff','3.2')}</i>`;
+  if(k.status==='absent') return `<i class="stb out" aria-hidden="true">${ic('dash','','#fff','3.2')}</i>`;
+  return `<i class="stb na" aria-hidden="true"></i>`;
 }
 
 /* ============================================================
@@ -1542,12 +1564,25 @@ function acard(a){
      ${a.review?'<span class="ptag" style="background:rgba(176,138,86,.2);color:var(--warn)">Needs sign-off</span>':''}</span>${act}</div>
    </div>`;
 }
+/* A director sees every room, so the room is a heading with its own count —
+   said once per group instead of repeated on every line. Filter to one room and
+   the headings go away, because the title already says which room it is. */
+function attBody(list){
+  if(S.room!=='all'||S.selecting) return list.map(attRow).join('');
+  const order=[],by={};
+  list.forEach(k=>{ if(!by[k.room]){by[k.room]=[];order.push(k.room);} by[k.room].push(k); });
+  order.sort((a,b)=>roomName(a).localeCompare(roomName(b)));
+  return order.map(r=>{
+    const g=by[r], inn=g.filter(k=>k.status==='here').length;
+    return `<div class="roomhd"><span>${m(roomName(r))}</span><em>${inn} of ${g.length} in</em></div>`+g.map(attRow).join('');
+  }).join('');
+}
 function attRow(k){
-  const rm=S.room==='all'?roomShort(k.room)+' · ':'';
-  const sub=k.status==='here'?`${rm}${k.tin}${S.room==='all'?'':(k.who?' · with '+k.who:'')}`
-    :k.status==='absent'?`${rm}absent`
-    :k.out?`${rm}out${S.room==='all'?'':(k.collectedBy?' · with '+k.collectedBy:'')}`
-    :`${rm}not checked in`;
+  /* the room is a heading now, so the line below the name is time and who */
+  const sub=k.status==='here'?`${k.tin}${k.who?' · with <em>'+m(k.who)+'</em>':''}`
+    :k.status==='absent'?'Absent'
+    :k.out?`Out${k.collectedBy?' · with <em>'+m(k.collectedBy)+'</em>':''}`
+    :'Not checked in';
   if(S.selecting){
     const on=S.sel.has(k.id);
     return `<div class="row rowstack${on?' picked':''}" data-act="sel:${k.id}">
@@ -1630,7 +1665,7 @@ function vAttendance(){
    ${S.selecting?'':datespine()}
    ${S.selecting?'':`<div class="tabpill">${chip('all','All',scope.length)}${chip('here','Here',cnt('here'))}${chip('out','Not in',cnt('out'))}${chip('absent','Absent',cnt('absent'))}${chip('allergy','Allergies',scope.filter(k=>k.allergy).length)}</div>`}
    ${past?`<p class="hint">${ic('shield','ic sm','var(--ink-3)','1.8')}A past day is read-only. Reopen a closed register from Compliance.</p>`:''}
-   <div class="card list">${list.length?list.map(attRow).join(''):'<div class="empty">No children match.</div>'}</div>
+   <div class="card list">${list.length?attBody(list):'<div class="empty">No children match.</div>'}</div>
   </div>
   ${S.selecting?`<div class="selbar">
     <div class="sb-head"><b>${S.sel.size} selected</b>
