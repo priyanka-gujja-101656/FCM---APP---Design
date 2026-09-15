@@ -946,6 +946,32 @@
      top-aligned. An allergy tag adds a third, and centre starts to sag — hold the
      avatar against the name. */
   .row.rowstack:has(.tagrow) .av{align-self:flex-start;margin-top:1px}
+  /* the clock dial, ported from the teacher app */
+  @keyframes pop{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+  .clockpop{margin-top:12px;background:none;border:0;border-radius:18px;padding:0;animation:pop .18s ease}
+  .cread{display:flex;align-items:center;gap:3px;justify-content:center;margin-bottom:8px;
+    font-variant-numeric:tabular-nums}
+  .cread b{font-size:24px;font-weight:500;color:var(--ink-3);padding:3px 9px;border-radius:9px;cursor:pointer}
+  .cread b.on{color:var(--npds-blue-700);background:var(--npds-blue-100)}
+  .cread span{font-size:22px;color:var(--ink-3)}
+  .apw{display:flex;gap:3px;margin-left:10px;padding:3px;border-radius:11px;background:rgba(44,49,43,.055)}
+  .apw i{font-style:normal;font-size:12.5px;font-weight:600;color:var(--ink-3);padding:6px 10px;
+    border-radius:8px;cursor:pointer}
+  .apw i.on{background:#fff;color:var(--npds-blue-700);box-shadow:0 1px 2px rgba(40,55,38,.14)}
+  #dial{width:100%;max-width:246px;display:block;margin:0 auto;touch-action:none;cursor:pointer}
+  #dial .face{fill:rgba(44,49,43,.035);stroke:none}
+  #dial .tk{stroke:rgba(44,49,43,.18);stroke-width:1}
+  #dial .tk.big{stroke:rgba(44,49,43,.32);stroke-width:1.6}
+  #dial .cn circle{fill:transparent}
+  #dial .cn text{font-family:Inter,sans-serif;font-size:15px;font-weight:500;fill:var(--ink-2);text-anchor:middle}
+  #dial .cn.on circle{fill:var(--npds-blue-600)}
+  #dial .cn.on text{fill:#FFFDFA;font-weight:600}
+  #dial .hh{stroke:var(--ink);stroke-width:5;stroke-linecap:round}
+  #dial .mh{stroke:var(--npds-blue-600);stroke-width:3;stroke-linecap:round}
+  #dial .pin{fill:var(--npds-blue-600)}
+  /* the dial is already inside the fieldset card — it needs no card of its own */
+  .gpanel:has(.clockpop){border:0;background:none;box-shadow:none;padding:0 2px 4px;
+    max-height:none;overflow:visible}
 </style>
 </head>
 <body>
@@ -1147,7 +1173,8 @@ const THREADS=[
 const S={tab:'home',sub:null,arg:null,stack:[],q:'',mask:false,moveTo:null,relArg:null,finArg:null,voided:{},selecting:false,sel:new Set(),openNote:new Set(),pick:null,pickArg:null,searchOpen:false,day:0,actFilter:new Set(),
   homeTab:'actions',room:'all',attFilter:'all',invFilter:'all',subTab:'mismatches',
   childTab:'overview',famTab:'general',staffTab:'overview',acctTab:'activity',msgScope:'all',
-  resolved:{},paid:{},assistant:[],draft:''};
+  resolved:{},paid:{},assistant:[],draft:'',
+  mark:{h:7,m:32,ap:'AM'},markMode:'h',markOpen:false};
 
 /* ---------- helpers ---------- */
 const $=(s,r=document)=>r.querySelector(s);
@@ -1537,6 +1564,64 @@ function whoLabel(){
   if(!n) return 'Nobody yet';
   if(n===1) return K([...draft.picked][0]).name;
   return `${n} children`;
+}
+/* ---------- the clock dial, ported from the teacher app ---------- */
+const t2=n=>String(n).padStart(2,'0');
+let CLK='mark';
+const markStr=()=>`${S.mark.h}:${t2(S.mark.m)} ${S.mark.ap}`;
+/* seed the dial from the time already on the record, or from the clock on the wall */
+function parseMark(str){
+  const x=/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i.exec((str||'').trim());
+  S.mark=x?{h:+x[1],m:+x[2],ap:x[3].toUpperCase()}
+   :(()=>{const d=new Date();return {h:d.getHours()%12||12,m:d.getMinutes(),ap:d.getHours()<12?'AM':'PM'};})();
+  S.markMode='h'; S.markOpen=false;
+}
+function clockPop(){
+  const T=S.mark, mode=S.markMode;
+  const ha=(T.h%12)*30+T.m*0.5, ma=T.m*6;
+  const num=[...Array(12)].map((_,x)=>{const n=x+1,a=(n*30-90)*Math.PI/180;
+   const px=120+Math.cos(a)*84, py=120+Math.sin(a)*84;
+   const on=(T.h%12||12)===n;
+   return `<g class="cn${on?' on':''}"><circle cx="${px}" cy="${py}" r="17"/>
+    <text x="${px}" y="${py+6}">${n}</text></g>`}).join('');
+  const tick=[...Array(60)].map((_,x)=>{const a=(x*6-90)*Math.PI/180, r1=x%5?104:100;
+   return `<line class="tk${x%5?'':' big'}" x1="${120+Math.cos(a)*r1}" y1="${120+Math.sin(a)*r1}"
+    x2="${120+Math.cos(a)*108}" y2="${120+Math.sin(a)*108}"/>`}).join('');
+  return `<div class="clockpop">
+   <div class="cread"><b class="${mode==='h'?'on':''}" data-act="mcmode:h" role="button" tabindex="0" aria-label="Set the hour">${T.h}</b><span>:</span>
+    <b class="${mode==='m'?'on':''}" data-act="mcmode:m" role="button" tabindex="0" aria-label="Set the minutes">${t2(T.m)}</b>
+    <span class="apw"><i class="${T.ap==='AM'?'on':''}" data-act="map:AM" role="button" tabindex="0">AM</i>
+     <i class="${T.ap==='PM'?'on':''}" data-act="map:PM" role="button" tabindex="0">PM</i></span></div>
+   <svg id="dial" viewBox="0 0 240 240" role="img" aria-label="Clock face, ${markStr()}">
+    <circle class="face" cx="120" cy="120" r="112"/>${tick}${num}
+    <line class="hh" x1="120" y1="120" x2="${120+Math.cos((ha-90)*Math.PI/180)*54}"
+     y2="${120+Math.sin((ha-90)*Math.PI/180)*54}"/>
+    <line class="mh" x1="120" y1="120" x2="${120+Math.cos((ma-90)*Math.PI/180)*82}"
+     y2="${120+Math.sin((ma-90)*Math.PI/180)*82}"/>
+    <circle class="pin" cx="120" cy="120" r="5"/></svg>
+   </div>`;
+}
+function wireDial(){
+  const dl=$('#dial'); if(!dl||dl.dataset.on)return; dl.dataset.on='1';
+  const set=e=>{const r=dl.getBoundingClientRect();
+   const x=e.clientX-r.left-r.width/2, y=e.clientY-r.top-r.height/2;
+   let a=Math.atan2(y,x)*180/Math.PI+90; if(a<0)a+=360;
+   if(S.markMode==='h'){const h=Math.round(a/30)%12;S.mark.h=h===0?12:h;}
+   else S.mark.m=Math.round(a/6)%60;
+   repaintClock();};
+  let down=false;
+  dl.addEventListener('pointerdown',e=>{down=true;dl.setPointerCapture(e.pointerId);set(e)});
+  dl.addEventListener('pointermove',e=>{if(down)set(e)});
+  /* let go on the hour and the dial moves on to the minutes by itself */
+  dl.addEventListener('pointerup',()=>{down=false;
+   if(S.markMode==='h'){S.markMode='m';repaintClock();}});
+}
+/* only the dial is redrawn, so a drag never rebuilds the sheet under the finger */
+function repaintClock(){
+  const w=document.querySelector('.clockpop'); if(!w)return;
+  w.outerHTML=clockPop(); wireDial();
+  const fld=document.querySelector('.gr[data-act="mclock"] .gvv');
+  if(fld)fld.textContent=markStr();
 }
 function grow(act,label,val,open,pale,panel){
   return `<div class="grow"><button class="gr${open?' on':''}" data-act="${act}" aria-expanded="${open}">
@@ -2476,7 +2561,6 @@ function sheet(kind,arg){
     const f=F(k.fam);
     const people=[f.contact+' · parent','Grandparent · on file','Authorized pickup · on file'];
     const sel=S.pick||people[0];
-    const now=new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
     html=`<span class="grab"></span>
      <div class="sh-kid"><span class="av lg">${m(k.ini)}${statusDot(k)}</span>
       <span class="rt"><b>${m(k.name)}</b><small>${roomName(k.room)} · ${k.status==='here'?'here since '+k.tin:k.status==='absent'?'absent today':'not checked in'}</small></span></div>
@@ -2489,7 +2573,7 @@ function sheet(kind,arg){
         <span class="rt"><b>${m(w.split(' · ')[0])}</b><small>${w.split(' · ')[1]}</small></span></div>`).join('')}
      </div>
      <div class="card fieldset" style="margin-top:12px">
-      <div class="field"><span class="fl">Time ${out?'out':'in'}</span><span class="fv"><span>${now}</span></span></div>
+      ${grow('mclock',`Time ${out?'out':'in'}`,markStr(),S.markOpen,false,clockPop())}
      </div>
      <button class="${out?'second':'primary'}" data-act="do${kind}:${arg}" style="width:100%;margin-top:14px">
       ${ic(out?'out':'in','ic','currentColor','1.8')}Check ${out?'out':'in'} ${m(k.name.split(' ')[0])}</button>`;
@@ -2910,7 +2994,7 @@ function sheet(kind,arg){
   sh.classList.toggle('tall',tall);
   sh.classList.toggle('formsheet',form);
   sh.classList.toggle('full',full);
-  setTimeout(wirePad,0);
+  setTimeout(wirePad,0); setTimeout(wireDial,0);
   $('#scrim').classList.add('on');
   sh.classList.add('on');
 }
@@ -3007,6 +3091,12 @@ function doAct(a){
       closeSheet();toast(k.note?`Note saved for <b>${k.name}</b>`:'Note cleared');render(true);break;}
     case 'notepill': S.openNote.has(arg)?S.openNote.delete(arg):S.openNote.add(arg);render(true);break;
     case 'pk': S.pick=arg;sheet($('#sheet').dataset.kind||'checkout',S.pickArg);break;
+    case 'mclock': S.markOpen=!S.markOpen;sheet($('#sheet').dataset.kind||'checkout',S.pickArg);
+      /* the dial opens below the fold on a small phone, so bring it up to meet the thumb */
+      if(S.markOpen)setTimeout(()=>document.querySelector('.clockpop')?.scrollIntoView({block:'nearest',behavior:'smooth'}),80);
+      break;
+    case 'mcmode': S.markMode=arg;repaintClock();break;
+    case 'map': S.mark.ap=arg;repaintClock();break;
     case 'selmode': closeSheet();S.selecting=!S.selecting;S.sel.clear();render();break;
     case 'sel': S.sel.has(arg)?S.sel.delete(arg):S.sel.add(arg);render(true);break;
     case 'selall': KIDS.filter(k=>inRoom(k.room)).forEach(k=>S.sel.add(k.id));render(true);break;
@@ -3036,11 +3126,15 @@ function doAct(a){
     case 'clearq': S.q='';render(true);break;
     case 'mask': S.mask=!S.mask;render(true);toast(S.mask?'Sensitive data hidden':'Data visible again');break;
 
-    case 'checkin': case 'checkout': S.pick=null;sheet(cmd,arg);break;
-    case 'docheckin':{const k=K(arg);k.status='here';
-      k.tin=new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
-      closeSheet();toast(`<b>${k.name}</b> checked in`);render(true);break;}
-    case 'docheckout':{const k=K(arg);k.status='out';closeSheet();toast(`<b>${k.name}</b> checked out`);render(true);break;}
+    case 'checkin': case 'checkout':{const k=K(arg);
+      S.pick=null; parseMark(cmd==='checkout'?'':k.tin); sheet(cmd,arg);break;}
+    /* nothing tapped means the first name on the list, which is what the sheet shows selected */
+    case 'docheckin':{const k=K(arg);k.status='here';k.tin=markStr();
+      k.who=(S.pick||F(k.fam).contact+' · parent').split(' · ')[0];
+      closeSheet();toast(`<b>${k.name}</b> checked in at ${markStr()}`);render(true);break;}
+    case 'docheckout':{const k=K(arg);k.status='out';k.tout=markStr();
+      k.collectedBy=(S.pick||F(k.fam).contact+' · parent').split(' · ')[0];
+      closeSheet();toast(`<b>${k.name}</b> checked out at ${markStr()}`);render(true);break;}
     case 'doabsent':{const k=K(arg);k.status='absent';k.tin=null;closeSheet();toast(`<b>${k.name}</b> marked absent`);render(true);break;}
 
     case 'sheet': sheet(arg);break;
