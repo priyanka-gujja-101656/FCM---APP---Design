@@ -647,7 +647,10 @@
   /* nav */
   .nav{position:relative;z-index:4;flex:none;background:rgba(253,254,251,.84);
     backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);border-top:1px solid rgba(255,255,255,.6);
-    padding:13px 8px calc(20px + env(safe-area-inset-bottom));display:grid;grid-template-columns:repeat(5,1fr)}
+    padding:13px 8px calc(20px + env(safe-area-inset-bottom));display:grid;
+    /* the column count follows the role: five tabs for staff, four for a parent.
+       repeat(5,1fr) left a parent's four sitting in four fifths of the bar. */
+    grid-auto-flow:column;grid-auto-columns:1fr}
   .nav a{position:relative;text-decoration:none;color:var(--ink-3);display:flex;flex-direction:column;
     align-items:center;gap:6px;font-size:10.5px;font-weight:500}
   .nav a.on{color:var(--npds-blue-700)}
