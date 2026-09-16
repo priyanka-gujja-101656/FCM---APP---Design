@@ -1714,7 +1714,11 @@ function datespine(){
 /* Every one of the three day screens gets the same Filters button, and room is
    one dimension inside it rather than a pill of its own. */
 function filterCount(screen){
-  return (S.room!=='all'?1:0) + (screen==='activities'?S.actFilter.size:0);
+  /* a teacher's room is where they work, not something they chose — counting it
+     made the register read "Filters (1)" before anyone touched anything */
+  const room=(CAN.rooms==='all'&&S.room!=='all')?1:0;
+  const status=(screen==='attendance'&&S.attFilter!=='all')?1:0;
+  return room + status + (screen==='activities'?S.actFilter.size:0);
 }
 function filtersBtn(screen){
   const c=filterCount(screen);
@@ -2045,19 +2049,27 @@ function vAttendance(){
   const scope=KIDS.filter(k=>inRoom(k.room));
   const cnt=st=>scope.filter(k=>k.status===st).length;
   const q=S.q.trim().toLowerCase();
+  /* Reading the register, names in order is what you want. Working it, the
+     children who still need doing belong at the top — not in first, then
+     absent, then the ones already here. */
+  const rank=k=>k.status==='here'?2:k.status==='absent'?1:0;
   const list=scope.filter(k=>{
     if(q&&!k.name.toLowerCase().includes(q)) return false;
+    /* still reachable from Filters — it is a question you ask occasionally,
+       not one of the four states the register is always in */
     if(S.attFilter==='allergy') return !!k.allergy;
     if(S.attFilter!=='all'&&k.status!==S.attFilter) return false;
     return true;
-  }).slice().sort((a,b)=>a.name.localeCompare(b.name));
+  }).slice().sort((a,b)=>S.selecting
+    ? (rank(a)-rank(b))||a.name.localeCompare(b.name)
+    : a.name.localeCompare(b.name));
   const chip=(id,lbl,n)=>`<button class="tp${S.attFilter===id?' on':''}" data-act="att:${id}">${lbl} ${n}</button>`;
   const past=S.day<0;
   return `${topbar('Attendance','',
    `${searchBtn()}${filtersBtn('attendance')}<button class="dotsb" data-act="sheet:more" aria-label="More actions">${ic('dots','ic','var(--ink-3)','1.9')}</button>`)}
   <div class="body">
    ${S.selecting?'':datespine()}
-   ${S.selecting?'':`<div class="tabpill">${chip('all','All',scope.length)}${chip('here','Here',cnt('here'))}${chip('out','Not in',cnt('out'))}${chip('absent','Absent',cnt('absent'))}${chip('allergy','Allergies',scope.filter(k=>k.allergy).length)}</div>`}
+   ${S.selecting?'':`<div class="tabpill">${chip('all','All',scope.length)}${chip('here','Here',cnt('here'))}${chip('out','Not in',cnt('out'))}${chip('absent','Absent',cnt('absent'))}</div>`}
    ${past?`<p class="hint">${ic('shield','ic sm','var(--ink-3)','1.8')}A past day is read-only. Reopen a closed register from Compliance.</p>`:''}
    <div class="card list">${list.length?attBody(list):'<div class="empty">No children match.</div>'}</div>
   </div>
@@ -3473,7 +3485,7 @@ function sheet(kind,arg){
      </div>`:''}
      <div class="flabel" style="margin:0 0 8px">Status</div>
      <div class="chips" style="margin-bottom:18px">
-      ${[['all','Everyone'],['here','In today'],['out','Not in'],['allergy','Has an allergy']].map(([v,l])=>
+      ${[['all','Everyone'],['here','In today'],['out','Not in'],['absent','Absent'],['allergy','Has an allergy']].map(([v,l])=>
         `<button class="ch${S.attFilter===v?' on':''}" data-act="att:${v}">${l}</button>`).join('')}
      </div>
      <div class="sh-acts"><button class="primary" data-act="close">Show results</button></div>`;
@@ -3517,11 +3529,16 @@ function sheet(kind,arg){
      <button class="sh-x" data-act="close" aria-label="Close">${ic('x','ic sm','var(--ink-2)','2.1')}</button>
      <h3 class="sh-h">Filters</h3>
      <p class="sh-sub">${filterCount(screen)?filterCount(screen)+' applied':'Showing everything'}</p>
-     <div class="flabel" style="margin:0 0 9px">Room</div>
+     ${CAN.rooms==='all'?`<div class="flabel" style="margin:0 0 9px">Classroom</div>
      <div class="chips" style="margin-bottom:18px">
       <button class="ch${S.room==='all'?' on':''}" data-act="room2:all">All rooms</button>
       ${ROOMS.map(r=>`<button class="ch${S.room===r.id?' on':''}" data-act="room2:${r.id}">${r.name}</button>`).join('')}
-     </div>
+     </div>`:''}
+     ${screen==='attendance'?`<div class="flabel" style="margin:0 0 9px">Show</div>
+     <div class="chips" style="margin-bottom:18px">
+      ${[['all','Everyone'],['here','Here'],['out','Not in'],['absent','Absent'],['allergy','Has an allergy']]
+        .map(([v,l])=>`<button class="ch${S.attFilter===v?' on':''}" data-act="att:${v}">${l}</button>`).join('')}
+     </div>`:''}
      ${screen==='activities'?`<div class="flabel" style="margin:0 0 9px">Type</div>
       <div class="chips" style="margin-bottom:18px">
        ${Object.keys(TY).map(t=>`<button class="ch${S.actFilter.has(t)?' on':''}" data-act="fact:${t}">${TY[t].label}</button>`).join('')}
@@ -3765,7 +3782,7 @@ function doAct(a){
     case 'inf': S.invFilter=arg;render(true);break;
     case 'room2': if(CAN.rooms!=='all')break; S.room=arg;render(true);
       if($('#sheet').classList.contains('on'))sheet(S.sub==='students'?'filter':'filters');break;
-    case 'clearfilters': S.room=(CAN.rooms==='one'?ROLE.room:'all');S.actFilter.clear();render(true);sheet('filters');break;
+    case 'clearfilters': S.room=(CAN.rooms==='one'?ROLE.room:'all');S.attFilter='all';S.actFilter.clear();render(true);sheet('filters');break;
     case 'clearq': S.q='';render(true);break;
     case 'mask': S.mask=!S.mask;render(true);toast(S.mask?'Sensitive data hidden':'Data visible again');break;
 
