@@ -1285,9 +1285,18 @@ const ACTIVITIES=[
  {id:'a6',kid:'Noah Bennett',   ini:'NB',type:'kudos',   icon:'star', title:'Kudos · helped a friend',        by:'Sarah Kim',   room:'Kinder Prep',rid:'r-kinder',  at:'1:15 PM',review:false,body:'Noticed a friend had nobody to sit with at snack and moved over without being asked.'}];
 
 const THREADS=[
+ /* A parent's threads name the person at the centre, because that is who they
+    are talking to — the director's list names the family for the same reason. */
  {id:'t0',who:'Jamie Walsh',ini:'JW',scope:'family',sub:'Parent · Amelia Walsh',rid:'r-prek4',unread:true,at:'1:05 PM',
+  with:{name:'Sarah Kim',ini:'SK',role:'Teacher · Pre-K 4'},
   msgs:[{d:'in',t:'Amelia has swimming on Thursday, so she will need collecting at 2 rather than 3. Is that all right?',at:'1:05 PM'},
         {d:'out',t:'That is fine, I have put a note on her record so the room knows. Thursday at 2.',at:'1:12 PM'}]},
+ {id:'t0b',who:'Jamie Walsh',ini:'JW',scope:'family',sub:'Parent · Ethan Brooks',rid:'r-toddlerA',unread:false,at:'9:04 AM',
+  with:{name:'Front Desk',ini:'FD',role:'Admin'},
+  msgs:[{d:'out',t:'Your June receipt is ready in Billing.',at:'9:04 AM'}]},
+ {id:'t0c',who:'Jamie Walsh',ini:'JW',scope:'family',sub:'Parent · Amelia Walsh',rid:'r-prek4',unread:false,at:'Fri',
+  with:{name:'Dana Mitchell',ini:'DM',role:'Director'},
+  msgs:[{d:'out',t:'Reminder: we are closed Monday for staff training. Normal hours resume Tuesday.',at:'Fri'}]},
  {id:'t1',who:'Maria Garcia',ini:'MG',scope:'family',sub:'Parent · Mateo Garcia',rid:'r-prek3',unread:true,at:'11:20 AM',
   msgs:[{d:'in',t:'Hi Dana, I got the invoice notice. Our card was replaced last week, can I update it today?',at:'11:20 AM'}]},
  {id:'t2',who:'Sarah Kim',ini:'SK',scope:'staff',sub:'Lead Teacher · Pre-K 4',rid:'r-prek4',unread:false,at:'10:44 AM',
@@ -2150,16 +2159,23 @@ function vMessages(){
   const chip=(id,lbl,c)=>`<button class="tp${S.msgScope===id?' on':''}" data-act="msgs:${id}">${lbl} ${c}</button>`;
   const unread=scope.filter(t=>t.unread).length;
   const newbtn=`<button class="primary" data-act="newmsg">${ic('plus','ic','currentColor','1.9')}New message</button>`;
+  /* A parent has one counterpart — the centre — so there is nothing to sort by.
+     Sorting mail by sender is a job for whoever receives mail from everyone. */
+  const par=ROLE.scope==='family';
   return `${topbar('Messages',unread?`${unread} waiting on you`:'All caught up',
-   `${searchBtn()}${filtersBtn('messages')}`)}
+   `${searchBtn()}${par?'':filtersBtn('messages')}`)}
   <div class="body">
    ${S.searchOpen?newbtn:''}
-   <div class="tabpill">${chip('all','All',scope.length)}${chip('family','Parents',n('family'))}${chip('staff','Staff',n('staff'))}</div>
-   <div class="card list">${list.length?list.map(t=>`<button class="row" data-act="thread:${t.id}">
-     <span class="av">${m(t.ini)}${t.unread?'<i class="unreaddot"></i>':''}</span>
-     <span class="rt"><b>${m(t.who)}</b><small>${t.sub} · “${t.msgs[t.msgs.length-1].t}”</small></span>
-     <span class="rr"><span class="tm mute">${t.at}</span></span></button>`).join('')
+   ${par?'<div class="flabel">Inbox</div>'
+     :`<div class="tabpill">${chip('all','All',scope.length)}${chip('family','Parents',n('family'))}${chip('staff','Staff',n('staff'))}</div>`}
+   <div class="card list">${list.length?list.map(t=>{
+     const w=par&&t.with?t.with:null;      /* who the viewer is talking to */
+     return `<button class="row" data-act="thread:${t.id}">
+     <span class="av">${m(w?w.ini:t.ini)}${t.unread?'<i class="unreaddot"></i>':''}</span>
+     <span class="rt"><b>${m(w?w.name:t.who)}</b><small>${m(w?w.role:t.sub)} · “${m(t.msgs[t.msgs.length-1].t)}”</small></span>
+     <span class="rr"><span class="tm mute">${t.at}</span></span></button>`;}).join('')
     :'<div class="empty">No messages match.</div>'}</div>
+   ${par?'<p class="hint">Replies always reach the room. Your full history stays searchable.</p>':''}
   </div>
   ${S.searchOpen?'':`<div class="fabdock">${newbtn}</div>`}
   ${dock(list.length,scope.length,'thread','threads','Search messages')}`;
@@ -2167,10 +2183,17 @@ function vMessages(){
 function vThread(){
   const t=THREADS.find(x=>x.id===S.arg);
   if(!t) return vMessages();
-  return `${topbar(t.who,t.sub)}
+  /* a thread that is not yours does not open */
+  if(!visibleThreads().some(x=>x.id===t.id)) return denied('That conversation');
+  /* the messages are stored from the centre's side, so a parent reading the
+     same thread sees their own words on the right, not the left */
+  const par=ROLE.scope==='family';
+  const w=par&&t.with?t.with:null;
+  const side=d=>par?(d==='in'?'out':'in'):d;
+  return `${topbar(m(w?w.name:t.who),m(w?w.role:t.sub))}
   <div class="body thread">
    <div class="daymark">Today</div>
-   ${t.msgs.map(msg=>`<div class="bub ${msg.d}"><p>${esc(msg.t)}</p><span class="bt">${msg.at}</span></div>`).join('')}
+   ${t.msgs.map(msg=>`<div class="bub ${side(msg.d)}"><p>${esc(msg.t)}</p><span class="bt">${msg.at}</span></div>`).join('')}
   </div>
   <div class="composer">
    <input class="cinput" id="msg" placeholder="Message ${t.who.split(' ')[0]}" value="${esc(S.draft)}">
@@ -3184,13 +3207,25 @@ function sheet(kind,arg){
       return `<button class="opt" data-act="cto:${id}">
        <span class="cb${on?' on':''}">${on?ic('check','ic sm','#FFFDFA','2.8'):''}</span>
        <span class="on2">${name}${sub?`<i>${sub}</i>`:''}</span></button>`;};
-    const toPanel=`<div class="opts">
-      <p class="ophd">Whole rooms</p>
-      ${ROOMS.map(r=>line(r.id,r.name,kidsIn(r.id).length+' children')).join('')}
+    /* Who you may write to is who you may see. A parent writes to their own
+       child's room or to the office — never to another family, and never to a
+       staff list. A teacher writes within their room and to the director. */
+    const toPanel=ROLE.scope==='family'
+     ? `<div class="opts">
+      <p class="ophd">Your children's rooms</p>
+      ${myRooms().map(r=>line(r,roomName(r),'Room team')).join('')}
+      <p class="ophd">The office</p>
+      ${line('office','Front Desk','Billing, forms and hours')}
+      ${line('dir',CENTER.director,'Director')}
+     </div>`
+     : `<div class="opts">
+      <p class="ophd">${CAN.rooms==='all'?'Whole rooms':'My room'}</p>
+      ${ROOMS.filter(r=>inRoom(r.id)).map(r=>line(r.id,r.name,kidsIn(r.id).length+' children')).join('')}
       <p class="ophd">Families</p>
-      ${KIDS.map(k=>line(k.id,m(k.name),m(F(k.fam).contact))).join('')}
-      <p class="ophd">Staff</p>
-      ${STAFF.filter(x=>x.id!=='s1').map(x=>line(x.id,x.name,x.role)).join('')}
+      ${myKids().map(k=>line(k.id,m(k.name),m(F(k.fam).contact))).join('')}
+      ${CAN.staff?`<p class="ophd">Staff</p>
+      ${STAFF.filter(x=>x.id!=='s1').map(x=>line(x.id,x.name,x.role)).join('')}`
+      :`<p class="ophd">The office</p>${line('dir',CENTER.director,'Director')}`}
      </div>`;
     html=`<span class="grab"></span>
      <div class="sh-row fixed"><h3 class="sh-h flat">New message</h3></div>

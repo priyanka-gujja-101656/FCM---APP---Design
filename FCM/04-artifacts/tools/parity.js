@@ -64,8 +64,17 @@ const probe=(p,sels)=>p.evaluate(({sels,PROPS})=>{
       if(clip.length){console.log('  CLIP',v,clip.slice(0,2));fail++;}
     }
     /* 2. nothing leaks across the role boundary */
+    /* Sheets are where a leak hides: the page can be clean and the compose
+       sheet still list every family. Open each view, then open every sheet it
+       offers, and read both. */
     const leak=await p.evaluate(()=>{const hits=[];
-      for(const v of Object.keys(V).filter(allowed)){S.sub=v;render();const t=document.body.innerText;
+      const sheetsOf=()=>[...document.querySelectorAll('[data-act^="sheet:"],[data-act="newmsg"]')]
+        .map(e=>e.getAttribute('data-act'));
+      for(const v of Object.keys(V).filter(allowed)){S.sub=v;render();
+        let t=document.body.innerText;
+        for(const sh of sheetsOf()){try{doAct(sh);t+='\n'+(document.getElementById('sheet').innerText||'');}catch(e){}}
+        try{closeSheet();}catch(e){}
+        S.sub=v;render();
         if(!CAN.money && /revenue|invoice|overdue|subsidy|payroll|\$\d/i.test(t)) hits.push(v+': money');
         if(!CAN.staff && /credential|certification|timesheet/i.test(t)) hits.push(v+': staff');
         if(CAN.rooms==='one'){const o=KIDS.filter(k=>k.room!==ROLE.room&&t.includes(k.name));
