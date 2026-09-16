@@ -21,6 +21,12 @@ const PROPS=['fontSize','lineHeight','fontWeight','color','backgroundColor','bor
 const SEL=['.row','.card','.mini.lbl','.primary','.second','.av','.tp','.ch','.sg','.sh-h','.flabel',
   '.empty','.qr','.gr','.gvv','.opt','.on2','.dc','.cread','.rs-b','.chip','.grab'];
 
+/* Content the shared file states differently from the frozen teacher app, by
+   decision rather than drift. The style probe below cannot see these, so they
+   are recorded here to be found when someone asks why the two differ.
+     · the teacher home has no legend under the bar (2026-09-16) — every number
+       it carried was already in the count above it or the row below it.
+*/
 /* Differences we have decided are correct. Anything not listed is a failure. */
 const ACCEPTED={
   '.primary borderColor':'blue-500 measured 2.99:1 on the card and missed the 3:1 non-text minimum (WCAG 1.4.11); blue-700 is 6.37:1',

@@ -2886,10 +2886,10 @@ function vTeacherHome(){
      ${h?`<i style="flex:${h};background:var(--present)"></i>`:''}
      ${ni?`<i style="flex:${ni};background:var(--absent)"></i>`:''}
      ${a?`<i style="flex:${a};background:var(--amber)"></i>`:''}</div>
-    <div class="legend">
-     <span><i class="dot" style="background:var(--present)"></i>Here ${h}</span>
-     <span><i class="dot" style="background:var(--amber)"></i>Absent ${a}</span>
-     ${ni?`<span><i class="dot plain"></i>Not in ${ni}</span>`:''}</div>
+    <!-- The frozen teacher app has a legend here. Dropped deliberately, 2026-09-16:
+         "3 here" was already in the count above it and in the bar it keys, and
+         "absent" was already in the numbers row below. This is the one place the
+         shared file diverges from teacher-app-mobile.html on purpose. -->
     <div class="rowsplit">
      <button class="rs-b" data-act="go:attendance"><b>${ni}</b><small>Not checked in</small></button>
      <button class="rs-b" data-act="go:attendance"><b>${a}</b><small>Absent</small></button>
