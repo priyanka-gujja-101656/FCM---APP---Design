@@ -47,7 +47,7 @@ const probe=(p,sels)=>p.evaluate(({sels,PROPS})=>{
   const open=async u=>{const p=await b.newPage({viewport:{width:410,height:864}});
     p.on('pageerror',e=>{console.log('  THROW:',e.message);fail++;});await p.goto(u);return p;};
 
-  for(const role of ['director','teacher']){
+  for(const role of ['director','teacher','parent']){
     const p=await open(APP+'?role='+role);
     const meta=await p.evaluate(()=>({who:ROLE.who,tabs:TABS.map(t=>t[1]).join(' · '),
       reach:Object.keys(V).filter(allowed).length,block:Object.keys(V).filter(v=>!allowed(v)).length}));
@@ -69,7 +69,18 @@ const probe=(p,sels)=>p.evaluate(({sels,PROPS})=>{
         if(!CAN.money && /revenue|invoice|overdue|subsidy|payroll|\$\d/i.test(t)) hits.push(v+': money');
         if(!CAN.staff && /credential|certification|timesheet/i.test(t)) hits.push(v+': staff');
         if(CAN.rooms==='one'){const o=KIDS.filter(k=>k.room!==ROLE.room&&t.includes(k.name));
-          if(o.length) hits.push(v+': '+o[0].name+' is not in this room');}}
+          if(o.length) hits.push(v+': '+o[0].name+' is not in this room');}
+        if(ROLE.scope==='family'){
+          const o=KIDS.filter(k=>k.fam!==ROLE.fam&&t.includes(k.name));
+          if(o.length) hits.push(v+': '+o[0].name+' is not their child');
+          const other=FAMILIES.filter(x=>x.id!==ROLE.fam&&t.includes(x.contact));
+          if(other.length) hits.push(v+': '+other[0].contact+' is another family');
+          if(ACTIVITIES.some(a=>a.review&&t.includes(a.title)))
+            hits.push(v+': an incident awaiting sign-off is visible');
+          /* a staff name as the author of an activity is correct — a parent
+             should know who posted it. A staff RECORD is what must not appear. */
+          if(/certification|credential|timesheet|hourly|salary|time off|review due/i.test(t))
+            hits.push(v+': staff record data is visible');}}
       S.sub=null;S.tab=TABS[0][0];render();return [...new Set(hits)];});
     if(leak.length){console.log('  LEAKS:');leak.forEach(l=>console.log('   ·',l));fail+=leak.length;}
     else console.log('  no cross-role leaks');

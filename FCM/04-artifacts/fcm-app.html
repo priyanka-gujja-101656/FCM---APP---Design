@@ -1069,6 +1069,7 @@
 const I={
 person:'<circle cx="12" cy="8" r="3.4"/><path d="M5 20a7 7 0 0 1 14 0"/>',
 chev:'<path d="M9 6l6 6-6 6"/>',
+bell:'<path d="M18 8.5a6 6 0 1 0-12 0c0 6-2.5 7.5-2.5 7.5h17S18 14.5 18 8.5"/><path d="M13.7 20a2 2 0 0 1-3.4 0"/>',
 dash:'<path d="M5 12h14"/>',
 moon:'<path d="M20 14.5A8 8 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z"/>',
 clip:'<path d="M20 11.5 12 19.5a4.5 4.5 0 0 1-6.4-6.4l8-8a3 3 0 0 1 4.3 4.3l-8 8a1.5 1.5 0 0 1-2.1-2.1l7.3-7.3"/>',
@@ -1173,7 +1174,7 @@ const roleFromUrl=()=>{
 const ROLE=ROLES[roleFromUrl()];
 const CAN=ROLE.can;
 /* FLAGS ship unfinished work dark rather than blocking a push */
-const FLAGS={parentRole:false,enrollWizard:false,reportBuilder:false};
+const FLAGS={parentRole:true,enrollWizard:false,reportBuilder:false};
 
 const CENTER={name:'Little Harding',date:'Mon, Jun 22',director:'Dana Mitchell',initials:'DM'};
 const TUITION=850;
@@ -1244,12 +1245,18 @@ const CLAIMS=[
 const ACTIVITIES=[
  {id:'a1',kid:'Ella Park',      ini:'EP',type:'incident',icon:'alert',title:'Incident logged · scraped knee',by:'Sarah Kim',   room:'Pre-K 4',   rid:'r-prek4',   at:'10:42 AM',review:true,body:'Scraped knee on the playground at outside time. Cleaned, plaster applied, back to play within five minutes.'},
  {id:'a2',kid:'Room',           ini:'P4',type:'note',    icon:'book', title:'Circle time · weather chart',    by:'Sarah Kim',   room:'Pre-K 4',   rid:'r-prek4',   at:'10:05 AM',review:false,body:'We charted the weather and everyone picked a symbol for the day. Plenty of guesses about rain.'},
+ {id:'a14',kid:'Amelia Walsh',  ini:'AW',type:'meal',  icon:'meal',title:'Lunch · ate all',              by:'Sarah Kim',   room:'Pre-K 4',   rid:'r-prek4',   at:'11:52 AM',review:false,body:'Cleared the plate and asked for more cucumber. Poured her own water.'},
+ {id:'a15',kid:'Ethan Brooks',  ini:'EB',type:'nap',   icon:'zzz', title:'Nap · 12:10 to 1:55',           by:'James Ortiz', room:'Toddlers A',rid:'r-toddlerA',at:'1:55 PM', review:false,body:'Down quickly with the blue blanket. Slept most of the hour and three quarters.'},
+ {id:'a16',kid:'Amelia Walsh',  ini:'AW',type:'kudos', icon:'star',title:'Kudos · helped a friend',       by:'Sarah Kim',   room:'Pre-K 4',   rid:'r-prek4',   at:'10:20 AM',review:false,body:'Noticed a friend could not reach the paint and fetched the step for him without being asked.'},
  {id:'a3',kid:'Sofia Rivera',   ini:'SR',type:'meal',    icon:'meal', title:'Lunch · ate most',               by:'James Ortiz', room:'Toddlers B',rid:'r-toddlerB',at:'11:48 AM',review:false,body:'Ate most of the pasta and all the fruit. Asked for seconds on the peas.'},
  {id:'a4',kid:'Jaylen Thompson',ini:'JT',type:'nap',     icon:'zzz',  title:'Nap · 12:30 to 2:05',            by:'James Ortiz', room:'Toddlers A',rid:'r-toddlerA',at:'2:05 PM', review:false,body:'Settled quickly and slept ninety minutes. Woke up cheerful.'},
  {id:'a5',kid:'Room',           ini:'P3',type:'photo',   icon:'img',  title:'Photo · water table',            by:'Maria Lopez', room:'Pre-K 3',   rid:'r-prek3',   at:'9:20 AM', review:false,photos:true,body:'Water table morning. Funnels and cups, and a lot of very wet sleeves.'},
  {id:'a6',kid:'Noah Bennett',   ini:'NB',type:'kudos',   icon:'star', title:'Kudos · helped a friend',        by:'Sarah Kim',   room:'Kinder Prep',rid:'r-kinder',  at:'1:15 PM',review:false,body:'Noticed a friend had nobody to sit with at snack and moved over without being asked.'}];
 
 const THREADS=[
+ {id:'t0',who:'Jamie Walsh',ini:'JW',scope:'family',sub:'Parent · Amelia Walsh',rid:'r-prek4',unread:true,at:'1:05 PM',
+  msgs:[{d:'in',t:'Amelia has swimming on Thursday, so she will need collecting at 2 rather than 3. Is that all right?',at:'1:05 PM'},
+        {d:'out',t:'That is fine, I have put a note on her record so the room knows. Thursday at 2.',at:'1:12 PM'}]},
  {id:'t1',who:'Maria Garcia',ini:'MG',scope:'family',sub:'Parent · Mateo Garcia',rid:'r-prek3',unread:true,at:'11:20 AM',
   msgs:[{d:'in',t:'Hi Dana, I got the invoice notice. Our card was replaced last week, can I update it today?',at:'11:20 AM'}]},
  {id:'t2',who:'Sarah Kim',ini:'SK',scope:'staff',sub:'Lead Teacher · Pre-K 4',rid:'r-prek4',unread:false,at:'10:44 AM',
@@ -1426,12 +1433,13 @@ function statusDot(k){
    HOME
    ============================================================ */
 function vHome(){
+  if(ROLE.scope==='family') return vParentHome();
   /* a teacher's numbers are their room's numbers — the same components, counted
      over a smaller set */
-  const mine=KIDS.filter(k=>inRoom(k.room));
+  const mine=myKids();
   const present=here(mine), tot=mine.length, out=tot-present;
-  const openInv=INVOICES.filter(i=>invStatus(i)!=='paid');
-  const overdue=INVOICES.filter(i=>invStatus(i)==='overdue').length;
+  const openInv=visibleInvoices().filter(i=>invStatus(i)!=='paid');
+  const overdue=visibleInvoices().filter(i=>invStatus(i)==='overdue').length;
   const owed=openInv.reduce((s,i)=>s+invTotal(i),0);
   const mism=CLAIMS.reduce((s,c)=>s+c.mismatches.filter(x=>!S.resolved[x.id]).length,0);
   const certs=alertTotal();
@@ -1473,7 +1481,7 @@ function vHome(){
       CAN.money==='all'?`<button class="rs-b" data-act="go:accounts"><b>${m(money0(8400))}</b><small>Revenue this month</small></button>`:'',
       CAN.money==='all'?`<button class="rs-b" data-act="go:invoices"><b>${openInv.length}</b><small>Invoices open</small></button>`:'',
       `<button class="rs-b" data-act="go:students"><b>${tot}${CAN.rooms==='all'?`<em>/${licensedSeats()}</em>`:''}</b><small>${CAN.rooms==='all'?'Enrolled of licensed':'In my room'}</small></button>`,
-      CAN.rooms==='one'?`<button class="rs-b" data-act="go:activities"><b>${ACTIVITIES.filter(a=>inRoom(a.rid)).length}</b><small>Posted today</small></button>`:'',
+      CAN.rooms==='one'?`<button class="rs-b" data-act="go:activities"><b>${visibleActivities().length}</b><small>Posted today</small></button>`:'',
       CAN.rooms==='one'?`<button class="rs-b" data-act="go:messages"><b>${unreadCount()}</b><small>Unread</small></button>`:'',
     ].filter(Boolean);
       return `<div class="rowsplit ${t.length===4?'four':''}">${t.join('')}</div>`;})()}
@@ -1488,6 +1496,58 @@ function vHome(){
 /* What needs you depends on what you are responsible for. A teacher is never
    shown an overdue invoice, and a director is not asked to post the day's nap
    note. Same component, different list. */
+/* A parent's home is one child's day, not a roster — but it is the same greet
+   card, the same pulse card and the same feed the staff roles use. */
+function vParentHome(){
+  const kids=myKids();
+  const feed=visibleActivities();
+  const f=F(ROLE.fam);
+  const bal=f?f.balance:0;
+  const line=k=>k.status==='here'?`In at ${k.tin}${k.who?' · dropped off by '+m(k.who):''}`
+    :k.status==='absent'?'Marked absent today'
+    :k.out?`Collected at ${k.tout||'—'}${k.collectedBy?' by '+m(k.collectedBy):''}`
+    :'Not checked in yet';
+  return `${homehead()}<div class="body low">
+   <div class="card greet">
+    <h2>Good morning, ${ROLE.who.split(' ')[0]}.</h2>
+    <p><b>${kids.length===1?m(kids[0].name.split(' ')[0])+' is '+(kids[0].status==='here'?'in today.':kids[0].status==='absent'?'marked absent.':'not checked in yet.')
+      :kids.filter(k=>k.status==='here').length+' of '+kids.length+' in today.'}</b></p>
+    <div class="greet-acts">
+     <div class="qrrow">
+      <button class="qr tinted" data-act="go:activities">
+       <i class="qri">${feed.length?`<span class="qbadge">${feed.length}</span>`:''}
+        ${ic('pen','ic','var(--npds-blue-700)','1.75')}</i>Today</button>
+      <button class="qr muted" data-act="go:messages">
+       <i class="qri">${unreadCount()?`<span class="qbadge">${unreadCount()}</span>`:''}
+        ${ic('chat','ic','var(--npds-gray-700)','1.75')}</i>Message</button>
+      <button class="qr muted" data-act="go:acct">
+       <i class="qri">${bal>0?`<span class="qbadge">!</span>`:''}
+        ${ic('card','ic','var(--npds-gray-700)','1.75')}</i>Billing</button>
+     </div>
+    </div>
+   </div>
+
+   ${kids.map(k=>`<div class="card pulse">
+    <div class="pulse-top">
+     <span><span class="pulse-count">${m(k.name.split(' ')[0])}</span>
+      <span class="pulse-label">${line(k)}</span></span>
+     <span class="chip ${k.status==='here'?'ok':''}">${roomName(k.room)}</span>
+    </div>
+    <div class="rowsplit">
+     <button class="rs-b" data-act="go:activities"><b>${feed.filter(a=>a.kid===k.name||a.kid==='Room').length}</b><small>Posted today</small></button>
+     <button class="rs-b" data-act="child:${k.id}"><b>${k.allergy?'1':'0'}</b><small>${k.allergy?m(k.allergy):'Allergies'}</small></button>
+     <button class="rs-b" data-act="go:reports"><b>${k.age}</b><small>${roomName(k.room)}</small></button>
+    </div>
+    <div class="quick">
+     <button class="primary q" data-act="child:${k.id}">${ic('child','ic sm','var(--npds-blue-700)','1.9')}${m(k.name.split(' ')[0])}'s profile</button>
+     <button class="second q" data-act="newmsg">${ic('chat','ic sm','var(--npds-gray-700)','1.9')}Message</button>
+    </div>
+   </div>`).join('')}
+
+   ${feed.length?`<div class="feedhd"><b>Today</b><span data-act="go:activities">See all</span></div>
+   <div class="pfeed short">${feed.slice(0,3).map(acard).join('')}</div>`:''}
+  </div>`;
+}
 function actionItems(){
   const items=[];
   if(CAN.money==='all'){
@@ -1509,8 +1569,22 @@ function actionItems(){
     if(rev) items.push({icon:'clipboard',tone:'warn',
       t:`${rev} incident ${rev===1?'report':'reports'} awaiting sign-off`,s:'Ella Park · logged 10:42 AM by Sarah Kim',go:'Open',act:'go:activities'});
   }
+  if(ROLE.scope==='family'){
+    const kids=myKids();
+    if(/owe|bill|invoice|pay|balance/.test(s)){
+      const f=F(ROLE.fam);
+      return f&&f.balance>0?`${money(f.balance)} is outstanding on your account.`
+        :`Your account is paid up${f&&f.autopay?', and autopay is on':''}.`;
+    }
+    if(/checked in|drop|arrive|what time/.test(s))
+      return kids.map(k=>k.status==='here'?`${k.name.split(' ')[0]} was checked in at ${k.tin}${k.who?' by '+k.who:''}`
+        :`${k.name.split(' ')[0]} is ${k.status==='absent'?'marked absent':'not checked in yet'}`).join('. ')+'.';
+    const feed=visibleActivities();
+    return feed.length?`Today so far: ${feed.map(a=>a.title.toLowerCase()).join('; ')}.`
+      :'Nothing has been posted yet today.';
+  }
   if(CAN.rooms==='one'){
-    const mine=KIDS.filter(k=>inRoom(k.room));
+    const mine=myKids();
     const notin=mine.filter(k=>k.status!=='here'&&k.status!=='absent');
     if(notin.length) items.push({icon:'in',tone:'warn',
       t:`${notin.length} not checked in yet`,s:notin.map(k=>k.name.split(' ')[0]).join(', '),go:'Register',act:'go:attendance'});
@@ -1547,7 +1621,7 @@ function capRow(r){
 function vRooms(){
   const present=here(KIDS), out=KIDS.length-present;
   const rev=ACTIVITIES.filter(a=>a.review).length;
-  const unread=THREADS.filter(t=>t.unread).length;
+  const unread=visibleThreads().filter(t=>t.unread).length;
   /* one card per thing, so each reads as its own destination rather than a
      row in a list */
   return `${homehead()}<div class="body low">
@@ -1909,12 +1983,48 @@ STAFF.forEach(st=>{
     timeoff:TIMEOFF[st.id]||[]
   };
 });
-const unreadCount=()=>THREADS.filter(t=>t.unread).length;
-/* The one place scope is decided. A director chooses; a teacher cannot. */
+const unreadCount=()=>visibleThreads().filter(t=>t.unread).length;
+/* ---------------------------------------------------------------------------
+   SCOPE — the one place "is this mine to see" is decided.
+   A director chooses what to look at. A teacher is fixed to their room. A
+   parent is fixed to their own children. Every list routes through here.
+   --------------------------------------------------------------------------- */
+const myKids=()=>ROLE.scope==='family'?KIDS.filter(k=>k.fam===ROLE.fam)
+              :ROLE.scope==='room'  ?KIDS.filter(k=>k.room===ROLE.room)
+              :KIDS;
+const myRooms=()=>[...new Set(myKids().map(k=>k.room))];
 const inRoom=x=>{
-  if(CAN.rooms==='one') return x===ROLE.room;
+  if(ROLE.scope==='family') return myRooms().includes(x);
+  if(ROLE.scope==='room')   return x===ROLE.room;
   return S.room==='all'||x===S.room;
 };
+const mineKid=k=>!!k&&myKids().some(x=>x.id===k.id);
+
+/* An activity reaches a parent only if it is about their child or the room
+   they are in — and never while an incident is still waiting on the director's
+   sign-off, because until it is signed it is not yet the centre's word. */
+function visibleActivities(){
+  let list=ACTIVITIES.filter(a=>inRoom(a.rid));
+  if(ROLE.scope==='family'){
+    const names=myKids().map(k=>k.name);
+    list=list.filter(a=>(a.kid==='Room'||names.includes(a.kid)) && !a.review);
+  }
+  return list;
+}
+/* A parent sees the threads they are part of; staff threads are not theirs. */
+function visibleThreads(){
+  if(ROLE.scope==='family'){
+    const f=F(ROLE.fam);
+    return THREADS.filter(t=>t.scope==='family'&&f&&t.who===f.contact);
+  }
+  if(ROLE.scope==='room') return THREADS.filter(t=>!t.rid||inRoom(t.rid));
+  return THREADS;
+}
+/* Money: a director sees the centre's, a parent sees their own, a teacher none. */
+function visibleInvoices(){
+  if(CAN.money==='own') return INVOICES.filter(i=>i.fam===ROLE.fam);
+  return CAN.money?INVOICES:[];
+}
 
 function vAttendance(){
   const scope=KIDS.filter(k=>inRoom(k.room));
@@ -1950,7 +2060,7 @@ function vAttendance(){
 }
 function vActivities(){
   const q=S.q.trim().toLowerCase();
-  const scope=ACTIVITIES.filter(a=>inRoom(a.rid));
+  const scope=visibleActivities();
   const list=scope.filter(a=>(!S.actFilter.size||S.actFilter.has(a.type))
     &&(!q||(a.title+' '+a.body+' '+a.kid+' '+TY[a.type].label).toLowerCase().includes(q)));
   const postbtn=`<button class="primary" data-act="sheet:posttype">${ic('plus','ic','currentColor','1.9')}Post activity</button>`;
@@ -1969,7 +2079,7 @@ function vActivities(){
 }
 function vMessages(){
   const q=S.q.trim().toLowerCase();
-  const scope=THREADS.filter(t=>inRoom(t.rid));
+  const scope=visibleThreads();
   const n=k=>scope.filter(t=>t.scope===k).length;
   const list=scope.filter(t=>(S.msgScope==='all'||t.scope===S.msgScope)
     &&(!q||(t.who+' '+t.sub+' '+t.msgs.map(x=>x.t).join(' ')).toLowerCase().includes(q)));
@@ -2037,8 +2147,18 @@ function secl(label,state,act,actLabel){
 function emptyRow(meaning){
   return `<div class="emptyrow"><span class="plus">${ic('plus','ic sm','var(--ink-3)','2')}</span>${meaning}</div>`;
 }
+function denied(what){
+  return `${topbar('Not available','')}<div class="body">
+   <div class="card" style="padding:22px 18px;text-align:center">
+    <p style="font-size:14px;color:var(--ink-2);line-height:1.55;margin:0">
+     ${what} is not part of your ${ROLE.scope==='family'?'family':'room'}.</p>
+   </div>
+   <button class="second" data-act="tab:${TABS[0][0]}" style="width:100%">Back to Home</button>
+  </div>`;
+}
 function vChild(){
-  const k=K(S.arg); if(!k) return vStudents();
+  const k=K(S.arg); if(!k) return allowed('students')?vStudents():vHome();
+  if(!mineKid(k)) return denied(k.name);
   const d=KID_DETAIL[k.id], f=F(k.fam);
   const sibs=kidsOf(k.fam).filter(x=>x.id!==k.id);
   const unsigned=Object.entries(d.consent).filter(([,v])=>!v).length;
@@ -2186,10 +2306,14 @@ function vFamilies(){
   </div>`;
 }
 function vFamily(){
-  const f=F(S.arg); if(!f) return vFamilies();
+  /* a parent opening "my family" always lands on their own, and an id from a
+     stale link belonging to someone else is refused rather than rendered */
+  if(ROLE.scope==='family'&&!F(S.arg)) S.arg=ROLE.fam;
+  const f=F(S.arg); if(!f) return allowed('families')?vFamilies():vHome();
+  if(ROLE.scope==='family'&&f.id!==ROLE.fam) return denied(f.name+' family');
   const d=FAM_DETAIL[f.id], kids=kidsOf(f.id);
-  const inv=INVOICES.filter(i=>i.fam===f.id);
-  const threads=THREADS.filter(t=>kids.some(k=>t.sub.includes(k.name))||t.who===f.contact);
+  const inv=visibleInvoices().filter(i=>i.fam===f.id);
+  const threads=visibleThreads().filter(t=>kids.some(k=>t.sub.includes(k.name))||t.who===f.contact);
   const TABS=[['general','General'],['students','Students'],['ledger','Ledger'],
               ['messages','Messages'],['notes','Notes'],['autopay','Autopay']];
   const t=S.famTab;
@@ -2408,9 +2532,11 @@ function vAccounts(){
   </div>`;
 }
 function vAccount(){
-  const f=F(S.arg); if(!f) return vAccounts();
+  if(CAN.money==='own'&&S.arg!==ROLE.fam) S.arg=ROLE.fam;   /* your account is the only one */
+  const f=F(S.arg); if(!f) return allowed('accounts')?vAccounts():vHome();
+  if(CAN.money==='own'&&f.id!==ROLE.fam) return denied(f.name+' family');
   const kids=kidsOf(f.id), monthly=kids.length*TUITION;
-  const inv=INVOICES.filter(i=>i.fam===f.id);
+  const inv=visibleInvoices().filter(i=>i.fam===f.id);
   const txns=[
    {d:'Jun 1, 2026',t:'Tuition · June',type:'charge',a:monthly},
    {d:'Jun 1, 2026',t:f.autopay?'Autopay payment':'Payment received',type:'payment',a:monthly-f.balance},
@@ -2465,11 +2591,12 @@ function invRow(i){
   </button>`;
 }
 function vInvoices(){
-  let list=INVOICES;
+  /* a parent's invoice list is their own */
+  let list=visibleInvoices();
   if(S.invFilter!=='all') list=list.filter(i=>invStatus(i)===S.invFilter);
   const q=S.q.trim().toLowerCase();
   if(q) list=list.filter(i=>i.family.toLowerCase().includes(q));
-  const open=INVOICES.filter(i=>invStatus(i)==='open').length;
+  const open=visibleInvoices().filter(i=>invStatus(i)==='open').length;
   const od=INVOICES.filter(i=>invStatus(i)==='overdue').length;
   const paid=INVOICES.filter(i=>invStatus(i)==='paid').length;
   return `${topbar('Invoices',`${open+od} open · ${od} overdue`,maskBtn())}<div class="body">
@@ -2488,6 +2615,7 @@ function vInvoices(){
 }
 function vInvoice(){
   const i=IN(S.arg); if(!i) return vInvoices();
+  if(CAN.money==='own'&&i.fam!==ROLE.fam) return denied('That invoice');
   const st=invStatus(i), total=invTotal(i);
   return `${topbar('Invoice #'+i.id.replace('inv-',''),`${m(i.family)} · ${i.period}`,
     `${maskBtn()}${st!=='void'?`<button class="dotsb" data-act="invactions:${i.id}" aria-label="More actions">${ic('dots','ic','var(--ink-3)','1.9')}</button>`:''}`)}<div class="body">
@@ -2591,18 +2719,23 @@ function vMore(){
   const grp=(label,rows)=>{const r=rows.filter(Boolean).join('');
     return r?`<div class="flabel">${label}</div><div class="card list tight hub">${r}</div>`:'';};
   return `${homehead()}<div class="body low">
-   ${grp('Operations',[
+   ${grp(ROLE.scope==='family'?'My family':'Operations',[
      CAN.staff?hubRow('go:scheduling','cal','var(--npds-blue-100)','Scheduling',`${ROOMS.length} rooms · ${STAFF.length} staff rostered`):'',
      CAN.compliance?hubRow('go:compliance','shield','rgba(78,114,99,.14)','Compliance','Documents, ratios and import logs'):'',
      CAN.rooms==='one'?hubRow('go:students','users','var(--npds-blue-100)','My children',`${kidsIn(ROLE.room).length} in ${roomName(ROLE.room)}`):'',
+     ROLE.scope==='family'?hubRow(`family:${ROLE.fam}`,'house','var(--npds-blue-100)','My children',
+       myKids().map(k=>k.name.split(' ')[0]).join(' and ')):'',
+     CAN.money==='own'?hubRow(`acct:${ROLE.fam}`,'card','rgba(78,114,99,.14)','Billing',
+       (()=>{const f=F(ROLE.fam);return f&&f.balance>0?`${m(money(f.balance))} due`:'Paid up'+(f&&f.autopay?' · autopay on':'');})()):'',
    ])}
    ${grp('Insights',[
      hubRow('go:reports','chart','var(--npds-blue-100)','Reports',CAN.money==='all'?'Attendance, revenue, enrollment':'Attendance and activities'),
-     hubRow('go:assistant','sparkle','rgba(176,138,86,.2)','Virtual assistant',
-       CAN.rooms==='all'?"Ask about your centre's numbers":'Ask about your room'),
+     hubRow('go:assistant','sparkle','rgba(176,138,86,.2)','Virtual assistant',ROLE.scope==='family'?'Ask about your children':CAN.rooms==='all'?"Ask about your centre's numbers":'Ask about your room'),
    ])}
    ${grp('System',[
      CAN.settings?hubRow('go:settings','gear','rgba(255,255,255,.6)','Settings','Notifications, billing, kiosk, SIS'):'',
+     ROLE.scope==='family'?hubRow('soon:Notification settings','bell','rgba(255,255,255,.6)','Notifications',
+       'What the centre sends you, and when'):'',
    ])}
   </div>`;
 }
@@ -2653,21 +2786,25 @@ function vCompliance(){
   </div>`;
 }
 function vReports(){
-  const mine=KIDS.filter(k=>inRoom(k.room));
+  const mine=myKids();
   const rows=[
-   ['Attendance','Daily and monthly attendance by room','listCheck',true],
+   ['Daily report',`${myKids().map(k=>k.name.split(' ')[0]).join(' and ')} · today`,'doc',ROLE.scope==='family'],
+   ['Attendance',ROLE.scope==='family'?'Days in this month':'Daily and monthly attendance by room','listCheck',true],
    ['Revenue','Billed, collected and outstanding','trend',CAN.money==='all'],
    ['Enrollment','Capacity, waitlist and turnover','users',CAN.rooms==='all'],
    ['Subsidy','Claims, mismatches and recovery','bills',CAN.money==='all'],
    ['Staff hours','Scheduled against worked','clock',CAN.staff],
    ['Activities','What was posted, by type','pen',CAN.rooms==='one'],
   ].filter(r=>r[3]);
-  return `${topbar('Reports',CAN.rooms==='one'?roomName(ROLE.room)+' · Jun 2026':'Jun 2026')}<div class="body">
+  const sub=ROLE.scope==='family'?myKids().map(k=>k.name.split(' ')[0]).join(' and ')
+    :CAN.rooms==='one'?roomName(ROLE.room)+' · Jun 2026':'Jun 2026';
+  return `${topbar('Reports',sub)}<div class="body">
    <div class="card sum">
     <span class="su"><b>94%</b><small>ATTENDANCE</small></span>
     ${CAN.money==='all'?`<span class="su"><b>${m(money0(8400))}</b><small>COLLECTED</small></span>`
-      :`<span class="su"><b>${ACTIVITIES.filter(a=>inRoom(a.rid)).length}</b><small>POSTED</small></span>`}
-    <span class="su"><b>${mine.length}${CAN.rooms==='all'?'/16':''}</b><small>${CAN.rooms==='all'?'ENROLLED':'IN MY ROOM'}</small></span>
+      :`<span class="su"><b>${visibleActivities().length}</b><small>POSTED</small></span>`}
+    <span class="su"><b>${mine.length}${CAN.rooms==='all'?'/16':''}</b><small>${
+      CAN.rooms==='all'?'ENROLLED':ROLE.scope==='family'?'MY CHILDREN':'IN MY ROOM'}</small></span>
    </div>
    <div class="card list tight">
     ${rows.map(([n,s,g])=>`<button class="row" data-act="soon:${n} report">
@@ -2675,20 +2812,23 @@ function vReports(){
       <span class="rt"><b>${n}</b><small>${s}</small></span>
       ${ic('chev','ic sm','var(--ink-3)')}</button>`).join('')}
    </div>
-   <button class="second" data-act="soon:Report builder">Build a custom report</button>
+   ${CAN.money==='all'?`<button class="second" data-act="soon:Report builder">Build a custom report</button>`:''}
   </div>`;
 }
 function vAssistant(){
   const starters=CAN.money==='all'
     ? ['How much is outstanding this month?','Which rooms are near capacity?','What is blocking the May subsidy claim?']
+    : ROLE.scope==='family'
+    ? ['What did they do today?','When were they checked in?','What do I owe?']
     : ['Who is not checked in yet?','Which children have allergies?','What have I posted today?'];
   return `${topbar('Virtual assistant',CAN.rooms==='one'?roomName(ROLE.room):CENTER.name)}
   <div class="body thread">
    ${S.assistant.length?S.assistant.map(msg=>
      `<div class="bub ${msg.d}"><p>${msg.t}</p></div>`).join('')
    :`<div class="card greet">
-      <h2>Ask about your ${CAN.rooms==='one'?'room':'centre'}.</h2>
+      <h2>Ask about your ${ROLE.scope==='family'?'children':CAN.rooms==='one'?'room':'centre'}.</h2>
       <p>It answers from ${CAN.money==='all'?"today's attendance, billing and compliance records"
+        :ROLE.scope==='family'?"today's activities and your own billing"
         :"today's register and activity records for your room"}. It never changes anything without you.</p>
      </div>
      <div class="flabel">Try</div>
@@ -2718,7 +2858,7 @@ function answerFor(q){
       return a.length?a.map(k=>`${k.name} · ${k.allergy}`).join('. ')+'.':'No allergies recorded in your room.';
     }
     if(/posted|activit|today/.test(s)){
-      const n=ACTIVITIES.filter(a=>inRoom(a.rid)).length;
+      const n=visibleActivities().length;
       return `${n} ${n===1?'activity has':'activities have'} been posted for ${roomName(ROLE.room)} today.`;
     }
   }
@@ -3296,14 +3436,15 @@ const V={home:vHome,rooms:vRooms,people:vPeople,finance:vFinance,more:vMore,
 /* A view a role has no business seeing is not merely hidden in the nav — it is
    unreachable, so a stale link or a stray action cannot land on it. */
 const GATE={
-  finance:()=>!!CAN.money, accounts:()=>!!CAN.money, acct:()=>!!CAN.money,
-  invoices:()=>!!CAN.money, inv:()=>!!CAN.money, subsidy:()=>CAN.money==='all',
-  claim:()=>CAN.money==='all',
+  finance:()=>CAN.money==='all', accounts:()=>CAN.money==='all',
+  acct:()=>!!CAN.money, invoices:()=>!!CAN.money, inv:()=>!!CAN.money,
+  subsidy:()=>CAN.money==='all', claim:()=>CAN.money==='all',
   staff:()=>CAN.staff, staffm:()=>CAN.staff, scheduling:()=>CAN.staff,
   compliance:()=>CAN.compliance, settings:()=>CAN.settings,
   rooms:()=>CAN.rooms==='all', room:()=>CAN.rooms!=='none',
   people:()=>CAN.rooms!=='none', students:()=>CAN.rooms!=='none',
-  families:()=>CAN.rooms==='all', family:()=>CAN.rooms==='all',
+  families:()=>CAN.rooms==='all', family:()=>ROLE.scope==='family'||CAN.rooms==='all',
+  attendance:()=>!!CAN.checkin,          /* a parent does not work the register */
 };
 const allowed=v=>!GATE[v]||GATE[v]();
 
