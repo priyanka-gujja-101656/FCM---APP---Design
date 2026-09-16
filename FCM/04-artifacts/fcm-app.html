@@ -1085,6 +1085,20 @@
   .fhint{margin:2px 0 8px;font-size:12px;color:var(--ink-3);padding:0 2px}
   .fbtns{display:flex;flex-direction:column;gap:9px;margin-top:20px}
   .fbtns .primary,.fbtns .ghost{width:100%;margin:0}
+  /* the confirm dialog, ported from the teacher app */
+  .confirmwrap{position:absolute;inset:0;z-index:12;display:grid;place-items:center;padding:24px;
+    opacity:0;transition:opacity .18s ease;pointer-events:none}
+  .confirmwrap.on{opacity:1;pointer-events:auto}
+  .cf-scrim{position:absolute;inset:0;background:rgba(28,38,26,.34);backdrop-filter:blur(2px)}
+  .cf-card{position:relative;width:100%;background:rgba(253,254,251,.98);border-radius:24px;
+    padding:24px 22px 20px;box-shadow:0 26px 60px -20px rgba(28,42,26,.5);
+    transform:scale(.96);transition:transform .2s cubic-bezier(.32,.72,0,1)}
+  .confirmwrap.on .cf-card{transform:none}
+  .cf-card h4{margin:0 0 9px;font-family:Newsreader,Georgia,serif;font-weight:400;font-size:20px;
+    letter-spacing:-.015em;color:var(--ink)}
+  .cf-card p{margin:0 0 18px;font-size:14px;line-height:1.5;color:var(--ink-2)}
+  .cf-card .primary{margin:0;width:100%}
+  .cf-card .second{margin-top:9px;width:100%}
 </style>
 </head>
 <body>
@@ -1449,6 +1463,28 @@ function staffAlerts(s){
 }
 const alertTotal=()=>STAFF.reduce((n,s)=>n+staffAlerts(s).length,0);
 const dateLabel=d=>d?new Date(d).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}):'Not on file';
+
+/* ---------------------------------------------------------------------------
+   CONFIRM — ported from the teacher app.
+   For the handful of acts that reach a family before anyone can take them back:
+   marking a child absent, and marking several at once.
+   --------------------------------------------------------------------------- */
+let pending=null;
+function confirmAsk(o){
+  pending=o.act;
+  let el=$('#confirmwrap');
+  if(!el){el=document.createElement('div');el.id='confirmwrap';el.className='confirmwrap';
+    document.querySelector('.screen').appendChild(el);}
+  el.innerHTML=`<div class="cf-scrim" data-act="cfno"></div>
+   <div class="cf-card" role="alertdialog" aria-modal="true" aria-label="${o.title}">
+    <h4>${o.title}</h4><p>${o.body}</p>
+    <button class="primary" data-act="cfyes">${o.label}</button>
+    <button class="second" data-act="cfno">Cancel</button>
+   </div>`;
+  requestAnimationFrame(()=>el.classList.add('on'));
+}
+function confirmClose(){const el=$('#confirmwrap');
+  if(el){el.classList.remove('on');setTimeout(()=>el.remove(),200);} pending=null;}
 
 let tt;
 function toast(txt){
@@ -3826,9 +3862,14 @@ function doAct(a){
       S.sel.clear();S.selecting=false;closeSheet();
       toast(`<b>${n} ${n===1?'child':'children'}</b> checked ${out?'out':'in'} at ${t}`);render();break;}
     case 'bulkabsent':{const n=S.sel.size; if(!n){toast('Tick a child first');break;}
-      S.sel.forEach(id=>{const k=K(id);k.status='absent';k.tin=null;});
-      S.sel.clear();S.selecting=false;closeSheet();
-      toast(`<b>${n} ${n===1?'child':'children'}</b> marked absent`);render();break;}
+      const ids=[...S.sel];
+      confirmAsk({title:`Mark ${n} ${n===1?'child':'children'} absent?`,
+        body:'It goes on the day\u2019s record for each of them, and their families can see it.',
+        label:`Mark ${n} absent`,
+        act:()=>{ids.forEach(id=>{const k=K(id);k.status='absent';k.tin=null;});
+          S.sel.clear();S.selecting=false;
+          toast(`<b>${n} ${n===1?'child':'children'}</b> marked absent`);render();}});
+      break;}
     case 'roomsel': if(CAN.rooms!=='all')break; S.room=arg;closeSheet();render(true);break;
     case 'fact':
       if(arg==='clear') S.actFilter.clear();
@@ -3865,7 +3906,12 @@ function doAct(a){
     case 'docheckout':{const k=K(arg);k.status='out';k.tout=markStr();
       k.collectedBy=(S.pick||F(k.fam).contact+' · parent').split(' · ')[0];
       closeSheet();toast(`<b>${k.name}</b> checked out at ${markStr()}`);render(true);break;}
-    case 'doabsent':{const k=K(arg);k.status='absent';k.tin=null;closeSheet();toast(`<b>${k.name}</b> marked absent`);render(true);break;}
+    case 'doabsent':{const k=K(arg);closeSheet();
+      confirmAsk({title:`Mark ${m(k.name)} absent?`,
+        body:'This goes on the day\u2019s attendance record and their family can see it.',
+        label:'Mark absent',
+        act:()=>{k.status='absent';k.tin=null;toast(`<b>${m(k.name)}</b> marked absent`);render(true);}});
+      break;}
 
     case 'sheet': sheet(arg);break;
     case 'close': closeSheet();break;
@@ -3996,6 +4042,8 @@ function doAct(a){
       draft={type:'note',room:null,picked:new Set(),everyone:true,open:null,det:'',vis:'parents',sig:false,
         off:0,mOff:0,t:nowT(),cmode:'h',meal:'Lunch',qty:''};
       render(true);break;}
+    case 'cfyes':{const f=pending;confirmClose();if(f)f();break;}
+    case 'cfno': confirmClose();break;
     case 'soon': toast(esc(arg));break;
   }
 }
@@ -4005,7 +4053,8 @@ document.addEventListener('click',e=>{
   if(el){e.preventDefault();doAct(el.dataset.act);return;}
   if(e.target.id==='scrim') closeSheet();
 });
-document.addEventListener('keydown',e=>{if(e.key==='Escape')closeSheet();});
+document.addEventListener('keydown',e=>{if(e.key!=='Escape')return;
+  if($('#confirmwrap')){confirmClose();return;} closeSheet();});
 
 /* clock */
 (function clock(){
