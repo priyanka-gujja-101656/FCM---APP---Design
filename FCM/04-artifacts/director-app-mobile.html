@@ -972,6 +972,26 @@
   /* the dial is already inside the fieldset card — it needs no card of its own */
   .gpanel:has(.clockpop){border:0;background:none;box-shadow:none;padding:0 2px 4px;
     max-height:none;overflow:visible}
+  /* the month calendar, ported from the teacher app */
+  .calpop{margin-top:12px;background:none;border:0;border-radius:18px;padding:0;animation:pop .18s ease}
+  .calhd{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+  .calhd b{font-size:14.5px;font-weight:600;letter-spacing:-.005em}
+  .cnav{width:30px;height:30px;border:0;border-radius:999px;background:rgba(44,49,43,.06);
+    display:grid;place-items:center;padding:0;cursor:pointer}
+  .cnav.off{opacity:.35;pointer-events:none}
+  .cnav svg{width:15px;height:15px}
+  .calgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px}
+  .calgrid.head span{text-align:center;font-size:10.5px;font-weight:600;color:var(--ink-3);
+    letter-spacing:.06em;padding-bottom:4px}
+  .dc{aspect-ratio:1;display:grid;place-items:center;border-radius:999px;font-size:13.5px;
+    color:var(--ink);cursor:pointer;font-variant-numeric:tabular-nums;border:0;background:none;
+    font-family:inherit}
+  .dc.pad{pointer-events:none}
+  .dc.off{color:var(--ink-3);opacity:.4;pointer-events:none}
+  .dc.today{font-weight:700}
+  .dc.on{background:var(--npds-blue-600);color:#FFFDFA;font-weight:600}
+  .gpanel:has(.calpop){border:0;background:none;box-shadow:none;padding:0 2px 4px;
+    max-height:none;overflow:visible}
 </style>
 </head>
 <body>
@@ -1554,7 +1574,8 @@ function toLabel(){
     const r=ROOMS.find(x=>x.id===id); if(r) return `Everyone in ${r.name}`;}
   return `${n} recipients`;
 }
-let draft={type:'note',room:null,picked:new Set(),everyone:true,open:null,det:'',vis:'parents',sig:false};
+let draft={type:'note',room:null,picked:new Set(),everyone:true,open:null,det:'',vis:'parents',sig:false,
+  off:0,mOff:0,t:{h:7,m:32,ap:'AM'},cmode:'h',meal:'Lunch',qty:''};
 function draftKids(){ return draft.room?kidsIn(draft.room):[]; }
 function draftCount(){ return draft.everyone?draftKids().length:draft.picked.size; }
 function whoLabel(){
@@ -1567,8 +1588,58 @@ function whoLabel(){
 }
 /* ---------- the clock dial, ported from the teacher app ---------- */
 const t2=n=>String(n).padStart(2,'0');
+/* two things set a time: the check in / out mark, and the activity being drafted.
+   CLK says which one the dial is currently driving. */
 let CLK='mark';
+const clkT=()=>CLK==='draft'?draft.t:S.mark;
+const clkMode=()=>CLK==='draft'?draft.cmode:S.markMode;
+const setClkMode=v=>{if(CLK==='draft')draft.cmode=v;else S.markMode=v;};
 const markStr=()=>`${S.mark.h}:${t2(S.mark.m)} ${S.mark.ap}`;
+const timeStr=()=>`${draft.t.h}:${t2(draft.t.m)} ${draft.t.ap}`;
+const clkStr=()=>CLK==='draft'?timeStr():markStr();
+
+/* ---------- the month calendar, ported from the teacher app ---------- */
+const MON=['January','February','March','April','May','June','July','August','September',
+  'October','November','December'];
+const TODAY=new Date(2026,5,22);
+const draftDate=()=>{const dt=new Date(TODAY);dt.setDate(dt.getDate()+(draft.off||0));return dt;};
+const dateStr=()=>{const dt=draftDate();
+  return `${t2(dt.getMonth()+1)}/${t2(dt.getDate())}/${String(dt.getFullYear()).slice(2)}`;};
+function optPanel(list,val,act){
+  return `<div class="opts" role="radiogroup">${list.map(v=>`
+   <button class="opt" data-act="${act}:${v}" role="radio" aria-checked="${v===val}">
+    <span class="on2">${v}</span>${v===val?ic('check','ic sm','var(--npds-blue-700)','2.6'):''}</button>`).join('')}</div>`;
+}
+function calPop(){
+  const sel=draftDate();
+  const view=new Date(TODAY.getFullYear(),TODAY.getMonth()+(draft.mOff||0),1);
+  const y=view.getFullYear(), mo=view.getMonth();
+  const first=new Date(y,mo,1).getDay(), len=new Date(y,mo+1,0).getDate();
+  const same=(a,b)=>a.getFullYear()===b.getFullYear()&&a.getMonth()===b.getMonth()&&a.getDate()===b.getDate();
+  const nextOk=(y<TODAY.getFullYear())||(y===TODAY.getFullYear()&&mo<TODAY.getMonth());
+  let cells='';
+  for(let x=0;x<first;x++)cells+='<span class="dc pad"></span>';
+  for(let d2=1;d2<=len;d2++){
+    const dt=new Date(y,mo,d2), future=dt>TODAY, off=Math.round((dt-TODAY)/86400000);
+    /* an activity cannot be logged before it happened */
+    cells+=`<button class="dc${same(dt,sel)?' on':''}${same(dt,TODAY)?' today':''}${future?' off':''}"
+      ${future?'disabled':`data-act="setdate:${off}"`} aria-label="${MON[mo]} ${d2}">${d2}</button>`;
+  }
+  return `<div class="calpop">
+   <div class="calhd"><button class="cnav" data-act="cmon:-1" aria-label="Previous month">${ic('left','ic sm','var(--npds-gray-700)','2.2')}</button>
+    <b>${MON[mo]} ${y}</b>
+    <button class="cnav${nextOk?'':' off'}" ${nextOk?'data-act="cmon:1"':'disabled'} aria-label="Next month">${ic('right','ic sm','var(--npds-gray-700)','2.2')}</button></div>
+   <div class="calgrid head">${['S','M','T','W','T','F','S'].map(x=>`<span>${x}</span>`).join('')}</div>
+   <div class="calgrid">${cells}</div>
+   </div>`;
+}
+/* food asks two more things, exactly as the teacher app does */
+const MEALS=['Breakfast','Lunch','Snack','Bottle'];
+const OZ=['0.5 oz','1 oz','1.5 oz','2 oz','2.5 oz','3 oz','3.5 oz','4 oz','4.5 oz','5 oz',
+  '5.5 oz','6 oz','6.5 oz','7 oz','7.5 oz','8 oz'];
+const AMT=['Full','1/2','1/4','None'];
+const qtySet=()=>draft.meal==='Bottle'?OZ:AMT;
+const nowT=()=>{const d=new Date();return {h:d.getHours()%12||12,m:d.getMinutes(),ap:d.getHours()<12?'AM':'PM'};};
 /* seed the dial from the time already on the record, or from the clock on the wall */
 function parseMark(str){
   const x=/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i.exec((str||'').trim());
@@ -1576,8 +1647,9 @@ function parseMark(str){
    :(()=>{const d=new Date();return {h:d.getHours()%12||12,m:d.getMinutes(),ap:d.getHours()<12?'AM':'PM'};})();
   S.markMode='h'; S.markOpen=false;
 }
-function clockPop(){
-  const T=S.mark, mode=S.markMode;
+function clockPop(which='mark'){
+  CLK=which;
+  const T=clkT(), mode=clkMode();
   const ha=(T.h%12)*30+T.m*0.5, ma=T.m*6;
   const num=[...Array(12)].map((_,x)=>{const n=x+1,a=(n*30-90)*Math.PI/180;
    const px=120+Math.cos(a)*84, py=120+Math.sin(a)*84;
@@ -1592,7 +1664,7 @@ function clockPop(){
     <b class="${mode==='m'?'on':''}" data-act="mcmode:m" role="button" tabindex="0" aria-label="Set the minutes">${t2(T.m)}</b>
     <span class="apw"><i class="${T.ap==='AM'?'on':''}" data-act="map:AM" role="button" tabindex="0">AM</i>
      <i class="${T.ap==='PM'?'on':''}" data-act="map:PM" role="button" tabindex="0">PM</i></span></div>
-   <svg id="dial" viewBox="0 0 240 240" role="img" aria-label="Clock face, ${markStr()}">
+   <svg id="dial" viewBox="0 0 240 240" role="img" aria-label="Clock face, ${clkStr()}">
     <circle class="face" cx="120" cy="120" r="112"/>${tick}${num}
     <line class="hh" x1="120" y1="120" x2="${120+Math.cos((ha-90)*Math.PI/180)*54}"
      y2="${120+Math.sin((ha-90)*Math.PI/180)*54}"/>
@@ -1606,22 +1678,29 @@ function wireDial(){
   const set=e=>{const r=dl.getBoundingClientRect();
    const x=e.clientX-r.left-r.width/2, y=e.clientY-r.top-r.height/2;
    let a=Math.atan2(y,x)*180/Math.PI+90; if(a<0)a+=360;
-   if(S.markMode==='h'){const h=Math.round(a/30)%12;S.mark.h=h===0?12:h;}
-   else S.mark.m=Math.round(a/6)%60;
+   const T=clkT();
+   if(clkMode()==='h'){const h=Math.round(a/30)%12;T.h=h===0?12:h;}
+   else T.m=Math.round(a/6)%60;
    repaintClock();};
   let down=false;
   dl.addEventListener('pointerdown',e=>{down=true;dl.setPointerCapture(e.pointerId);set(e)});
   dl.addEventListener('pointermove',e=>{if(down)set(e)});
   /* let go on the hour and the dial moves on to the minutes by itself */
   dl.addEventListener('pointerup',()=>{down=false;
-   if(S.markMode==='h'){S.markMode='m';repaintClock();}});
+   if(clkMode()==='h'){setClkMode('m');repaintClock();}});
+}
+/* the same trick as the dial: swap the calendar alone, not the sheet around it */
+function repaintCal(){
+  const w=document.querySelector('.calpop'); if(!w)return;
+  w.outerHTML=calPop();
 }
 /* only the dial is redrawn, so a drag never rebuilds the sheet under the finger */
 function repaintClock(){
   const w=document.querySelector('.clockpop'); if(!w)return;
-  w.outerHTML=clockPop(); wireDial();
-  const fld=document.querySelector('.gr[data-act="mclock"] .gvv');
-  if(fld)fld.textContent=markStr();
+  const which=CLK;
+  w.outerHTML=clockPop(which); wireDial();
+  const fld=document.querySelector(which==='draft'?'.gr[data-act="dopen:time"] .gvv':'.gr[data-act="mclock"] .gvv');
+  if(fld)fld.textContent=clkStr();
 }
 function grow(act,label,val,open,pale,panel){
   return `<div class="grow"><button class="gr${open?' on':''}" data-act="${act}" aria-expanded="${open}">
@@ -2863,6 +2942,7 @@ function sheet(kind,arg){
     const roomPanel=`<div class="opts">${ROOMS.map(r=>`<button class="opt" data-act="droom:${r.id}">
       <span class="on2">${r.name}<i>${kidsIn(r.id).length} enrolled</i></span>
       ${draft.room===r.id?ic('check','ic sm','var(--npds-blue-700)','2.6'):''}</button>`).join('')}</div>`;
+    const isFood=draft.type==='meal';  /* the director's id for Food */
     const kidPanel=draft.room?`<div class="opts">
       <button class="opt" data-act="dall"><span class="on2">Everyone in ${roomShort(draft.room)}</span>
        ${draft.everyone?ic('check','ic sm','var(--npds-blue-700)','2.6'):''}</button>
@@ -2880,8 +2960,13 @@ function sheet(kind,arg){
       <div class="grp2">
        ${grow('dopen:room','Room',draft.room?roomName(draft.room):'Choose',draft.open==='room',!draft.room,roomPanel)}
        ${grow('dopen:who','Children',whoLabel(),draft.open==='who',!draft.room,kidPanel)}
-       ${grow('dopen:when','Date',dayLabel(0),false,false,'')}
+       ${grow('dopen:date','Date',dateStr(),draft.open==='date',false,calPop())}
+       ${grow('dopen:time','Time',timeStr(),draft.open==='time',false,clockPop('draft'))}
       </div>
+      ${isFood?`<div class="grp2">
+       ${grow('dopen:meal','Meal',draft.meal,draft.open==='meal',false,optPanel(MEALS,draft.meal,'dmeal'))}
+       ${grow('dopen:qty','Quantity',draft.qty||'Choose',draft.open==='qty',!draft.qty,optPanel(qtySet(),draft.qty,'dqty'))}
+      </div>`:''}
       <div class="grp2">
        <div class="grblock"><i>Details <em>optional</em></i>
         <textarea id="det" rows="3" placeholder="Anything the family should know.">${esc(draft.det)}</textarea></div>
@@ -3137,12 +3222,13 @@ function doAct(a){
     case 'notepill': S.openNote.has(arg)?S.openNote.delete(arg):S.openNote.add(arg);render(true);break;
     case 'dir': S.dir=arg;sheet('inout');break;
     case 'pk': S.pick=arg;sheet($('#sheet').dataset.kind||'checkout',S.pickArg);break;
-    case 'mclock': S.markOpen=!S.markOpen;sheet($('#sheet').dataset.kind||'checkout',S.pickArg);
+    case 'mclock': CLK='mark';S.markOpen=!S.markOpen;sheet($('#sheet').dataset.kind||'checkout',S.pickArg);
       /* the dial opens below the fold on a small phone, so bring it up to meet the thumb */
       if(S.markOpen)setTimeout(()=>document.querySelector('.clockpop')?.scrollIntoView({block:'nearest',behavior:'smooth'}),80);
       break;
-    case 'mcmode': S.markMode=arg;repaintClock();break;
-    case 'map': S.mark.ap=arg;repaintClock();break;
+    /* whichever clock the dial is driving — the check in mark, or the draft's time */
+    case 'mcmode': setClkMode(arg);repaintClock();break;
+    case 'map': clkT().ap=arg;repaintClock();break;
     case 'selmode': closeSheet();S.selecting=!S.selecting;S.sel.clear();render();break;
     case 'sel': S.sel.has(arg)?S.sel.delete(arg):S.sel.add(arg);render(true);break;
     case 'selall': KIDS.filter(k=>inRoom(k.room)).forEach(k=>S.sel.add(k.id));render(true);break;
@@ -3293,7 +3379,14 @@ function doAct(a){
       draft.sig=false;$('.sigh3')?.classList.remove('gone');break;}
     case 'ptype': draft.type=arg;draft.open=null;sheet('log');break;
     case 'dopen':{const d=$('#det'); if(d)draft.det=d.value;
-      draft.open=draft.open===arg?null:arg;sheet('log');break;}
+      draft.open=draft.open===arg?null:arg;
+      if(draft.open==='time'){CLK='draft';draft.cmode='h';}
+      if(draft.open==='date')draft.mOff=0;
+      sheet('log');break;}
+    case 'setdate': draft.off=+arg;draft.open=null;sheet('log');break;
+    case 'cmon': draft.mOff=(draft.mOff||0)+(+arg);repaintCal();break;
+    case 'dmeal': draft.meal=arg;draft.qty='';draft.open='qty';sheet('log');break;
+    case 'dqty': draft.qty=arg;draft.open=null;sheet('log');break;
     case 'droom': draft.room=arg;draft.everyone=true;draft.picked.clear();draft.open='who';sheet('log');break;
     case 'dall': draft.everyone=true;draft.picked.clear();sheet('log');break;
     case 'dkid':{draft.everyone=false;
@@ -3306,11 +3399,12 @@ function doAct(a){
       ACTIVITIES.unshift({id:'a'+Date.now(),kid:draft.everyone?'Room':K([...draft.picked][0]).name,
         ini:'DM',type:draft.type,icon:ty[2],title:ty[1],by:CENTER.director,
         room:roomName(draft.room),rid:draft.room,
-        at:new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'}),
+        at:timeStr(),on:dateStr(),
         review:false,body:draft.det||`${ty[1]} logged for ${whoLabel().toLowerCase()}.`});
       closeSheet();
       toast(`Posted to ${n2} ${n2===1?'family':'families'}`);
-      draft={type:'note',room:null,picked:new Set(),everyone:true,open:null,det:'',vis:'parents',sig:false};
+      draft={type:'note',room:null,picked:new Set(),everyone:true,open:null,det:'',vis:'parents',sig:false,
+        off:0,mOff:0,t:nowT(),cmode:'h',meal:'Lunch',qty:''};
       render(true);break;}
     case 'soon': toast(esc(arg));break;
   }
