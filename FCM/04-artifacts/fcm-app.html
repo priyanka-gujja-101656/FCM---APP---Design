@@ -1062,6 +1062,29 @@
   /* Select reads as pressed while the list is being worked */
   .ghost.tb-inline.on{background:var(--npds-blue-100);border-color:var(--npds-blue-500);
     color:var(--npds-blue-700);font-weight:600}
+  /* ---- the one filter shape ---- */
+  .ffield{display:flex;flex-direction:column;flex:none;margin-bottom:15px}
+  .ffield>i{font-style:normal;font-size:13px;font-weight:500;color:var(--ink-2);margin:0 2px 7px}
+  .fsel{display:flex;align-items:center;gap:10px;width:100%;min-height:52px;padding:0 14px 0 16px;
+    border-radius:14px;border:1px solid var(--npds-gray-500);background:rgba(255,255,255,.86);
+    font-family:inherit;font-size:15px;color:var(--ink);cursor:pointer;text-align:left}
+  .fsel span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .fsel.pale span{color:var(--ink-3)}
+  /* the shared chevron points right; a dropdown's points down, and up when open */
+  .fsel svg{flex:none;transform:rotate(90deg);transition:transform .16s ease}
+  .fsel.on{border-color:var(--npds-blue-500);box-shadow:inset 0 0 0 1px var(--npds-blue-500)}
+  .fsel.on svg{transform:rotate(-90deg)}
+  .fpanel{margin-top:8px;border:1px solid rgba(44,49,43,.12);border-radius:14px;
+    background:#FFFDFA;padding:4px 12px;animation:pop .18s ease}
+  .fsearch{display:flex;align-items:center;gap:9px;padding:9px 2px;
+    border-bottom:1px solid var(--line)}
+  .fsearch input{flex:1;min-width:0;border:0;background:none;font-family:inherit;font-size:14.5px;
+    color:var(--ink);outline:none;padding:4px 0}
+  .fsx{width:26px;height:26px;border:0;background:none;padding:0;display:grid;place-items:center;cursor:pointer}
+  .fpanel .opts{max-height:252px}
+  .fhint{margin:2px 0 8px;font-size:12px;color:var(--ink-3);padding:0 2px}
+  .fbtns{display:flex;flex-direction:column;gap:9px;margin-top:20px}
+  .fbtns .primary,.fbtns .ghost{width:100%;margin:0}
 </style>
 </head>
 <body>
@@ -1122,6 +1145,7 @@
 const I={
 person:'<circle cx="12" cy="8" r="3.4"/><path d="M5 20a7 7 0 0 1 14 0"/>',
 chev:'<path d="M9 6l6 6-6 6"/>',
+filter:'<path d="M4 6h16M7 12h10M10 18h4"/>',
 bell:'<path d="M18 8.5a6 6 0 1 0-12 0c0 6-2.5 7.5-2.5 7.5h17S18 14.5 18 8.5"/><path d="M13.7 20a2 2 0 0 1-3.4 0"/>',
 dash:'<path d="M5 12h14"/>',
 moon:'<path d="M20 14.5A8 8 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z"/>',
@@ -1340,7 +1364,7 @@ const S={tab:(ROLES[roleFromUrl()].tabs[0][0]),sub:null,arg:null,stack:[],q:'',m
   childTab:'overview',famTab:'general',staffTab:'overview',acctTab:'activity',msgScope:'all',
   resolved:{},paid:{},assistant:[],draft:'',
   mark:{h:7,m:32,ap:'AM'},markMode:'h',markOpen:false,dir:'in',bulkDir:'out',
-  kid:null,pfilter:'all',ack:{},pOpen:true};
+  kid:null,pfilter:'all',ack:{},pOpen:true,fopen:null,ffq:''};
 
 /* ---------- helpers ---------- */
 const $=(s,r=document)=>r.querySelector(s);
@@ -1723,6 +1747,61 @@ function filterCount(screen){
   const status=(screen==='attendance'&&S.attFilter!=='all')?1:0;
   return room + status + (screen==='activities'?S.actFilter.size:0);
 }
+/* ---------------------------------------------------------------------------
+   FILTERS — one shape everywhere.
+
+   A label, a box you open, options inside. Searchable when the list is long
+   enough to hunt through, multi-select when more than one answer is sensible.
+   Apply filters and Clear all at the foot. A director, a teacher and a parent
+   all learn this once.
+   --------------------------------------------------------------------------- */
+function ffield(key,label,value,panel,pale){
+  const open=S.fopen===key;
+  return `<div class="ffield">
+   <i>${label}</i>
+   <button class="fsel${open?' on':''}${pale?' pale':''}" data-act="fopen:${key}" aria-expanded="${open}">
+    <span>${value}</span>${ic('chev','ic sm','var(--npds-gray-700)','2.2')}</button>
+   ${open?`<div class="fpanel">${panel}</div>`:''}
+  </div>`;
+}
+/* one option list, whether it takes one answer or several */
+function fopts(list,isOn,act,searchable){
+  const q=(S.ffq||'').trim().toLowerCase();
+  const rows=q?list.filter(o=>o[1].toLowerCase().includes(q)):list;
+  return `${searchable?`<div class="fsearch">${ic('search','ic sm','var(--ink-3)')}
+    <input id="ffq" value="${esc(S.ffq||'')}" placeholder="Search" autocomplete="off" aria-label="Search options">
+    ${q?`<button class="fsx" data-act="ffqclear" aria-label="Clear">${ic('x','ic sm','var(--ink-3)','2')}</button>`:''}
+   </div>`:''}
+   <div class="opts" role="listbox">${rows.length?rows.map(o=>`
+    <button class="opt" data-act="${act}:${o[0]}" role="option" aria-selected="${isOn(o[0])}">
+     <span class="on2">${m(o[1])}${o[2]?`<i>${m(o[2])}</i>`:''}</span>
+     ${isOn(o[0])?ic('check','ic sm','var(--npds-blue-700)','2.6'):''}</button>`).join('')
+   :'<div class="empty">Nothing matches.</div>'}</div>`;
+}
+function filterSheet(title,fields,count,n){
+  return `<span class="grab"></span>
+   <button class="sh-x" data-act="close" aria-label="Close">${ic('x','ic sm','var(--ink-2)','2.1')}</button>
+   <h3 class="sh-h">${title}</h3>
+   ${fields}
+   <div class="fbtns">
+    <button class="primary" data-act="close">${ic('filter','ic sm','currentColor','1.9')}Apply filters</button>
+    ${count?`<button class="ghost" data-act="clearfilters">Clear all</button>`:''}
+   </div>`;
+}
+const ROOM_OPTS=()=>[['all','All rooms',`${KIDS.length} enrolled`]]
+  .concat(ROOMS.map(r=>[r.id,r.name,`${kidsIn(r.id).length} enrolled`]));
+const ATT_OPTS=[['all','Everyone'],['here','Here today'],['out','Not in'],
+  ['absent','Absent'],['allergy','Has an allergy']];
+const attLabel=()=>(ATT_OPTS.find(o=>o[0]===S.attFilter)||ATT_OPTS[0])[1];
+const typeLabel=()=>S.actFilter.size===0?'All activities'
+  :S.actFilter.size===1?TY[[...S.actFilter][0]].label:`${S.actFilter.size} types`;
+const MSG_OPTS=[['all','Everyone'],['family','Parents'],['staff','Staff']];
+const msgLabel=()=>(MSG_OPTS.find(o=>o[0]===S.msgScope)||MSG_OPTS[0])[1];
+
+/* choosing inside the filter sheet keeps the sheet open, so several fields can
+   be set in one visit — a single-answer field closes itself, a multi stays up */
+const inFilters=()=>{const sh=$('#sheet');
+  return !!(sh&&sh.classList.contains('on')&&sh.dataset.kind==='filters');};
 function filtersBtn(screen){
   const c=filterCount(screen);
   return `<button class="ghost tb-inline" data-act="sheet:filters">Filters${c?' ('+c+')':''}</button>`;
@@ -3485,20 +3564,6 @@ function sheet(kind,arg){
       <span style="flex:1"><b>The whole centre</b><small>Every family sees it</small></span></button>
      ${ROOMS.map(r=>`<button class="sh-opt" data-act="dopost:${r.name}"><span class="tile-i">${ic('room','ic sm','var(--ink-2)','1.8')}</span>
       <span style="flex:1"><b>${r.name}</b><small>${kidsIn(r.id).length} enrolled · ${here(kidsIn(r.id))} in</small></span></button>`).join('')}`;
-  } else if(kind==='filter'){
-    html=`<span class="grab"></span>
-     <h3 class="sh-h">Filter</h3>
-     ${CAN.rooms==='all'?`<div class="flabel" style="margin:0 0 8px">Room</div>
-     <div class="chips" style="margin-bottom:16px">
-      <button class="ch${S.room==='all'?' on':''}" data-act="room2:all">All rooms</button>
-      ${ROOMS.map(r=>`<button class="ch${S.room===r.id?' on':''}" data-act="room2:${r.id}">${r.name}</button>`).join('')}
-     </div>`:''}
-     <div class="flabel" style="margin:0 0 8px">Status</div>
-     <div class="chips" style="margin-bottom:18px">
-      ${[['all','Everyone'],['here','In today'],['out','Not in'],['absent','Absent'],['allergy','Has an allergy']].map(([v,l])=>
-        `<button class="ch${S.attFilter===v?' on':''}" data-act="att:${v}">${l}</button>`).join('')}
-     </div>
-     <div class="sh-acts"><button class="primary" data-act="close">Show results</button></div>`;
   } else if(kind==='rooms'){
     html=`<span class="grab"></span>
      <h3 class="sh-h">Which rooms</h3>
@@ -3533,38 +3598,22 @@ function sheet(kind,arg){
       ${item('doc','Export as CSV','The same rows, for a spreadsheet','doprint:CSV')}
      </div>
      <button class="ghost" data-act="close">Close</button>`;
-  } else if(kind==='filters'){
-    const screen=S.sub;
-    html=`<span class="grab"></span>
-     <button class="sh-x" data-act="close" aria-label="Close">${ic('x','ic sm','var(--ink-2)','2.1')}</button>
-     <h3 class="sh-h">Filters</h3>
-     <p class="sh-sub">${filterCount(screen)?filterCount(screen)+' applied':'Showing everything'}</p>
-     ${CAN.rooms==='all'?`<div class="flabel" style="margin:0 0 9px">Classroom</div>
-     <div class="chips" style="margin-bottom:18px">
-      <button class="ch${S.room==='all'?' on':''}" data-act="room2:all">All rooms</button>
-      ${ROOMS.map(r=>`<button class="ch${S.room===r.id?' on':''}" data-act="room2:${r.id}">${r.name}</button>`).join('')}
-     </div>`:''}
-     ${screen==='attendance'?`<div class="flabel" style="margin:0 0 9px">Show</div>
-     <div class="chips" style="margin-bottom:18px">
-      ${[['all','Everyone'],['here','Here'],['out','Not in'],['absent','Absent'],['allergy','Has an allergy']]
-        .map(([v,l])=>`<button class="ch${S.attFilter===v?' on':''}" data-act="att:${v}">${l}</button>`).join('')}
-     </div>`:''}
-     ${screen==='activities'?`<div class="flabel" style="margin:0 0 9px">Type</div>
-      <div class="chips" style="margin-bottom:18px">
-       ${Object.keys(TY).map(t=>`<button class="ch${S.actFilter.has(t)?' on':''}" data-act="fact:${t}">${TY[t].label}</button>`).join('')}
-      </div>`:''}
-     <div class="sh-acts">
-      ${filterCount(screen)?`<button class="second" data-act="clearfilters">Clear filters</button>`:''}
-      <button class="primary" data-act="close">Show results</button></div>`;
-  } else if(kind==='actfilter'){
-    html=`<span class="grab"></span>
-     <h3 class="sh-h">Filter the log</h3>
-     <div class="chips" style="margin-bottom:18px">
-      ${Object.keys(TY).map(t=>`<button class="ch${S.actFilter.has(t)?' on':''}" data-act="fact:${t}">${TY[t].label}</button>`).join('')}
-     </div>
-     <div class="sh-acts">
-      ${S.actFilter.size?'<button class="second" data-act="fact:clear">Clear filters</button>':''}
-      <button class="primary" data-act="close">Show results</button></div>`;
+  } else if(kind==='filters'||kind==='filter'||kind==='actfilter'){
+    const screen=S.sub||'attendance';
+    const c=filterCount(screen);
+    let f='';
+    if(CAN.rooms==='all') f+=ffield('room','Classroom',
+      S.room==='all'?'All rooms':roomName(S.room),
+      fopts(ROOM_OPTS(),v=>S.room===v,'room2',ROOMS.length>5));
+    if(screen==='attendance') f+=ffield('show','Show',attLabel(),
+      fopts(ATT_OPTS,v=>S.attFilter===v,'att',false),S.attFilter==='all');
+    if(screen==='activities') f+=ffield('type','Type',typeLabel(),
+      fopts(Object.keys(TY).map(t=>[t,TY[t].label]),v=>S.actFilter.has(v),'fact',true)
+       +'<p class="fhint">Pick as many as you like.</p>',!S.actFilter.size);
+    if(screen==='messages') f+=ffield('who','From',msgLabel(),
+      fopts(MSG_OPTS,v=>S.msgScope===v,'msgs',false),S.msgScope==='all');
+    html=filterSheet(screen==='activities'?'Filter activities'
+      :screen==='messages'?'Filter messages':'Filter the register',f,c);
   } else if(kind==='rowmenu'){
     /* the teacher app's row-actions sheet: child header, roomy rows, ghost close */
     const k=K(arg);
@@ -3624,6 +3673,10 @@ function sheet(kind,arg){
   sh.classList.toggle('formsheet',form);
   sh.classList.toggle('full',full);
   setTimeout(wirePad,0); setTimeout(wireDial,0);
+  setTimeout(()=>{const q=$('#ffq'); if(!q)return;
+    q.oninput=e=>{S.ffq=e.target.value;sheet('filters');
+      const nq=$('#ffq'); if(nq){nq.focus();nq.setSelectionRange(nq.value.length,nq.value.length);}};
+    if(S.ffq)q.focus();},0);
   $('#scrim').classList.add('on');
   sh.classList.add('on');
 }
@@ -3780,19 +3833,26 @@ function doAct(a){
     case 'fact':
       if(arg==='clear') S.actFilter.clear();
       else S.actFilter.has(arg)?S.actFilter.delete(arg):S.actFilter.add(arg);
-      render(true);if($('#sheet').classList.contains('on'))sheet('filters');break;
+      render(true);if(inFilters())sheet('filters');break;   /* multi: stays open */
     case 'hometab': S.homeTab=arg;render(true);break;
     case 'ctab': S.childTab=arg;render(true);break;
     case 'ftab': S.famTab=arg;render(true);break;
     case 'stab': S.staffTab=arg;render(true);break;
     case 'atab': S.acctTab=arg;render(true);break;
     case 'sbtab': S.subTab=arg;render(true);break;
-    case 'msgs': S.msgScope=arg;render(true);break;
-    case 'att': S.attFilter=arg;render(true);break;
+    case 'msgs': S.msgScope=arg;if(inFilters()){S.fopen=null;render(true);sheet('filters');break;}render(true);break;
+    case 'att': S.attFilter=arg;if(inFilters()){S.fopen=null;render(true);sheet('filters');break;}render(true);break;
     case 'inf': S.invFilter=arg;render(true);break;
-    case 'room2': if(CAN.rooms!=='all')break; S.room=arg;render(true);
+    case 'room2': if(CAN.rooms!=='all')break; S.room=arg;
+      if(inFilters()){S.fopen=null;render(true);sheet('filters');break;}
+      render(true);
       if($('#sheet').classList.contains('on'))sheet(S.sub==='students'?'filter':'filters');break;
-    case 'clearfilters': S.room=(CAN.rooms==='one'?ROLE.room:'all');S.attFilter='all';S.actFilter.clear();render(true);sheet('filters');break;
+    case 'fopen': S.fopen=S.fopen===arg?null:arg;S.ffq='';sheet('filters');break;
+    case 'ffqclear': S.ffq='';sheet('filters');break;
+    case 'clearfilters':
+      S.room=(CAN.rooms==='one'?ROLE.room:'all');S.attFilter='all';S.msgScope='all';
+      S.actFilter.clear();S.fopen=null;S.ffq='';
+      render(true);sheet('filters');break;
     case 'clearq': S.q='';render(true);break;
     case 'mask': S.mask=!S.mask;render(true);toast(S.mask?'Sensitive data hidden':'Data visible again');break;
 
