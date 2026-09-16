@@ -1059,6 +1059,9 @@
   .pcard .ptag{display:inline-flex;align-items:center;gap:5px}
   .phero .av.lg .stb{width:22px;height:22px;right:-2px;bottom:-2px}
   .phero .av.lg .stb svg{width:13px;height:13px}
+  /* Select reads as pressed while the list is being worked */
+  .ghost.tb-inline.on{background:var(--npds-blue-100);border-color:var(--npds-blue-500);
+    color:var(--npds-blue-700);font-weight:600}
 </style>
 </head>
 <body>
@@ -2066,7 +2069,14 @@ function vAttendance(){
   const chip=(id,lbl,n)=>`<button class="tp${S.attFilter===id?' on':''}" data-act="att:${id}">${lbl} ${n}</button>`;
   const past=S.day<0;
   return `${topbar('Attendance','',
-   `${searchBtn()}${filtersBtn('attendance')}<button class="dotsb" data-act="sheet:more" aria-label="More actions">${ic('dots','ic','var(--ink-3)','1.9')}</button>`)}
+   /* A teacher has one room and four states, both already on screen, so there is
+      nothing left for a Filters sheet or an overflow menu to hold. Their bar is
+      the three things they actually do: find someone, print, work the list.
+      A director keeps both, because classroom is a real choice for them. */
+   CAN.rooms==='all'
+    ? `${searchBtn()}${filtersBtn('attendance')}<button class="dotsb" data-act="sheet:more" aria-label="More actions">${ic('dots','ic','var(--ink-3)','1.9')}</button>`
+    : `${searchBtn()}<button class="tb-btn" data-act="sheet:print" aria-label="Print the register">${ic('print','ic sm')}</button>
+       <button class="ghost tb-inline${S.selecting?' on':''}" data-act="selmode">${S.selecting?'Done':'Select'}</button>`)}
   <div class="body">
    ${S.selecting?'':datespine()}
    ${S.selecting?'':`<div class="tabpill">${chip('all','All',scope.length)}${chip('here','Here',cnt('here'))}${chip('out','Not in',cnt('out'))}${chip('absent','Absent',cnt('absent'))}</div>`}
