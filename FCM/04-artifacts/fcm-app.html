@@ -1014,23 +1014,35 @@
     .rolesw a.soon{opacity:.45;pointer-events:none}
   }
   /* ---- parent: the child's day ---- */
-  .kidsw{display:flex;gap:8px;flex:none;margin-bottom:2px}
-  .kidb{display:flex;align-items:center;gap:8px;padding:6px 14px 6px 6px;border-radius:999px;
-    background:rgba(255,255,255,.62);border:1px solid rgba(255,255,255,.6);font-family:inherit;
-    font-size:13.5px;font-weight:500;color:var(--ink-2);cursor:pointer;min-height:44px}
-  .kidb .av{width:32px;height:32px;font-size:11.5px}
-  .kidb.on{background:var(--npds-blue-100);border-color:var(--npds-blue-500);color:var(--npds-blue-700);font-weight:600}
-  .phero{padding:20px 18px 8px}
-  .phero h2{margin:0 0 4px}
-  /* one line per child: who, where, and the door */
-  .kidrows{display:flex;flex-direction:column}
-  .kidrow{display:flex;align-items:center;gap:12px;padding:14px 0;
-    border-top:1px solid var(--line)}
-  .kidrow:first-child{border-top:0;margin-top:10px}
-  .kidrow .av{width:40px;height:40px;font-size:13px;flex:none}
-  .kr-t{flex:1;min-width:0;display:flex;flex-direction:column}
-  .kr-t b{font-size:15.5px;font-weight:550;letter-spacing:-.008em;line-height:1.25}
-  .kr-t small{font-size:13px;color:var(--ink-3);margin-top:3px;line-height:1.35}
+  /* one card: how they are, and how you move between them */
+  .phero{padding:0}
+  .phead{display:flex;align-items:center;gap:14px;width:100%;padding:18px 17px;
+    background:none;border:0;font-family:inherit;text-align:left;cursor:pointer;color:inherit}
+  .phero.shut .phead{padding-bottom:18px}
+  .avstack{display:flex;flex:none}
+  .avstack .av{width:42px;height:42px;font-size:13px}
+  .avstack .av+.av{margin-left:-12px}
+  .avstack .av .stb{width:17px;height:17px;box-shadow:0 0 0 2px #FBFAF6}
+  .avstack .av .stb svg{width:10px;height:10px}
+  .ph-t{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+  .ph-t h2{margin:0;font-size:19px;line-height:1.25;letter-spacing:-.012em}
+  .ph-t small{font-size:12.5px;color:var(--ink-3);line-height:1.4}
+  .phead .rch{flex:none}
+  .kidrows{display:flex;flex-direction:column;padding:0 17px 6px}
+  .kidrow{display:flex;align-items:center;gap:12px;padding:13px 0;width:100%;
+    border-top:1px solid var(--line);background:none;border-left:0;border-right:0;border-bottom:0;
+    font-family:inherit;text-align:left;color:inherit}
+  .kidrow.pick{cursor:pointer}
+  .kidrow .av{width:38px;height:38px;font-size:12.5px;flex:none}
+  /* the tick is the selector: tap it or the name to show only that child */
+  .krtick{width:24px;height:24px;border-radius:999px;flex:none;display:grid;place-items:center;
+    background:transparent;box-shadow:inset 0 0 0 1.6px var(--npds-gray-500);cursor:pointer}
+  .kidrow.sel .krtick{background:var(--npds-blue-600);box-shadow:none}
+  .krtick svg{width:13px;height:13px}
+  .kr-t{flex:1;min-width:0;display:flex;flex-direction:column;cursor:pointer}
+  .kr-t b{font-size:15px;font-weight:550;letter-spacing:-.008em;line-height:1.25}
+  .kr-t small{font-size:12.5px;color:var(--ink-3);margin-top:3px;line-height:1.35}
+  .kidrow.sel .kr-t b{color:var(--npds-blue-700)}
   .kidrow .mini.lbl{flex:none;height:34px;min-height:34px;padding:0 12px;font-size:12.5px;gap:6px}
   .kidrow .mini.lbl svg{width:15px;height:15px}
   /* the parent's filter row sits a touch tighter than the staff card's */
@@ -1325,7 +1337,7 @@ const S={tab:(ROLES[roleFromUrl()].tabs[0][0]),sub:null,arg:null,stack:[],q:'',m
   childTab:'overview',famTab:'general',staffTab:'overview',acctTab:'activity',msgScope:'all',
   resolved:{},paid:{},assistant:[],draft:'',
   mark:{h:7,m:32,ap:'AM'},markMode:'h',markOpen:false,dir:'in',bulkDir:'out',
-  kid:null,pfilter:'all',ack:{}};
+  kid:null,pfilter:'all',ack:{},pOpen:true};
 
 /* ---------- helpers ---------- */
 const $=(s,r=document)=>r.querySelector(s);
@@ -2109,22 +2121,36 @@ function vParentDay(){
     <i class="qri">${count?`<span class="qbadge">${count}</span>`:''}${ic(icon,'ic',
       f===id?'var(--npds-blue-700)':'var(--npds-gray-700)','1.75')}</i>${label}</button>`;
   return `${homehead()}<div class="body low">
-   ${kids.length>1?`<div class="kidsw">
-     <button class="kidb${everyone?' on':''}" data-act="pkid:all" aria-pressed="${everyone}">All</button>
-     ${kids.map(k=>`<button class="kidb${(!everyone&&k.id===kid.id)?' on':''}" data-act="pkid:${k.id}"
-       aria-pressed="${!everyone&&k.id===kid.id}"><span class="av">${m(k.ini)}</span>${first(k)}</button>`).join('')}
-    </div>`:''}
-
-   <div class="card greet phero">
-    <h2>${well}</h2>
-    <div class="kidrows">${shown.map(k=>`<div class="kidrow">
-      <span class="av">${m(k.ini)}${statusDot(k)}</span>
-      <span class="kr-t"><b>${first(k)}</b><small>${roomName(k.room)} · ${st(k)}</small></span>
+   ${(()=>{
+    /* One card does both jobs: it says how they are, and it is how you move
+       between them. Collapsed it is a single line; open it is the door. */
+    const open=S.pOpen!==false;
+    const inn=kids.filter(k=>k.status==='here').length;
+    const summary=inn===kids.length?`All in · ${kids.map(k=>first(k)+' '+k.tin.replace(/ ?[AP]M/,'')).join(' · ')}`
+      :kids.map(k=>`${first(k)} ${st(k)}`).join(' · ');
+    return `<div class="card greet phero${open?'':' shut'}">
+    <button class="phead" data-act="pcollapse" aria-expanded="${open}">
+     <span class="avstack">${kids.map(k=>`<span class="av">${m(k.ini)}${statusDot(k)}</span>`).join('')}</span>
+     <span class="ph-t"><h2>${well}</h2><small>${summary}</small></span>
+     <span class="rch${open?' up':''}">${ic('chev','ic sm','var(--npds-blue-700)','2.4')}</span>
+    </button>
+    ${open?`<div class="kidrows">
+     ${kids.length>1?`<button class="kidrow pick${everyone?' sel':''}" data-act="pkid:all">
+       <span class="krtick">${everyone?ic('check','','#fff','3.2'):''}</span>
+       <span class="kr-t"><b>Both children</b><small>Everything from today, in time order</small></span>
+      </button>`:''}
+     ${kids.map(k=>{const sel=!everyone&&kid&&k.id===kid.id;
+      return `<div class="kidrow${sel?' sel':''}">
+      ${kids.length>1?`<span class="krtick" data-act="pkid:${k.id}" role="button" tabindex="0"
+        aria-label="Show only ${k.name}" aria-pressed="${sel}">${sel?ic('check','','#fff','3.2'):''}</span>`
+        :`<span class="av">${m(k.ini)}${statusDot(k)}</span>`}
+      <span class="kr-t"${kids.length>1?` data-act="pkid:${k.id}"`:''}><b>${first(k)}</b><small>${roomName(k.room)} · ${st(k)}</small></span>
       ${k.status==='here'
         ? `<button class="mini lbl sec" data-act="checkout:${k.id}" aria-label="Check out ${k.name}">${ic('out','ic sm','currentColor','1.9')}Check out</button>`
         : `<button class="mini lbl pri" data-act="checkin:${k.id}" aria-label="Check in ${k.name}">${ic('in','ic sm','currentColor','1.9')}Check in</button>`}
-     </div>`).join('')}</div>
-   </div>
+     </div>`;}).join('')}
+    </div>`:''}
+   </div>`;})()}
 
    <div class="qrrow pqr">
     ${qr('all','listCheck','All',all.length)}
@@ -3679,6 +3705,7 @@ function doAct(a){
       closeSheet();toast(k.note?`Note saved for <b>${k.name}</b>`:'Note cleared');render(true);break;}
     case 'notepill': S.openNote.has(arg)?S.openNote.delete(arg):S.openNote.add(arg);render(true);break;
     case 'pkid': S.kid=arg;S.pfilter='all';render();break;   /* arg may be 'all' */
+    case 'pcollapse': S.pOpen=S.pOpen===false;render(true);break;
     case 'pfilter': S.pfilter=arg;render(true);break;
     case 'ack':{S.ack[arg]=true;const a=ACTIVITIES.find(x=>x.id===arg);
       toast(`Thank you — the room knows you saw ${a?m(a.title.split('·')[0].trim().toLowerCase()):'it'}`);render(true);break;}
