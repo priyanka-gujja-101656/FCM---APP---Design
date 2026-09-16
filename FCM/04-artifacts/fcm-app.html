@@ -1020,27 +1020,22 @@
     font-size:13.5px;font-weight:500;color:var(--ink-2);cursor:pointer;min-height:44px}
   .kidb .av{width:32px;height:32px;font-size:11.5px}
   .kidb.on{background:var(--npds-blue-100);border-color:var(--npds-blue-500);color:var(--npds-blue-700);font-weight:600}
-  .phero{display:flex;align-items:center;gap:15px;padding:20px 18px}
-  .phero .av.lg{width:56px;height:56px;font-size:17px;flex:none}
-  .ph-t{min-width:0;display:flex;flex-direction:column;gap:9px;align-items:flex-start}
-  .ph-t h2{margin:0;font-size:22px;line-height:1.2}
-  .ph-pill{display:inline-flex;align-items:center;gap:6px;padding:6px 13px;border-radius:999px;
-    border:1px solid var(--npds-gray-500);color:var(--npds-gray-700);font-size:12.5px;
-    font-weight:500;line-height:1.3}
-  /* the same pill the activity filters use, so a parent learns one control */
-  .ppills{display:flex;gap:8px;flex:none;overflow-x:auto;scrollbar-width:none;
-    padding:1px 1px 2px;margin:0 -1px}
-  .ppills::-webkit-scrollbar{display:none}
-  .ppill{display:inline-flex;align-items:center;gap:7px;flex:none;min-height:44px;
-    padding:0 15px;border-radius:999px;background:rgba(255,255,255,.66);
-    border:1px solid rgba(255,255,255,.6);font-family:inherit;color:var(--ink-2);
-    cursor:pointer;white-space:nowrap;line-height:1.5}
-  .ppill b{font-size:13.5px;font-weight:500}
-  .ppill em{font-style:normal;font-size:13px;font-weight:600;color:var(--ink)}
-  .ppill.on{background:var(--npds-blue-100);border-color:var(--npds-blue-500);
-    color:var(--npds-blue-700)}
-  .ppill.on b{font-weight:600}
-  .ppill.on em{color:var(--npds-blue-700)}
+  .phero{padding:20px 18px 8px}
+  .phero h2{margin:0 0 4px}
+  /* one line per child: who, where, and the door */
+  .kidrows{display:flex;flex-direction:column}
+  .kidrow{display:flex;align-items:center;gap:12px;padding:14px 0;
+    border-top:1px solid var(--line)}
+  .kidrow:first-child{border-top:0;margin-top:10px}
+  .kidrow .av{width:40px;height:40px;font-size:13px;flex:none}
+  .kr-t{flex:1;min-width:0;display:flex;flex-direction:column}
+  .kr-t b{font-size:15.5px;font-weight:550;letter-spacing:-.008em;line-height:1.25}
+  .kr-t small{font-size:13px;color:var(--ink-3);margin-top:3px;line-height:1.35}
+  .kidrow .mini.lbl{flex:none;height:34px;min-height:34px;padding:0 12px;font-size:12.5px;gap:6px}
+  .kidrow .mini.lbl svg{width:15px;height:15px}
+  /* the parent's filter row sits a touch tighter than the staff card's */
+  .qrrow.pqr{justify-content:space-between;gap:8px;margin:2px 0 2px}
+  .qrrow.pqr .qr{gap:9px;font-size:13px}
   /* two children, two faces */
   .avstack{display:flex;flex:none}
   .avstack .av{width:46px;height:46px;font-size:14px}
@@ -1208,8 +1203,10 @@ const ROLES={
        land on, because a parent opens this to see how the day went */
     tabs:[['activities','Activities','pen'],['messages','Messages','chat'],
           ['reports','Reports','doc'],['more','More','grid4']],
+    /* a parent checks their own child in and out at the door — but has no
+       register, because a register is every child in a room */
     can:{rooms:'none',money:'own',staff:false,settings:false,compliance:false,
-         checkin:false,bulk:false,post:false,signoff:false,enroll:false},
+         checkin:'own',bulk:false,post:false,signoff:false,enroll:false},
   }
 };
 const roleFromUrl=()=>{
@@ -2098,22 +2095,19 @@ function vParentDay(){
   const list=all.filter(a=>inCat(a,f)).slice().sort((x,y)=>mins(y.at)-mins(x.at));
   const naps=all.filter(a=>a.type==='nap'), meals=all.filter(a=>a.type==='meal');
   const photos=all.filter(a=>a.type==='photo');
-  const st=k=>k.status==='here'?`checked in ${k.tin}`
-    :k.status==='absent'?'marked absent today'
-    :k.out?`collected ${k.tout||''}`.trim():'not checked in yet';
+  /* short enough to sit on one line beside the button */
+  const st=k=>k.status==='here'?`in ${k.tin}`
+    :k.status==='absent'?'absent today'
+    :k.out?`out ${k.tout||''}`.trim():'not in yet';
   const first=k=>m(k.name.split(' ')[0]);
   const who=everyone?shown.map(first).join(' and '):first(kid);
-  /* name whoever it concerns, even in the All view — "something to read" makes
-     a parent hunt for which child it was */
-  const unseen=all.filter(a=>NEEDS_ACK(a)&&!S.ack[a.id]);
-  const hurt=[...new Set(unseen.map(a=>a.kid).filter(x=>x!=='Room')
-    .map(x=>m(x.split(' ')[0])))];
-  const well=unseen.length
-    ? `${hurt.length?hurt.join(' and '):who} had a small moment today`
-    : `All is well with ${who}`;
-  /* the same pill language the activity filters use, not a second tile system */
-  const pill=(id,icon,label,val)=>`<button class="ppill${f===id?' on':''}" data-act="pfilter:${id}">
-    ${ic(icon,'ic sm','currentColor','1.85')}<b>${label}</b><em>${val}</em></button>`;
+  const well=`All is well with ${who}`;
+  /* the app's own quick-row: a circle and a label, the same control the staff
+     cards use. A count rides the circle as a badge where there is one. */
+  const qr=(id,icon,label,count)=>`<button class="qr ${f===id?'tinted':'muted'}" data-act="pfilter:${id}"
+    aria-pressed="${f===id}">
+    <i class="qri">${count?`<span class="qbadge">${count}</span>`:''}${ic(icon,'ic',
+      f===id?'var(--npds-blue-700)':'var(--npds-gray-700)','1.75')}</i>${label}</button>`;
   return `${homehead()}<div class="body low">
    ${kids.length>1?`<div class="kidsw">
      <button class="kidb${everyone?' on':''}" data-act="pkid:all" aria-pressed="${everyone}">All</button>
@@ -2122,20 +2116,21 @@ function vParentDay(){
     </div>`:''}
 
    <div class="card greet phero">
-    ${everyone?`<span class="avstack">${shown.map(k=>`<span class="av">${m(k.ini)}${statusDot(k)}</span>`).join('')}</span>`
-      :`<span class="av lg">${m(kid.ini)}${statusDot(kid)}</span>`}
-    <span class="ph-t"><h2>${well}</h2>
-     ${shown.map(k=>`<span class="ph-pill">${ic('room','ic sm','currentColor','1.8')}${
-       everyone?first(k)+' · ':''}${roomName(k.room)} · ${st(k)}</span>`).join('')}</span>
+    <h2>${well}</h2>
+    <div class="kidrows">${shown.map(k=>`<div class="kidrow">
+      <span class="av">${m(k.ini)}${statusDot(k)}</span>
+      <span class="kr-t"><b>${first(k)}</b><small>${roomName(k.room)} · ${st(k)}</small></span>
+      ${k.status==='here'
+        ? `<button class="mini lbl sec" data-act="checkout:${k.id}" aria-label="Check out ${k.name}">${ic('out','ic sm','currentColor','1.9')}Check out</button>`
+        : `<button class="mini lbl pri" data-act="checkin:${k.id}" aria-label="Check in ${k.name}">${ic('in','ic sm','currentColor','1.9')}Check in</button>`}
+     </div>`).join('')}</div>
    </div>
 
-   <div class="ppills">
-    ${pill('all','listCheck','All',`${all.length}`)}
-    ${pill('photos','camera','Photos',photos.length?`${photos.length} new`:'None')}
-    ${pill('meals','meal','Meals',meals.length?(()=>{
-      const v=(meals[0].title.split('·')[1]||'Logged').trim();
-      return v.charAt(0).toUpperCase()+v.slice(1);})():'None')}
-    ${pill('sleep','zzz','Sleep',naps.length?(naps[0].title.match(/\d+h ?\d*m?/)||['Logged'])[0]:'None')}
+   <div class="qrrow pqr">
+    ${qr('all','listCheck','All',all.length)}
+    ${qr('photos','camera','Photos',photos.length)}
+    ${qr('meals','meal','Meals',meals.length)}
+    ${qr('sleep','zzz','Sleep',naps.length)}
    </div>
 
    <div class="feedhd"><b>${everyone?'The day so far':who+"'s day so far"}</b>
@@ -3614,7 +3609,7 @@ const GATE={
   rooms:()=>CAN.rooms==='all', room:()=>CAN.rooms!=='none',
   people:()=>CAN.rooms!=='none', students:()=>CAN.rooms!=='none',
   families:()=>CAN.rooms==='all', family:()=>ROLE.scope==='family'||CAN.rooms==='all',
-  attendance:()=>!!CAN.checkin,          /* a parent does not work the register */
+  attendance:()=>CAN.checkin===true,     /* a parent checks in, but works no register */
 };
 const allowed=v=>!GATE[v]||GATE[v]();
 
