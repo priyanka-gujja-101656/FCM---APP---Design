@@ -1009,6 +1009,33 @@
     .rolesw a.on{background:var(--npds-blue-100);color:var(--npds-blue-700);font-weight:600}
     .rolesw a.soon{opacity:.45;pointer-events:none}
   }
+  /* ---- parent: the child's day ---- */
+  .kidsw{display:flex;gap:8px;flex:none;margin-bottom:2px}
+  .kidb{display:flex;align-items:center;gap:8px;padding:6px 14px 6px 6px;border-radius:999px;
+    background:rgba(255,255,255,.62);border:1px solid rgba(255,255,255,.6);font-family:inherit;
+    font-size:13.5px;font-weight:500;color:var(--ink-2);cursor:pointer;min-height:44px}
+  .kidb .av{width:32px;height:32px;font-size:11.5px}
+  .kidb.on{background:var(--npds-blue-100);border-color:var(--npds-blue-500);color:var(--npds-blue-700);font-weight:600}
+  .phero{display:flex;align-items:center;gap:15px;padding:20px 18px}
+  .phero .av.lg{width:56px;height:56px;font-size:17px;flex:none}
+  .ph-t{min-width:0;display:flex;flex-direction:column;gap:9px;align-items:flex-start}
+  .ph-t h2{margin:0;font-size:22px;line-height:1.2}
+  .ph-pill{display:inline-flex;align-items:center;gap:6px;padding:6px 13px;border-radius:999px;
+    border:1px solid var(--npds-gray-500);color:var(--npds-gray-700);font-size:12.5px;
+    font-weight:500;line-height:1.3}
+  .ptiles{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;flex:none}
+  .ptile{display:flex;flex-direction:column;align-items:center;gap:7px;padding:13px 4px 12px;
+    border-radius:18px;background:rgba(255,255,255,.62);border:1px solid rgba(255,255,255,.6);
+    font-family:inherit;cursor:pointer;min-height:44px}
+  .ptile i{width:42px;height:42px;border-radius:999px;display:grid;place-items:center}
+  .ptile b{font-size:12px;font-weight:500;color:var(--ink-2);line-height:1.2}
+  .ptile small{font-size:12px;font-weight:600;color:var(--ink);line-height:1.2;text-align:center}
+  .ptile.on{background:var(--npds-blue-100);border-color:var(--npds-blue-500)}
+  .ptile.on b{color:var(--npds-blue-700);font-weight:600}
+  .pcard .pc-f .mini.lbl{min-height:34px}
+  .pcard .ptag{display:inline-flex;align-items:center;gap:5px}
+  .phero .av.lg .stb{width:22px;height:22px;right:-2px;bottom:-2px}
+  .phero .av.lg .stb svg{width:13px;height:13px}
 </style>
 </head>
 <body>
@@ -1152,7 +1179,7 @@ const ROLES={
     id:'teacher', label:'Teacher', who:'Tara Rivera', ini:'TR',
     scope:'room',                         /* the one room they are scheduled for */
     room:'r-prek4',
-    tabs:[['home','Home','house'],['attendance','Register','room'],['activities','Activities','pen'],
+    tabs:[['home','Home','house'],['attendance','Attendance','room'],['activities','Activities','pen'],
           ['messages','Messages','chat'],['more','More','grid4']],
     can:{rooms:'one',money:false,staff:false,settings:false,compliance:false,
          checkin:true,bulk:true,post:true,signoff:false,enroll:false},
@@ -1161,7 +1188,9 @@ const ROLES={
     id:'parent', label:'Parent', who:'Jamie Walsh', ini:'JW',
     scope:'family',                       /* their own children only */
     fam:'f-walsh',
-    tabs:[['home','Home','house'],['activities','Activities','pen'],['messages','Messages','chat'],
+    /* the base parent app has no Home tab — Activities is the first thing you
+       land on, because a parent opens this to see how the day went */
+    tabs:[['activities','Activities','pen'],['messages','Messages','chat'],
           ['reports','Reports','doc'],['more','More','grid4']],
     can:{rooms:'none',money:'own',staff:false,settings:false,compliance:false,
          checkin:false,bulk:false,post:false,signoff:false,enroll:false},
@@ -1245,6 +1274,8 @@ const CLAIMS=[
 const ACTIVITIES=[
  {id:'a1',kid:'Ella Park',      ini:'EP',type:'incident',icon:'alert',title:'Incident logged · scraped knee',by:'Sarah Kim',   room:'Pre-K 4',   rid:'r-prek4',   at:'10:42 AM',review:true,body:'Scraped knee on the playground at outside time. Cleaned, plaster applied, back to play within five minutes.'},
  {id:'a2',kid:'Room',           ini:'P4',type:'note',    icon:'book', title:'Circle time · weather chart',    by:'Sarah Kim',   room:'Pre-K 4',   rid:'r-prek4',   at:'10:05 AM',review:false,body:'We charted the weather and everyone picked a symbol for the day. Plenty of guesses about rain.'},
+ {id:'a17',kid:'Amelia Walsh',  ini:'AW',type:'accident',icon:'bandage',title:'Minor bump',        by:'Sarah Kim',   room:'Pre-K 4',   rid:'r-prek4',   at:'2:15 PM', review:false,body:'Bumped her knee on the climber. Cleaned, ice applied, back to playing in five minutes.'},
+ {id:'a18',kid:'Amelia Walsh',  ini:'AW',type:'medication',icon:'pill',title:'Medication given',    by:'Sarah Kim',   room:'Pre-K 4',   rid:'r-prek4',   at:'9:35 AM', review:false,body:'Allergy drops, 1 dose, as authorized.'},
  {id:'a14',kid:'Amelia Walsh',  ini:'AW',type:'meal',  icon:'meal',title:'Lunch · ate all',              by:'Sarah Kim',   room:'Pre-K 4',   rid:'r-prek4',   at:'11:52 AM',review:false,body:'Cleared the plate and asked for more cucumber. Poured her own water.'},
  {id:'a15',kid:'Ethan Brooks',  ini:'EB',type:'nap',   icon:'zzz', title:'Nap · 12:10 to 1:55',           by:'James Ortiz', room:'Toddlers A',rid:'r-toddlerA',at:'1:55 PM', review:false,body:'Down quickly with the blue blanket. Slept most of the hour and three quarters.'},
  {id:'a16',kid:'Amelia Walsh',  ini:'AW',type:'kudos', icon:'star',title:'Kudos · helped a friend',       by:'Sarah Kim',   room:'Pre-K 4',   rid:'r-prek4',   at:'10:20 AM',review:false,body:'Noticed a friend could not reach the paint and fetched the step for him without being asked.'},
@@ -1271,7 +1302,8 @@ const S={tab:(ROLES[roleFromUrl()].tabs[0][0]),sub:null,arg:null,stack:[],q:'',m
   homeTab:'actions',room:(CAN.rooms==='one'?ROLE.room:'all'),attFilter:'all',invFilter:'all',subTab:'mismatches',
   childTab:'overview',famTab:'general',staffTab:'overview',acctTab:'activity',msgScope:'all',
   resolved:{},paid:{},assistant:[],draft:'',
-  mark:{h:7,m:32,ap:'AM'},markMode:'h',markOpen:false,dir:'in',bulkDir:'out'};
+  mark:{h:7,m:32,ap:'AM'},markMode:'h',markOpen:false,dir:'in',bulkDir:'out',
+  kid:null,pfilter:'all',ack:{}};
 
 /* ---------- helpers ---------- */
 const $=(s,r=document)=>r.querySelector(s);
@@ -1433,7 +1465,7 @@ function statusDot(k){
    HOME
    ============================================================ */
 function vHome(){
-  if(ROLE.scope==='family') return vParentHome();
+  if(ROLE.scope==='family') return vParentDay();   /* a parent has no dashboard — the day is home */
   /* a teacher's numbers are their room's numbers — the same components, counted
      over a smaller set */
   const mine=myKids();
@@ -1496,58 +1528,6 @@ function vHome(){
 /* What needs you depends on what you are responsible for. A teacher is never
    shown an overdue invoice, and a director is not asked to post the day's nap
    note. Same component, different list. */
-/* A parent's home is one child's day, not a roster — but it is the same greet
-   card, the same pulse card and the same feed the staff roles use. */
-function vParentHome(){
-  const kids=myKids();
-  const feed=visibleActivities();
-  const f=F(ROLE.fam);
-  const bal=f?f.balance:0;
-  const line=k=>k.status==='here'?`In at ${k.tin}${k.who?' · dropped off by '+m(k.who):''}`
-    :k.status==='absent'?'Marked absent today'
-    :k.out?`Collected at ${k.tout||'—'}${k.collectedBy?' by '+m(k.collectedBy):''}`
-    :'Not checked in yet';
-  return `${homehead()}<div class="body low">
-   <div class="card greet">
-    <h2>Good morning, ${ROLE.who.split(' ')[0]}.</h2>
-    <p><b>${kids.length===1?m(kids[0].name.split(' ')[0])+' is '+(kids[0].status==='here'?'in today.':kids[0].status==='absent'?'marked absent.':'not checked in yet.')
-      :kids.filter(k=>k.status==='here').length+' of '+kids.length+' in today.'}</b></p>
-    <div class="greet-acts">
-     <div class="qrrow">
-      <button class="qr tinted" data-act="go:activities">
-       <i class="qri">${feed.length?`<span class="qbadge">${feed.length}</span>`:''}
-        ${ic('pen','ic','var(--npds-blue-700)','1.75')}</i>Today</button>
-      <button class="qr muted" data-act="go:messages">
-       <i class="qri">${unreadCount()?`<span class="qbadge">${unreadCount()}</span>`:''}
-        ${ic('chat','ic','var(--npds-gray-700)','1.75')}</i>Message</button>
-      <button class="qr muted" data-act="go:acct">
-       <i class="qri">${bal>0?`<span class="qbadge">!</span>`:''}
-        ${ic('card','ic','var(--npds-gray-700)','1.75')}</i>Billing</button>
-     </div>
-    </div>
-   </div>
-
-   ${kids.map(k=>`<div class="card pulse">
-    <div class="pulse-top">
-     <span><span class="pulse-count">${m(k.name.split(' ')[0])}</span>
-      <span class="pulse-label">${line(k)}</span></span>
-     <span class="chip ${k.status==='here'?'ok':''}">${roomName(k.room)}</span>
-    </div>
-    <div class="rowsplit">
-     <button class="rs-b" data-act="go:activities"><b>${feed.filter(a=>a.kid===k.name||a.kid==='Room').length}</b><small>Posted today</small></button>
-     <button class="rs-b" data-act="child:${k.id}"><b>${k.allergy?'1':'0'}</b><small>${k.allergy?m(k.allergy):'Allergies'}</small></button>
-     <button class="rs-b" data-act="go:reports"><b>${k.age}</b><small>${roomName(k.room)}</small></button>
-    </div>
-    <div class="quick">
-     <button class="primary q" data-act="child:${k.id}">${ic('child','ic sm','var(--npds-blue-700)','1.9')}${m(k.name.split(' ')[0])}'s profile</button>
-     <button class="second q" data-act="newmsg">${ic('chat','ic sm','var(--npds-gray-700)','1.9')}Message</button>
-    </div>
-   </div>`).join('')}
-
-   ${feed.length?`<div class="feedhd"><b>Today</b><span data-act="go:activities">See all</span></div>
-   <div class="pfeed short">${feed.slice(0,3).map(acard).join('')}</div>`:''}
-  </div>`;
-}
 function actionItems(){
   const items=[];
   if(CAN.money==='all'){
@@ -2058,7 +2038,91 @@ function vAttendance(){
    </div>`;})():''}
   ${dock(list.length,scope.length,'child','children','Search children')}`;
 }
+/* The base parent app groups the day under plain-language headings a parent
+   recognises, not the staff-facing type names. */
+const PARENT_CAT={
+  mood:'Mood & behavior', behavior:'Mood & behavior', kudos:'Learning',
+  note:'Learning', observation:'Learning',
+  incident:'Incidents', accident:'Incidents',
+  nap:'Sleep & naps', meal:'Meals & snacks', toilet:'Diapering & potty',
+  photo:'Photos & video', medication:'Medication',
+};
+/* Two kinds of entry a parent is asked to acknowledge, because the centre needs
+   to know they were seen: something that hurt, and something administered. */
+const mins=t=>{const x=/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i.exec((t||'').trim());
+  if(!x)return 0; let h=+x[1]%12; if(/pm/i.test(x[3]))h+=12; return h*60+ +x[2];};
+const NEEDS_ACK=a=>['incident','accident','medication'].includes(a.type);
+
+function vParentDay(){
+  const kids=myKids();
+  const kid=kids.find(k=>k.id===S.kid)||kids[0];
+  if(!kid) return `${topbar('Activities','')}<div class="body"><div class="empty">No children on your account.</div></div>`;
+  const all=visibleActivities().filter(a=>a.kid===kid.name||(a.kid==='Room'&&a.rid===kid.room));
+  const f=S.pfilter||'all';
+  const inCat=(a,c)=>c==='all'?true
+    :c==='photos'?a.type==='photo'
+    :c==='meals'?a.type==='meal'
+    :c==='sleep'?a.type==='nap':true;
+  const list=all.filter(a=>inCat(a,f)).slice().sort((x,y)=>mins(y.at)-mins(x.at));
+  const naps=all.filter(a=>a.type==='nap'), meals=all.filter(a=>a.type==='meal');
+  const photos=all.filter(a=>a.type==='photo');
+  const status=kid.status==='here'?`checked in ${kid.tin}`
+    :kid.status==='absent'?'marked absent today'
+    :kid.out?`collected ${kid.tout||''}`.trim():'not checked in yet';
+  const well=all.some(a=>NEEDS_ACK(a)&&!S.ack[a.id])
+    ? `${m(kid.name.split(' ')[0])} had a small moment today`
+    : `All is well with ${m(kid.name.split(' ')[0])}`;
+  const tile=(id,icon,tint,label,val)=>`<button class="ptile${f===id?' on':''}" data-act="pfilter:${id}">
+    <i style="background:${tint}">${ic(icon,'ic',f===id?'var(--npds-blue-700)':'var(--ink-2)','1.7')}</i>
+    <b>${label}</b><small>${val}</small></button>`;
+  return `${homehead()}<div class="body low">
+   ${kids.length>1?`<div class="kidsw">${kids.map(k=>`
+     <button class="kidb${k.id===kid.id?' on':''}" data-act="pkid:${k.id}" aria-pressed="${k.id===kid.id}">
+      <span class="av">${m(k.ini)}</span>${m(k.name.split(' ')[0])}</button>`).join('')}</div>`:''}
+
+   <div class="card greet phero">
+    <span class="av lg">${m(kid.ini)}${statusDot(kid)}</span>
+    <span class="ph-t"><h2>${well}</h2>
+     <span class="ph-pill">${ic('room','ic sm','currentColor','1.8')}${roomName(kid.room)} · ${status}</span></span>
+   </div>
+
+   <div class="ptiles">
+    ${tile('all','listCheck','rgba(255,255,255,.7)','All',`${all.length} total`)}
+    ${tile('photos','camera','var(--npds-blue-100)','Photos',photos.length?`${photos.length} new`:'None yet')}
+    ${tile('meals','meal','rgba(176,138,86,.2)','Meals',meals.length?(()=>{
+      const v=(meals[0].title.split('·')[1]||'Logged').trim();
+      return v.charAt(0).toUpperCase()+v.slice(1);})():'None yet')}
+    ${tile('sleep','zzz','rgba(78,114,99,.16)','Sleep',naps.length?(naps[0].title.match(/\d+h ?\d*m?/)||['Logged'])[0]:'None yet')}
+   </div>
+
+   <div class="feedhd"><b>${m(kid.name.split(' ')[0])}'s day so far</b>
+    <span>${list.length} ${list.length===1?'entry':'entries'}</span></div>
+   <div class="pfeed">${list.length?list.map(pcard).join(''):'<div class="empty">Nothing posted in this view yet.</div>'}</div>
+  </div>`;
+}
+/* the parent's card: the staff card plus the category a parent recognises, and
+   an acknowledgement where the centre needs to know it was seen */
+function pcard(a){
+  const[f,i]=pal(a.type), t=TY[a.type];
+  const cat=PARENT_CAT[a.type]||t.label;
+  const ack=NEEDS_ACK(a), done=S.ack[a.id];
+  const thumb=`<span class="phb">${ic('img','ic','#B6BBC2','1.6')}</span>`;
+  return `<div class="pcard">
+    <div class="pc-h"><span class="pav" style="background:${f}">${ic(t.icon,'ic',i,'1.7')}</span>
+     <span class="pc-t"><b>${m(a.title.split('·')[0].trim())}</b><small>${m(a.room)} · ${m(a.by)}</small></span>
+     <span class="pc-w">${a.at}</span></div>
+    ${a.photos?`<div class="phrow">${thumb.repeat(3)}<span class="phb more">+5</span></div>`:''}
+    <p class="pc-b">${a.body}</p>
+    <div class="pc-f">
+     <span class="pc-tags">${ack?(done
+       ? `<span class="ptag" style="background:rgba(78,114,99,.16);color:var(--present)">${ic('check','ic sm','var(--present)','2.4')}Acknowledged</span>`
+       : `<button class="mini lbl pri" data-act="ack:${a.id}">Acknowledge</button>`):''}</span>
+     <span class="ptag" style="background:${f};color:${i}">${cat}</span>
+    </div>
+   </div>`;
+}
 function vActivities(){
+  if(ROLE.scope==='family') return vParentDay();
   const q=S.q.trim().toLowerCase();
   const scope=visibleActivities();
   const list=scope.filter(a=>(!S.actFilter.size||S.actFilter.has(a.type))
@@ -3513,6 +3577,10 @@ function doAct(a){
     case 'savenote':{const k=K(arg);const t=$('#nt');k.note=t?t.value.trim():'';
       closeSheet();toast(k.note?`Note saved for <b>${k.name}</b>`:'Note cleared');render(true);break;}
     case 'notepill': S.openNote.has(arg)?S.openNote.delete(arg):S.openNote.add(arg);render(true);break;
+    case 'pkid': S.kid=arg;S.pfilter='all';render();break;
+    case 'pfilter': S.pfilter=arg;render(true);break;
+    case 'ack':{S.ack[arg]=true;const a=ACTIVITIES.find(x=>x.id===arg);
+      toast(`Thank you — the room knows you saw ${a?m(a.title.split('·')[0].trim().toLowerCase()):'it'}`);render(true);break;}
     case 'dir': S.dir=arg;sheet('inout');break;
     case 'pk': S.pick=arg;sheet($('#sheet').dataset.kind||'checkout',S.pickArg);break;
     case 'mclock': CLK='mark';S.markOpen=!S.markOpen;sheet($('#sheet').dataset.kind||'checkout',S.pickArg);
