@@ -1024,15 +1024,27 @@
   .ph-pill{display:inline-flex;align-items:center;gap:6px;padding:6px 13px;border-radius:999px;
     border:1px solid var(--npds-gray-500);color:var(--npds-gray-700);font-size:12.5px;
     font-weight:500;line-height:1.3}
-  .ptiles{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;flex:none}
-  .ptile{display:flex;flex-direction:column;align-items:center;gap:7px;padding:13px 4px 12px;
-    border-radius:18px;background:rgba(255,255,255,.62);border:1px solid rgba(255,255,255,.6);
-    font-family:inherit;cursor:pointer;min-height:44px}
-  .ptile i{width:42px;height:42px;border-radius:999px;display:grid;place-items:center}
-  .ptile b{font-size:12px;font-weight:500;color:var(--ink-2);line-height:1.2}
-  .ptile small{font-size:12px;font-weight:600;color:var(--ink);line-height:1.2;text-align:center}
-  .ptile.on{background:var(--npds-blue-100);border-color:var(--npds-blue-500)}
-  .ptile.on b{color:var(--npds-blue-700);font-weight:600}
+  /* the same pill the activity filters use, so a parent learns one control */
+  .ppills{display:flex;gap:8px;flex:none;overflow-x:auto;scrollbar-width:none;
+    padding:1px 1px 2px;margin:0 -1px}
+  .ppills::-webkit-scrollbar{display:none}
+  .ppill{display:inline-flex;align-items:center;gap:7px;flex:none;min-height:44px;
+    padding:0 15px;border-radius:999px;background:rgba(255,255,255,.66);
+    border:1px solid rgba(255,255,255,.6);font-family:inherit;color:var(--ink-2);
+    cursor:pointer;white-space:nowrap;line-height:1.5}
+  .ppill b{font-size:13.5px;font-weight:500}
+  .ppill em{font-style:normal;font-size:13px;font-weight:600;color:var(--ink)}
+  .ppill.on{background:var(--npds-blue-100);border-color:var(--npds-blue-500);
+    color:var(--npds-blue-700)}
+  .ppill.on b{font-weight:600}
+  .ppill.on em{color:var(--npds-blue-700)}
+  /* two children, two faces */
+  .avstack{display:flex;flex:none}
+  .avstack .av{width:46px;height:46px;font-size:14px}
+  .avstack .av+.av{margin-left:-13px}
+  .avstack .av .stb{width:19px;height:19px}
+  .avstack .av .stb svg{width:11px;height:11px}
+  .phero .ph-t .ph-pill+.ph-pill{margin-top:6px}
   .pcard .pc-f .mini.lbl{min-height:34px}
   .pcard .ptag{display:inline-flex;align-items:center;gap:5px}
   .phero .av.lg .stb{width:22px;height:22px;right:-2px;bottom:-2px}
@@ -1475,7 +1487,8 @@ function statusDot(k){
    HOME
    ============================================================ */
 function vHome(){
-  if(ROLE.scope==='family') return vParentDay();   /* a parent has no dashboard — the day is home */
+  if(ROLE.scope==='family') return vParentDay();
+  if(ROLE.scope==='room')   return vTeacherHome();   /* a parent has no dashboard — the day is home */
   /* a teacher's numbers are their room's numbers — the same components, counted
      over a smaller set */
   const mine=myKids();
@@ -2065,9 +2078,15 @@ const NEEDS_ACK=a=>['incident','accident','medication'].includes(a.type);
 
 function vParentDay(){
   const kids=myKids();
-  const kid=kids.find(k=>k.id===S.kid)||kids[0];
-  if(!kid) return `${topbar('Activities','')}<div class="body"><div class="empty">No children on your account.</div></div>`;
-  const all=visibleActivities().filter(a=>a.kid===kid.name||(a.kid==='Room'&&a.rid===kid.room));
+  if(!kids.length) return `${topbar('Activities','')}<div class="body"><div class="empty">No children on your account.</div></div>`;
+  /* All sits first, because a parent with two children usually wants the day,
+     not one child's half of it */
+  const everyone=kids.length>1&&(S.kid==='all'||S.kid==null);
+  const kid=everyone?null:(kids.find(k=>k.id===S.kid)||kids[0]);
+  const shown=everyone?kids:[kid];
+  const names=shown.map(k=>k.name);
+  const all=visibleActivities().filter(a=>names.includes(a.kid)
+    ||(a.kid==='Room'&&shown.some(k=>k.rid===a.rid||k.room===a.rid)));
   const f=S.pfilter||'all';
   const inCat=(a,c)=>c==='all'?true
     :c==='photos'?a.type==='photo'
@@ -2076,36 +2095,47 @@ function vParentDay(){
   const list=all.filter(a=>inCat(a,f)).slice().sort((x,y)=>mins(y.at)-mins(x.at));
   const naps=all.filter(a=>a.type==='nap'), meals=all.filter(a=>a.type==='meal');
   const photos=all.filter(a=>a.type==='photo');
-  const status=kid.status==='here'?`checked in ${kid.tin}`
-    :kid.status==='absent'?'marked absent today'
-    :kid.out?`collected ${kid.tout||''}`.trim():'not checked in yet';
-  const well=all.some(a=>NEEDS_ACK(a)&&!S.ack[a.id])
-    ? `${m(kid.name.split(' ')[0])} had a small moment today`
-    : `All is well with ${m(kid.name.split(' ')[0])}`;
-  const tile=(id,icon,tint,label,val)=>`<button class="ptile${f===id?' on':''}" data-act="pfilter:${id}">
-    <i style="background:${tint}">${ic(icon,'ic',f===id?'var(--npds-blue-700)':'var(--ink-2)','1.7')}</i>
-    <b>${label}</b><small>${val}</small></button>`;
+  const st=k=>k.status==='here'?`checked in ${k.tin}`
+    :k.status==='absent'?'marked absent today'
+    :k.out?`collected ${k.tout||''}`.trim():'not checked in yet';
+  const first=k=>m(k.name.split(' ')[0]);
+  const who=everyone?shown.map(first).join(' and '):first(kid);
+  /* name whoever it concerns, even in the All view — "something to read" makes
+     a parent hunt for which child it was */
+  const unseen=all.filter(a=>NEEDS_ACK(a)&&!S.ack[a.id]);
+  const hurt=[...new Set(unseen.map(a=>a.kid).filter(x=>x!=='Room')
+    .map(x=>m(x.split(' ')[0])))];
+  const well=unseen.length
+    ? `${hurt.length?hurt.join(' and '):who} had a small moment today`
+    : `All is well with ${who}`;
+  /* the same pill language the activity filters use, not a second tile system */
+  const pill=(id,icon,label,val)=>`<button class="ppill${f===id?' on':''}" data-act="pfilter:${id}">
+    ${ic(icon,'ic sm','currentColor','1.85')}<b>${label}</b><em>${val}</em></button>`;
   return `${homehead()}<div class="body low">
-   ${kids.length>1?`<div class="kidsw">${kids.map(k=>`
-     <button class="kidb${k.id===kid.id?' on':''}" data-act="pkid:${k.id}" aria-pressed="${k.id===kid.id}">
-      <span class="av">${m(k.ini)}</span>${m(k.name.split(' ')[0])}</button>`).join('')}</div>`:''}
+   ${kids.length>1?`<div class="kidsw">
+     <button class="kidb${everyone?' on':''}" data-act="pkid:all" aria-pressed="${everyone}">All</button>
+     ${kids.map(k=>`<button class="kidb${(!everyone&&k.id===kid.id)?' on':''}" data-act="pkid:${k.id}"
+       aria-pressed="${!everyone&&k.id===kid.id}"><span class="av">${m(k.ini)}</span>${first(k)}</button>`).join('')}
+    </div>`:''}
 
    <div class="card greet phero">
-    <span class="av lg">${m(kid.ini)}${statusDot(kid)}</span>
+    ${everyone?`<span class="avstack">${shown.map(k=>`<span class="av">${m(k.ini)}${statusDot(k)}</span>`).join('')}</span>`
+      :`<span class="av lg">${m(kid.ini)}${statusDot(kid)}</span>`}
     <span class="ph-t"><h2>${well}</h2>
-     <span class="ph-pill">${ic('room','ic sm','currentColor','1.8')}${roomName(kid.room)} · ${status}</span></span>
+     ${shown.map(k=>`<span class="ph-pill">${ic('room','ic sm','currentColor','1.8')}${
+       everyone?first(k)+' · ':''}${roomName(k.room)} · ${st(k)}</span>`).join('')}</span>
    </div>
 
-   <div class="ptiles">
-    ${tile('all','listCheck','rgba(255,255,255,.7)','All',`${all.length} total`)}
-    ${tile('photos','camera','var(--npds-blue-100)','Photos',photos.length?`${photos.length} new`:'None yet')}
-    ${tile('meals','meal','rgba(176,138,86,.2)','Meals',meals.length?(()=>{
+   <div class="ppills">
+    ${pill('all','listCheck','All',`${all.length}`)}
+    ${pill('photos','camera','Photos',photos.length?`${photos.length} new`:'None')}
+    ${pill('meals','meal','Meals',meals.length?(()=>{
       const v=(meals[0].title.split('·')[1]||'Logged').trim();
-      return v.charAt(0).toUpperCase()+v.slice(1);})():'None yet')}
-    ${tile('sleep','zzz','rgba(78,114,99,.16)','Sleep',naps.length?(naps[0].title.match(/\d+h ?\d*m?/)||['Logged'])[0]:'None yet')}
+      return v.charAt(0).toUpperCase()+v.slice(1);})():'None')}
+    ${pill('sleep','zzz','Sleep',naps.length?(naps[0].title.match(/\d+h ?\d*m?/)||['Logged'])[0]:'None')}
    </div>
 
-   <div class="feedhd"><b>${m(kid.name.split(' ')[0])}'s day so far</b>
+   <div class="feedhd"><b>${everyone?'The day so far':who+"'s day so far"}</b>
     <span>${list.length} ${list.length===1?'entry':'entries'}</span></div>
    <div class="pfeed">${list.length?list.map(pcard).join(''):'<div class="empty">Nothing posted in this view yet.</div>'}</div>
   </div>`;
@@ -2119,7 +2149,8 @@ function pcard(a){
   const thumb=`<span class="phb">${ic('img','ic','#B6BBC2','1.6')}</span>`;
   return `<div class="pcard">
     <div class="pc-h"><span class="pav" style="background:${f}">${ic(t.icon,'ic',i,'1.7')}</span>
-     <span class="pc-t"><b>${m(a.title.split('·')[0].trim())}</b><small>${m(a.room)} · ${m(a.by)}</small></span>
+     <span class="pc-t"><b>${m(a.title.split('·')[0].trim())}</b><small>${
+       a.kid!=='Room'&&myKids().length>1?m(a.kid.split(' ')[0])+' · ':''}${m(a.room)} · ${m(a.by)}</small></span>
      <span class="pc-w">${a.at}</span></div>
     ${a.photos?`<div class="phrow">${thumb.repeat(3)}<span class="phb more">+5</span></div>`:''}
     <p class="pc-b">${a.body}</p>
@@ -2801,6 +2832,45 @@ function vClaim(){
 /* ============================================================
    MORE
    ============================================================ */
+/* Ported from the frozen teacher app, which is what a teacher's morning looks
+   like: the state of the room, and the two things they do with it. No action
+   items, no register tile, no message count — a teacher already knows. */
+function vTeacherHome(){
+  const mine=myKids();
+  const h=here(mine), a=mine.filter(k=>k.status==='absent').length;
+  const ni=mine.filter(k=>k.status!=='here'&&k.status!=='absent').length;
+  const tot=mine.length;
+  const room=ROOMS.find(r=>r.id===ROLE.room);
+  const line=ni>0?`Good morning, ${ROLE.who.split(' ')[0]}.<br>Your room is all set!`
+                 :`All set, ${ROLE.who.split(' ')[0]}.<br>Everyone is here.`;
+  const sub =ni>0?`<b>${ni} not checked in yet.</b>`:`<b>${h} here.</b>`;
+  return `${homehead()}<div class="body low">
+   <div class="card greet"><h2>${line}</h2><p>${sub}</p></div>
+   <div class="card pulse">
+    <div class="pulse-top">
+     <span><span class="pulse-count">${h} <em>of ${tot}</em></span>
+      <span class="pulse-label">Here right now</span></span>
+     <span class="chip ok">Ratio ${room?room.ratio:'1:6'}</span></div>
+    <div class="bar">
+     ${h?`<i style="flex:${h};background:var(--present)"></i>`:''}
+     ${ni?`<i style="flex:${ni};background:var(--absent)"></i>`:''}
+     ${a?`<i style="flex:${a};background:var(--amber)"></i>`:''}</div>
+    <div class="legend">
+     <span><i class="dot" style="background:var(--present)"></i>Here ${h}</span>
+     <span><i class="dot" style="background:var(--amber)"></i>Absent ${a}</span>
+     ${ni?`<span><i class="dot plain"></i>Not in ${ni}</span>`:''}</div>
+    <div class="rowsplit">
+     <button class="rs-b" data-act="go:attendance"><b>${ni}</b><small>Not checked in</small></button>
+     <button class="rs-b" data-act="go:attendance"><b>${a}</b><small>Absent</small></button>
+     <button class="rs-b" data-act="noop"><b>${room?room.teachers:1}</b><small>Staff on duty</small></button>
+    </div>
+    <div class="quick">
+     <button class="primary q" data-act="sheet:inout">${ic('in','ic sm','var(--npds-blue-700)','1.9')}Check in / out</button>
+     <button class="second q" data-act="sheet:posttype">${ic('pen','ic sm','var(--npds-gray-700)','1.9')}Post activity</button>
+    </div>
+   </div>
+  </div>`;
+}
 function vMore(){
   /* each group renders only if the role can reach something inside it, so no
      role is ever shown a heading over an empty card */
@@ -3295,10 +3365,7 @@ function sheet(kind,arg){
           aria-label="Check ${inn?'in':'out'} ${k.name}">${ic(inn?'in':'out','ic sm','currentColor','1.9')}Check ${inn?'in':'out'}</button></span>
        </div>`).join(''):`<div class="empty">${inn?'Everyone is checked in.':'Nobody left to check out.'}</div>`}</div>
      ${pool.length>5?`<p class="sh-note">${pool.length-5} more in the register.</p>`:''}
-     <div class="quick">
-      <button class="second q" data-act="bulkfrom">${ic('listCheck','ic sm','var(--npds-gray-700)','1.8')}Bulk check in / out</button>
-      <button class="second q" data-act="go:attendance">${ic('room','ic sm','var(--npds-gray-700)','1.8')}Open the register</button>
-     </div>`;
+     <button class="second" data-act="bulkfrom" style="width:100%">${ic('listCheck','ic sm','var(--npds-gray-700)','1.8')}Bulk check in / out</button>`;
   } else if(kind==='posttype'){
     /* twelve tiles hug the bottom of the screen in the teacher app rather than
        filling it — full height left a third of the sheet empty */
@@ -3613,7 +3680,7 @@ function doAct(a){
     case 'savenote':{const k=K(arg);const t=$('#nt');k.note=t?t.value.trim():'';
       closeSheet();toast(k.note?`Note saved for <b>${k.name}</b>`:'Note cleared');render(true);break;}
     case 'notepill': S.openNote.has(arg)?S.openNote.delete(arg):S.openNote.add(arg);render(true);break;
-    case 'pkid': S.kid=arg;S.pfilter='all';render();break;
+    case 'pkid': S.kid=arg;S.pfilter='all';render();break;   /* arg may be 'all' */
     case 'pfilter': S.pfilter=arg;render(true);break;
     case 'ack':{S.ack[arg]=true;const a=ACTIVITIES.find(x=>x.id===arg);
       toast(`Thank you — the room knows you saw ${a?m(a.title.split('·')[0].trim().toLowerCase()):'it'}`);render(true);break;}
