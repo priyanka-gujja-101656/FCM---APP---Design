@@ -2135,10 +2135,17 @@ function vParentDay(){
      <span class="rch${open?' up':''}">${ic('chev','ic sm','var(--npds-blue-700)','2.4')}</span>
     </button>
     ${open?`<div class="kidrows">
-     ${kids.length>1?`<button class="kidrow pick${everyone?' sel':''}" data-act="pkid:all">
-       <span class="krtick">${everyone?ic('check','','#fff','3.2'):''}</span>
-       <span class="kr-t"><b>Both children</b><small>Everything from today, in time order</small></span>
-      </button>`:''}
+     ${kids.length>1?(()=>{
+       /* the All row does what the child rows do, for everyone at once */
+       const anyIn=kids.some(k=>k.status==='here');
+       const n2=kids.filter(k=>anyIn?k.status==='here':k.status!=='here').length;
+       return `<div class="kidrow${everyone?' sel':''}">
+       <span class="krtick" data-act="pkid:all" role="button" tabindex="0"
+         aria-label="Show both children" aria-pressed="${everyone}">${everyone?ic('check','','#fff','3.2'):''}</span>
+       <span class="kr-t" data-act="pkid:all"><b>All</b><small>Both, in time order</small></span>
+       <button class="mini lbl ${anyIn?'sec':'pri'}" data-act="pall:${anyIn?'out':'in'}"
+         aria-label="Check ${anyIn?'out':'in'} both children">${ic(anyIn?'out':'in','ic sm','currentColor','1.9')}Check ${anyIn?'out':'in'}</button>
+      </div>`;})():''}
      ${kids.map(k=>{const sel=!everyone&&kid&&k.id===kid.id;
       return `<div class="kidrow${sel?' sel':''}">
       ${kids.length>1?`<span class="krtick" data-act="pkid:${k.id}" role="button" tabindex="0"
@@ -3706,6 +3713,13 @@ function doAct(a){
     case 'notepill': S.openNote.has(arg)?S.openNote.delete(arg):S.openNote.add(arg);render(true);break;
     case 'pkid': S.kid=arg;S.pfilter='all';render();break;   /* arg may be 'all' */
     case 'pcollapse': S.pOpen=S.pOpen===false;render(true);break;
+    /* a parent doing both children at once gets the same bulk sheet and the
+       same clock a director does — scoped to their own */
+    case 'pall':{const out=arg==='out';
+      S.sel.clear();
+      myKids().filter(k=>out?k.status==='here':k.status!=='here').forEach(k=>S.sel.add(k.id));
+      if(!S.sel.size){toast('Nothing to do');break;}
+      S.bulkDir=arg; parseMark(''); sheet('bulk'); break;}
     case 'pfilter': S.pfilter=arg;render(true);break;
     case 'ack':{S.ack[arg]=true;const a=ACTIVITIES.find(x=>x.id===arg);
       toast(`Thank you — the room knows you saw ${a?m(a.title.split('·')[0].trim().toLowerCase()):'it'}`);render(true);break;}
