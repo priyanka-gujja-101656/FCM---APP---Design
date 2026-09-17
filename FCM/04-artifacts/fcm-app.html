@@ -840,9 +840,11 @@
   .opt:last-child{border-bottom:0}
   .on2{flex:1;font-size:15px;color:var(--ink)}
   .on2 i{font-style:normal;font-size:13px;color:var(--ink-3);margin-left:7px}
-  .segpill2{display:flex;background:rgba(44,49,43,.055);border-radius:999px;padding:4px;gap:2px}
+  .segpill2{display:flex;background:rgba(44,49,43,.055);border-radius:999px;padding:5px;gap:3px}
+  /* 10px of side padding so no label can sit against its own edge, and the
+     selected pill is 5px off the track rather than 4 */
   .segpill2 .sgp{flex:1;text-align:center;font-size:13.5px;font-weight:550;color:var(--ink-2);
-    padding:13px 4px;border-radius:999px;cursor:pointer;white-space:nowrap;background:none;border:0;font-family:inherit}
+    padding:13px 10px;border-radius:999px;cursor:pointer;white-space:nowrap;background:none;border:0;font-family:inherit}
   .segpill2 .sgp.on{background:#fff;color:var(--npds-blue-700);box-shadow:0 1px 3px rgba(44,49,43,.1)}
   #sheet.formsheet{display:flex;flex-direction:column;overflow:hidden}
   /* the close sits in the row now, at its right end, so back / icon / title /
@@ -3649,7 +3651,7 @@ function sheet(kind,arg){
          <span class="sigh3${draft.sig?' gone':''}">${ic('pen','ic sm','var(--ink-3)','1.8')}Sign here</span>
          <button class="sigc2" data-act="clearsig">Clear</button></div></div>
        <div class="grblock"><i>Who can see this</i>
-        <div class="segpill2">${[['parents','Parents'],['staff','Staff'],['both','Parents &amp; staff']].map(([v,l])=>
+        <div class="segpill2">${[['parents','Parents'],['staff','Staff'],['both','Everyone']].map(([v,l])=>
           `<button class="sgp${draft.vis===v?' on':''}" data-act="dvis:${v}">${l}</button>`).join('')}</div></div>
       </div>
      </div>
