@@ -43,7 +43,9 @@
   body{overflow:hidden;color:var(--ink);
     font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
 
-  /* ===== shell: the app fills the phone ===== */
+  /* ===== shell: the app fills whatever it is given =====
+     .device is the root element; it stopped being a phone frame when the
+     bezel came off, and keeps its name only so the markup stays stable. */
   .device{position:fixed;inset:0;padding:0}
   .screen{position:relative;width:100%;height:100%;overflow:hidden;display:flex;flex-direction:column;
     background:linear-gradient(180deg,var(--sky-1),var(--sky-2) 20%,var(--sky-3) 45%,var(--sky-4));
@@ -54,19 +56,6 @@
   .scene svg{display:block;width:100%;height:100%}
   .haze{position:absolute;inset:0;pointer-events:none;
     background:linear-gradient(180deg,rgba(253,252,250,.16),rgba(253,253,250,.10) 30%,rgba(252,253,250,.30) 62%,rgba(252,253,250,.52))}
-
-  /* on a laptop, put the phone back in a frame so the app is reviewable */
-  @media (min-width:600px){
-    body{display:grid;place-items:center;background:#E7E9E2;overflow:auto}
-    /* the bezel sits OUTSIDE the screen: 410 - 2×10 padding = a true 390px
-       viewport, so the laptop preview measures like the phone it emulates */
-    .device{position:relative;inset:auto;width:410px;height:864px;padding:10px;border-radius:50px;
-      background:linear-gradient(165deg,#343a33,#1e231e);
-      box-shadow:0 40px 70px -34px rgba(38,48,36,.48),0 0 0 1px rgba(0,0,0,.18)}
-    .screen{border-radius:41px;padding-top:0}
-    .status{display:flex}
-    .nav{padding-bottom:26px}
-  }
 
   .ic{width:20px;height:20px;display:block;flex:none}
   .ic.sm{width:16px;height:16px}
@@ -1128,6 +1117,78 @@
     border:0;border-bottom:1px solid var(--line);background:none;font-family:inherit;
     cursor:pointer;color:var(--npds-blue-700);font-size:14px;font-weight:600;text-align:left}
   .fall-t{flex:1;font-weight:600}
+  /* ===========================================================================
+     RESPONSIVE
+
+     Three shapes, one app. Below 768 it is the phone it has always been:
+     bottom tabs, one column edge to edge. From 768 the tabs become a rail down
+     the side and the content takes a column with room around it. From 1100 a
+     list and the thing you opened from it sit side by side, because at that
+     width the alternative is a very wide list of very short rows.
+     =========================================================================== */
+  .shellwrap{display:contents}
+
+  @media (min-width:768px){
+    body{overflow:hidden}
+    .screen{flex-direction:row}
+    .status{display:none}
+    /* the tabs become a rail */
+    /* the rail comes first in the row, though it is last in the markup */
+    .nav{order:-1;flex-direction:column;justify-content:flex-start;gap:4px;
+      width:212px;flex:none;padding:18px 12px;
+      border-top:0;border-right:1px solid rgba(255,255,255,.55);
+      grid-auto-flow:row;display:flex}
+    .nav a{flex-direction:row;justify-content:flex-start;gap:13px;min-height:46px;
+      padding:0 14px;border-radius:12px;font-size:14.5px;font-weight:500}
+    .nav a.on{background:var(--npds-blue-100)}
+    .nav a .ic{width:21px;height:21px}
+    /* the badge is written before the icon, which a phone hides with absolute
+       positioning; in a rail it has to be sent to the end explicitly */
+    .nav .badge{position:static;order:2;margin-left:auto;left:auto;top:auto}
+    .nav a .ic{order:0}
+    /* the content column */
+    #app.route{flex:1;min-width:0;min-height:0;overflow:hidden}
+    .body{max-width:760px;width:100%;margin:0 auto}
+    .topbar,.head{max-width:760px;width:100%;margin-left:auto;margin-right:auto}
+    /* sheets stop being sheets and become dialogs */
+    .sheet{left:50%;top:50%;bottom:auto;right:auto;transform:translate(-50%,-46%) scale(.97);
+      width:min(560px,calc(100% - 64px));max-height:calc(100% - 96px);
+      border-radius:26px;padding:16px 24px 24px;opacity:0;
+      transition:transform .24s cubic-bezier(.32,.72,0,1),opacity .18s ease}
+    .sheet.on{transform:translate(-50%,-50%) scale(1);opacity:1}
+    .sheet .grab{display:none}
+    .sheet.full,.sheet.tall{top:50%;bottom:auto;max-height:calc(100% - 96px);
+      border-radius:26px;padding:20px 24px 24px}
+    /* round chips are spaced apart, not stretched apart — space-between across
+       844px put 56px circles a hand's width from each other */
+    .qrrow{max-width:560px;margin-left:auto;margin-right:auto}
+    .greet-acts .qrrow{margin-left:0}
+    .fabdock,.searchdock{max-width:760px;left:50%;transform:translateX(-50%)}
+    .selbar{max-width:760px;left:50%;transform:translateX(-50%)}
+    .toast{max-width:420px;left:50%;transform:translateX(-50%)}
+    /* the preview switcher moves out of the header's way and sits under the rail */
+    .rolesw{top:auto;bottom:18px;left:12px;transform:none;flex-wrap:wrap;
+      width:188px;padding:8px;gap:3px;border-radius:16px;justify-content:center}
+    .rolesw span{width:100%;text-align:center;margin:0 0 2px}
+    .rolesw a{padding:6px 10px;font-size:12px}
+  }
+
+  @media (min-width:1100px){
+    .body{max-width:880px}
+    .topbar,.head{max-width:880px}
+    /* a list and what you opened from it, together */
+    #app.split{flex-direction:row;gap:0;max-width:none}
+    #app.split>.col-list{width:420px;flex:none;border-right:1px solid rgba(255,255,255,.55);
+      display:flex;flex-direction:column;min-height:0;overflow:hidden}
+    #app.split>.col-detail{flex:1;min-width:0;display:flex;flex-direction:column;
+      min-height:0;overflow:hidden}
+    #app.split .body{max-width:none;padding-left:20px;padding-right:20px}
+    #app.split>.col-list .body{padding-left:16px;padding-right:16px}
+    #app.split .topbar,#app.split .head{max-width:none}
+    #app.split .row.picked2{background:var(--npds-blue-100)}
+    .fabdock,.searchdock,.selbar{max-width:880px}
+  }
+
 </style>
 </head>
 <body>
@@ -3838,14 +3899,38 @@ function tabs(){
     return `<a href="#" class="${S.tab===id?'on':''}" data-act="tab:${id}">${b}${ic(g)}${lbl}</a>`;
   }).join('');
 }
+/* Which list a detail screen came from. On a wide screen the two sit side by
+   side, because a 900px column of two-line rows is mostly empty space and you
+   lose your place every time you open one. */
+const SPLIT_PARENT={child:'students',family:'families',inv:'invoices',acct:'accounts',
+  thread:'messages',staffm:'staff',room:'rooms',claim:'subsidy'};
+const isWide=()=>window.matchMedia('(min-width:1100px)').matches;
+
 function render(keep){
-  const prev=$('#app').querySelector('.body');
+  const app=$('#app');
+  const prev=app.querySelector('.col-detail .body')||app.querySelector('.body');
   const y=keep&&prev?prev.scrollTop:0;
-  const want=S.sub||S.tab;
-  if(!allowed(want)){S.sub=null;S.arg=null;S.tab=TABS[0][0];}
-  $('#app').innerHTML=(V[S.sub||S.tab]||vHome)();
-  if(!keep){$('#app').classList.remove('enter');void $('#app').offsetWidth;$('#app').classList.add('enter');}
-  const b=$('#app').querySelector('.body'); if(b&&y)b.scrollTop=y;
+  let want=S.sub||S.tab;
+  if(!allowed(want)){S.sub=null;S.arg=null;S.tab=TABS[0][0];want=S.tab;}
+  const parent=SPLIT_PARENT[want];
+  const split=isWide()&&parent&&allowed(parent);
+  if(split){
+    const keepSub=S.sub;
+    S.sub=parent; const list=(V[parent]||vHome)();
+    S.sub=keepSub; const detail=(V[want]||vHome)();
+    app.className='route split';
+    app.innerHTML=`<div class="col-list">${list}</div><div class="col-detail">${detail}</div>`;
+    /* mark the row the detail pane is showing, so the list says where you are */
+    const cur=app.querySelector(`.col-list [data-act="${want}:${S.arg}"]`);
+    const row=cur&&(cur.closest('.row')||cur.closest('.pcard')||cur);
+    if(row)row.classList.add('picked2');
+  } else {
+    app.className='route';
+    app.innerHTML=(V[want]||vHome)();
+  }
+  if(!keep){app.classList.remove('enter');void app.offsetWidth;app.classList.add('enter');}
+  const b=app.querySelector('.col-detail .body')||app.querySelector('.body');
+  if(b&&y)b.scrollTop=y;
   tabs();
   const q=$('#q');
   if(q){
@@ -4183,6 +4268,11 @@ document.addEventListener('keydown',e=>{if(e.key!=='Escape')return;
     if(r==='parent'&&!FLAGS.parentRole)a.classList.add('soon');
   });
   document.title=`FCM ${ROLE.label}, ${CENTER.name}`;
+})();
+
+/* the layout is a different shape either side of 1100, so redraw when it crosses */
+(function(){let wide=isWide();
+  window.addEventListener('resize',()=>{const now=isWide(); if(now!==wide){wide=now;render();}});
 })();
 
 render();
