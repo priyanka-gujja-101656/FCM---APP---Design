@@ -1104,6 +1104,9 @@
   .cf-card p{margin:0 0 18px;font-size:14px;line-height:1.5;color:var(--ink-2)}
   .cf-card .primary{margin:0;width:100%}
   .cf-card .second{margin-top:9px;width:100%}
+  /* the dial's own way out */
+  .cfoot{display:flex;justify-content:flex-end;margin-top:8px;padding-bottom:2px}
+  .cfoot .mini.lbl{min-height:36px;padding:0 18px;font-size:13px;gap:6px}
 </style>
 </head>
 <body>
@@ -1988,6 +1991,7 @@ function clockPop(which='mark'){
     <line class="mh" x1="120" y1="120" x2="${120+Math.cos((ma-90)*Math.PI/180)*82}"
      y2="${120+Math.sin((ma-90)*Math.PI/180)*82}"/>
     <circle class="pin" cx="120" cy="120" r="5"/></svg>
+   <div class="cfoot"><button class="mini lbl pri" data-act="clockdone">${ic('check','ic sm','currentColor','2.4')}Done</button></div>
    </div>`;
 }
 function wireDial(){
@@ -3850,6 +3854,11 @@ function doAct(a){
       if(S.markOpen)setTimeout(()=>document.querySelector('.clockpop')?.scrollIntoView({block:'nearest',behavior:'smooth'}),80);
       break;
     /* whichever clock the dial is driving — the check in mark, or the draft's time */
+    /* whichever clock is open, Done puts it away */
+    case 'clockdone':
+      if(CLK==='draft'){draft.open=null;sheet('log');}
+      else {S.markOpen=false;sheet($('#sheet').dataset.kind||'checkout',S.pickArg);}
+      break;
     case 'mcmode': setClkMode(arg);repaintClock();break;
     case 'map': clkT().ap=arg;repaintClock();break;
     case 'selmode': closeSheet();S.selecting=!S.selecting;S.sel.clear();render();break;
