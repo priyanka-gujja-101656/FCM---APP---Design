@@ -1380,7 +1380,7 @@ const S={tab:(ROLES[roleFromUrl()].tabs[0][0]),sub:null,arg:null,stack:[],q:'',m
   childTab:'overview',famTab:'general',staffTab:'overview',acctTab:'activity',msgScope:'all',
   resolved:{},paid:{},assistant:[],draft:'',
   mark:{h:7,m:32,ap:'AM'},markMode:'h',markOpen:false,dir:'in',bulkDir:'out',
-  kid:null,pfilter:'all',ack:{},pOpen:true,fopen:null,ffq:''};
+  kid:null,pfilter:'all',ack:{},pOpen:false,fopen:null,ffq:''};
 
 /* ---------- helpers ---------- */
 const $=(s,r=document)=>r.querySelector(s);
@@ -2262,7 +2262,7 @@ function vParentDay(){
    ${(()=>{
     /* One card does both jobs: it says how they are, and it is how you move
        between them. Collapsed it is a single line; open it is the door. */
-    const open=S.pOpen!==false;
+    const open=S.pOpen===true;
     const inn=kids.filter(k=>k.status==='here').length;
     const summary=inn===kids.length?`All in · ${kids.map(k=>first(k)+' '+k.tin.replace(/ ?[AP]M/,'')).join(' · ')}`
       :kids.map(k=>`${first(k)} ${st(k)}`).join(' · ');
@@ -3829,7 +3829,7 @@ function doAct(a){
       closeSheet();toast(k.note?`Note saved for <b>${k.name}</b>`:'Note cleared');render(true);break;}
     case 'notepill': S.openNote.has(arg)?S.openNote.delete(arg):S.openNote.add(arg);render(true);break;
     case 'pkid': S.kid=arg;S.pfilter='all';render();break;   /* arg may be 'all' */
-    case 'pcollapse': S.pOpen=S.pOpen===false;render(true);break;
+    case 'pcollapse': S.pOpen=S.pOpen!==true;render(true);break;
     /* a parent doing both children at once gets the same bulk sheet and the
        same clock a director does — scoped to their own */
     case 'pall':{const out=arg==='out';
