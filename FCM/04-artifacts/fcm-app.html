@@ -845,7 +845,11 @@
     padding:13px 4px;border-radius:999px;cursor:pointer;white-space:nowrap;background:none;border:0;font-family:inherit}
   .segpill2 .sgp.on{background:#fff;color:var(--npds-blue-700);box-shadow:0 1px 3px rgba(44,49,43,.1)}
   #sheet.formsheet{display:flex;flex-direction:column;overflow:hidden}
-  #sheet.formsheet .sh-row.fixed{flex:none;padding-right:52px}
+  /* the close sits in the row now, at its right end, so back / icon / title /
+     close share one baseline and the row no longer holds space for a button
+     that used to float above it */
+  #sheet.formsheet .sh-row.fixed{flex:none;padding-right:0;align-items:center}
+  #sheet.formsheet .sh-row.fixed .sh-x{position:static;margin-left:auto;flex:none}
   #sheet.formsheet .sbody2{flex:1 1 auto;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;
     padding:1px 1px 6px;margin:0 -1px}
   #sheet.formsheet .shfoot2{flex:none;padding-top:10px}
@@ -885,7 +889,9 @@
   /* the teacher's tall sheet: it opens near the top and fills */
   .sheet.full{top:calc(10px + env(safe-area-inset-top));bottom:0;max-height:none;
     padding:10px 22px calc(34px + env(safe-area-inset-bottom));
-    background:rgba(246,241,229,.97);display:flex;flex-direction:column}
+    /* the cooler ground the type grid uses: white field cards on a warm sheet of
+       nearly the same value had no edge, and this gives them one */
+    background:rgba(253,254,251,.95);display:flex;flex-direction:column}
   @media (min-width:600px){.sheet.full{padding-bottom:34px}}
   .sheet.full .grab{width:44px;height:5px;margin:4px auto 18px}
   .sheet.full .sh-h{font-size:21px;margin:0 0 16px}
@@ -3508,8 +3514,8 @@ function sheet(kind,arg){
       :`<p class="ophd">The office</p>${line('dir',CENTER.director,'Director')}`}
      </div>`;
     html=`<span class="grab"></span>
-     <div class="sh-row fixed"><h3 class="sh-h flat">New message</h3></div>
-     <button class="sh-x" data-act="close" aria-label="Close">${ic('x','ic sm','var(--ink-2)','2.1')}</button>
+     <div class="sh-row fixed"><h3 class="sh-h flat">New message</h3>
+      <button class="sh-x" data-act="close" aria-label="Close">${ic('x','ic sm','var(--ink-2)','2.1')}</button></div>
      <div class="sbody2">
       <div class="grp2">
        ${grow('copen:to','To',toLabel(),c.open==='to',!c.to.size,toPanel)}
@@ -3604,8 +3610,8 @@ function sheet(kind,arg){
      <div class="sh-row fixed">
       <button class="bk" data-act="sheet:posttype" aria-label="Change the activity">${ic('left','ic sm','var(--npds-gray-700)','2.2')}</button>
       <span class="tdot" style="background:${f}">${ic(ty[2],'ic',i2,'1.7')}</span>
-      <h3 class="sh-h flat">${ty[1]}</h3></div>
-     <button class="sh-x" data-act="close" aria-label="Close">${ic('x','ic sm','var(--ink-2)','2.1')}</button>
+      <h3 class="sh-h flat">${ty[1]}</h3>
+      <button class="sh-x" data-act="close" aria-label="Close">${ic('x','ic sm','var(--ink-2)','2.1')}</button></div>
      <div class="sbody2">
       <div class="grp2">
        ${grow('dopen:room','Room',draft.room?roomName(draft.room):'Choose',draft.open==='room',!draft.room,roomPanel)}
