@@ -1918,8 +1918,15 @@ function toLabel(){
     const r=ROOMS.find(x=>x.id===id); if(r) return `Everyone in ${r.name}`;}
   return `${n} recipients`;
 }
-let draft={type:'note',rooms:new Set(),picked:new Set(),open:null,det:'',vis:'parents',sig:false,
-  off:0,mOff:0,t:{h:7,m:32,ap:'AM'},cmode:'h',meal:'Lunch',qty:''};
+/* A teacher is standing in the room they would otherwise be asked to choose, so
+   their draft starts in it with everyone already picked. A director is asked. */
+function freshDraft(){
+  const d={type:'note',rooms:new Set(),picked:new Set(),open:null,det:'',vis:'parents',sig:false,
+    off:0,mOff:0,t:{h:7,m:32,ap:'AM'},cmode:'h',meal:'Lunch',qty:''};
+  if(CAN.rooms==='one'){d.rooms.add(ROLE.room);kidsIn(ROLE.room).forEach(k=>d.picked.add(k.id));}
+  return d;
+}
+let draft=freshDraft();
 /* the children a draft can reach: whoever is in the rooms it has chosen, and
    never outside what the role can see */
 function draftKids(){ return KIDS.filter(k=>draft.rooms.has(k.room)&&inRoom(k.room)); }
@@ -1930,7 +1937,7 @@ function draftRoomLabel(){
   return `${draft.rooms.size} classrooms`;
 }
 function whoLabel(){
-  if(!draft.rooms.size) return 'Pick a room first';
+  if(!draft.rooms.size) return CAN.rooms==='one'?'Nobody yet':'Pick a room first';
   const all=draftKids();
   if(all.length&&draft.picked.size===all.length)
     return draft.rooms.size===1?`Everyone in ${roomShort([...draft.rooms][0])}`:`Everyone, ${all.length} children`;
@@ -3621,7 +3628,9 @@ function sheet(kind,arg){
       <button class="sh-x" data-act="close" aria-label="Close">${ic('x','ic sm','var(--ink-2)','2.1')}</button></div>
      <div class="sbody2">
       <div class="grp2">
-       ${grow('dopen:room','Room',draftRoomLabel(),draft.open==='room',!draft.rooms.size,roomPanel)}
+       ${CAN.rooms==='all'
+         ? grow('dopen:room','Room',draftRoomLabel(),draft.open==='room',!draft.rooms.size,roomPanel)
+         : ''}
        ${grow('dopen:who','Children',whoLabel(),draft.open==='who',!draft.picked.size,kidPanel)}
        ${grow('dopen:date','Date',dateStr(),draft.open==='date',false,calPop())}
        ${grow('dopen:time','Time',timeStr(),draft.open==='time',false,clockPop('draft'))}
@@ -4094,7 +4103,8 @@ function doAct(a){
       render(true);break;}
     case 'clearsig':{const c=$('#pad'); if(c)c.getContext('2d').clearRect(0,0,c.width,c.height);
       draft.sig=false;$('.sigh3')?.classList.remove('gone');break;}
-    case 'ptype': draft.type=arg;draft.open=null;sheet('log');break;
+    case 'ptype':{const keep=draft.type; draft=freshDraft(); draft.t=nowT();
+      draft.type=arg; sheet('log'); break;}
     case 'dopen':{const d=$('#det'); if(d)draft.det=d.value;
       draft.open=draft.open===arg?null:arg;S.ffq='';
       if(draft.open==='time'){CLK='draft';draft.cmode='h';}
@@ -4140,8 +4150,7 @@ function doAct(a){
       });
       closeSheet();
       toast(`Posted to ${n2} ${n2===1?'family':'families'}`);
-      draft={type:'note',rooms:new Set(),picked:new Set(),open:null,det:'',vis:'parents',sig:false,
-        off:0,mOff:0,t:nowT(),cmode:'h',meal:'Lunch',qty:''};
+      draft=freshDraft(); draft.t=nowT();
       render(true);break;}
     case 'cfyes':{const f=pending;confirmClose();if(f)f();break;}
     case 'cfno': confirmClose();break;
