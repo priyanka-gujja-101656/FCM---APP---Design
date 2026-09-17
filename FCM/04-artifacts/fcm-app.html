@@ -1104,6 +1104,22 @@
   .cf-card p{margin:0 0 18px;font-size:14px;line-height:1.5;color:var(--ink-2)}
   .cf-card .primary{margin:0;width:100%}
   .cf-card .second{margin-top:9px;width:100%}
+  /* an allergy is the one tag on a register row that is a warning rather than a
+     label, so it carries the negative colour the rest of the app uses for one */
+  .alg{color:var(--neg);background:rgba(155,74,62,.12);
+    box-shadow:inset 0 0 0 1px rgba(155,74,62,.3)}
+  /* filter options are checkboxes, because every one of them takes more than
+     one answer */
+  .fchk{width:22px;height:22px;flex:none;border-radius:7px;display:grid;place-items:center;
+    box-shadow:inset 0 0 0 1.6px var(--npds-gray-500);background:transparent}
+  .fchk.on{background:var(--npds-blue-600);box-shadow:none}
+  .fchk svg{width:13px;height:13px}
+  .fpanel .opt{gap:12px}
+  .fpanel .opt .on2{flex:1}
+  .fall{display:flex;align-items:center;gap:12px;width:100%;min-height:46px;padding:4px 0;
+    border:0;border-bottom:1px solid var(--line);background:none;font-family:inherit;
+    cursor:pointer;color:var(--npds-blue-700);font-size:14px;font-weight:600;text-align:left}
+  .fall-t{flex:1;font-weight:600}
 </style>
 </head>
 <body>
@@ -1379,7 +1395,10 @@ const THREADS=[
 
 /* ---------- state ---------- */
 const S={tab:(ROLES[roleFromUrl()].tabs[0][0]),sub:null,arg:null,stack:[],q:'',mask:false,moveTo:null,relArg:null,finArg:null,voided:{},selecting:false,sel:new Set(),openNote:new Set(),pick:null,pickArg:null,searchOpen:false,day:0,actFilter:new Set(),
-  homeTab:'actions',room:(CAN.rooms==='one'?ROLE.room:'all'),attFilter:'all',invFilter:'all',subTab:'mismatches',
+  homeTab:'actions',invFilter:'all',subTab:'mismatches',
+  /* Filters hold sets now, not single values. Empty means no filter, which is
+     the same as everything — so "nothing ticked" and "all ticked" agree. */
+  roomSel:new Set(CAN.rooms==='one'?[ROLE.room]:[]), attSel:new Set(), msgSel:new Set(),
   childTab:'overview',famTab:'general',staffTab:'overview',acctTab:'activity',msgScope:'all',
   resolved:{},paid:{},assistant:[],draft:'',
   mark:{h:7,m:32,ap:'AM'},markMode:'h',markOpen:false,dir:'in',bulkDir:'out',
@@ -1536,7 +1555,7 @@ function searchbox(ph){
 /* Search stays on the screen because it is used constantly. Every other filter
    lives in a sheet, so the list is the screen and the power is one tap away. */
 function filterbar(ph){
-  const n=(S.room!=='all'?1:0)+(S.attFilter!=='all'?1:0);
+  const n=(roomAll()?0:1)+(attAll()?0:1);
   return `<div style="display:flex;gap:9px;align-items:center">
    <span style="flex:1;min-width:0">${searchbox(ph)}</span>
    <button class="mini${n?' on':''}" data-act="sheet:filter" aria-label="Filter"
@@ -1544,8 +1563,8 @@ function filterbar(ph){
     ${ic('filter','ic sm',n?'var(--npds-blue-700)':'var(--npds-gray-700)','1.8')}</button>
   </div>
   ${n?`<div class="chips">
-    ${S.room!=='all'?`<button class="ch on" data-act="room2:all">${roomName(S.room)} ${ic('x','ic sm','currentColor','2')}</button>`:''}
-    ${S.attFilter!=='all'?`<button class="ch on" data-act="att:all">${({here:'In',out:'Out',allergy:'Allergy'})[S.attFilter]} ${ic('x','ic sm','currentColor','2')}</button>`:''}
+    ${roomAll()?'':`<button class="ch on" data-act="roomall:none">${roomLabel()} ${ic('x','ic sm','currentColor','2')}</button>`}
+    ${attAll()?'':`<button class="ch on" data-act="att:all">${attLabel()} ${ic('x','ic sm','currentColor','2')}</button>`}
    </div>`:''}`;
 }
 function hubRow(act,glyph,tint,name,desc){
@@ -1758,7 +1777,7 @@ const dock=(n,total,one,many,ph)=>S.searchOpen?`<div class="searchdock">
   <input id="q" placeholder="${ph}" value="${esc(S.q)}" autocomplete="off">
   <button class="sd-x" data-act="searchclose" aria-label="Close search">${ic('x','ic sm','var(--npds-gray-700)','2')}</button>
  </div>
- <p class="sd-count">${S.q?`${n} of ${total} ${n===1?one:many}`:'Type to search'}</p></div>`:'';
+ ${S.q?`<p class="sd-count">${n} of ${total} ${n===1?one:many}</p>`:''}</div>`:'';
 const DAYS=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
 function dayLabel(off){
   if(off===0) return 'Today · Mon 22 Jun';
@@ -1768,9 +1787,9 @@ function dayLabel(off){
 /* The director's addition to the teacher's spine: which rooms am I looking at. */
 function roomBtn(){
   if(CAN.rooms!=='all') return '';   /* one room means no choice to offer */
-  const on=S.room!=='all';
+  const on=!roomAll();
   return `<button class="sp-f${on?' on':''}" data-act="sheet:rooms" aria-label="Filter by room">
-    ${ic('room','ic sm','currentColor','1.8')}${on?roomName(S.room):'All rooms'}</button>`;
+    ${ic('room','ic sm','currentColor','1.8')}${roomLabel()}</button>`;
 }
 function datespine(){
   return `<div class="spine">
@@ -1784,8 +1803,8 @@ function datespine(){
 function filterCount(screen){
   /* a teacher's room is where they work, not something they chose — counting it
      made the register read "Filters (1)" before anyone touched anything */
-  const room=(CAN.rooms==='all'&&S.room!=='all')?1:0;
-  const status=(screen==='attendance'&&S.attFilter!=='all')?1:0;
+  const room=(CAN.rooms==='all'&&!roomAll())?1:0;
+  const status=(screen==='attendance'&&!attAll())?1:0;
   return room + status + (screen==='activities'?S.actFilter.size:0);
 }
 /* ---------------------------------------------------------------------------
@@ -1805,18 +1824,23 @@ function ffield(key,label,value,panel,pale){
    ${open?`<div class="fpanel">${panel}</div>`:''}
   </div>`;
 }
-/* one option list, whether it takes one answer or several */
-function fopts(list,isOn,act,searchable){
+/* Every option list takes more than one answer, so every row is a checkbox and
+   every list carries one control that ticks or clears the lot. */
+function fopts(list,isOn,act,searchable,allAct){
   const q=(S.ffq||'').trim().toLowerCase();
   const rows=q?list.filter(o=>o[1].toLowerCase().includes(q)):list;
+  const every=list.every(o=>isOn(o[0]));
+  const box=on=>`<span class="fchk${on?' on':''}">${on?ic('check','','#fff','3.2'):''}</span>`;
   return `${searchable?`<div class="fsearch">${ic('search','ic sm','var(--ink-3)')}
     <input id="ffq" value="${esc(S.ffq||'')}" placeholder="Search" autocomplete="off" aria-label="Search options">
     ${q?`<button class="fsx" data-act="ffqclear" aria-label="Clear">${ic('x','ic sm','var(--ink-3)','2')}</button>`:''}
    </div>`:''}
-   <div class="opts" role="listbox">${rows.length?rows.map(o=>`
-    <button class="opt" data-act="${act}:${o[0]}" role="option" aria-selected="${isOn(o[0])}">
-     <span class="on2">${m(o[1])}${o[2]?`<i>${m(o[2])}</i>`:''}</span>
-     ${isOn(o[0])?ic('check','ic sm','var(--npds-blue-700)','2.6'):''}</button>`).join('')
+   ${allAct?`<button class="fall" data-act="${allAct}:${every?'none':'all'}">
+     ${box(every)}<b class="fall-t">${every?'Deselect all':'Select all'}</b></button>`:''}
+   <div class="opts" role="group">${rows.length?rows.map(o=>`
+    <button class="opt" data-act="${act}:${o[0]}" role="checkbox" aria-checked="${isOn(o[0])}">
+     ${box(isOn(o[0]))}
+     <span class="on2">${m(o[1])}${o[2]?`<i>${m(o[2])}</i>`:''}</span></button>`).join('')
    :'<div class="empty">Nothing matches.</div>'}</div>`;
 }
 function filterSheet(title,fields,count,n){
@@ -1829,15 +1853,12 @@ function filterSheet(title,fields,count,n){
     ${count?`<button class="ghost" data-act="clearfilters">Clear all</button>`:''}
    </div>`;
 }
-const ROOM_OPTS=()=>[['all','All rooms',`${KIDS.length} enrolled`]]
-  .concat(ROOMS.map(r=>[r.id,r.name,`${kidsIn(r.id).length} enrolled`]));
-const ATT_OPTS=[['all','Everyone'],['here','Here today'],['out','Not in'],
-  ['absent','Absent'],['allergy','Has an allergy']];
-const attLabel=()=>(ATT_OPTS.find(o=>o[0]===S.attFilter)||ATT_OPTS[0])[1];
+const ROOM_OPTS=()=>ROOMS.map(r=>[r.id,r.name,`${kidsIn(r.id).length} enrolled`]);
+const ATT_OPTS=[['here','Here today'],['out','Not in'],['absent','Absent'],
+  ['allergy','Has an allergy']];
+const MSG_OPTS=[['family','Parents'],['staff','Staff']];
 const typeLabel=()=>S.actFilter.size===0?'All activities'
   :S.actFilter.size===1?TY[[...S.actFilter][0]].label:`${S.actFilter.size} types`;
-const MSG_OPTS=[['all','Everyone'],['family','Parents'],['staff','Staff']];
-const msgLabel=()=>(MSG_OPTS.find(o=>o[0]===S.msgScope)||MSG_OPTS[0])[1];
 
 /* choosing inside the filter sheet keeps the sheet open, so several fields can
    be set in one visit — a single-answer field closes itself, a multi stays up */
@@ -2049,7 +2070,11 @@ function acard(a){
    said once per group instead of repeated on every line. Filter to one room and
    the headings go away, because the title already says which room it is. */
 function attBody(list){
-  if(CAN.rooms!=='all'||S.room!=='all'||S.selecting) return list.map(attRow).join('');
+  /* group by room whenever more than one is on screen — two selected classrooms
+     need the heading as much as all six do. Selecting sorts by state instead,
+     so the grouping steps aside for it. */
+  const rooms=new Set(list.map(k=>k.room));
+  if(CAN.rooms!=='all'||S.selecting||rooms.size<2) return list.map(attRow).join('');
   const order=[],by={};
   list.forEach(k=>{ if(!by[k.room]){by[k.room]=[];order.push(k.room);} by[k.room].push(k); });
   order.sort((a,b)=>roomName(a).localeCompare(roomName(b)));
@@ -2135,10 +2160,23 @@ const myKids=()=>ROLE.scope==='family'?KIDS.filter(k=>k.fam===ROLE.fam)
               :ROLE.scope==='room'  ?KIDS.filter(k=>k.room===ROLE.room)
               :KIDS;
 const myRooms=()=>[...new Set(myKids().map(k=>k.room))];
+const roomAll=()=>!S.roomSel.size||S.roomSel.size>=ROOMS.length;
+const roomLabel=()=>roomAll()?'All rooms'
+  :S.roomSel.size===1?roomName([...S.roomSel][0]):`${S.roomSel.size} classrooms`;
+const attAll=()=>!S.attSel.size||S.attSel.size>=ATT_OPTS.length;
+const attLabel=()=>attAll()?'Everyone'
+  :S.attSel.size===1?(ATT_OPTS.find(o=>o[0]===[...S.attSel][0])||['','?'])[1]
+  :`${S.attSel.size} selected`;
+const msgAll=()=>!S.msgSel.size||S.msgSel.size>=MSG_OPTS.length;
+const msgLabel=()=>msgAll()?'Everyone'
+  :S.msgSel.size===1?(MSG_OPTS.find(o=>o[0]===[...S.msgSel][0])||['','?'])[1]
+  :`${S.msgSel.size} selected`;
+/* a child matches the status filter on their state, or on having an allergy */
+const attMatch=k=>attAll()||S.attSel.has(k.status)||(S.attSel.has('allergy')&&!!k.allergy);
 const inRoom=x=>{
   if(ROLE.scope==='family') return myRooms().includes(x);
   if(ROLE.scope==='room')   return x===ROLE.room;
-  return S.room==='all'||x===S.room;
+  return roomAll()||S.roomSel.has(x);
 };
 const mineKid=k=>!!k&&myKids().some(x=>x.id===k.id);
 
@@ -2178,25 +2216,23 @@ function vAttendance(){
   const rank=k=>k.status==='here'?2:k.status==='absent'?1:0;
   const list=scope.filter(k=>{
     if(q&&!k.name.toLowerCase().includes(q)) return false;
-    /* still reachable from Filters — it is a question you ask occasionally,
-       not one of the four states the register is always in */
-    if(S.attFilter==='allergy') return !!k.allergy;
-    if(S.attFilter!=='all'&&k.status!==S.attFilter) return false;
-    return true;
+    return attMatch(k);
   }).slice().sort((a,b)=>S.selecting
     ? (rank(a)-rank(b))||a.name.localeCompare(b.name)
     : a.name.localeCompare(b.name));
-  const chip=(id,lbl,n)=>`<button class="tp${S.attFilter===id?' on':''}" data-act="att:${id}">${lbl} ${n}</button>`;
+  const chip=(id,lbl,n)=>`<button class="tp${(id==='all'?attAll():S.attSel.size===1&&S.attSel.has(id))?' on':''}" data-act="att:${id}">${lbl} ${n}</button>`;
   const past=S.day<0;
   return `${topbar('Attendance','',
-   /* A teacher has one room and four states, both already on screen, so there is
-      nothing left for a Filters sheet or an overflow menu to hold. Their bar is
-      the three things they actually do: find someone, print, work the list.
-      A director keeps both, because classroom is a real choice for them. */
-   CAN.rooms==='all'
+   /* Working the list takes over the bar: whatever was there gives way to the one
+      way out. Otherwise — a teacher has one room and four states, both already on
+      screen, so nothing is left for a Filters sheet or an overflow menu to hold;
+      a director keeps both, because classroom is a real choice for them. */
+   S.selecting
+    ? `<button class="ghost tb-inline" data-act="selmode">Cancel</button>`
+    : CAN.rooms==='all'
     ? `${searchBtn()}${filtersBtn('attendance')}<button class="dotsb" data-act="sheet:more" aria-label="More actions">${ic('dots','ic','var(--ink-3)','1.9')}</button>`
-    : `${searchBtn()}<button class="tb-btn" data-act="sheet:print" aria-label="Print the register">${ic('print','ic sm')}</button>
-       <button class="ghost tb-inline${S.selecting?' on':''}" data-act="selmode">${S.selecting?'Done':'Select'}</button>`)}
+    : `${searchBtn()}<button class="tb-btn" data-act="sheet:print" aria-label="Print attendance">${ic('print','ic sm')}</button>
+       <button class="ghost tb-inline" data-act="selmode">Select</button>`)}
   <div class="body">
    ${S.selecting?'':datespine()}
    ${S.selecting?'':`<div class="tabpill">${chip('all','All',scope.length)}${chip('here','Here',cnt('here'))}${chip('out','Not in',cnt('out'))}${chip('absent','Absent',cnt('absent'))}</div>`}
@@ -2358,9 +2394,9 @@ function vMessages(){
   const q=S.q.trim().toLowerCase();
   const scope=visibleThreads();
   const n=k=>scope.filter(t=>t.scope===k).length;
-  const list=scope.filter(t=>(S.msgScope==='all'||t.scope===S.msgScope)
+  const list=scope.filter(t=>(msgAll()||S.msgSel.has(t.scope))
     &&(!q||(t.who+' '+t.sub+' '+t.msgs.map(x=>x.t).join(' ')).toLowerCase().includes(q)));
-  const chip=(id,lbl,c)=>`<button class="tp${S.msgScope===id?' on':''}" data-act="msgs:${id}">${lbl} ${c}</button>`;
+  const chip=(id,lbl,c)=>`<button class="tp${(id==='all'?msgAll():S.msgSel.size===1&&S.msgSel.has(id))?' on':''}" data-act="msgs:${id}">${lbl} ${c}</button>`;
   const unread=scope.filter(t=>t.unread).length;
   const newbtn=`<button class="primary" data-act="newmsg">${ic('plus','ic','currentColor','1.9')}New message</button>`;
   /* A parent has one counterpart — the centre — so there is nothing to sort by.
@@ -3519,7 +3555,7 @@ function sheet(kind,arg){
     const inn=S.dir==='in';
     const pool=KIDS.filter(k=>inRoom(k.room)).filter(k=>inn?k.status!=='here':k.status==='here')
       .slice().sort((a,b)=>a.name.localeCompare(b.name));
-    const scope=S.room==='all'?'':` in ${roomName(S.room)}`;
+    const scope=roomAll()?'':` in ${roomLabel()}`;
     html=`<span class="grab"></span>
      <button class="sh-x" data-act="close" aria-label="Close">${ic('x','ic sm','var(--ink-2)','2.1')}</button>
      <h3 class="sh-h">Check children in or out</h3>
@@ -3610,13 +3646,13 @@ function sheet(kind,arg){
      <button class="sh-x" data-act="close" aria-label="Close">${ic('x','ic sm','var(--ink-2)','2.1')}</button>
      <h3 class="sh-h">Which rooms</h3>
      <p class="sh-sub">The director's view spans the centre. Narrow it to one room.</p>
-     <button class="sh-opt" data-act="roomsel:all" style="${S.room==='all'?'border-color:var(--npds-blue-500);background:var(--npds-blue-100)':''}">
+     <button class="sh-opt" data-act="roomsel:all" style="${roomAll()?'border-color:var(--npds-blue-500);background:var(--npds-blue-100)':''}">
       <span style="flex:1"><b>All rooms</b><small>${KIDS.length} enrolled · ${here(KIDS)} in</small></span>
-      ${S.room==='all'?ic('check','ic sm','var(--npds-blue-700)','2.2'):''}</button>
+      ${roomAll()?ic('check','ic sm','var(--npds-blue-700)','2.2'):''}</button>
      ${ROOMS.map(r=>{const kids=kidsIn(r.id);
-       return `<button class="sh-opt" data-act="roomsel:${r.id}" style="${S.room===r.id?'border-color:var(--npds-blue-500);background:var(--npds-blue-100)':''}">
+       return `<button class="sh-opt" data-act="roomsel:${r.id}" style="${S.roomSel.has(r.id)?'border-color:var(--npds-blue-500);background:var(--npds-blue-100)':''}">
         <span style="flex:1"><b>${r.name}</b><small>${kids.length} enrolled · ${here(kids)} in</small></span>
-        ${S.room===r.id?ic('check','ic sm','var(--npds-blue-700)','2.2'):''}</button>`;}).join('')}`;
+        ${S.roomSel.has(r.id)?ic('check','ic sm','var(--npds-blue-700)','2.2'):''}</button>`;}).join('')}`;
   } else if(kind==='note'){
     const k=K(arg);
     html=`<span class="grab"></span>
@@ -3634,29 +3670,26 @@ function sheet(kind,arg){
     html=`<span class="grab"></span>
      <button class="sh-x" data-act="close" aria-label="Close">${ic('x','ic sm','var(--ink-2)','2.1')}</button>
      <h3 class="sh-h">Attendance</h3>
-     <p class="sh-sub">${dayLabel(S.day)} · ${S.room==='all'?'all rooms':roomName(S.room)}</p>
+     <p class="sh-sub">${dayLabel(S.day)} · ${roomAll()?'all rooms':roomLabel()}</p>
      <div class="card list roomy">
-      ${item('listCheck','Select children','Check several in or out at once','selmode')}
-      ${item('print','Print the register','What is on screen now, as a sheet','sheet:print')}
-      ${item('doc','Export as CSV','The same rows, for a spreadsheet','doprint:CSV')}
+      ${item('listCheck','Bulk select','Check several in or out at once','selmode')}
+      ${item('print','Print attendance','What is on screen now, as a sheet','sheet:print')}
      </div>
      <button class="ghost" data-act="close">Close</button>`;
   } else if(kind==='filters'||kind==='filter'||kind==='actfilter'){
     const screen=S.sub||'attendance';
     const c=filterCount(screen);
     let f='';
-    if(CAN.rooms==='all') f+=ffield('room','Classroom',
-      S.room==='all'?'All rooms':roomName(S.room),
-      fopts(ROOM_OPTS(),v=>S.room===v,'room2',ROOMS.length>5));
-    if(screen==='attendance') f+=ffield('show','Show',attLabel(),
-      fopts(ATT_OPTS,v=>S.attFilter===v,'att',false),S.attFilter==='all');
+    if(CAN.rooms==='all') f+=ffield('room','Classroom',roomLabel(),
+      fopts(ROOM_OPTS(),v=>S.roomSel.has(v),'roomm',ROOMS.length>5,'roomall'),roomAll());
+    if(screen==='attendance') f+=ffield('status','Status',attLabel(),
+      fopts(ATT_OPTS,v=>S.attSel.has(v),'attm',false,'attall'),attAll());
     if(screen==='activities') f+=ffield('type','Type',typeLabel(),
-      fopts(Object.keys(TY).map(t=>[t,TY[t].label]),v=>S.actFilter.has(v),'fact',true)
-       +'<p class="fhint">Pick as many as you like.</p>',!S.actFilter.size);
+      fopts(Object.keys(TY).map(t=>[t,TY[t].label]),v=>S.actFilter.has(v),'fact',true,'typeall'),
+      !S.actFilter.size);
     if(screen==='messages') f+=ffield('who','From',msgLabel(),
-      fopts(MSG_OPTS,v=>S.msgScope===v,'msgs',false),S.msgScope==='all');
-    html=filterSheet(screen==='activities'?'Filter activities'
-      :screen==='messages'?'Filter messages':'Filter the register',f,c);
+      fopts(MSG_OPTS,v=>S.msgSel.has(v),'msgm',false,'msgall'),msgAll());
+    html=filterSheet('Filters',f,c);
   } else if(kind==='rowmenu'){
     /* the teacher app's row-actions sheet: child header, roomy rows, ghost close */
     const k=K(arg);
@@ -3811,7 +3844,9 @@ function doAct(a){
   /* anything that navigates takes the sheet with it */
   if(PUSH.has(cmd)){S.stack.push({sub:S.sub,arg:S.arg,q:S.q});closeSheet();}
   switch(cmd){
-    case 'tab': S.tab=arg;S.sub=null;S.arg=null;S.stack=[];S.q='';S.room=(CAN.rooms==='one'?ROLE.room:'all');S.attFilter='all';S.invFilter='all';S.searchOpen=false;S.day=0;S.actFilter.clear();closeSheet();render();break;
+    case 'tab': S.tab=arg;S.sub=null;S.arg=null;S.stack=[];S.q='';
+      S.roomSel=new Set(CAN.rooms==='one'?[ROLE.room]:[]);S.attSel.clear();S.msgSel.clear();
+      S.invFilter='all';S.searchOpen=false;S.day=0;S.actFilter.clear();closeSheet();render();break;
     case 'back':{const p=S.stack.pop();
       if(p){S.sub=p.sub;S.arg=p.arg;S.q=p.q||'';}else{S.sub=null;S.arg=null;S.q='';}
       S.searchOpen=false;
@@ -3881,7 +3916,9 @@ function doAct(a){
           S.sel.clear();S.selecting=false;
           toast(`<b>${n} ${n===1?'child':'children'}</b> marked absent`);render();}});
       break;}
-    case 'roomsel': if(CAN.rooms!=='all')break; S.room=arg;closeSheet();render(true);break;
+    case 'roomsel': if(CAN.rooms!=='all')break;
+      S.roomSel.clear(); if(arg!=='all')S.roomSel.add(arg);
+      closeSheet();render(true);break;
     case 'fact':
       if(arg==='clear') S.actFilter.clear();
       else S.actFilter.has(arg)?S.actFilter.delete(arg):S.actFilter.add(arg);
@@ -3892,18 +3929,37 @@ function doAct(a){
     case 'stab': S.staffTab=arg;render(true);break;
     case 'atab': S.acctTab=arg;render(true);break;
     case 'sbtab': S.subTab=arg;render(true);break;
-    case 'msgs': S.msgScope=arg;if(inFilters()){S.fopen=null;render(true);sheet('filters');break;}render(true);break;
-    case 'att': S.attFilter=arg;if(inFilters()){S.fopen=null;render(true);sheet('filters');break;}render(true);break;
+    /* the tab pills replace the selection — they are tabs, not checkboxes */
+    case 'att': S.attSel.clear(); if(arg!=='all')S.attSel.add(arg); render(true);break;
+    case 'msgs': S.msgSel.clear(); if(arg!=='all')S.msgSel.add(arg); render(true);break;
+    /* the filter sheet toggles one option and stays open */
+    case 'attm': S.attSel.has(arg)?S.attSel.delete(arg):S.attSel.add(arg);
+      render(true);if(inFilters())sheet('filters');break;
+    case 'msgm': S.msgSel.has(arg)?S.msgSel.delete(arg):S.msgSel.add(arg);
+      render(true);if(inFilters())sheet('filters');break;
+    case 'roomm': if(CAN.rooms!=='all')break;
+      S.roomSel.has(arg)?S.roomSel.delete(arg):S.roomSel.add(arg);
+      render(true);if(inFilters())sheet('filters');break;
+    /* select all ticks the lot; deselect clears it, which means the same thing
+       and is the honest way to say "no filter" */
+    case 'roomall': S.roomSel.clear(); if(arg==='all')ROOMS.forEach(r=>S.roomSel.add(r.id));
+      render(true);if(inFilters())sheet('filters');break;
+    case 'attall': S.attSel.clear(); if(arg==='all')ATT_OPTS.forEach(o=>S.attSel.add(o[0]));
+      render(true);if(inFilters())sheet('filters');break;
+    case 'msgall': S.msgSel.clear(); if(arg==='all')MSG_OPTS.forEach(o=>S.msgSel.add(o[0]));
+      render(true);if(inFilters())sheet('filters');break;
+    case 'typeall': S.actFilter.clear(); if(arg==='all')Object.keys(TY).forEach(t=>S.actFilter.add(t));
+      render(true);if(inFilters())sheet('filters');break;
     case 'inf': S.invFilter=arg;render(true);break;
-    case 'room2': if(CAN.rooms!=='all')break; S.room=arg;
-      if(inFilters()){S.fopen=null;render(true);sheet('filters');break;}
+    case 'room2': if(CAN.rooms!=='all')break;
+      S.roomSel.clear(); if(arg!=='all')S.roomSel.add(arg);
       render(true);
       if($('#sheet').classList.contains('on'))sheet(S.sub==='students'?'filter':'filters');break;
     case 'fopen': S.fopen=S.fopen===arg?null:arg;S.ffq='';sheet('filters');break;
     case 'ffqclear': S.ffq='';sheet('filters');break;
     case 'clearfilters':
-      S.room=(CAN.rooms==='one'?ROLE.room:'all');S.attFilter='all';S.msgScope='all';
-      S.actFilter.clear();S.fopen=null;S.ffq='';
+      S.roomSel=new Set(CAN.rooms==='one'?[ROLE.room]:[]);
+      S.attSel.clear();S.msgSel.clear();S.actFilter.clear();S.fopen=null;S.ffq='';
       render(true);sheet('filters');break;
     case 'clearq': S.q='';render(true);break;
     case 'mask': S.mask=!S.mask;render(true);toast(S.mask?'Sensitive data hidden':'Data visible again');break;
