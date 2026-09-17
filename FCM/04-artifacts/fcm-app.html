@@ -806,8 +806,11 @@
   .tdot{width:30px;height:30px;border-radius:999px;display:grid;place-items:center;flex:none}
   .tdot svg{width:16px;height:16px}
   .grp2{background:#fff;border:1px solid rgba(44,49,43,.13);border-radius:12px;overflow:hidden;margin:0 0 12px}
+  /* the line between stacked fields, never above the first one. The exemption
+     was scoped to .grp2, so a lone grow in a fieldset card — the Time row on
+     every check in, check out and bulk sheet — drew a line above itself. */
   .grow{border-top:1px solid rgba(44,49,43,.09)}
-  .grp2>.grow:first-child{border-top:0}
+  .grow:first-child{border-top:0}
   .gr{display:flex;align-items:center;gap:12px;min-height:48px;padding:0 13px;cursor:pointer;
     width:100%;background:none;border:0;font-family:inherit;text-align:left}
   .gr i{font-style:normal;font-size:11.5px;color:#6E7568;flex:none;min-width:74px;max-width:104px}
