@@ -889,9 +889,9 @@
   /* the teacher's tall sheet: it opens near the top and fills */
   .sheet.full{top:calc(10px + env(safe-area-inset-top));bottom:0;max-height:none;
     padding:10px 22px calc(34px + env(safe-area-inset-bottom));
-    /* the cooler ground the type grid uses: white field cards on a warm sheet of
-       nearly the same value had no edge, and this gives them one */
-    background:rgba(253,254,251,.95);display:flex;flex-direction:column}
+    /* a step down from the type grid's near-white, so the white field cards have
+       an edge without the sheet going back to the warm it came from */
+    background:rgba(248,246,240,.975);display:flex;flex-direction:column}
   @media (min-width:600px){.sheet.full{padding-bottom:34px}}
   .sheet.full .grab{width:44px;height:5px;margin:4px auto 18px}
   .sheet.full .sh-h{font-size:21px;margin:0 0 16px}
@@ -1092,7 +1092,7 @@
   .fsearch input{flex:1;min-width:0;border:0;background:none;font-family:inherit;font-size:14.5px;
     color:var(--ink);outline:none;padding:4px 0}
   .fsx{width:26px;height:26px;border:0;background:none;padding:0;display:grid;place-items:center;cursor:pointer}
-  .fpanel .opts{max-height:252px}
+  .fpanel .opts,.gpanel .opts{max-height:252px}
   .fhint{margin:2px 0 8px;font-size:12px;color:var(--ink-3);padding:0 2px}
   .fbtns{display:flex;flex-direction:column;gap:9px;margin-top:20px}
   .fbtns .primary,.fbtns .ghost{width:100%;margin:0}
@@ -1120,8 +1120,8 @@
     box-shadow:inset 0 0 0 1.6px var(--npds-gray-500);background:transparent}
   .fchk.on{background:var(--npds-blue-600);box-shadow:none}
   .fchk svg{width:13px;height:13px}
-  .fpanel .opt{gap:12px}
-  .fpanel .opt .on2{flex:1}
+  .fpanel .opt,.gpanel .opt{gap:12px}
+  .fpanel .opt .on2,.gpanel .opt .on2{flex:1}
   .fall{display:flex;align-items:center;gap:12px;width:100%;min-height:46px;padding:4px 0;
     border:0;border-bottom:1px solid var(--line);background:none;font-family:inherit;
     cursor:pointer;color:var(--npds-blue-700);font-size:14px;font-weight:600;text-align:left}
@@ -1918,13 +1918,22 @@ function toLabel(){
     const r=ROOMS.find(x=>x.id===id); if(r) return `Everyone in ${r.name}`;}
   return `${n} recipients`;
 }
-let draft={type:'note',room:null,picked:new Set(),everyone:true,open:null,det:'',vis:'parents',sig:false,
+let draft={type:'note',rooms:new Set(),picked:new Set(),open:null,det:'',vis:'parents',sig:false,
   off:0,mOff:0,t:{h:7,m:32,ap:'AM'},cmode:'h',meal:'Lunch',qty:''};
-function draftKids(){ return draft.room?kidsIn(draft.room):[]; }
-function draftCount(){ return draft.everyone?draftKids().length:draft.picked.size; }
+/* the children a draft can reach: whoever is in the rooms it has chosen, and
+   never outside what the role can see */
+function draftKids(){ return KIDS.filter(k=>draft.rooms.has(k.room)&&inRoom(k.room)); }
+function draftCount(){ return draft.picked.size; }
+function draftRoomLabel(){
+  if(!draft.rooms.size) return 'Choose';
+  if(draft.rooms.size===1) return roomName([...draft.rooms][0]);
+  return `${draft.rooms.size} classrooms`;
+}
 function whoLabel(){
-  if(!draft.room) return 'Pick a room first';
-  if(draft.everyone) return `Everyone in ${roomShort(draft.room)}`;
+  if(!draft.rooms.size) return 'Pick a room first';
+  const all=draftKids();
+  if(all.length&&draft.picked.size===all.length)
+    return draft.rooms.size===1?`Everyone in ${roomShort([...draft.rooms][0])}`:`Everyone, ${all.length} children`;
   const n=draft.picked.size;
   if(!n) return 'Nobody yet';
   if(n===1) return K([...draft.picked][0]).name;
@@ -3595,17 +3604,15 @@ function sheet(kind,arg){
     const ty=POST_TYPES.find(x=>x[0]===draft.type)||POST_TYPES[0];
     const [f,i2]=pal(draft.type);
     const n2=draftCount();
-    const roomPanel=`<div class="opts">${ROOMS.map(r=>`<button class="opt" data-act="droom:${r.id}">
-      <span class="on2">${r.name}<i>${kidsIn(r.id).length} enrolled</i></span>
-      ${draft.room===r.id?ic('check','ic sm','var(--npds-blue-700)','2.6'):''}</button>`).join('')}</div>`;
+    /* the same control the filters use: checkboxes, a search when the list is
+       long enough to hunt through, and one row that ticks or clears the lot */
+    const roomPanel=fopts(ROOMS.filter(r=>inRoom(r.id)).map(r=>[r.id,r.name,`${kidsIn(r.id).length} enrolled`]),
+      v=>draft.rooms.has(v),'droomm',ROOMS.filter(r=>inRoom(r.id)).length>5,'droomall');
     const isFood=draft.type==='meal';  /* the director's id for Food */
-    const kidPanel=draft.room?`<div class="opts">
-      <button class="opt" data-act="dall"><span class="on2">Everyone in ${roomShort(draft.room)}</span>
-       ${draft.everyone?ic('check','ic sm','var(--npds-blue-700)','2.6'):''}</button>
-      ${draftKids().map(k=>`<button class="opt" data-act="dkid:${k.id}">
-        <span class="on2">${m(k.name)}<i>${k.age}</i></span>
-        ${(!draft.everyone&&draft.picked.has(k.id))?ic('check','ic sm','var(--npds-blue-700)','2.6'):''}</button>`).join('')}
-     </div>`:'<div class="opts"><button class="opt"><span class="on2">Pick a room first</span></button></div>';
+    const kidPanel=draft.rooms.size
+      ? fopts(draftKids().map(k=>[k.id,k.name,`${k.age} · ${roomShort(k.room)}`]),
+          v=>draft.picked.has(v),'dkidm',draftKids().length>5,'dkidall')
+      : '<div class="opts"><div class="empty">Pick a classroom first.</div></div>';
     html=`<span class="grab"></span>
      <div class="sh-row fixed">
       <button class="bk" data-act="sheet:posttype" aria-label="Change the activity">${ic('left','ic sm','var(--npds-gray-700)','2.2')}</button>
@@ -3614,8 +3621,8 @@ function sheet(kind,arg){
       <button class="sh-x" data-act="close" aria-label="Close">${ic('x','ic sm','var(--ink-2)','2.1')}</button></div>
      <div class="sbody2">
       <div class="grp2">
-       ${grow('dopen:room','Room',draft.room?roomName(draft.room):'Choose',draft.open==='room',!draft.room,roomPanel)}
-       ${grow('dopen:who','Children',whoLabel(),draft.open==='who',!draft.room,kidPanel)}
+       ${grow('dopen:room','Room',draftRoomLabel(),draft.open==='room',!draft.rooms.size,roomPanel)}
+       ${grow('dopen:who','Children',whoLabel(),draft.open==='who',!draft.picked.size,kidPanel)}
        ${grow('dopen:date','Date',dateStr(),draft.open==='date',false,calPop())}
        ${grow('dopen:time','Time',timeStr(),draft.open==='time',false,clockPop('draft'))}
       </div>
@@ -3760,7 +3767,8 @@ function sheet(kind,arg){
   sh.classList.toggle('full',full);
   setTimeout(wirePad,0); setTimeout(wireDial,0);
   setTimeout(()=>{const q=$('#ffq'); if(!q)return;
-    q.oninput=e=>{S.ffq=e.target.value;sheet('filters');
+    const kind=$('#sheet').dataset.kind||'filters';
+    q.oninput=e=>{S.ffq=e.target.value;sheet(kind,kind==='log'?undefined:S.pickArg);
       const nq=$('#ffq'); if(nq){nq.focus();nq.setSelectionRange(nq.value.length,nq.value.length);}};
     if(S.ffq)q.focus();},0);
   $('#scrim').classList.add('on');
@@ -4088,7 +4096,7 @@ function doAct(a){
       draft.sig=false;$('.sigh3')?.classList.remove('gone');break;}
     case 'ptype': draft.type=arg;draft.open=null;sheet('log');break;
     case 'dopen':{const d=$('#det'); if(d)draft.det=d.value;
-      draft.open=draft.open===arg?null:arg;
+      draft.open=draft.open===arg?null:arg;S.ffq='';
       if(draft.open==='time'){CLK='draft';draft.cmode='h';}
       if(draft.open==='date')draft.mOff=0;
       sheet('log');break;}
@@ -4096,23 +4104,43 @@ function doAct(a){
     case 'cmon': draft.mOff=(draft.mOff||0)+(+arg);repaintCal();break;
     case 'dmeal': draft.meal=arg;draft.qty='';draft.open='qty';sheet('log');break;
     case 'dqty': draft.qty=arg;draft.open=null;sheet('log');break;
-    case 'droom': draft.room=arg;draft.everyone=true;draft.picked.clear();draft.open='who';sheet('log');break;
-    case 'dall': draft.everyone=true;draft.picked.clear();sheet('log');break;
-    case 'dkid':{draft.everyone=false;
-      draft.picked.has(arg)?draft.picked.delete(arg):draft.picked.add(arg);sheet('log');break;}
+    /* adding a room brings its children with it, which is what "post to the room"
+       meant before, and removing one takes them away again */
+    case 'droomm':{
+      if(draft.rooms.has(arg)){draft.rooms.delete(arg);
+        kidsIn(arg).forEach(k=>draft.picked.delete(k.id));}
+      else {draft.rooms.add(arg); kidsIn(arg).forEach(k=>draft.picked.add(k.id));}
+      sheet('log');break;}
+    case 'droomall':
+      draft.rooms.clear();draft.picked.clear();
+      if(arg==='all')ROOMS.filter(r=>inRoom(r.id)).forEach(r=>{
+        draft.rooms.add(r.id);kidsIn(r.id).forEach(k=>draft.picked.add(k.id));});
+      sheet('log');break;
+    case 'dkidm': draft.picked.has(arg)?draft.picked.delete(arg):draft.picked.add(arg);
+      sheet('log');break;
+    case 'dkidall': draft.picked.clear();
+      if(arg==='all')draftKids().forEach(k=>draft.picked.add(k.id));
+      sheet('log');break;
     case 'dvis':{const d=$('#det'); if(d)draft.det=d.value; draft.vis=arg;sheet('log');break;}
     case 'dopost':{const d=$('#det'); if(d)draft.det=d.value;
       const ty=POST_TYPES.find(x=>x[0]===draft.type);
       const n2=draftCount();
-      if(!draft.room||!n2){toast('Pick a room and who it is for');break;}
-      ACTIVITIES.unshift({id:'a'+Date.now(),kid:draft.everyone?'Room':K([...draft.picked][0]).name,
-        ini:'DM',type:draft.type,icon:ty[2],title:ty[1],by:CENTER.director,
-        room:roomName(draft.room),rid:draft.room,
+      if(!draft.rooms.size||!n2){toast('Pick a classroom and who it is for');break;}
+      /* one entry per classroom, so each room's feed reads as its own day */
+      const picked=[...draft.picked].map(id=>K(id)).filter(Boolean);
+      [...draft.rooms].forEach(rid=>{
+        const inRm=picked.filter(k=>k.room===rid);
+        if(!inRm.length) return;
+        const whole=inRm.length===kidsIn(rid).length;
+        ACTIVITIES.unshift({id:'a'+Date.now()+rid,kid:whole?'Room':inRm[0].name,
+        ini:ROLE.ini,type:draft.type,icon:ty[2],title:ty[1],by:ROLE.who,
+        room:roomName(rid),rid:rid,
         at:timeStr(),on:dateStr(),
         review:false,body:draft.det||`${ty[1]} logged for ${whoLabel().toLowerCase()}.`});
+      });
       closeSheet();
       toast(`Posted to ${n2} ${n2===1?'family':'families'}`);
-      draft={type:'note',room:null,picked:new Set(),everyone:true,open:null,det:'',vis:'parents',sig:false,
+      draft={type:'note',rooms:new Set(),picked:new Set(),open:null,det:'',vis:'parents',sig:false,
         off:0,mOff:0,t:nowT(),cmode:'h',meal:'Lunch',qty:''};
       render(true);break;}
     case 'cfyes':{const f=pending;confirmClose();if(f)f();break;}
