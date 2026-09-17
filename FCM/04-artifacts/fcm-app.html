@@ -1104,9 +1104,6 @@
   .cf-card p{margin:0 0 18px;font-size:14px;line-height:1.5;color:var(--ink-2)}
   .cf-card .primary{margin:0;width:100%}
   .cf-card .second{margin-top:9px;width:100%}
-  /* the dial's own way out */
-  .cfoot{display:flex;justify-content:flex-end;margin-top:8px;padding-bottom:2px}
-  .cfoot .mini.lbl{min-height:36px;padding:0 18px;font-size:13px;gap:6px}
 </style>
 </head>
 <body>
@@ -1991,7 +1988,6 @@ function clockPop(which='mark'){
     <line class="mh" x1="120" y1="120" x2="${120+Math.cos((ma-90)*Math.PI/180)*82}"
      y2="${120+Math.sin((ma-90)*Math.PI/180)*82}"/>
     <circle class="pin" cx="120" cy="120" r="5"/></svg>
-   <div class="cfoot"><button class="mini lbl pri" data-act="clockdone">${ic('check','ic sm','currentColor','2.4')}Done</button></div>
    </div>`;
 }
 function wireDial(){
@@ -3251,6 +3247,7 @@ function sheet(kind,arg){
     const people=[f.contact+' · parent','Grandparent · on file','Authorized pickup · on file'];
     const sel=S.pick||people[0];
     html=`<span class="grab"></span>
+     <button class="sh-x" data-act="close" aria-label="Close">${ic('x','ic sm','var(--ink-2)','2.1')}</button>
      <div class="sh-kid"><span class="av lg">${m(k.ini)}${statusDot(k)}</span>
       <span class="rt"><b>${m(k.name)}</b><small>${roomName(k.room)} · ${k.status==='here'?'here since '+k.tin:k.status==='absent'?'absent today':'not checked in'}</small></span></div>
      <span class="flabel" style="display:flex;gap:8px;align-items:center;margin:0 2px 9px">
@@ -3610,6 +3607,7 @@ function sheet(kind,arg){
       <span style="flex:1"><b>${r.name}</b><small>${kidsIn(r.id).length} enrolled · ${here(kidsIn(r.id))} in</small></span></button>`).join('')}`;
   } else if(kind==='rooms'){
     html=`<span class="grab"></span>
+     <button class="sh-x" data-act="close" aria-label="Close">${ic('x','ic sm','var(--ink-2)','2.1')}</button>
      <h3 class="sh-h">Which rooms</h3>
      <p class="sh-sub">The director's view spans the centre. Narrow it to one room.</p>
      <button class="sh-opt" data-act="roomsel:all" style="${S.room==='all'?'border-color:var(--npds-blue-500);background:var(--npds-blue-100)':''}">
@@ -3634,6 +3632,7 @@ function sheet(kind,arg){
       <span class="rt"><b>${l}</b><small>${sub}</small></span>
       ${ic('arrow','ic sm','var(--ink-3)')}</div>`;
     html=`<span class="grab"></span>
+     <button class="sh-x" data-act="close" aria-label="Close">${ic('x','ic sm','var(--ink-2)','2.1')}</button>
      <h3 class="sh-h">Attendance</h3>
      <p class="sh-sub">${dayLabel(S.day)} · ${S.room==='all'?'all rooms':roomName(S.room)}</p>
      <div class="card list roomy">
@@ -3677,6 +3676,7 @@ function sheet(kind,arg){
      <button class="ghost" data-act="close">Close</button>`;
   } else if(kind==='print'){
     html=`<span class="grab"></span>
+     <button class="sh-x" data-act="close" aria-label="Close">${ic('x','ic sm','var(--ink-2)','2.1')}</button>
      <h3 class="sh-h">Print what is on screen</h3>
      <p class="sh-sub">Takes the current date and filters with it.</p>
      <button class="sh-opt" data-act="doprint:PDF"><span class="tile-i">${ic('doc','ic sm','var(--ink-2)','1.8')}</span><span style="flex:1"><b>PDF</b><small>Printable sheet, one page</small></span></button>
@@ -3685,6 +3685,7 @@ function sheet(kind,arg){
   } else if(kind==='remind'){
     const f=F(arg);
     html=`<span class="grab"></span>
+     <button class="sh-x" data-act="close" aria-label="Close">${ic('x','ic sm','var(--ink-2)','2.1')}</button>
      <h3 class="sh-h">Remind the ${m(f.name)} family</h3>
      <p class="sh-sub">${m(money(f.balance))} outstanding · ${m(f.email)}</p>
      <button class="sh-opt" data-act="doremind:email"><span class="tile-i">${ic('mail','ic sm','var(--ink-2)','1.8')}</span><span style="flex:1"><b>Email the statement</b><small>Balance, due date and a pay link</small></span></button>
@@ -3693,6 +3694,7 @@ function sheet(kind,arg){
   } else if(kind==='payment'){
     const f=F(arg);
     html=`<span class="grab"></span>
+     <button class="sh-x" data-act="close" aria-label="Close">${ic('x','ic sm','var(--ink-2)','2.1')}</button>
      <h3 class="sh-h">Record a payment</h3>
      <p class="sh-sub">${m(f.name)} family · ${m(money(f.balance))} outstanding</p>
      <button class="sh-opt" data-act="dopay:full"><span class="tile-i">${ic('dollar','ic sm','var(--present)','1.8')}</span><span style="flex:1"><b>Paid in full · ${m(money(f.balance))}</b><small>Clears the balance today</small></span></button>
@@ -3701,6 +3703,7 @@ function sheet(kind,arg){
   } else if(kind==='review'){
     const a=ACTIVITIES.find(x=>x.id===arg);
     html=`<span class="grab"></span>
+     <button class="sh-x" data-act="close" aria-label="Close">${ic('x','ic sm','var(--ink-2)','2.1')}</button>
      <h3 class="sh-h">Incident · ${m(a.kid)}</h3>
      <p class="sh-sub">${a.room} · logged ${a.at} by ${a.by}</p>
      <div class="card" style="padding:13px 15px;margin-bottom:12px;font-size:12.5px;line-height:1.55;color:var(--ink-2)">
@@ -3854,11 +3857,6 @@ function doAct(a){
       if(S.markOpen)setTimeout(()=>document.querySelector('.clockpop')?.scrollIntoView({block:'nearest',behavior:'smooth'}),80);
       break;
     /* whichever clock the dial is driving — the check in mark, or the draft's time */
-    /* whichever clock is open, Done puts it away */
-    case 'clockdone':
-      if(CLK==='draft'){draft.open=null;sheet('log');}
-      else {S.markOpen=false;sheet($('#sheet').dataset.kind||'checkout',S.pickArg);}
-      break;
     case 'mcmode': setClkMode(arg);repaintClock();break;
     case 'map': clkT().ap=arg;repaintClock();break;
     case 'selmode': closeSheet();S.selecting=!S.selecting;S.sel.clear();render();break;
