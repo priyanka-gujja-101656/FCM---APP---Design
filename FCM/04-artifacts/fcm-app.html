@@ -3416,21 +3416,25 @@ function sheet(kind,arg){
         <p>${roomName(k.room)} will be told before ${fn} joins the room.</p></div>`:''}
      </div>
      <div class="shfoot2"><button class="primary" data-act="tosign:${arg}">Continue to signature</button></div>`;
-  } else if(kind==='signin'){
+  } else if(kind==='signin'||kind==='signout'){
+    /* Going out needs a signature but no health screen — nobody is being
+       admitted to a room. It is also the parent collecting their own child, so
+       there is nothing to ask about who is picking up. */
     const k=K(arg), fn=m(k.name.split(' ')[0]), f=F(k.fam);
+    const out=kind==='signout';
     full=true;
     html=`<span class="grab"></span>
      <div class="sh-row fixed">
-      <button class="bk" data-act="checkin:${arg}" aria-label="Back to the health check">${ic('left','ic sm','var(--npds-gray-700)','2.2')}</button>
-      <h3 class="sh-h flat">Sign to check in ${fn}</h3>
+      ${out?'':`<button class="bk" data-act="checkin:${arg}" aria-label="Back to the health check">${ic('left','ic sm','var(--npds-gray-700)','2.2')}</button>`}
+      <h3 class="sh-h flat">Sign to check ${out?'out':'in'} ${fn}</h3>
       <button class="sh-x" data-act="close" aria-label="Close">${ic('x','ic sm','var(--ink-2)','2.1')}</button></div>
-     <span class="flabel" style="margin:6px 2px 9px">${m(f.contact)} &middot; parent</span>
+     <span class="flabel" style="margin:6px 2px 9px">${m(f.contact)} &middot; parent${out?` &middot; ${fn} has been in since ${k.tin}`:''}</span>
      <div class="sigwrap tall"><canvas id="pad" width="640" height="560"></canvas>
       <span class="sigh3${S.inSig?' gone':''}">${ic('pen','ic sm','var(--ink-3)','1.8')}Sign here</span>
       <button class="sigc2" data-act="clearsig">Clear</button></div>
      <div class="shfoot2" style="padding-top:16px">
-      <button class="primary${S.inSig?'':' off'}" data-act="${S.inSig?`docheckin:${arg}`:'nosig'}" style="width:100%">
-       ${ic('in','ic','currentColor','1.8')}Check in ${fn}</button></div>`;
+      <button class="${out?'second':'primary'}${S.inSig?'':' off'}" data-act="${S.inSig?`do${out?'checkout':'checkin'}:${arg}`:'nosig'}" style="width:100%">
+       ${ic(out?'out':'in','ic','currentColor','1.8')}Check ${out?'out':'in'} ${fn}</button></div>`;
   } else if(kind==='actions'){
     const items=actionItems();
     tall=true;
@@ -3880,7 +3884,7 @@ function sheet(kind,arg){
   }
   sh.innerHTML=html;
   sh.dataset.kind=kind;
-  if(kind==='checkin'||kind==='checkout'||kind==='health'||kind==='signin')S.pickArg=arg;
+  if(['checkin','checkout','health','signin','signout'].includes(kind))S.pickArg=arg;
   if(kind==='relocate')S.relArg=arg;
   sh.classList.toggle('tall',tall);
   sh.classList.toggle('formsheet',form);
@@ -3909,8 +3913,9 @@ function wirePad(){
     draft.sig=true;S.inSig=true;$('.sigh3')?.classList.add('gone');
     /* the check-in button is enabled in place: re-rendering the sheet here
        would clear the canvas the parent is still drawing on */
-    const b=$('#sheet .shfoot2 .primary.off');
-    if(b&&S.pickArg){b.classList.remove('off');b.dataset.act='docheckin:'+S.pickArg;}
+    const b=$('#sheet .shfoot2 .off');
+    if(b&&S.pickArg){b.classList.remove('off');
+      b.dataset.act=($('#sheet').dataset.kind==='signout'?'docheckout:':'docheckin:')+S.pickArg;}
     e.preventDefault();};
   const move=e=>{if(!drawing)return;x.lineTo(...pos(e));x.stroke();e.preventDefault();};
   const end=()=>{drawing=false;};
@@ -4131,11 +4136,13 @@ function doAct(a){
       S.pick=null; parseMark(cmd==='checkout'?'':k.tin);
       /* A parent is signed in, so there is nobody to identify. Their check-in is
          the health screen and a signature instead — staff keep the sheet above. */
-      if(cmd==='checkin'&&ROLE.scope==='family'){S.inSig=false;sheet('health',arg);break;}
+      if(ROLE.scope==='family'){S.inSig=false;
+        /* in: health screen first, then sign. out: just sign. */
+        sheet(cmd==='checkin'?'health':'signout',arg);break;}
       sheet(cmd,arg);break;}
     case 'hqa':{const[i,v,id]=arg.split(':');S.hq[i]=v;sheet('health',id);break;}
     case 'tosign':{S.inSig=false;sheet('signin',arg);break;}
-    case 'nosig': toast('Sign in the box to check in');break;
+    case 'nosig': toast('Sign in the box first');break;
     /* nothing tapped means the first name on the list, which is what the sheet shows selected */
     case 'docheckin':{const k=K(arg);k.status='here';k.tin=markStr();
       k.who=(S.pick||F(k.fam).contact+' · parent').split(' · ')[0];
@@ -4146,6 +4153,7 @@ function doAct(a){
       closeSheet();toast(`<b>${k.name}</b> checked in at ${markStr()}`);render(true);break;}
     case 'docheckout':{const k=K(arg);k.status='out';k.tout=markStr();
       k.collectedBy=(S.pick||F(k.fam).contact+' · parent').split(' · ')[0];
+      if(ROLE.scope==='family'){k.signedOut=F(k.fam).contact;S.inSig=false;}
       closeSheet();toast(`<b>${k.name}</b> checked out at ${markStr()}`);render(true);break;}
     case 'doabsent':{const k=K(arg);closeSheet();
       confirmAsk({title:`Mark ${m(k.name)} absent?`,
@@ -4254,8 +4262,8 @@ function doAct(a){
       render(true);break;}
     case 'clearsig':{const c=$('#pad'); if(c)c.getContext('2d').clearRect(0,0,c.width,c.height);
       draft.sig=false;S.inSig=false;$('.sigh3')?.classList.remove('gone');
-      const b=$('#sheet .shfoot2 .primary');
-      if(b&&$('#sheet').dataset.kind==='signin'){b.classList.add('off');b.dataset.act='nosig';}
+      const kd=$('#sheet').dataset.kind, b=$('#sheet .shfoot2 .primary, #sheet .shfoot2 .second');
+      if(b&&(kd==='signin'||kd==='signout')){b.classList.add('off');b.dataset.act='nosig';}
       break;}
     case 'ptype':{const keep=draft.type; draft=freshDraft(); draft.t=nowT();
       draft.type=arg; sheet('log'); break;}
