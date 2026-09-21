@@ -894,6 +894,11 @@
   .sigwrap{position:relative;border:1px dashed rgba(44,49,43,.22);border-radius:10px;
     background:rgba(255,255,255,.6);height:96px;overflow:hidden}
   .sigwrap canvas{width:100%;height:96px;display:block;touch-action:none;cursor:crosshair}
+  /* the parent's check-in signature gets the whole sheet, so the pad grows
+     instead of sitting at the fixed 96px the activity draft uses */
+  .sigwrap.tall{height:auto;flex:1;min-height:0}
+  .sigwrap.tall canvas{height:100%}
+  .sigwrap.tall .sigh3{top:50%;transform:translateY(-50%)}
   .sigh3{position:absolute;left:0;right:0;top:36px;display:flex;align-items:center;gap:6px;
     justify-content:center;font-size:13px;color:var(--ink-3);pointer-events:none;transition:opacity .18s}
   .sigh3.gone{opacity:0}
@@ -1471,7 +1476,9 @@ const S={tab:(ROLES[roleFromUrl()].tabs[0][0]),sub:null,arg:null,stack:[],q:'',m
   childTab:'overview',famTab:'general',staffTab:'overview',acctTab:'activity',msgScope:'all',
   resolved:{},paid:{},assistant:[],draft:'',
   mark:{h:7,m:32,ap:'AM'},markMode:'h',markOpen:false,dir:'in',bulkDir:'out',
-  kid:null,pfilter:'all',ack:{},pOpen:false,fopen:null,ffq:''};
+  kid:null,pfilter:'all',ack:{},pOpen:false,fopen:null,ffq:'',
+  /* a parent's check-in: the health screen's answers, and whether the pad has ink */
+  hq:{},inSig:false};
 
 /* ---------- helpers ---------- */
 const $=(s,r=document)=>r.querySelector(s);
@@ -3384,6 +3391,46 @@ function sheet(kind,arg){
      </div>
      <button class="${out?'second':'primary'}" data-act="do${kind}:${arg}" style="width:100%;margin-top:14px">
       ${ic(out?'out':'in','ic','currentColor','1.8')}Check ${out?'out':'in'} ${m(k.name.split(' ')[0])}</button>`;
+  } else if(kind==='health'){
+    /* A signed-in parent is already identified, so they are never asked who is
+       at the door. These two sheets are theirs alone: the staff pickup sheet
+       above is untouched, which is what keeps the teacher app's flow intact. */
+    const k=K(arg), fn=m(k.name.split(' ')[0]);
+    form=true;
+    const Q=[`Has ${fn} had a fever over 100.4&deg;F in the last 24 hours?`,
+             'Any new cough, sore throat, vomiting or diarrhea?',
+             `Any medication given today the room should know about?`];
+    const flagged=Q.some((q,i)=>S.hq[i]==='yes');
+    html=`<span class="grab"></span>
+     <div class="sh-row fixed">
+      <h3 class="sh-h flat">Today&rsquo;s health check</h3>
+      <button class="sh-x" data-act="close" aria-label="Close">${ic('x','ic sm','var(--ink-2)','2.1')}</button></div>
+     <p class="sh-sub">${m(k.name)} &middot; ${roomName(k.room)}</p>
+     <div class="sbody2">
+      <div class="grp2">${Q.map((q,i)=>`<div class="grblock"><i>${q}</i>
+        <div class="segpill2">
+         <button class="sgp${S.hq[i]==='yes'?' on':''}" data-act="hqa:${i}:yes:${arg}">Yes</button>
+         <button class="sgp${(S.hq[i]||'no')==='no'?' on':''}" data-act="hqa:${i}:no:${arg}">No</button>
+        </div></div>`).join('')}</div>
+      ${flagged?`<div class="noterow" style="margin:12px 0 0"><span class="nr-i">${ic('alert','ic sm','currentColor','1.8')}</span>
+        <p>${roomName(k.room)} will be told before ${fn} joins the room.</p></div>`:''}
+     </div>
+     <div class="shfoot2"><button class="primary" data-act="tosign:${arg}">Continue to signature</button></div>`;
+  } else if(kind==='signin'){
+    const k=K(arg), fn=m(k.name.split(' ')[0]), f=F(k.fam);
+    full=true;
+    html=`<span class="grab"></span>
+     <div class="sh-row fixed">
+      <button class="bk" data-act="checkin:${arg}" aria-label="Back to the health check">${ic('left','ic sm','var(--npds-gray-700)','2.2')}</button>
+      <h3 class="sh-h flat">Sign to check in ${fn}</h3>
+      <button class="sh-x" data-act="close" aria-label="Close">${ic('x','ic sm','var(--ink-2)','2.1')}</button></div>
+     <span class="flabel" style="margin:6px 2px 9px">${m(f.contact)} &middot; parent</span>
+     <div class="sigwrap tall"><canvas id="pad" width="640" height="560"></canvas>
+      <span class="sigh3${S.inSig?' gone':''}">${ic('pen','ic sm','var(--ink-3)','1.8')}Sign here</span>
+      <button class="sigc2" data-act="clearsig">Clear</button></div>
+     <div class="shfoot2" style="padding-top:16px">
+      <button class="primary${S.inSig?'':' off'}" data-act="${S.inSig?`docheckin:${arg}`:'nosig'}" style="width:100%">
+       ${ic('in','ic','currentColor','1.8')}Check in ${fn}</button></div>`;
   } else if(kind==='actions'){
     const items=actionItems();
     tall=true;
@@ -3832,7 +3879,8 @@ function sheet(kind,arg){
      <div class="sh-acts"><button class="second" data-act="close">Close</button></div>`;
   }
   sh.innerHTML=html;
-  sh.dataset.kind=kind; if(kind==='checkin'||kind==='checkout')S.pickArg=arg;
+  sh.dataset.kind=kind;
+  if(kind==='checkin'||kind==='checkout'||kind==='health'||kind==='signin')S.pickArg=arg;
   if(kind==='relocate')S.relArg=arg;
   sh.classList.toggle('tall',tall);
   sh.classList.toggle('formsheet',form);
@@ -3858,7 +3906,12 @@ function wirePad(){
   const pos=e=>{const r=c.getBoundingClientRect();const t=e.touches?e.touches[0]:e;
     return [(t.clientX-r.left)*(c.width/r.width),(t.clientY-r.top)*(c.height/r.height)];};
   const start=e=>{drawing=true;x.beginPath();x.moveTo(...pos(e));
-    draft.sig=true;$('.sigh3')?.classList.add('gone');e.preventDefault();};
+    draft.sig=true;S.inSig=true;$('.sigh3')?.classList.add('gone');
+    /* the check-in button is enabled in place: re-rendering the sheet here
+       would clear the canvas the parent is still drawing on */
+    const b=$('#sheet .shfoot2 .primary.off');
+    if(b&&S.pickArg){b.classList.remove('off');b.dataset.act='docheckin:'+S.pickArg;}
+    e.preventDefault();};
   const move=e=>{if(!drawing)return;x.lineTo(...pos(e));x.stroke();e.preventDefault();};
   const end=()=>{drawing=false;};
   c.addEventListener('pointerdown',start);c.addEventListener('pointermove',move);
@@ -4075,10 +4128,21 @@ function doAct(a){
     case 'mask': S.mask=!S.mask;render(true);toast(S.mask?'Sensitive data hidden':'Data visible again');break;
 
     case 'checkin': case 'checkout':{const k=K(arg);
-      S.pick=null; parseMark(cmd==='checkout'?'':k.tin); sheet(cmd,arg);break;}
+      S.pick=null; parseMark(cmd==='checkout'?'':k.tin);
+      /* A parent is signed in, so there is nobody to identify. Their check-in is
+         the health screen and a signature instead — staff keep the sheet above. */
+      if(cmd==='checkin'&&ROLE.scope==='family'){S.inSig=false;sheet('health',arg);break;}
+      sheet(cmd,arg);break;}
+    case 'hqa':{const[i,v,id]=arg.split(':');S.hq[i]=v;sheet('health',id);break;}
+    case 'tosign':{S.inSig=false;sheet('signin',arg);break;}
+    case 'nosig': toast('Sign in the box to check in');break;
     /* nothing tapped means the first name on the list, which is what the sheet shows selected */
     case 'docheckin':{const k=K(arg);k.status='here';k.tin=markStr();
       k.who=(S.pick||F(k.fam).contact+' · parent').split(' · ')[0];
+      if(ROLE.scope==='family'){
+        k.health=Object.values(S.hq).includes('yes')?'flagged':'clear';
+        k.signed=F(k.fam).contact; S.hq={}; S.inSig=false;
+      }
       closeSheet();toast(`<b>${k.name}</b> checked in at ${markStr()}`);render(true);break;}
     case 'docheckout':{const k=K(arg);k.status='out';k.tout=markStr();
       k.collectedBy=(S.pick||F(k.fam).contact+' · parent').split(' · ')[0];
@@ -4189,7 +4253,10 @@ function doAct(a){
       compose={to:new Set(),subject:'',body:'',att:false,open:null,room:null};
       render(true);break;}
     case 'clearsig':{const c=$('#pad'); if(c)c.getContext('2d').clearRect(0,0,c.width,c.height);
-      draft.sig=false;$('.sigh3')?.classList.remove('gone');break;}
+      draft.sig=false;S.inSig=false;$('.sigh3')?.classList.remove('gone');
+      const b=$('#sheet .shfoot2 .primary');
+      if(b&&$('#sheet').dataset.kind==='signin'){b.classList.add('off');b.dataset.act='nosig';}
+      break;}
     case 'ptype':{const keep=draft.type; draft=freshDraft(); draft.t=nowT();
       draft.type=arg; sheet('log'); break;}
     case 'dopen':{const d=$('#det'); if(d)draft.det=d.value;
