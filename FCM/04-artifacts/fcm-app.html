@@ -1477,8 +1477,10 @@ const S={tab:(ROLES[roleFromUrl()].tabs[0][0]),sub:null,arg:null,stack:[],q:'',m
   resolved:{},paid:{},assistant:[],draft:'',
   mark:{h:7,m:32,ap:'AM'},markMode:'h',markOpen:false,dir:'in',bulkDir:'out',
   kid:null,pfilter:'all',ack:{},pOpen:false,fopen:null,ffq:'',
-  /* a parent's check-in: the health screen's answers, and whether the pad has ink */
-  hq:{},inSig:false};
+  /* a parent's check-in: the health screen's answers, and whether the pad has ink.
+     multi holds the children the All row is doing at once, in order, with a
+     health answer kept per child and one signature taken at the end. */
+  hq:{},inSig:false,multi:[],multiHealth:{}};
 
 /* ---------- helpers ---------- */
 const $=(s,r=document)=>r.querySelector(s);
@@ -3405,7 +3407,9 @@ function sheet(kind,arg){
      <div class="sh-row fixed">
       <h3 class="sh-h flat">Today&rsquo;s health check</h3>
       <button class="sh-x" data-act="close" aria-label="Close">${ic('x','ic sm','var(--ink-2)','2.1')}</button></div>
-     <p class="sh-sub">${m(k.name)} &middot; ${roomName(k.room)}</p>
+     <p class="sh-sub">${m(k.name)} &middot; ${roomName(k.room)}${(()=>{
+       const at=S.multi.indexOf(arg);
+       return S.multi.length>1&&at>-1?` &middot; ${at+1} of ${S.multi.length}`:'';})()}</p>
      <div class="sbody2">
       <div class="grp2">${Q.map((q,i)=>`<div class="grblock"><i>${q}</i>
         <div class="segpill2">
@@ -3415,26 +3419,39 @@ function sheet(kind,arg){
       ${flagged?`<div class="noterow" style="margin:12px 0 0"><span class="nr-i">${ic('alert','ic sm','currentColor','1.8')}</span>
         <p>${roomName(k.room)} will be told before ${fn} joins the room.</p></div>`:''}
      </div>
-     <div class="shfoot2"><button class="primary" data-act="tosign:${arg}">Continue to signature</button></div>`;
+     ${(()=>{
+       /* the health screen is per child, so with more than one to do the
+          button moves to the next one and the signature waits for the end */
+       const at=S.multi.indexOf(arg);
+       const more=S.multi.length>1&&at>-1&&at<S.multi.length-1;
+       return `<div class="shfoot2"><button class="primary" data-act="${more?`hnext:${arg}`:`tosign:${arg}`}">${
+         more?'Next child':'Continue to signature'}</button></div>`;})()}`;
   } else if(kind==='signin'||kind==='signout'){
     /* Going out needs a signature but no health screen — nobody is being
        admitted to a room. It is also the parent collecting their own child, so
        there is nothing to ask about who is picking up. */
     const k=K(arg), fn=m(k.name.split(' ')[0]), f=F(k.fam);
     const out=kind==='signout';
+    /* One signature covers however many children this adult is signing for,
+       because a signature is per person and the health screen is per child. */
+    const many=S.multi.length>1;
+    const firsts=S.multi.map(id=>K(id)).filter(Boolean).map(x=>m(x.name.split(' ')[0]));
+    const who=many?firsts.slice(0,-1).join(', ')+' and '+firsts[firsts.length-1]:fn;
+    const label=many?(firsts.length===2?'both':`all ${firsts.length}`):fn;
     full=true;
     html=`<span class="grab"></span>
      <div class="sh-row fixed">
-      ${out?'':`<button class="bk" data-act="checkin:${arg}" aria-label="Back to the health check">${ic('left','ic sm','var(--npds-gray-700)','2.2')}</button>`}
-      <h3 class="sh-h flat">Sign to check ${out?'out':'in'} ${fn}</h3>
+      ${out?'':`<button class="bk" data-act="${many?`hback:${arg}`:`checkin:${arg}`}" aria-label="Back to the health check">${ic('left','ic sm','var(--npds-gray-700)','2.2')}</button>`}
+      <h3 class="sh-h flat">Sign to check ${out?'out':'in'} ${who}</h3>
       <button class="sh-x" data-act="close" aria-label="Close">${ic('x','ic sm','var(--ink-2)','2.1')}</button></div>
-     <span class="flabel" style="margin:6px 2px 9px">${m(f.contact)} &middot; parent${out?` &middot; ${fn} has been in since ${k.tin}`:''}</span>
+     <span class="flabel" style="margin:6px 2px 9px">${m(f.contact)} &middot; parent${out&&!many?` &middot; ${fn} has been in since ${k.tin}`:''}</span>
      <div class="sigwrap tall"><canvas id="pad" width="640" height="560"></canvas>
       <span class="sigh3${S.inSig?' gone':''}">${ic('pen','ic sm','var(--ink-3)','1.8')}Sign here</span>
       <button class="sigc2" data-act="clearsig">Clear</button></div>
      <div class="shfoot2" style="padding-top:16px">
-      <button class="${out?'second':'primary'}${S.inSig?'':' off'}" data-act="${S.inSig?`do${out?'checkout':'checkin'}:${arg}`:'nosig'}" style="width:100%">
-       ${ic(out?'out':'in','ic','currentColor','1.8')}Check ${out?'out':'in'} ${fn}</button></div>`;
+      <button class="${out?'second':'primary'}${S.inSig?'':' off'}" data-act="${
+        S.inSig?(many?`domulti:${out?'out':'in'}`:`do${out?'checkout':'checkin'}:${arg}`):'nosig'}" style="width:100%">
+       ${ic(out?'out':'in','ic','currentColor','1.8')}Check ${out?'out':'in'} ${label}</button></div>`;
   } else if(kind==='actions'){
     const items=actionItems();
     tall=true;
@@ -3915,7 +3932,9 @@ function wirePad(){
        would clear the canvas the parent is still drawing on */
     const b=$('#sheet .shfoot2 .off');
     if(b&&S.pickArg){b.classList.remove('off');
-      b.dataset.act=($('#sheet').dataset.kind==='signout'?'docheckout:':'docheckin:')+S.pickArg;}
+      const out=$('#sheet').dataset.kind==='signout';
+      b.dataset.act=S.multi.length>1 ? `domulti:${out?'out':'in'}`
+        : (out?'docheckout:':'docheckin:')+S.pickArg;}
     e.preventDefault();};
   const move=e=>{if(!drawing)return;x.lineTo(...pos(e));x.stroke();e.preventDefault();};
   const end=()=>{drawing=false;};
@@ -4046,10 +4065,32 @@ function doAct(a){
     /* a parent doing both children at once gets the same bulk sheet and the
        same clock a director does — scoped to their own */
     case 'pall':{const out=arg==='out';
-      S.sel.clear();
-      myKids().filter(k=>out?k.status==='here':k.status!=='here').forEach(k=>S.sel.add(k.id));
-      if(!S.sel.size){toast('Nothing to do');break;}
+      const q=myKids().filter(k=>out?k.status==='here':k.status!=='here');
+      if(!q.length){toast('Nothing to do');break;}
+      /* A parent doing both children at once gets the same two sheets as one
+         child: a health screen each on the way in, then one signature for the
+         lot. Staff keep the bulk sheet, which is a time and a count. */
+      if(ROLE.scope==='family'){
+        S.multi=q.map(k=>k.id); S.multiHealth={}; S.hq={}; S.inSig=false; parseMark('');
+        sheet(out?'signout':'health',S.multi[0]); break;}
+      S.sel.clear(); q.forEach(k=>S.sel.add(k.id));
       S.bulkDir=arg; parseMark(''); sheet('bulk'); break;}
+    /* one health screen done, move to the next child and start their answers clean */
+    case 'hnext':{S.multiHealth[arg]=Object.values(S.hq).includes('yes')?'flagged':'clear';
+      S.hq={}; const i=S.multi.indexOf(arg);
+      sheet('health',S.multi[i+1]); break;}
+    case 'hback':{const i=S.multi.indexOf(arg);
+      S.hq={}; sheet('health',S.multi[Math.max(0,i)]); break;}
+    case 'domulti':{const out=arg==='out', t=markStr();
+      const kids=S.multi.map(id=>K(id)).filter(Boolean);
+      const firsts=kids.map(k=>m(k.name.split(' ')[0]));
+      kids.forEach(k=>{const c=F(k.fam).contact;
+        if(out){k.status='out';k.tout=t;k.collectedBy=c;k.signedOut=c;}
+        else{k.status='here';k.tin=t;k.who=c;k.health=S.multiHealth[k.id]||'clear';k.signed=c;}});
+      S.multi=[];S.multiHealth={};S.hq={};S.inSig=false;
+      closeSheet();
+      toast(`<b>${firsts.slice(0,-1).join(', ')} and ${firsts[firsts.length-1]}</b> checked ${out?'out':'in'} at ${t}`);
+      render(true);break;}
     case 'pfilter': S.pfilter=arg;render(true);break;
     case 'ack':{S.ack[arg]=true;const a=ACTIVITIES.find(x=>x.id===arg);
       toast(`Thank you — the room knows you saw ${a?m(a.title.split('·')[0].trim().toLowerCase()):'it'}`);render(true);break;}
@@ -4136,12 +4177,15 @@ function doAct(a){
       S.pick=null; parseMark(cmd==='checkout'?'':k.tin);
       /* A parent is signed in, so there is nobody to identify. Their check-in is
          the health screen and a signature instead — staff keep the sheet above. */
-      if(ROLE.scope==='family'){S.inSig=false;
+      if(ROLE.scope==='family'){S.inSig=false;S.multi=[];S.hq={};
         /* in: health screen first, then sign. out: just sign. */
         sheet(cmd==='checkin'?'health':'signout',arg);break;}
       sheet(cmd,arg);break;}
     case 'hqa':{const[i,v,id]=arg.split(':');S.hq[i]=v;sheet('health',id);break;}
-    case 'tosign':{S.inSig=false;sheet('signin',arg);break;}
+    case 'tosign':{
+      /* the last child's answers are still in S.hq, so bank them before the pad */
+      if(S.multi.length)S.multiHealth[arg]=Object.values(S.hq).includes('yes')?'flagged':'clear';
+      S.inSig=false;sheet('signin',arg);break;}
     case 'nosig': toast('Sign in the box first');break;
     /* nothing tapped means the first name on the list, which is what the sheet shows selected */
     case 'docheckin':{const k=K(arg);k.status='here';k.tin=markStr();
@@ -4163,7 +4207,9 @@ function doAct(a){
       break;}
 
     case 'sheet': sheet(arg);break;
-    case 'close': closeSheet();break;
+    /* abandoning the sheet abandons the queue too, so a later single check-in
+       is not treated as part of it */
+    case 'close': S.multi=[];S.multiHealth={};closeSheet();break;
     case 'doprint': closeSheet();toast(`Sent to print as ${arg}`);break;
     case 'remind': sheet('remind',arg);break;
     case 'doremind': closeSheet();toast(arg==='email'?'Statement emailed':'Reminder texted');break;
