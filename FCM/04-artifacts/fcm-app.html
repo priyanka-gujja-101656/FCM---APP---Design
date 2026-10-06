@@ -4420,7 +4420,11 @@ const arrBody=()=>
          srow2({n:'Allow unscheduled arrivals',s:'A child not booked for today can still be checked in.',on:CIO.unsched,act:'ciotog:unsched'})])
  +(CIO.late?'':warnbox('A late parent will see <b>\u201cCheck-in is closed. We have notified the staff, please wait.\u201d</b> and staff finish it.'));
 
-const CIOTABS=[['qr','QR code'],['sig','Signature'],['ratio','Ratio'],['arr','Arrivals']];
+/* The tab carries the SHORT label, the way the feature set writes it: QR, not
+   QR code, and Ratio, not Ratio at check-in. The long name is the setting's
+   name, and the topbar is already saying where you are, so spelling it out
+   again in the tab only pushes the pill wider than the card under it. */
+const CIOTABS=[['qr','QR'],['sig','Signature'],['ratio','Ratio'],['arr','Arrivals']];
 const CIOBODY={qr:qrBody,sig:sigBody,ratio:ratioBody,arr:arrBody};
 function vCheckinSettings(){
   const t=S.cioTab;
