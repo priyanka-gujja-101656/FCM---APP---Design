@@ -1607,6 +1607,11 @@
   .tabwrap{flex:none;overflow-x:auto;margin:0 -18px;padding:8px 18px 0;scrollbar-width:none}
   .tabwrap::-webkit-scrollbar{height:0}
   .tabwrap .tabpill{width:max-content}
+  /* Four tabs and no more, so the pill is not a thing you scroll: it spans the
+     column and the four share it, which lines its edges up with the card under
+     it. The detail pages keep the scrolling pill, because they have seven. */
+  .tabwrap .tabpill.fill{width:100%}
+  .tabpill.fill .tp{flex:1;min-width:0;padding-left:4px;padding-right:4px;text-align:center}
   .tabpanel{display:flex;flex-direction:column;flex:none;padding-top:4px}
   .tabpanel .scard{border-radius:var(--r-lg)}
   .tabpanel .srow{min-height:64px;padding:0 18px}
@@ -4429,7 +4434,7 @@ const CIOBODY={qr:qrBody,sig:sigBody,ratio:ratioBody,arr:arrBody};
 function vCheckinSettings(){
   const t=S.cioTab;
   return `${topbar('Check-in and check-out',CENTER.name)}<div class="body">
-   <div class="tabwrap"><div class="tabpill" role="tablist">
+   <div class="tabwrap"><div class="tabpill fill" role="tablist">
     ${CIOTABS.map(([v,l])=>`<button class="tp${t===v?' on':''}" role="tab" aria-selected="${t===v}"
       data-act="ciotab:${v}">${l}</button>`).join('')}
    </div></div>
