@@ -1146,12 +1146,7 @@
     font-family:inherit;text-align:left;color:inherit}
   .kidrow.pick{cursor:pointer}
   .kidrow .av{width:38px;height:38px;font-size:12.5px;flex:none}
-  /* the tick is the selector: tap it or the name to show only that child */
-  .krtick{width:24px;height:24px;border-radius:999px;flex:none;display:grid;place-items:center;
-    background:transparent;box-shadow:inset 0 0 0 1.6px var(--npds-gray-500);cursor:pointer}
-  .kidrow.sel .krtick{background:var(--npds-blue-600);box-shadow:none}
-  .krtick svg{width:13px;height:13px}
-  .kr-t{flex:1;min-width:0;display:flex;flex-direction:column;cursor:pointer}
+  .kr-t{flex:1;min-width:0;display:flex;flex-direction:column}
   .kr-t b{font-size:15px;font-weight:550;letter-spacing:-.008em;line-height:1.25}
   .kr-t small{font-size:12.5px;color:var(--ink-3);margin-top:3px;line-height:1.35}
   .kidrow.sel .kr-t b{color:var(--npds-blue-700)}
@@ -3248,23 +3243,10 @@ function vParentDay(){
     ${open&&!psel?`<div class="kidrows">
      ${kids.length>1?`<div class="krhead"><span>${kids.length} children</span>
        <button class="ph-sel" data-act="pselmode">Select</button></div>`:''}
-     ${kids.length>1?(()=>{
-       /* the All row does what the child rows do, for everyone at once */
-       const anyIn=kids.some(k=>k.status==='here');
-       const n2=kids.filter(k=>anyIn?k.status==='here':k.status!=='here').length;
-       return `<div class="kidrow${everyone?' sel':''}">
-       <span class="krtick" data-act="pkid:all" role="button" tabindex="0"
-         aria-label="Show both children" aria-pressed="${everyone}">${everyone?ic('check','','#fff','3.2'):''}</span>
-       <span class="kr-t" data-act="pkid:all"><b>All</b><small>Both, in time order</small></span>
-       <button class="mini lbl ${anyIn?'sec':'pri'}" data-act="pall:${anyIn?'out':'in'}"
-         aria-label="Check ${anyIn?'out':'in'} both children">${ic(anyIn?'out':'in','ic sm','currentColor','1.9')}Check ${anyIn?'out':'in'}</button>
-      </div>`;})():''}
-     ${kids.map(k=>{const sel=!everyone&&kid&&k.id===kid.id;
-      return `<div class="kidrow${sel?' sel':''}">
-      ${kids.length>1?`<span class="krtick" data-act="pkid:${k.id}" role="button" tabindex="0"
-        aria-label="Show only ${k.name}" aria-pressed="${sel}">${sel?ic('check','','#fff','3.2'):''}</span>`
-        :`<span class="av">${m(k.ini)}${statusDot(k)}</span>`}
-      <span class="kr-t"${kids.length>1?` data-act="pkid:${k.id}"`:''}><b>${first(k)}</b><small>${roomName(k.room)} · ${st(k)}</small></span>
+     ${kids.map(k=>{
+      return `<div class="kidrow">
+      ${kids.length>1?'':`<span class="av">${m(k.ini)}${statusDot(k)}</span>`}
+      <span class="kr-t"><b>${first(k)}</b><small>${roomName(k.room)} · ${st(k)}</small></span>
       ${k.status==='here'
         ? `<button class="mini lbl sec" data-act="checkout:${k.id}" aria-label="Check out ${k.name}">${ic('out','ic sm','currentColor','1.9')}Check out</button>`
         : `<button class="mini lbl pri" data-act="checkin:${k.id}" aria-label="Check in ${k.name}">${ic('in','ic sm','currentColor','1.9')}Check in</button>`}
@@ -5597,7 +5579,6 @@ function doAct(a){
     case 'savenote':{const k=K(arg);const t=$('#nt');k.note=t?t.value.trim():'';
       closeSheet();toast(k.note?`Note saved for <b>${k.name}</b>`:'Note cleared');render(true);break;}
     case 'notepill': S.openNote.has(arg)?S.openNote.delete(arg):S.openNote.add(arg);render(true);break;
-    case 'pkid': S.kid=arg;S.pfilter='all';render();break;   /* arg may be 'all' */
     case 'pcollapse': S.pOpen=S.pOpen===false;render(true);break;
     /* a parent doing both children at once gets the same bulk sheet and the
        same clock a director does — scoped to their own */
