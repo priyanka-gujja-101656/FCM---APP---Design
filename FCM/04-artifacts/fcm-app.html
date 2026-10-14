@@ -5068,7 +5068,12 @@ function sheet(kind,arg){
   } else if(kind==='bulk'){
     /* a bulk mark needs a time as much as a single one does — same dial */
     const cnt=S.sel.size, out=S.bulkDir==='out';
-    const names=[...S.sel].map(id=>K(id)).filter(Boolean).map(k=>k.name.split(' ')[0]);
+    /* First names alone, and a room with two Lilys reads "Lily, Lily". A
+       surname initial is added only to the ones that would otherwise match. */
+    const picked=[...S.sel].map(id=>K(id)).filter(Boolean);
+    const firsts=picked.map(k=>k.name.split(' ')[0]);
+    const names=picked.map(k=>{const [f,...rest]=k.name.split(' ');
+      return firsts.filter(x=>x===f).length>1&&rest.length?`${f} ${rest[rest.length-1][0]}`:f;});
     html=`<span class="grab"></span>
      <button class="sh-x" data-act="close" aria-label="Close">${ic('x','ic sm','var(--ink-2)','2.1')}</button>
      <h3 class="sh-h">Check ${out?'out':'in'} ${cnt} ${cnt===1?'child':'children'}</h3>
