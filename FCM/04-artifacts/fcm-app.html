@@ -2568,16 +2568,18 @@ function pselRow(k){
    <span class="kr-t"><b>${m(first)}</b><small>${roomName(k.room)} &middot; ${st}</small></span>
   </div>`;
 }
+/* The bar only exists once something is picked, so it never has to word an
+   empty state or carry an action that cannot work. */
 function pselBar(){
-  const n=S.psel.size, on=n>0;
+  const n=S.psel.size;
   const picked=[...S.psel].map(id=>K(id)).filter(Boolean);
   const cin=picked.filter(k=>k.status!=='here').length;
   const cout=picked.filter(k=>k.status==='here').length;
   return `<div class="selbar">
-   <div class="sb-head"><b>${on?`${n} ${n===1?'child':'children'} selected`:'No children selected'}</b></div>
+   <div class="sb-head"><b>${n} ${n===1?'child':'children'} selected</b></div>
    <div class="sb-acts">
-    <button class="primary sm" data-act="${on?'pbulk:in':'nopsel'}">${ic('in','ic sm','currentColor','1.9')}Check in${cin?` ${cin}`:''}</button>
-    <button class="second sm" data-act="${on?'pbulk:out':'nopsel'}">${ic('out','ic sm','var(--npds-gray-700)','1.9')}Check out${cout?` ${cout}`:''}</button>
+    <button class="primary sm" data-act="pbulk:in">${ic('in','ic sm','currentColor','1.9')}Check in${cin?` ${cin}`:''}</button>
+    <button class="second sm" data-act="pbulk:out">${ic('out','ic sm','var(--npds-gray-700)','1.9')}Check out${cout?` ${cout}`:''}</button>
    </div></div>`;
 }
 function kidRow(k){
@@ -3280,7 +3282,7 @@ function vParentDay(){
    <div class="feedhd"><b>${everyone?'The day so far':who+"'s day so far"}</b>
     <span>${list.length} ${list.length===1?'entry':'entries'}</span></div>
    <div class="pfeed">${list.length?list.map(pcard).join(''):'<div class="empty">Nothing posted in this view yet.</div>'}</div>`}
-  </div>${S.pselecting&&kids.length>1?pselBar():''}`;
+  </div>${S.pselecting&&kids.length>1&&S.psel.size?pselBar():''}`;
 }
 /* the parent's card: the staff card plus the category a parent recognises, and
    an acknowledgement where the centre needs to know it was seen */
@@ -5599,12 +5601,11 @@ function doAct(a){
     case 'pcollapse': S.pOpen=S.pOpen===false;render(true);break;
     /* a parent doing both children at once gets the same bulk sheet and the
        same clock a director does — scoped to their own */
-    case 'pselmode': S.pselecting=true;S.psel.clear();myKids().forEach(k=>S.psel.add(k.id));render();break;
+    case 'pselmode': S.pselecting=true;S.psel.clear();render();break;
     case 'pselx': S.pselecting=false;S.psel.clear();render();break;
     case 'pselall': myKids().forEach(k=>S.psel.add(k.id));render();break;
     case 'pselnone': S.psel.clear();render();break;
     case 'psel': S.psel.has(arg)?S.psel.delete(arg):S.psel.add(arg);render();break;
-    case 'nopsel': toast('Pick a child first');break;
     case 'pbulk':{const out=arg==='out';
       const q=[...S.psel].map(id=>K(id)).filter(Boolean).filter(k=>out?k.status==='here':k.status!=='here');
       if(!q.length){toast(out?'Nobody selected is checked in':'Everyone selected is already in');break;}
