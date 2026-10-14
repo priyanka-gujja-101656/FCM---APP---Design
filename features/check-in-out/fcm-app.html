@@ -859,7 +859,10 @@
   .qr{padding:0}
 
   /* ===== post an activity: the teacher app's two sheets, verbatim ===== */
-  .sheet.tall{background:rgba(246,241,229,.97)}
+  /* The warm cream is the post-activity sheets' own, not something every tall
+     sheet inherits: Action items, Room capacity and the door sheets keep the
+     ordinary sheet background. */
+  .sheet.warm{background:rgba(246,241,229,.97)}
   .tlgrid3{display:grid;grid-template-columns:repeat(3,1fr);gap:11px}
   .tl3{display:flex;flex-direction:column;align-items:center;gap:9px;padding:16px 6px 15px;
     border-radius:20px;background:rgba(255,255,255,.9);border:1px solid rgba(44,49,43,.07);
@@ -4619,7 +4622,7 @@ function scnBanner(k){
 }
 function sheet(kind,arg){
   const sh=$('#sheet');
-  let html='', tall=false, form=false, full=false;
+  let html='', tall=false, form=false, full=false, warm=false;
   if(kind==='checkin'||kind==='checkout'){
     /* the teacher app's pickup sheet, unchanged: who, then the time, then one button */
     const k=K(arg), out=kind==='checkout';
@@ -5004,6 +5007,10 @@ function sheet(kind,arg){
     const pool=KIDS.filter(k=>inRoom(k.room)).filter(k=>inn?k.status!=='here':k.status==='here')
       .slice().sort((a,b)=>a.name.localeCompare(b.name));
     const scope=roomAll()?'':` in ${roomLabel()}`;
+    /* The register is the whole register: the sheet grows to the room it has
+       and the list scrolls inside it, rather than showing five and counting
+       the rest. */
+    tall=true;
     html=`<span class="grab"></span>
      <button class="sh-x" data-act="close" aria-label="Close">${ic('x','ic sm','var(--ink-2)','2.1')}</button>
      <h3 class="sh-h">Check children in or out</h3>
@@ -5013,7 +5020,7 @@ function sheet(kind,arg){
      <p class="sh-note">${pool.length
        ? `${pool.length} ${pool.length===1?'child is':'children are'} ${inn?'not in yet':'here now'}${scope}.`
        : inn?`Everyone${scope||' '} is checked in.`:`Nobody left to check out${scope}.`}</p>
-     <div class="card list roomy">${pool.length?pool.slice(0,5).map(k=>`
+     <div class="card list roomy sh-list">${pool.length?pool.map(k=>`
        <div class="row rowstack">
         <span class="av">${m(k.ini)}${statusDot(k)}</span>
         <span class="rt" data-act="${inn?'checkin':'checkout'}:${k.id}"><b>${m(k.name)}</b>
@@ -5021,11 +5028,11 @@ function sheet(kind,arg){
         <span class="rr"><button class="mini lbl ${inn?'pri':'sec'}" data-act="${inn?'checkin':'checkout'}:${k.id}"
           aria-label="Check ${inn?'in':'out'} ${k.name}">${ic(inn?'in':'out','ic sm','currentColor','1.9')}Check ${inn?'in':'out'}</button></span>
        </div>`).join(''):`<div class="empty">${inn?'Everyone is checked in.':'Nobody left to check out.'}</div>`}</div>
-     ${pool.length>5?`<p class="sh-note">${pool.length-5} more in the register.</p>`:''}
-     <button class="second" data-act="bulkfrom" style="width:100%">${ic('listCheck','ic sm','var(--npds-gray-700)','1.8')}Bulk check in / out</button>`;
+     <div class="sh-foot"><button class="second" data-act="bulkfrom" style="width:100%">${ic('listCheck','ic sm','var(--npds-gray-700)','1.8')}Bulk check in / out</button></div>`;
   } else if(kind==='posttype'){
     /* twelve tiles hug the bottom of the screen in the teacher app rather than
        filling it — full height left a third of the sheet empty */
+    warm=true;
     html=`<span class="grab"></span>
      <button class="sh-x" data-act="close" aria-label="Close">${ic('x','ic sm','var(--ink-2)','2.1')}</button>
      <h3 class="sh-h">Post an activity</h3>
@@ -5081,6 +5088,7 @@ function sheet(kind,arg){
      </div>
      <div class="shfoot2"><button class="primary" data-act="dopost">Post to ${n2} ${n2===1?'family':'families'}</button></div>`;
   } else if(kind==='post'){
+    warm=true;
     html=`<span class="grab"></span>
      <button class="sh-x" data-act="close" aria-label="Close">${ic('x','ic sm','var(--ink-2)','2.1')}</button>
      <h3 class="sh-h">Post an activity</h3>
@@ -5199,6 +5207,7 @@ function sheet(kind,arg){
   if(['checkin','checkout','health','signin','signout'].includes(kind))S.pickArg=arg;
   if(kind==='relocate')S.relArg=arg;
   sh.classList.toggle('tall',tall);
+  sh.classList.toggle('warm',warm);
   sh.classList.toggle('formsheet',form);
   sh.classList.toggle('full',full);
   setTimeout(wirePad,0); setTimeout(wireDial,0);
