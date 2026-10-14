@@ -4737,8 +4737,13 @@ function sheet(kind,arg){
              'Any new cough, sore throat, vomiting or diarrhea?',
              `Any medication given today the room should know about?`];
     const flagged=Q.some((q,i)=>S.hq[i]==='yes');
+    /* With more than one child to do, the second and later sheets carry a way
+       back to the one before, the same .bk the signature sheet uses. */
+    const at=S.multi.indexOf(arg);
+    const prev=at>0?K(S.multi[at-1]):null;
     html=`<span class="grab"></span>
      <div class="sh-row fixed">
+      ${prev?`<button class="bk" data-act="hback:${prev.id}" aria-label="Back to ${m(prev.name.split(' ')[0])}&rsquo;s health check">${ic('left','ic sm','var(--npds-gray-700)','2.2')}</button>`:''}
       <h3 class="sh-h flat">Today&rsquo;s health check</h3>
       <button class="sh-x" data-act="close" aria-label="Close">${ic('x','ic sm','var(--ink-2)','2.1')}</button></div>
      <p class="sh-sub">${m(k.name)} &middot; ${roomName(k.room)}${(()=>{
