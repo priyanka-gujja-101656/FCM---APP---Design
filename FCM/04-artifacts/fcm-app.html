@@ -3254,7 +3254,7 @@ function vParentDay(){
     </div>`:''}
    </div>`;})()}
 
-   ${S.pselecting&&kids.length>1?'':`<div class="qrrow pqr">
+   <div class="qrrow pqr">
     ${chip('all','listCheck','All')}
     ${chip('photos','camera','Photos')}
     ${chip('meals','meal','Meals')}
@@ -3263,7 +3263,7 @@ function vParentDay(){
 
    <div class="feedhd"><b>${everyone?'The day so far':who+"'s day so far"}</b>
     <span>${list.length} ${list.length===1?'entry':'entries'}</span></div>
-   <div class="pfeed">${list.length?list.map(pcard).join(''):'<div class="empty">Nothing posted in this view yet.</div>'}</div>`}
+   <div class="pfeed">${list.length?list.map(pcard).join(''):'<div class="empty">Nothing posted in this view yet.</div>'}</div>
   </div>${S.pselecting&&kids.length>1&&S.psel.size?pselBar():''}`;
 }
 /* the parent's card: the staff card plus the category a parent recognises, and
