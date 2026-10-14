@@ -1123,6 +1123,24 @@
   .ph-t small{font-size:12.5px;color:var(--ink-3);line-height:1.4}
   .phead .rch{flex:none}
   .kidrows{display:flex;flex-direction:column;padding:0 17px 6px}
+  /* Selecting on the parent card. The select line sits above the rows rather
+     than in the header, where it stole width from the headline and wrapped it. */
+  .krhead{display:flex;align-items:center;justify-content:space-between;gap:12px;
+    padding:2px 0 4px;border-top:1px solid var(--line);margin-top:2px}
+  .krhead > span{font-size:11.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;
+    color:var(--ink-3)}
+  .ph-sel{flex:none;background:none;border:0;font-family:inherit;font-size:13.5px;font-weight:600;
+    letter-spacing:-.005em;color:var(--npds-blue-700);padding:9px 2px 9px 12px;min-height:44px}
+  .ph-sel.lead{padding-left:2px;padding-right:12px}
+  .ph-x{position:absolute;top:12px;right:12px;z-index:3;width:44px;height:44px;min-height:44px;
+    border-radius:999px;border:0;background:rgba(255,255,255,.72);display:grid;place-items:center;padding:0}
+  .phero{position:relative}
+  .phero.selecting .phead{padding-right:58px}
+  .kidrows.boxed{padding-bottom:16px}
+  .optrow .kr-t{flex:1;min-width:0;display:flex;flex-direction:column}
+  .optrow .kr-t b{font-size:15px;font-weight:550;letter-spacing:-.008em;line-height:1.25}
+  .optrow .kr-t small{font-size:12.5px;color:var(--ink-3);margin-top:3px;line-height:1.35}
+  .screen.kiosk .krhead{border-top:0;margin-top:0}
   .kidrow{display:flex;align-items:center;gap:12px;padding:13px 0;width:100%;
     border-top:1px solid var(--line);background:none;border-left:0;border-right:0;border-bottom:0;
     font-family:inherit;text-align:left;color:inherit}
@@ -2074,7 +2092,7 @@ function roomLoad(r){
    ratio setting says to block. Allow all scheduled lets it through, because
    the child being unscheduled is the other half of the reason. */
 const isBlocked=k=>scnOf(k)==='blocked'&&CIO.ratio===0&&roomLoad(k.room).full;
-const S={kpin:'',kioskOpen:false,hmenu:null,tab:(ROLES[roleFromUrl()].tabs[0][0]),sub:null,arg:null,stack:[],cioTab:'all',q:'',mask:false,moveTo:null,relArg:null,finArg:null,voided:{},selecting:false,sel:new Set(),openNote:new Set(),pick:null,pickArg:null,searchOpen:false,day:0,actFilter:new Set(),
+const S={kpin:'',kioskOpen:false,hmenu:null,tab:(ROLES[roleFromUrl()].tabs[0][0]),sub:null,arg:null,stack:[],cioTab:'all',q:'',mask:false,moveTo:null,relArg:null,finArg:null,voided:{},selecting:false,pselecting:false,psel:new Set(),sel:new Set(),openNote:new Set(),pick:null,pickArg:null,searchOpen:false,day:0,actFilter:new Set(),
   homeTab:'actions',invFilter:'all',subTab:'mismatches',
   /* Filters hold sets now, not single values. Empty means no filter, which is
      the same as everything — so "nothing ticked" and "all ticked" agree. */
@@ -2531,6 +2549,36 @@ function vRoom(){
       ${ic('chev','ic sm','var(--ink-3)')}</button>`).join('')}
    </div>
   </div>`;
+}
+/* Line B: Select all and Clear all are both there, both always, and neither
+   changes its label. Leaving is the X on the card. */
+function pselHead(){
+  return `<div class="krhead">
+   <button class="ph-sel lead" data-act="pselall">Select all</button>
+   <button class="ph-sel" data-act="pselnone">Clear all</button></div>`;
+}
+/* the boxed option row, the same one the register uses while selecting */
+function pselRow(k){
+  const on=S.psel.has(k.id), first=k.name.split(' ')[0];
+  const st=k.status==='here'?`in ${k.tin}`:k.status==='absent'?'away today':'not in yet';
+  return `<div class="optrow${on?' on':''}" data-act="psel:${k.id}"
+   role="checkbox" aria-checked="${on}" tabindex="0">
+   <span class="cbx${on?' on':''}">${on?ic('check','ic sm','#fff','2.6'):''}</span>
+   <span class="av">${m(k.ini)}${statusDot(k)}</span>
+   <span class="kr-t"><b>${m(first)}</b><small>${roomName(k.room)} &middot; ${st}</small></span>
+  </div>`;
+}
+function pselBar(){
+  const n=S.psel.size, on=n>0;
+  const picked=[...S.psel].map(id=>K(id)).filter(Boolean);
+  const cin=picked.filter(k=>k.status!=='here').length;
+  const cout=picked.filter(k=>k.status==='here').length;
+  return `<div class="selbar">
+   <div class="sb-head"><b>${on?`${n} ${n===1?'child':'children'} selected`:'No children selected'}</b></div>
+   <div class="sb-acts">
+    <button class="primary sm" data-act="${on?'pbulk:in':'nopsel'}">${ic('in','ic sm','currentColor','1.9')}Check in${cin?` ${cin}`:''}</button>
+    <button class="second sm" data-act="${on?'pbulk:out':'nopsel'}">${ic('out','ic sm','var(--npds-gray-700)','1.9')}Check out${cout?` ${cout}`:''}</button>
+   </div></div>`;
 }
 function kidRow(k){
   return `<button class="row" data-act="child:${k.id}">
@@ -3183,13 +3231,21 @@ function vParentDay(){
     const inn=kids.filter(k=>k.status==='here').length;
     const summary=inn===kids.length?`All in · ${kids.map(k=>first(k)+' '+k.tin.replace(/ ?[AP]M/,'')).join(' · ')}`
       :kids.map(k=>`${first(k)} ${st(k)}`).join(' · ');
-    return `<div class="card greet phero${open?'':' shut'}">
+    const psel=S.pselecting&&kids.length>1;
+    return `<div class="card greet phero${open?'':' shut'}${psel?' selecting':''}">
+    ${psel?`<button class="ph-x" data-act="pselx" aria-label="Leave select mode">${ic('x','ic sm','var(--ink-2)','2.1')}</button>`:''}
     <button class="phead" data-act="pcollapse" aria-expanded="${open}">
      <span class="avstack">${kids.map(k=>`<span class="av">${m(k.ini)}${statusDot(k)}</span>`).join('')}</span>
      <span class="ph-t"><h2>${well}</h2><small>${summary}</small></span>
      <span class="rch${open?' up':''}">${ic('chev','ic sm','var(--npds-blue-700)','2.4')}</span>
     </button>
-    ${open?`<div class="kidrows">
+    ${open&&psel?`<div class="kidrows boxed">
+     ${pselHead()}
+     ${kids.map(k=>pselRow(k)).join('')}
+    </div>`:''}
+    ${open&&!psel?`<div class="kidrows">
+     ${kids.length>1?`<div class="krhead"><span>${kids.length} children</span>
+       <button class="ph-sel" data-act="pselmode">Select</button></div>`:''}
      ${kids.length>1?(()=>{
        /* the All row does what the child rows do, for everyone at once */
        const anyIn=kids.some(k=>k.status==='here');
@@ -3214,7 +3270,7 @@ function vParentDay(){
     </div>`:''}
    </div>`;})()}
 
-   <div class="qrrow pqr">
+   ${S.pselecting&&kids.length>1?'':`<div class="qrrow pqr">
     ${chip('all','listCheck','All')}
     ${chip('photos','camera','Photos')}
     ${chip('meals','meal','Meals')}
@@ -3223,8 +3279,8 @@ function vParentDay(){
 
    <div class="feedhd"><b>${everyone?'The day so far':who+"'s day so far"}</b>
     <span>${list.length} ${list.length===1?'entry':'entries'}</span></div>
-   <div class="pfeed">${list.length?list.map(pcard).join(''):'<div class="empty">Nothing posted in this view yet.</div>'}</div>
-  </div>`;
+   <div class="pfeed">${list.length?list.map(pcard).join(''):'<div class="empty">Nothing posted in this view yet.</div>'}</div>`}
+  </div>${S.pselecting&&kids.length>1?pselBar():''}`;
 }
 /* the parent's card: the staff card plus the category a parent recognises, and
    an acknowledgement where the centre needs to know it was seen */
@@ -5543,6 +5599,18 @@ function doAct(a){
     case 'pcollapse': S.pOpen=S.pOpen!==true;render(true);break;
     /* a parent doing both children at once gets the same bulk sheet and the
        same clock a director does — scoped to their own */
+    case 'pselmode': S.pselecting=true;S.psel.clear();myKids().forEach(k=>S.psel.add(k.id));render();break;
+    case 'pselx': S.pselecting=false;S.psel.clear();render();break;
+    case 'pselall': myKids().forEach(k=>S.psel.add(k.id));render();break;
+    case 'pselnone': S.psel.clear();render();break;
+    case 'psel': S.psel.has(arg)?S.psel.delete(arg):S.psel.add(arg);render();break;
+    case 'nopsel': toast('Pick a child first');break;
+    case 'pbulk':{const out=arg==='out';
+      const q=[...S.psel].map(id=>K(id)).filter(Boolean).filter(k=>out?k.status==='here':k.status!=='here');
+      if(!q.length){toast(out?'Nobody selected is checked in':'Everyone selected is already in');break;}
+      S.pselecting=false;S.psel.clear();
+      S.multi=q.map(k=>k.id); S.multiHealth={}; S.hq={}; S.inSig=false; parseMark('');
+      sheet(out?'signout':'health',S.multi[0]); break;}
     case 'pall':{const out=arg==='out';
       const q=myKids().filter(k=>out?k.status==='here':k.status!=='here');
       if(!q.length){toast('Nothing to do');break;}
