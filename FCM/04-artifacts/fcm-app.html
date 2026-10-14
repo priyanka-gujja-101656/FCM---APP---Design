@@ -1599,6 +1599,10 @@
     --border-hairline:rgba(44,49,43,.09); --border-check:rgba(44,49,43,.54);
     --touch-primary:48px}
   .gate[hidden]{display:none}
+  /* .authwrap sets display:flex, which beats the hidden attribute's UA
+     display:none, so hiding the login form left it on screen under the next
+     step. Every multi-step login showed two panels at once. */
+  .gate [hidden]{display:none!important}
   .authwrap{position:relative;z-index:3;flex:1;min-height:0;display:flex;flex-direction:column;
     padding:0 16px;overflow:hidden}
   .authwrap.mid{justify-content:center;padding-bottom:34px}
@@ -6028,6 +6032,7 @@ function showGate(){
   const busy=$('#gbusy'); if(busy)busy.remove();
   $('#gateform').hidden=false;
   $('.authfoot').hidden=false;
+  const pc=$('.previewcred'); if(pc)pc.hidden=false;
   $('#app').classList.add('behind-gate'); $('#tabs').classList.add('behind-gate');
   $('#guser').value=''; $('#gpw').value='';
   setEye(false); setStay(true); gateError('');
@@ -6062,6 +6067,7 @@ function doLogin(){
   gateError('');
   $('#gateform').hidden=true;
   $('.authfoot').hidden=true;
+  const pc=$('.previewcred'); if(pc)pc.hidden=true;
   /* the one moment the tenant is being resolved, and nothing is asked for it */
   GATE_EL.insertAdjacentHTML('beforeend',
     `<div class="gbusy" id="gbusy"><div class="gspin" aria-hidden="true"></div>
