@@ -19,7 +19,7 @@
     --g1:#D3E4D3; --g2:#C6DCC8; --g3:#BAD3BC; --g4:#AECBB1;
     --cr:#DFE1CE; --cr2:#D8DEC9; --gl:#9FB8A0;
 
-    --ink:#2C312B; --ink-2:#57604F; --ink-3:#88917F;
+    --ink:#2C312B; --ink-2:#57604F; --ink-3:#646B5C;
     --line:rgba(44,49,43,.09);
     --card:rgba(255,255,255,.82);
     --present:#4E7263; --amber:#B08A56; --absent:#AAAEA3;
@@ -633,6 +633,24 @@
   .card.list .rowwrap .row+.row{border-top:0}
 .row.rowstack .cbx{align-self:center;margin-top:0}
 .row.rowstack .av{align-self:center;margin-top:0}
+/* Selecting draws every row as its own box, so the selected fill has edges
+   and does not flood the whole list. Same treatment as the picker options. */
+.optrow{display:flex;align-items:center;gap:12px;padding:13px 14px;border-radius:14px;width:100%;
+  background:rgba(255,255,255,.7);border:1px solid rgba(44,49,43,.26);text-align:left;
+  color:var(--ink);font-family:inherit;cursor:pointer}
+.optrow+.optrow{margin-top:8px}
+.optrow .av{width:38px;height:38px;font-size:12.5px;flex:none;align-self:center;margin-top:0}
+.optrow .rt{flex:1;min-width:0;display:flex;flex-direction:column}
+.optrow .rt b{font-size:15px;font-weight:550;letter-spacing:-.008em;line-height:1.25;
+  white-space:normal;overflow:visible}
+.optrow .rt small{font-size:12.5px;color:var(--ink-3);margin-top:3px;line-height:1.35;
+  white-space:normal;overflow:visible}
+.optrow.on{border:2px solid var(--npds-blue-600);padding:12px 13px;background:var(--npds-blue-100)}
+.card.list.selbox{padding:4px 14px 14px}
+.sb-links{display:flex;gap:16px;flex:none}
+.fallrow{display:flex;gap:16px;align-items:baseline;padding:2px 0 10px}
+.fallrow button{background:none;border:0;padding:4px 0;min-height:44px;font-family:inherit;
+  font-size:14px;font-weight:600;color:var(--npds-blue-700);cursor:pointer}
 /* ============================================================
   .sp-mid b{white-space:normal;overflow:visible;text-overflow:clip;font-size:13.5px}
 
@@ -653,6 +671,66 @@
   .badge{position:absolute;top:-3px;left:calc(50% + 7px);min-width:16px;height:16px;padding:0 4px;
     border-radius:99px;background:var(--npds-blue-600);color:#fff;font-size:9.5px;font-weight:700;
     display:grid;place-items:center;font-variant-numeric:tabular-nums}
+
+  /* ===== the kiosk, FUS-11. A doorway device, so no account and no nav. ===== */
+  .screen.kiosk{background:linear-gradient(180deg,var(--sky-1),var(--sky-2) 26%,var(--sky-3) 62%,var(--sky-4))}
+  .kio-h{position:relative;z-index:3;padding:26px 24px 8px;text-align:center}
+  .kio-h .glyph{margin:0 auto 14px}
+  .kio-h b{display:block;font-family:Newsreader,Georgia,serif;font-weight:400;font-size:23px;
+    letter-spacing:-.015em}
+  .kio-h small{display:block;font-size:12.5px;color:var(--ink-2);margin-top:6px}
+  .pinrow{display:flex;justify-content:center;gap:13px;margin:26px 0 4px}
+  .pind{width:16px;height:16px;border-radius:999px;box-shadow:inset 0 0 0 1.6px rgba(44,49,43,.26)}
+  .pind.on{background:var(--npds-blue-600);box-shadow:none}
+  .keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding:6px 6px 0}
+  .key{height:62px;border-radius:20px;background:rgba(255,255,255,.88);font-family:inherit;border:0;
+    box-shadow:inset 0 0 0 1px rgba(44,49,43,.07),0 8px 16px -14px rgba(40,55,38,.5);
+    display:grid;place-items:center;font-size:25px;font-weight:450;color:var(--ink);
+    font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+  .key.fn{font-size:13.5px;font-weight:550;color:var(--npds-gray-700);background:rgba(255,255,255,.62)}
+  .kiofoot{display:flex;justify-content:center;margin-top:16px}
+  .kiofoot .second{width:auto;padding:12px 22px}
+  .screen.kiosk .kidrows{padding-top:6px}
+  .screen.kiosk .kidrows .kidrow:first-child{border-top:0}
+  .kiosk-note{margin:8px 0 0;text-align:center;font-size:13.5px;line-height:1.5;color:var(--ink-2)}
+
+  /* ===== the two header switchers, FUS-29, 30 and 32 ===== */
+  .hmenu{position:absolute;z-index:30;min-width:244px;padding:6px;border-radius:18px;
+    background:rgba(253,254,251,.98);backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);
+    border:1px solid rgba(44,49,43,.1);box-shadow:0 22px 44px -20px rgba(38,52,36,.46)}
+  .hmenu .row{padding:12px 12px;border-radius:12px}
+  .hmenu .row+.row{border-top:0}
+  .hmenu .rt b{font-size:14.5px}
+  .hmenu .rt small{white-space:normal}
+  .hmenu .hm-foot{margin-top:4px;padding-top:6px;border-top:1px solid var(--line)}
+  .hmenu .hm-foot button{width:100%;min-height:44px;border-radius:12px;font-family:inherit;
+    font-size:14px;font-weight:550;color:var(--neg);background:none;border:0;
+    display:flex;align-items:center;justify-content:center;gap:8px}
+  .hmenu .hm-foot button:hover{background:rgba(155,74,62,.08)}
+  .has-caret{display:inline-flex;align-items:center;gap:6px;cursor:pointer}
+  .caret{width:14px;height:14px;flex:none;color:var(--ink-3);transform:rotate(90deg)}
+  .navbrand,.head .ctr,.nb-t{position:relative}
+
+  .previewcred{margin:16px 0 0;font-size:13px;color:var(--ink-3)}
+  .previewcred b{color:var(--ink-2);font-weight:600}
+
+  /* PA-2, the All tab's rows */
+  .arow2{display:flex;align-items:center;gap:14px;padding:14px 18px;width:100%;background:none;
+    border:0;font-family:inherit;text-align:left;min-height:64px}
+  .arow2 + .arow2{border-top:1px solid var(--line)}
+  .arow2 .at{flex:1;min-width:0}
+  .arow2 .at b{display:block;font-size:15.5px;font-weight:550;letter-spacing:-.008em;color:var(--ink)}
+  .arow2 .at small{display:block;font-size:13px;line-height:1.5;color:var(--ink-2);margin-top:4px;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .arow2 .av2{flex:none;display:flex;align-items:center;gap:6px;font-size:14px;font-weight:550;
+    color:var(--npds-blue-700)}
+
+  /* FUS-23, the six code boxes */
+  .mfarow{display:flex;gap:9px}
+  .mfab{flex:1;height:58px;border-radius:14px;background:#FFFDFA;display:grid;place-items:center;
+    font-size:22px;font-weight:550;font-variant-numeric:tabular-nums;color:var(--ink);
+    box-shadow:inset 0 0 0 1.5px var(--npds-gray-500)}
+  .mfab.on{box-shadow:inset 0 0 0 2px var(--npds-blue-600)}
 
   /* sheets, toast */
   .scrim{position:absolute;inset:0;z-index:5;background:rgba(32,42,30,.18);backdrop-filter:blur(1.5px);
@@ -827,10 +905,12 @@
   .grblock textarea::placeholder{color:#6E7568}
   .opts{display:flex;flex-direction:column;max-height:242px;overflow:auto;scrollbar-width:none}
   .opts::-webkit-scrollbar{display:none}
-  .opt{display:flex;align-items:center;gap:12px;min-height:48px;padding:4px 0;cursor:pointer;
-    border-bottom:1px solid var(--line);width:100%;background:none;border-left:0;border-right:0;
-    border-top:0;font-family:inherit;text-align:left}
-  .opt:last-child{border-bottom:0}
+  .opt{display:flex;align-items:center;gap:12px;min-height:48px;padding:11px 13px;cursor:pointer;
+    border:1px solid rgba(44,49,43,.26);border-radius:14px;width:100%;
+    background:rgba(255,255,255,.7);font-family:inherit;text-align:left}
+  .opt+.opt{margin-top:8px}
+  .opt.on{border:2px solid var(--npds-blue-600);padding:10px 12px;background:var(--npds-blue-100)}
+  .opts{padding:2px}
   .on2{flex:1;font-size:15px;color:var(--ink)}
   .on2 i{font-style:normal;font-size:13px;color:var(--ink-3);margin-left:7px}
   .segpill2{display:flex;background:rgba(44,49,43,.055);border-radius:999px;padding:5px;gap:3px}
@@ -1125,7 +1205,6 @@
   .fall{display:flex;align-items:center;gap:12px;width:100%;min-height:46px;padding:4px 0;
     border:0;border-bottom:1px solid var(--line);background:none;font-family:inherit;
     cursor:pointer;color:var(--npds-blue-700);font-size:14px;font-weight:600;text-align:left}
-  .fall-t{flex:1;font-weight:600}
   /* ===========================================================================
      RESPONSIVE
 
@@ -1201,12 +1280,15 @@
     .nav a .ic{order:0}
     /* the content column */
     #app.route{flex:1;min-width:0;min-height:0;overflow:hidden}
+    /* the screens still on the phone layout clear the floating switcher too */
+    #app .topbar,#app .head{padding-top:62px}
     .body{max-width:760px;width:100%;margin:0 auto}
     /* the director's home is the one page that takes the whole width */
     /* the page stops before the edge, so a table is read rather than scanned
        across a metre of monitor */
     .body.wide{max-width:1200px;width:100%;margin:0 auto;
-      padding:var(--d-stack) var(--d-gutter) var(--d-gutter);gap:var(--d-stack)}
+      /* the top gap clears the floating preview switcher, which is centred */
+      padding:62px var(--d-gutter) var(--d-gutter);gap:var(--d-stack)}
     .body.wide .flabel{font-size:var(--d-lbl)}
     .body.wide .flabel span{font-size:var(--d-sub)}
     .body.wide .act{padding:var(--d-row) 16px}
@@ -1225,9 +1307,9 @@
     .body.wide .greet-h{font-size:29px}
     .body.wide .greet-s{font-size:14px}
     /* the greeting is the page's own heading, not something inside a card */
-    .body.wide{padding-top:18px}
+    .body.wide{padding-top:62px}
     .body.wide .pagehead{display:flex;align-items:center;justify-content:space-between;gap:20px;
-      flex:none;padding:14px 2px 4px}
+      flex:none;padding:0 2px 4px}
     /* Hide and the account sit in the page's own header, after a divider,
        rather than floating in a row of their own */
     .body.wide .pagechrome{display:flex;align-items:center;gap:12px;margin-left:8px;padding-left:20px;
@@ -1607,6 +1689,8 @@
   .tabwrap{flex:none;overflow-x:auto;margin:0 -18px;padding:8px 18px 0;scrollbar-width:none}
   .tabwrap::-webkit-scrollbar{height:0}
   .tabwrap .tabpill{width:max-content}
+  /* the settings pill spans the column and scrolls inside itself */
+  .tabpill.scrollpill{width:100%;margin-top:8px}
   /* Four tabs and no more, so the pill is not a thing you scroll: it spans the
      column and the four share it, which lines its edges up with the card under
      it. The detail pages keep the scrolling pill, because they have seven. */
@@ -1637,6 +1721,7 @@
 <nav class="rolesw" aria-label="Preview as">
   <a href="?role=director" data-role="director">Director</a>
   <a href="?role=teacher" data-role="teacher">Teacher</a>
+  <a href="?role=parent" data-role="parent">Parent</a>
 </nav>
 <div class="device"><div class="screen">
   <div class="glow" style="left:236px;top:104px;width:190px;height:190px;opacity:.42"></div>
@@ -1715,14 +1800,15 @@
      </div>
     </div>
    </div>
-   <div class="authfoot">Little Harding and 1 other centre use FCM.<br>
+   <p class="gsub previewcred">Preview: log in with <b>Test</b> and <b>Test</b>.</p>
+   <div class="authfoot">Cedar Ridge and 1 other centre use FCM.<br>
     Need help? <a href="#" data-act="soon:Contact support">Contact support</a></div>
   </div>
 </div></div>
 
 <script>
 /* ============================================================
-   FCM Director App — Dana Mitchell, Little Harding
+   FCM Director App — Rebecca Collins, Cedar Ridge
    Visual language: teacher-app-mobile.html
    Structure and features: FCM Director App (standalone)
    ============================================================ */
@@ -1804,7 +1890,7 @@ const ic=(k,c='ic',s='currentColor',w='1.7')=>`<svg class="${c}" viewBox="0 0 24
    ============================================================================ */
 const ROLES={
   director:{
-    id:'director', label:'Director', who:'Dana Mitchell', ini:'DM',
+    id:'director', label:'Director', who:'Rebecca Collins', ini:'RC',
     scope:'centre',                       /* every room */
     tabs:[['home','Home','house'],['rooms','Rooms','room'],['people','People','users'],
           ['finance','Finance','dollar'],['more','More','grid4']],
@@ -1821,9 +1907,9 @@ const ROLES={
          checkin:true,bulk:true,post:true,signoff:false,enroll:false},
   },
   parent:{
-    id:'parent', label:'Parent', who:'Jamie Walsh', ini:'JW',
+    id:'parent', label:'Parent', who:'Mike Johnson', ini:'MJ',
     scope:'family',                       /* their own children only */
-    fam:'f-walsh',
+    fam:'f-johnson',
     /* the base parent app has no Home tab — Activities is the first thing you
        land on, because a parent opens this to see how the day went */
     tabs:[['activities','Activities','pen'],['messages','Messages','chat'],
@@ -1843,7 +1929,7 @@ const CAN=ROLE.can;
 /* FLAGS ship unfinished work dark rather than blocking a push */
 const FLAGS={parentRole:true,enrollWizard:false,reportBuilder:false};
 
-const CENTER={name:'Little Harding',date:'Mon, Jun 22',director:'Dana Mitchell',initials:'DM'};
+const CENTER={name:'Cedar Ridge',date:'Mon, Jun 22',director:'Rebecca Collins',initials:'RC'};
 const TUITION=850;
 
 const ROOMS=[
@@ -1855,48 +1941,60 @@ const ROOMS=[
  {id:'r-kinder',   name:'Kinder Prep', short:'Kinder',  cap:16, ratio:'1:12',teachers:1}];
 
 const KIDS=[
- {id:'c1',who:'Dad', name:'Amelia Walsh',    ini:'AW', age:'4 yr', room:'r-prek4',   fam:'f-walsh',    status:'here',   tin:'7:52 AM', allergy:null,      subsidy:false},
+ {id:'c1',who:'Dad', name:'Jack Johnson',    ini:'JJ', age:'4 yr', room:'r-prek4',   fam:'f-johnson',    status:'out',    tin:null,      allergy:null,      subsidy:false, scn:'plain'},
  {id:'c2',who:'Mum', name:'Mateo Garcia',    ini:'MG', age:'3 yr', room:'r-prek3',   fam:'f-garcia',   status:'here',   tin:'8:05 AM', allergy:'Peanut',  subsidy:true},
  {id:'c3',who:'Grandma',note:'Sofia needs her inhaler before outside time. Mum will collect at 3.', name:'Sofia Rivera',    ini:'SR', age:'2 yr', room:'r-toddlerB',fam:'f-rivera',   status:'here',   tin:'7:48 AM', allergy:null,      subsidy:true},
  {id:'c4', name:'Jaylen Thompson', ini:'JT', age:'1 yr', room:'r-toddlerA',fam:'f-thompson', status:'absent', tin:null,      allergy:'Dairy',   subsidy:true},
- {id:'c5',who:'Mum', name:'Ella Park',       ini:'EP', age:'4 yr', room:'r-prek4',   fam:'f-park',     status:'here',   tin:'8:11 AM', allergy:null,      subsidy:false},
+ {id:'c5',who:'Mum', name:'Noah Schneider',  ini:'NS', age:'4 yr', room:'r-prek4',   fam:'f-schneider',     status:'here',   tin:'8:11 AM', allergy:null,      subsidy:false},
  {id:'c6',who:'Dad', name:'Noah Bennett',    ini:'NB', age:'5 yr', room:'r-kinder',  fam:'f-bennett',  status:'here',   tin:'7:55 AM', allergy:'Tree-nut',subsidy:false},
- {id:'c7',who:'Dad', name:'Lily Chen',       ini:'LC', age:'3 yr', room:'r-prek3',   fam:'f-chen',     status:'here',   tin:'8:20 AM', allergy:null,      subsidy:false},
- {id:'c8',who:'Mum',note:'Owen is on antibiotics until Thursday, one dose at lunch.', name:'Owen Patel',      ini:'OP', age:'4 yr', room:'r-prek4',   fam:'f-patel',    status:'here',   tin:'8:03 AM', allergy:null,      subsidy:false},
- {id:'c9',who:'Grandad', name:'Maya Johnson',    ini:'MJ', age:'2 yr', room:'r-toddlerB',fam:'f-johnson',  status:'here',   tin:'8:16 AM', allergy:'Egg',     subsidy:false},
+ {id:'c7',who:'Dad', name:'Lily Chen',       ini:'LC', age:'3 yr', room:'r-prek3',   fam:'f-chen',     status:'out',    tin:null,      allergy:null,      subsidy:false, scn:'early', from:'9:00 AM', rate:'$12.00'},
+ {id:'c8',who:'Mum',note:'Mateo is on antibiotics until Thursday, one dose at lunch.', name:'Mateo Ramirez',   ini:'MR', age:'4 yr', room:'r-prek4',   fam:'f-ramirez',    status:'out',    tin:null,      allergy:null,      subsidy:false, scn:'unsched'},
+ {id:'c9',who:'Grandad', name:'Maya Hughes',     ini:'MH', age:'2 yr', room:'r-toddlerB',fam:'f-hughes',  status:'out',    tin:null,      allergy:'Egg',     subsidy:false, scn:'blocked'},
  {id:'c10',who:'Mum',name:"Liam O'Connor",   ini:'LO', age:'5 yr', room:'r-kinder',  fam:'f-oconnor',  status:'here',   tin:'7:59 AM', allergy:null,      subsidy:false},
  {id:'c11',who:'Dad',name:'Aria Davis',      ini:'AD', age:'3 yr', room:'r-prek3',   fam:'f-davis',    status:'here',   tin:'8:08 AM', allergy:null,      subsidy:false},
- {id:'c12',who:'Mum',name:'Ethan Brooks',    ini:'EB', age:'1 yr', room:'r-toddlerA',fam:'f-walsh',    status:'here',   tin:'7:50 AM', allergy:null,      subsidy:false}];
+ {id:'c12',who:'Mum',name:'Lily Johnson',    ini:'LJ', age:'1 yr', room:'r-toddlerA',fam:'f-johnson',    status:'out',    tin:null,      allergy:null,      subsidy:false, scn:'plain'},
+ /* Toddlers B runs at its limit today: six children to one adult, which is what
+    makes the blocked arrival (FUS-3) true rather than asserted. */
+ {id:'c13',who:'Mum',name:'Ivy Nakamura',    ini:'IN', age:'2 yr', room:'r-toddlerB',fam:'f-nakamura', status:'here',   tin:'7:46 AM', allergy:null,      subsidy:false},
+ {id:'c14',who:'Dad',name:'Theo Boateng',    ini:'TB', age:'2 yr', room:'r-toddlerB',fam:'f-boateng',  status:'here',   tin:'7:54 AM', allergy:null,      subsidy:false},
+ {id:'c15',who:'Mum',name:'Harper Quinn',    ini:'HQ', age:'1 yr', room:'r-toddlerB',fam:'f-quinn',    status:'here',   tin:'8:02 AM', allergy:null,      subsidy:true},
+ {id:'c16',who:'Dad',name:'Elias Weber',     ini:'EW', age:'2 yr', room:'r-toddlerB',fam:'f-weber',    status:'here',   tin:'8:09 AM', allergy:null,      subsidy:false},
+ {id:'c17',who:'Mum',name:'Nora Petrov',     ini:'NP', age:'1 yr', room:'r-toddlerB',fam:'f-petrov',   status:'here',   tin:'8:14 AM', allergy:null,      subsidy:false}];
 
 const FAMILIES=[
- {id:'f-walsh',   name:'Walsh',    contact:'Jamie Walsh',    phone:'(901) 555-0181', email:'j.walsh@email.com',    address:'1241 Poplar Ave, Memphis, TN 38104', balance:0,   autopay:true},
+ {id:'f-johnson',   name:'Johnson',  contact:'Mike Johnson',    phone:'(901) 555-0181', email:'m.johnson@email.com',    address:'1241 Poplar Ave, Memphis, TN 38104', balance:0,   autopay:true},
  {id:'f-garcia',  name:'Garcia',   contact:'Maria Garcia',   phone:'(901) 555-0192', email:'garcia.fam@email.com', address:'2310 Highland St, Memphis, TN 38111',balance:145, autopay:false},
  {id:'f-rivera',  name:'Rivera',   contact:'Carlos Rivera',  phone:'(901) 555-0203', email:'rivera@email.com',     address:'8401 Houston Levee, Cordova, TN 38018',balance:0, autopay:true},
  {id:'f-thompson',name:'Thompson', contact:'Kim Thompson',   phone:'(901) 555-0214', email:'thompson.k@email.com', address:'',                                  balance:320, autopay:false},
- {id:'f-park',    name:'Park',     contact:'Sun Park',       phone:'(901) 555-0225', email:'parkfamily@email.com', address:'',                                  balance:0,   autopay:true},
+ {id:'f-schneider',    name:'Schneider',contact:'Kristen Schneider',       phone:'(901) 555-0225', email:'k.schneider@email.com', address:'',                                  balance:0,   autopay:true},
  {id:'f-bennett', name:'Bennett',  contact:'Kyle Bennett',   phone:'(901) 555-0236', email:'k.bennett@email.com',  address:'',                                  balance:0,   autopay:true},
  {id:'f-chen',    name:'Chen',     contact:'Wei Chen',       phone:'(901) 555-0247', email:'chen.family@email.com',address:'',                                  balance:0,   autopay:false},
- {id:'f-patel',   name:'Patel',    contact:'Ravi Patel',     phone:'(901) 555-0258', email:'patel.r@email.com',    address:'',                                  balance:0,   autopay:true},
- {id:'f-johnson', name:'Johnson',  contact:'Amanda Johnson', phone:'(901) 555-0269', email:'ajohnson@email.com',   address:'',                                  balance:75.5,autopay:false},
+ {id:'f-ramirez',   name:'Ramirez',  contact:'Sofia Ramirez',     phone:'(901) 555-0258', email:'s.ramirez@email.com',    address:'',                                  balance:0,   autopay:true},
+ {id:'f-hughes', name:'Hughes',   contact:'Amanda Hughes', phone:'(901) 555-0269', email:'a.hughes@email.com',   address:'',                                  balance:75.5,autopay:false},
  {id:'f-oconnor', name:"O'Connor", contact:"Tom O'Connor",   phone:'(901) 555-0270', email:'oconnor.t@email.com',  address:'',                                  balance:0,   autopay:true},
- {id:'f-davis',   name:'Davis',    contact:'Marcus Davis',   phone:'(901) 555-0281', email:'davis.m@email.com',    address:'',                                  balance:0,   autopay:false}];
+ {id:'f-davis',   name:'Davis',    contact:'Marcus Davis',   phone:'(901) 555-0281', email:'davis.m@email.com',    address:'',                                  balance:0,   autopay:false},
+ {id:'f-nakamura',name:'Nakamura', contact:'Rina Nakamura',  phone:'(901) 555-0292', email:'nakamura@email.com',   address:'',                                  balance:0,   autopay:true},
+ {id:'f-boateng', name:'Boateng',  contact:'Kwame Boateng',  phone:'(901) 555-0303', email:'boateng.k@email.com',  address:'',                                  balance:0,   autopay:true},
+ {id:'f-quinn',   name:'Quinn',    contact:'Erin Quinn',     phone:'(901) 555-0314', email:'quinn.e@email.com',    address:'',                                  balance:0,   autopay:false},
+ {id:'f-weber',   name:'Weber',    contact:'Hanna Weber',    phone:'(901) 555-0325', email:'weber.h@email.com',    address:'',                                  balance:0,   autopay:true},
+ {id:'f-petrov',  name:'Petrov',   contact:'Mila Petrov',    phone:'(901) 555-0336', email:'petrov.m@email.com',   address:'',                                  balance:0,   autopay:true}];
 
 const STAFF=[
- {id:'s1',name:'Dana Mitchell',ini:'DM',role:'Center Director', room:'All rooms',   phone:'(901) 555-0101',email:'d.mitchell@littleharding.com',cert:'2027-03-15',firstAid:'2026-08-10',cda:'2026-11-01',hire:'2018-08-01',wage:'Salaried',hours:40,  review:'2026-08-01'},
- {id:'s2',name:'Sarah Kim',    ini:'SK',role:'Lead Teacher',    room:'Pre-K 4',     phone:'(901) 555-0112',email:'s.kim@littleharding.com',     cert:'2026-08-20',firstAid:'2026-08-20',cda:'2025-09-15',hire:'2020-01-15',wage:'$22.00/hr',hours:38.25,review:'2026-07-15'},
- {id:'s3',name:'James Ortiz',  ini:'JO',role:'Lead Teacher',    room:'Toddlers A/B',phone:'(901) 555-0123',email:'j.ortiz@littleharding.com',   cert:'2026-07-30',firstAid:'2026-07-30',cda:'2027-03-01',hire:'2021-06-01',wage:'$21.50/hr',hours:40, review:'2027-06-01'},
- {id:'s4',name:'Maria Lopez',  ini:'ML',role:'Teacher Aide',    room:'Pre-K 3',     phone:'(901) 555-0134',email:'m.lopez@littleharding.com',   cert:'2025-07-01',firstAid:'2025-07-01',cda:null,         hire:'2023-03-10',wage:'$16.75/hr',hours:28.5,review:'2026-09-10'}];
+ {id:'s1',name:'Rebecca Collins',ini:'RC',role:'Center Director', room:'All rooms',   phone:'(901) 555-0101',email:'r.collins@cedarridge.com',cert:'2027-03-15',firstAid:'2026-08-10',cda:'2026-11-01',hire:'2018-08-01',wage:'Salaried',hours:40,  review:'2026-08-01'},
+ {id:'s2',name:'Sarah Kim',    ini:'SK',role:'Lead Teacher',    room:'Pre-K 4',     phone:'(901) 555-0112',email:'s.kim@cedarridge.com',     cert:'2026-08-20',firstAid:'2026-08-20',cda:'2025-09-15',hire:'2020-01-15',wage:'$22.00/hr',hours:38.25,review:'2026-07-15'},
+ {id:'s3',name:'James Ortiz',  ini:'JO',role:'Lead Teacher',    room:'Toddlers A/B',phone:'(901) 555-0123',email:'j.ortiz@cedarridge.com',   cert:'2026-07-30',firstAid:'2026-07-30',cda:'2027-03-01',hire:'2021-06-01',wage:'$21.50/hr',hours:40, review:'2027-06-01'},
+ {id:'s4',name:'Maria Lopez',  ini:'ML',role:'Teacher Aide',    room:'Pre-K 3',     phone:'(901) 555-0134',email:'m.lopez@cedarridge.com',   cert:'2025-07-01',firstAid:'2025-07-01',cda:null,         hire:'2023-03-10',wage:'$16.75/hr',hours:28.5,review:'2026-09-10'}];
 
 const INVOICES=[
  {id:'inv-002',fam:'f-garcia',  family:'Garcia',   period:'June 2026',issued:'Jun 1, 2026',due:'Jun 15, 2026',status:'overdue',lines:[{d:'Tuition · Pre-K 3',q:1,r:850},{d:'Late fee',q:1,r:50}]},
  {id:'inv-004',fam:'f-thompson',family:'Thompson', period:'June 2026',issued:'Jun 1, 2026',due:'Jun 15, 2026',status:'open',   lines:[{d:'Tuition · Toddlers A',q:1,r:850}]},
  {id:'inv-007',fam:'f-chen',    family:'Chen',     period:'June 2026',issued:'Jun 1, 2026',due:'Jun 15, 2026',status:'open',   lines:[{d:'Tuition · Pre-K 3',q:1,r:850}]},
- {id:'inv-009',fam:'f-johnson', family:'Johnson',  period:'June 2026',issued:'Jun 1, 2026',due:'Jun 15, 2026',status:'open',   lines:[{d:'Tuition · Toddlers B',q:1,r:850}]},
- {id:'inv-001',fam:'f-walsh',   family:'Walsh',    period:'June 2026',issued:'Jun 1, 2026',due:'Jun 15, 2026',status:'paid',   lines:[{d:'Tuition · Pre-K 4',q:1,r:850},{d:'Tuition · Toddlers A',q:1,r:850},{d:'Activity fee',q:2,r:25}]},
+ {id:'inv-009',fam:'f-hughes', family:'Hughes' ,  period:'June 2026',issued:'Jun 1, 2026',due:'Jun 15, 2026',status:'open',   lines:[{d:'Tuition · Toddlers B',q:1,r:850}]},
+ {id:'inv-001',fam:'f-johnson',   family:'Johnson',    period:'June 2026',issued:'Jun 1, 2026',due:'Jun 15, 2026',status:'paid',   lines:[{d:'Tuition · Pre-K 4',q:1,r:850},{d:'Tuition · Toddlers A',q:1,r:850},{d:'Activity fee',q:2,r:25}]},
  {id:'inv-003',fam:'f-rivera',  family:'Rivera',   period:'June 2026',issued:'Jun 1, 2026',due:'Jun 15, 2026',status:'paid',   lines:[{d:'Tuition · Toddlers B',q:1,r:850},{d:'Subsidy credit',q:1,r:-340}]},
- {id:'inv-005',fam:'f-park',    family:'Park',     period:'June 2026',issued:'Jun 1, 2026',due:'Jun 15, 2026',status:'paid',   lines:[{d:'Tuition · Pre-K 4',q:1,r:850},{d:'Enrichment',q:1,r:75}]},
+ {id:'inv-005',fam:'f-schneider',    family:'Schneider',     period:'June 2026',issued:'Jun 1, 2026',due:'Jun 15, 2026',status:'paid',   lines:[{d:'Tuition · Pre-K 4',q:1,r:850},{d:'Enrichment',q:1,r:75}]},
  {id:'inv-006',fam:'f-bennett', family:'Bennett',  period:'June 2026',issued:'Jun 1, 2026',due:'Jun 15, 2026',status:'paid',   lines:[{d:'Tuition · Kinder Prep',q:1,r:850}]},
- {id:'inv-008',fam:'f-patel',   family:'Patel',    period:'June 2026',issued:'Jun 1, 2026',due:'Jun 15, 2026',status:'paid',   lines:[{d:'Tuition · Pre-K 4',q:1,r:850}]},
+ {id:'inv-008',fam:'f-ramirez',   family:'Ramirez',    period:'June 2026',issued:'Jun 1, 2026',due:'Jun 15, 2026',status:'paid',   lines:[{d:'Tuition · Pre-K 4',q:1,r:850}]},
  {id:'inv-010',fam:'f-oconnor', family:"O'Connor", period:'June 2026',issued:'Jun 1, 2026',due:'Jun 15, 2026',status:'paid',   lines:[{d:'Tuition · Kinder Prep',q:1,r:850}]},
  {id:'inv-011',fam:'f-davis',   family:'Davis',    period:'June 2026',issued:'Jun 1, 2026',due:'Jun 15, 2026',status:'paid',   lines:[{d:'Tuition · Pre-K 3',q:1,r:850}]}];
 
@@ -1910,13 +2008,13 @@ const CLAIMS=[
  {id:'sc-mar2026',cycle:'Mar 2026',program:'TN CCAP',status:'paid',     deadline:'Apr 15, 2026',value:2880,kids:3,billed:60,attended:60,mismatches:[]}];
 
 const ACTIVITIES=[
- {id:'a1',kid:'Ella Park',      ini:'EP',type:'incident',icon:'alert',title:'Incident logged · scraped knee',by:'Sarah Kim',   room:'Pre-K 4',   rid:'r-prek4',   at:'10:42 AM',review:true,body:'Scraped knee on the playground at outside time. Cleaned, plaster applied, back to play within five minutes.'},
+ {id:'a1',kid:'Noah Schneider', ini:'NS',type:'incident',icon:'alert',title:'Incident logged · scraped knee',by:'Sarah Kim',   room:'Pre-K 4',   rid:'r-prek4',   at:'10:42 AM',review:true,body:'Scraped knee on the playground at outside time. Cleaned, plaster applied, back to play within five minutes.'},
  {id:'a2',kid:'Room',           ini:'P4',type:'note',    icon:'book', title:'Circle time · weather chart',    by:'Sarah Kim',   room:'Pre-K 4',   rid:'r-prek4',   at:'10:05 AM',review:false,body:'We charted the weather and everyone picked a symbol for the day. Plenty of guesses about rain.'},
- {id:'a17',kid:'Amelia Walsh',  ini:'AW',type:'accident',icon:'bandage',title:'Minor bump',        by:'Sarah Kim',   room:'Pre-K 4',   rid:'r-prek4',   at:'2:15 PM', review:false,body:'Bumped her knee on the climber. Cleaned, ice applied, back to playing in five minutes.'},
- {id:'a18',kid:'Amelia Walsh',  ini:'AW',type:'medication',icon:'pill',title:'Medication given',    by:'Sarah Kim',   room:'Pre-K 4',   rid:'r-prek4',   at:'9:35 AM', review:false,body:'Allergy drops, 1 dose, as authorized.'},
- {id:'a14',kid:'Amelia Walsh',  ini:'AW',type:'meal',  icon:'meal',title:'Lunch · ate all',              by:'Sarah Kim',   room:'Pre-K 4',   rid:'r-prek4',   at:'11:52 AM',review:false,body:'Cleared the plate and asked for more cucumber. Poured her own water.'},
- {id:'a15',kid:'Ethan Brooks',  ini:'EB',type:'nap',   icon:'zzz', title:'Nap · 12:10 to 1:55',           by:'James Ortiz', room:'Toddlers A',rid:'r-toddlerA',at:'1:55 PM', review:false,body:'Down quickly with the blue blanket. Slept most of the hour and three quarters.'},
- {id:'a16',kid:'Amelia Walsh',  ini:'AW',type:'kudos', icon:'star',title:'Kudos · helped a friend',       by:'Sarah Kim',   room:'Pre-K 4',   rid:'r-prek4',   at:'10:20 AM',review:false,body:'Noticed a friend could not reach the paint and fetched the step for him without being asked.'},
+ {id:'a17',kid:'Jack Johnson',   ini:'JJ',type:'accident',icon:'bandage',title:'Minor bump',        by:'Sarah Kim',   room:'Pre-K 4',   rid:'r-prek4',   at:'2:15 PM', review:false,body:'Bumped his knee on the climber. Cleaned, ice applied, back to playing in five minutes.'},
+ {id:'a18',kid:'Jack Johnson',   ini:'JJ',type:'medication',icon:'pill',title:'Medication given',    by:'Sarah Kim',   room:'Pre-K 4',   rid:'r-prek4',   at:'9:35 AM', review:false,body:'Allergy drops, 1 dose, as authorized.'},
+ {id:'a14',kid:'Jack Johnson',   ini:'JJ',type:'meal',  icon:'meal',title:'Lunch · ate all',              by:'Sarah Kim',   room:'Pre-K 4',   rid:'r-prek4',   at:'11:52 AM',review:false,body:'Cleared the plate and asked for more cucumber. Poured his own water.'},
+ {id:'a15',kid:'Lily Johnson',   ini:'LJ',type:'nap',   icon:'zzz', title:'Nap · 12:10 to 1:55',           by:'James Ortiz', room:'Toddlers A',rid:'r-toddlerA',at:'1:55 PM', review:false,body:'Down quickly with the blue blanket. Slept most of the hour and three quarters.'},
+ {id:'a16',kid:'Jack Johnson',   ini:'JJ',type:'kudos', icon:'star',title:'Kudos · helped a friend',       by:'Sarah Kim',   room:'Pre-K 4',   rid:'r-prek4',   at:'10:20 AM',review:false,body:'Noticed a friend could not reach the paint and fetched the step for him without being asked.'},
  {id:'a3',kid:'Sofia Rivera',   ini:'SR',type:'meal',    icon:'meal', title:'Lunch · ate most',               by:'James Ortiz', room:'Toddlers B',rid:'r-toddlerB',at:'11:48 AM',review:false,body:'Ate most of the pasta and all the fruit. Asked for seconds on the peas.'},
  {id:'a4',kid:'Jaylen Thompson',ini:'JT',type:'nap',     icon:'zzz',  title:'Nap · 12:30 to 2:05',            by:'James Ortiz', room:'Toddlers A',rid:'r-toddlerA',at:'2:05 PM', review:false,body:'Settled quickly and slept ninety minutes. Woke up cheerful.'},
  {id:'a5',kid:'Room',           ini:'P3',type:'photo',   icon:'img',  title:'Photo · water table',            by:'Maria Lopez', room:'Pre-K 3',   rid:'r-prek3',   at:'9:20 AM', review:false,photos:true,body:'Water table morning. Funnels and cups, and a lot of very wet sleeves.'},
@@ -1925,18 +2023,18 @@ const ACTIVITIES=[
 const THREADS=[
  /* A parent's threads name the person at the centre, because that is who they
     are talking to — the director's list names the family for the same reason. */
- {id:'t0',who:'Jamie Walsh',ini:'JW',scope:'family',sub:'Parent · Amelia Walsh',rid:'r-prek4',unread:true,at:'1:05 PM',
+ {id:'t0',who:'Mike Johnson',ini:'MJ',scope:'family',sub:'Parent · Jack Johnson',rid:'r-prek4',unread:true,at:'1:05 PM',
   with:{name:'Sarah Kim',ini:'SK',role:'Teacher · Pre-K 4'},
-  msgs:[{d:'in',t:'Amelia has swimming on Thursday, so she will need collecting at 2 rather than 3. Is that all right?',at:'1:05 PM'},
+  msgs:[{d:'in',t:'Jack has swimming on Thursday, so he will need collecting at 2 rather than 3. Is that all right?',at:'1:05 PM'},
         {d:'out',t:'That is fine, I have put a note on her record so the room knows. Thursday at 2.',at:'1:12 PM'}]},
- {id:'t0b',who:'Jamie Walsh',ini:'JW',scope:'family',sub:'Parent · Ethan Brooks',rid:'r-toddlerA',unread:false,at:'9:04 AM',
+ {id:'t0b',who:'Mike Johnson',ini:'MJ',scope:'family',sub:'Parent · Lily Johnson',rid:'r-toddlerA',unread:false,at:'9:04 AM',
   with:{name:'Front Desk',ini:'FD',role:'Admin'},
   msgs:[{d:'out',t:'Your June receipt is ready in Billing.',at:'9:04 AM'}]},
- {id:'t0c',who:'Jamie Walsh',ini:'JW',scope:'family',sub:'Parent · Amelia Walsh',rid:'r-prek4',unread:false,at:'Fri',
-  with:{name:'Dana Mitchell',ini:'DM',role:'Director'},
+ {id:'t0c',who:'Mike Johnson',ini:'MJ',scope:'family',sub:'Parent · Jack Johnson',rid:'r-prek4',unread:false,at:'Fri',
+  with:{name:'Rebecca Collins',ini:'RC',role:'Director'},
   msgs:[{d:'out',t:'Reminder: we are closed Monday for staff training. Normal hours resume Tuesday.',at:'Fri'}]},
  {id:'t1',who:'Maria Garcia',ini:'MG',scope:'family',sub:'Parent · Mateo Garcia',rid:'r-prek3',unread:true,at:'11:20 AM',
-  msgs:[{d:'in',t:'Hi Dana, I got the invoice notice. Our card was replaced last week, can I update it today?',at:'11:20 AM'}]},
+  msgs:[{d:'in',t:'Hi Rebecca, I got the invoice notice. Our card was replaced last week, can I update it today?',at:'11:20 AM'}]},
  {id:'t2',who:'Sarah Kim',ini:'SK',scope:'staff',sub:'Lead Teacher · Pre-K 4',rid:'r-prek4',unread:false,at:'10:44 AM',
   msgs:[{d:'in',t:'Ella scraped her knee at outside time. Cleaned and logged, she is fine. Incident is waiting on your sign-off.',at:'10:44 AM'},
         {d:'out',t:'Thanks Sarah. Looking at it now.',at:'10:51 AM'}]},
@@ -1952,7 +2050,28 @@ const CIO={qr:true,rot:1,sig:true,when:'both',ratio:0,late:true,unsched:true};
 /* The door reads the policy rather than hard-coding it, so FUS-13 (one tap out)
    and FUS-14 (a pad on the way out) are the same code at two settings. */
 const sigAt=out=>CIO.sig&&(CIO.when==='both'||(out&&CIO.when==='out'));
-const S={tab:(ROLES[roleFromUrl()].tabs[0][0]),sub:null,arg:null,stack:[],cioTab:'qr',q:'',mask:false,moveTo:null,relArg:null,finArg:null,voided:{},selecting:false,sel:new Set(),openNote:new Set(),pick:null,pickArg:null,searchOpen:false,day:0,actFilter:new Set(),
+
+/* ---------------------------------------------------------------------------
+   The door scenarios from the feature set. A child carries the state, so the
+   same tap produces FUS-1, FUS-2, FUS-3 or FUS-4 depending on who is at the
+   door, and the role decides which of that scenario's three screens you get.
+   The policy scenarios (FUS-1a/1b/1c, 13, 14) are the provider admin switches
+   above, and are not per child.
+   --------------------------------------------------------------------------- */
+const scnOf=k=>(k&&k.scn)||'plain';
+/* the room's own arithmetic, so a block is true rather than asserted */
+function roomLoad(r){
+  const room=ROOMS.find(x=>x.id===r)||ROOMS[0];
+  const inn=here(kidsIn(room.id));
+  const per=Number(room.ratio.split(':')[1])||6;
+  const staff=room.teachers||1;
+  return {room, inn, per, staff, limit:per*staff, full:inn+1>per*staff};
+}
+/* FUS-3 only blocks while the room really is at its limit and the centre's
+   ratio setting says to block. Allow all scheduled lets it through, because
+   the child being unscheduled is the other half of the reason. */
+const isBlocked=k=>scnOf(k)==='blocked'&&CIO.ratio===0&&roomLoad(k.room).full;
+const S={kpin:'',kioskOpen:false,hmenu:null,tab:(ROLES[roleFromUrl()].tabs[0][0]),sub:null,arg:null,stack:[],cioTab:'all',q:'',mask:false,moveTo:null,relArg:null,finArg:null,voided:{},selecting:false,sel:new Set(),openNote:new Set(),pick:null,pickArg:null,searchOpen:false,day:0,actFilter:new Set(),
   homeTab:'actions',invFilter:'all',subTab:'mismatches',
   /* Filters hold sets now, not single values. Empty means no filter, which is
      the same as everything — so "nothing ticked" and "all ticked" agree. */
@@ -1993,21 +2112,21 @@ const outstanding=()=>FAMILIES.reduce((s,f)=>s+f.balance,0);
 /* the base app's student record. Everything the seven tabs read. */
 /* what the family and staff tabs read, mirroring the base app */
 const FAM_DETAIL={}, STAFF_DETAIL={};
-const FAM_NOTES={'f-garcia':[{at:'12 Jun',by:'Dana Mitchell',t:'Card declined twice. Maria says a replacement is on the way.'}],
-  'f-thompson':[{at:'2 Jun',by:'Dana Mitchell',t:'Kim asked about the sibling discount from September.'}]};
+const FAM_NOTES={'f-garcia':[{at:'12 Jun',by:'Rebecca Collins',t:'Card declined twice. Maria says a replacement is on the way.'}],
+  'f-thompson':[{at:'2 Jun',by:'Rebecca Collins',t:'Kim asked about the sibling discount from September.'}]};
 const TIMEOFF={'s2':[{id:'to1',from:'14 Jul',to:'18 Jul',type:'Annual leave',status:'pending',note:'Family holiday'}],
   's3':[{id:'to2',from:'3 Jun',to:'3 Jun',type:'Sick',status:'approved',note:''}],
   's4':[{id:'to3',from:'22 May',to:'23 May',type:'Unpaid',status:'declined',note:'Ratio cover unavailable'}]};
 const KID_DETAIL={};
 const DOB={c1:'2022-03-14',c2:'2023-01-08',c3:'2024-02-20',c4:'2025-04-02',c5:'2022-06-30',c6:'2021-09-12',
   c7:'2023-05-19',c8:'2022-11-03',c9:'2024-07-25',c10:'2021-12-01',c11:'2023-08-16',c12:'2025-01-27'};
-const PREF={c1:'Millie',c3:'Sofi',c6:'No',c10:'Li'};
+const PREF={c1:'Jackie',c3:'Sofi',c6:'No',c10:'Li'};
 const SEVERITY={Peanut:'Anaphylaxis · EpiPen on site',Dairy:'Intolerance · no milk products',
   'Tree-nut':'Anaphylaxis · EpiPen on site',Egg:'Mild · avoid baked egg'};
 KIDS.forEach((k,idx)=>{
   const f=F(k.fam);
   KID_DETAIL[k.id]={
-    dob:DOB[k.id], preferred:PREF[k.id]||null, pid:'LH-0'+(240+idx),
+    dob:DOB[k.id], preferred:PREF[k.id]||null, pid:'CR-0'+(240+idx),
     enrolled:'Active', start:'4 Aug 2025',
     address:f.address||'On file with the '+f.name+' family',
     pickups:[{name:f.contact,rel:'Parent · primary',photo:true},
@@ -2085,13 +2204,15 @@ function homehead(){
    <div class="ctr">
     <span class="glyph">F</span>
     <span style="min-width:0">
-     <b class="ctr-name">${CAN.rooms==='one'?roomName(ROLE.room):CENTER.name}</b>
+     <b class="ctr-name has-caret" data-act="hmenu:ctr" role="button" tabindex="0"
+      aria-label="Change centre">${CAN.rooms==='one'?roomName(ROLE.room):CENTER.name}
+      ${ic('chev','ic sm caret','currentColor','2.4')}</b>${S.hmenu==='ctr'?hmenu('ctr'):''}
      <small class="ctr-sub">${CENTER.date} · ${ROLE.who.split(' ')[0]}</small>
     </span>
    </div>
    <div class="hr">
     ${ROLE.scope==='family'?'':maskBtn()}
-    <button class="avatar" data-act="noop" aria-label="Account">${ROLE.ini}</button>
+    <button class="avatar" data-act="hmenu:role" aria-label="Account and role">${ROLE.ini}</button>${S.hmenu==='role'?hmenu('role'):''}
    </div>
   </div>`;
 }
@@ -2262,7 +2383,7 @@ function vHomeWide(n){
      <button class="primary q" data-act="sheet:inout">${ic('in','ic sm','var(--npds-blue-700)','1.9')}Check in / out</button>
      <button class="linkbtn big" data-act="sheet:posttype">${ic('pen','ic sm','currentColor','1.9')}Post activity</button>
      <span class="pagechrome">${maskBtn()}
-      <button class="avatar" data-act="noop" aria-label="Account">${ROLE.ini}</button></span>
+      <button class="avatar" data-act="hmenu:role" aria-label="Account and role">${ROLE.ini}</button>${S.hmenu==='role'?hmenu('role'):''}</span>
     </div>
    </div>
    <div class="statrow">
@@ -2318,7 +2439,7 @@ function actionItems(){
     const rev=ACTIVITIES.filter(a=>a.review).length;
     if(rev) items.push({icon:'clipboard',tone:'warn',
       pri:'Urgent',priTone:'neg',area:'Incident',
-      t:`${rev} incident ${rev===1?'report':'reports'} awaiting sign-off`,s:'Ella Park · logged 10:42 AM by Sarah Kim',go:'Review',act:'go:activities'});
+      t:`${rev} incident ${rev===1?'report':'reports'} awaiting sign-off`,s:'Noah Schneider · logged 10:42 AM by Sarah Kim',go:'Review',act:'go:activities'});
   }
   if(ROLE.scope==='family'){
     const kids=myKids();
@@ -2484,10 +2605,11 @@ function fopts(list,isOn,act,searchable,allAct){
     <input id="ffq" value="${esc(S.ffq||'')}" placeholder="Search" autocomplete="off" aria-label="Search options">
     ${q?`<button class="fsx" data-act="ffqclear" aria-label="Clear">${ic('x','ic sm','var(--ink-3)','2')}</button>`:''}
    </div>`:''}
-   ${allAct?`<button class="fall" data-act="${allAct}:${every?'none':'all'}">
-     ${box(every)}<b class="fall-t">${every?'Deselect all':'Select all'}</b></button>`:''}
+   ${allAct?`<div class="fallrow">
+     <button data-act="${allAct}:all">Select all</button>
+     <button data-act="${allAct}:none">Clear all</button></div>`:''}
    <div class="opts" role="group">${rows.length?rows.map(o=>`
-    <button class="opt" data-act="${act}:${o[0]}" role="checkbox" aria-checked="${isOn(o[0])}">
+    <button class="opt${isOn(o[0])?' on':''}" data-act="${act}:${o[0]}" role="checkbox" aria-checked="${isOn(o[0])}">
      ${box(isOn(o[0]))}
      <span class="on2">${m(o[1])}${o[2]?`<i>${m(o[2])}</i>`:''}</span></button>`).join('')
    :'<div class="empty">Nothing matches.</div>'}</div>`;
@@ -2753,10 +2875,14 @@ function attRow(k){
   const sub=k.status==='here'?`${k.tin}${k.who?' · with <em>'+m(k.who)+'</em>':''}`
     :k.status==='absent'?'Absent'
     :k.out?`Out${k.collectedBy?' · with <em>'+m(k.collectedBy)+'</em>':''}`
+    /* the row is already marked, before anyone taps */
+    :scnOf(k)==='unsched'||scnOf(k)==='blocked'?'Not scheduled today'
+    :scnOf(k)==='early'?`Scheduled ${k.from}`
     :'Not checked in';
   if(S.selecting){
     const on=S.sel.has(k.id);
-    return `<div class="row rowstack${on?' picked':''}" data-act="sel:${k.id}">
+    return `<div class="optrow${on?' on':''}" data-act="sel:${k.id}"
+     role="checkbox" aria-checked="${on}" tabindex="0">
      <span class="cbx${on?' on':''}">${on?ic('check','ic sm','#fff','2.6'):''}</span>
      <span class="av">${m(k.ini)}${statusDot(k)}</span>
      <span class="rt"><b>${m(k.name)}</b><small>${sub}</small></span>
@@ -2891,7 +3017,9 @@ function vAttendanceWide(){
      <td data-act="child:${k.id}"><span class="it">
        <span class="av">${m(k.ini)}${statusDot(k)}</span>
        <span class="it-t"><b>${m(k.name)}</b><small>${k.status==='here'?`in ${k.tin}${k.who?' · with '+m(k.who):''}`
-         :k.status==='absent'?'Marked absent':'Not checked in'}</small></span></span></td>
+         :k.status==='absent'?'Marked absent'
+         :scnOf(k)==='unsched'||scnOf(k)==='blocked'?'Not scheduled today'
+         :scnOf(k)==='early'?`Scheduled ${k.from}`:'Not checked in'}</small></span></span></td>
      <td class="mute">${m(roomName(k.room))}</td>
      <td><span class="pillv ${k.status==='here'?'':k.status==='absent'?'warn':'mute'}">${
        k.status==='here'?'Present':k.status==='absent'?'Absent':'Not in'}</span></td>
@@ -2910,7 +3038,7 @@ function vAttendanceWide(){
      <button class="primary q" data-act="${S.sel.size?'bulksheet:in':'sheet:inout'}">${ic('in','ic sm','var(--npds-blue-700)','1.9')}Check in / out${S.sel.size?` · ${S.sel.size}`:''}</button>
      <button class="second q" data-act="sheet:print">${ic('print','ic sm','var(--npds-gray-700)','1.9')}Print</button>
      <span class="pagechrome">${maskBtn()}
-      <button class="avatar" data-act="noop" aria-label="Account">${ROLE.ini}</button></span>
+      <button class="avatar" data-act="hmenu:role" aria-label="Account and role">${ROLE.ini}</button>${S.hmenu==='role'?hmenu('role'):''}</span>
     </div>
    </div>
    <div class="scopeband">
@@ -2983,16 +3111,17 @@ function vAttendance(){
    ${S.selecting?'':datespine()}
    ${S.selecting?'':`<div class="tabpill">${chip('all','All',scope.length)}${chip('here','Here',cnt('here'))}${chip('out','Not in',cnt('out'))}${chip('absent','Absent',cnt('absent'))}</div>`}
    ${past?`<p class="hint">${ic('shield','ic sm','var(--ink-3)','1.8')}A past day is read-only. Reopen a closed register from Compliance.</p>`:''}
-   <div class="card list">${list.length?attBody(list):'<div class="empty">No children match.</div>'}</div>
+   <div class="card list${S.selecting?' selbox':''}">${list.length?attBody(list):'<div class="empty">No children match.</div>'}</div>
   </div>
   ${S.selecting?(()=>{const n=S.sel.size,on=n>0;return `<div class="selbar">
     <div class="sb-head"><b>${on?n+(n===1?' child selected':' children selected'):'No children selected'}</b>
-     <a href="#" data-act="${S.sel.size===list.length?'selnone':'selall'}">${S.sel.size===list.length?'Clear all':'Select all'}</a></div>
+     <span class="sb-links"><a href="#" data-act="selall">Select all</a>
+      <a href="#" data-act="selnone">Clear all</a></span></div>
     <div class="sb-acts">
-     <button class="primary sm${on?'':' off'}" data-act="${on?'bulksheet:in':'nosel'}">${ic('in','ic sm','currentColor','1.9')}Check in</button>
-     <button class="primary sm${on?'':' off'}" data-act="${on?'bulksheet:out':'nosel'}">${ic('out','ic sm','currentColor','1.9')}Check out</button>
-     <button class="second sm${on?'':' off'}" data-act="${on?'bulkabsent':'nosel'}">${ic('moon','ic sm','var(--npds-gray-700)','1.9')}Absent</button>
-     <button class="second sm${on?'':' off'}" data-act="${on?'sheet:relocate':'nosel'}">${ic('swap','ic sm','var(--npds-gray-700)','1.9')}Move</button>
+     <button class="primary sm" data-act="${on?'bulksheet:in':'nosel'}">${ic('in','ic sm','currentColor','1.9')}Check in</button>
+     <button class="primary sm" data-act="${on?'bulksheet:out':'nosel'}">${ic('out','ic sm','currentColor','1.9')}Check out</button>
+     <button class="second sm" data-act="${on?'bulkabsent':'nosel'}">${ic('moon','ic sm','var(--npds-gray-700)','1.9')}Absent</button>
+     <button class="second sm" data-act="${on?'sheet:relocate':'nosel'}">${ic('swap','ic sm','var(--npds-gray-700)','1.9')}Move</button>
     </div>
    </div>`;})():''}
   ${dock(list.length,scope.length,'child','children','Search children')}`;
@@ -3133,7 +3262,7 @@ function vActivitiesWide(){
     <div class="pageacts">
      <button class="primary q" data-act="sheet:posttype">${ic('plus','ic sm','var(--npds-blue-700)','1.9')}Post activity</button>
      <span class="pagechrome">${maskBtn()}
-      <button class="avatar" data-act="noop" aria-label="Account">${ROLE.ini}</button></span>
+      <button class="avatar" data-act="hmenu:role" aria-label="Account and role">${ROLE.ini}</button>${S.hmenu==='role'?hmenu('role'):''}</span>
     </div>
    </div>
    <div class="scopeband">
@@ -3195,7 +3324,7 @@ function vMessagesWide(){
      <button class="primary q" data-act="newmsg">${ic('plus','ic sm','var(--npds-blue-700)','1.9')}New message</button>
      <button class="second q" data-act="soon:Templates">${ic('doc','ic sm','var(--npds-gray-700)','1.9')}Templates</button>
      <span class="pagechrome">${maskBtn()}
-      <button class="avatar" data-act="noop" aria-label="Account">${ROLE.ini}</button></span>
+      <button class="avatar" data-act="hmenu:role" aria-label="Account and role">${ROLE.ini}</button>${S.hmenu==='role'?hmenu('role'):''}</span>
     </div>
    </div>
    <div class="scopeband">
@@ -3298,7 +3427,7 @@ function vPeopleWide(){
     <div class="pageacts">
      ${addLbl?`<button class="primary q" data-act="${addAct}">${ic('plus','ic sm','var(--npds-blue-700)','1.9')}${addLbl}</button>`:''}
      <span class="pagechrome">${maskBtn()}
-      <button class="avatar" data-act="noop" aria-label="Account">${ROLE.ini}</button></span>
+      <button class="avatar" data-act="hmenu:role" aria-label="Account and role">${ROLE.ini}</button>${S.hmenu==='role'?hmenu('role'):''}</span>
     </div>
    </div>`;
   const tabs=CAN.rooms==='all'?`<div class="htabs">
@@ -3803,7 +3932,7 @@ function vFinanceWide(){
      <button class="primary q" data-act="${addAct}">${ic('plus','ic sm','var(--npds-blue-700)','1.9')}${addLbl}</button>
      <button class="second q" data-act="sheet:print">${ic('doc','ic sm','var(--npds-gray-700)','1.9')}Export</button>
      <span class="pagechrome">${maskBtn()}
-      <button class="avatar" data-act="noop" aria-label="Account">${ROLE.ini}</button></span>
+      <button class="avatar" data-act="hmenu:role" aria-label="Account and role">${ROLE.ini}</button>${S.hmenu==='role'?hmenu('role'):''}</span>
     </div>
    </div>`;
   const tabs=`<div class="htabs">
@@ -4397,23 +4526,28 @@ const warnbox=t=>`<div class="warnbox"><span class="wb-i">${ic('alert','ic','cur
    are one card of rows with hairlines between them, the way every field card in
    the app reads. The rotation keeps a quiet header row, because three bare
    radios sitting under a switch do not say what they are choosing between. */
+/* When the switch is off there is nothing to choose between, so the choices
+   are not there. They are not drawn greyed out: nothing in this product is
+   shown disabled, and a dimmed radio still reads as a thing you could press. */
 const qrBody=()=>
   scard([srow2({n:'Require a QR code',s:'Parents scan the room code.',on:CIO.qr,act:'ciotog:qr'}),
-         `<span class="lhead">How the code rotates</span>`,
+         ...(CIO.qr?[`<span class="lhead">How the code rotates</span>`,
          `<div role="radiogroup" aria-label="How the code rotates">
            ${prow({n:'Every scan',on:CIO.rot===0,act:'ciorad:rot:0'})}
            ${prow({n:'Every day',s:'Yesterday\u2019s stops overnight.',on:CIO.rot===1,act:'ciorad:rot:1'})}
            ${prow({n:'Never',s:'One fixed code, printed once.',on:CIO.rot===2,act:'ciorad:rot:2'})}
-          </div>`])
- +(CIO.rot===2?warnbox('<b>A static code can be photographed.</b> A picture of it checks a child in from anywhere.'):'');
+          </div>`]:[])])
+ +(!CIO.qr?`<p class="sh-note" style="margin:12px 2px 0">Parents check in without scanning anything.</p>`
+   :CIO.rot===2?warnbox('<b>A static code can be photographed.</b> A picture of it checks a child in from anywhere.'):'');
 
 const sigBody=()=>
   scard([srow2({n:'Require a signature',s:'Whoever drops off or collects signs on the device.',on:CIO.sig,act:'ciotog:sig'}),
-         `<span class="lhead">When it is taken</span>`,
+         ...(CIO.sig?[`<span class="lhead">When it is taken</span>`,
          `<div role="radiogroup" aria-label="When it is taken">
            ${prow({n:'Check-in and check-out',s:'Both ends of the day.',on:CIO.when==='both',act:'ciorad:when:both'})}
            ${prow({n:'Check-out only',s:'Collection is the one that has to be proved.',on:CIO.when==='out',act:'ciorad:when:out'})}
-          </div>`]);
+          </div>`]:[])])
+ +(CIO.sig?'':`<p class="sh-note" style="margin:12px 2px 0">Nobody signs, at either end of the day. Turn this on to choose when the signature is taken.</p>`);
 
 const ratioBody=()=>
   scard([prow({n:'Block it',s:'Nobody gets in who would put the room out of ratio.',on:CIO.ratio===0,act:'ciorad:ratio:0'}),
@@ -4429,22 +4563,60 @@ const arrBody=()=>
    QR code, and Ratio, not Ratio at check-in. The long name is the setting's
    name, and the topbar is already saying where you are, so spelling it out
    again in the tab only pushes the pill wider than the card under it. */
-const CIOTABS=[['qr','QR'],['sig','Signature'],['ratio','Ratio'],['arr','Arrivals']];
-const CIOBODY={qr:qrBody,sig:sigBody,ratio:ratioBody,arr:arrBody};
+/* The All tab is the landing one: every setting's state on one screen, and a
+   row is a link to that setting's tab, so the overview is also the navigation. */
+const allRow=(tab,n,sub,val)=>`<button class="arow2" data-act="ciotab:${tab}">
+  <span class="at"><b>${n}</b><small>${sub}</small></span>
+  <span class="av2">${val}${ic('chev','ic sm','currentColor','2')}</span></button>`;
+const allBody=()=>scard([
+  allRow('qr','QR code',CIO.qr?(CIO.rot===0?'New code every scan':CIO.rot===1?'A new code every day':'One fixed code, printed once'):'Parents are not asked to scan',CIO.qr?'On':'Off'),
+  allRow('sig','Signature',CIO.sig?(CIO.when==='both'?'Taken at check-in and check-out':'Taken at check-out only'):'Nobody signs',CIO.sig?'On':'Off'),
+  allRow('ratio','Ratio at check-in',CIO.ratio===0?'Nobody gets in who would break it':'Anyone booked for today gets in',CIO.ratio===0?'Blocked':'Scheduled'),
+  allRow('arr','Arrivals',[CIO.late?'Late':'',CIO.unsched?'unscheduled':''].filter(Boolean).join(' and ')
+    ? `${[CIO.late?'Late':'',CIO.unsched?'unscheduled':''].filter(Boolean).join(' and ')} allowed` : 'Neither is allowed',
+    CIO.late||CIO.unsched?'On':'Off')]);
+
+const CIOTABS=[['all','All'],['qr','QR'],['sig','Signature'],['ratio','Ratio'],['arr','Arrivals']];
+const CIOBODY={all:allBody,qr:qrBody,sig:sigBody,ratio:ratioBody,arr:arrBody};
 function vCheckinSettings(){
   const t=S.cioTab;
+  /* On a desktop the four settings are the page's own tabs, and the panel sits
+     in the column everything else uses. The controls are identical. */
+  if(isRail()) return `<div class="body wide narrow">
+   <div class="pagehead">
+    <div><h2 class="greet-h">Check-in and check-out</h2></div>
+    <div class="pageacts"><span class="pagechrome">${maskBtn()}
+     <button class="avatar" data-act="hmenu:role" aria-label="Account and role">${ROLE.ini}</button>${S.hmenu==='role'?hmenu('role'):''}</span></div>
+   </div>
+   <div class="htabs">${CIOTABS.map(([v,l])=>`<button class="htab${t===v?' on':''}" role="tab"
+     aria-selected="${t===v}" data-act="ciotab:${v}">${l}</button>`).join('')}</div>
+   <div class="tabpanel" role="tabpanel">${(CIOBODY[t]||allBody)()}</div>
+  </div>`;
   return `${topbar('Check-in and check-out',CENTER.name)}<div class="body">
-   <div class="tabwrap"><div class="tabpill fill" role="tablist">
+   <div class="tabpill scrollpill" role="tablist">
     ${CIOTABS.map(([v,l])=>`<button class="tp${t===v?' on':''}" role="tab" aria-selected="${t===v}"
       data-act="ciotab:${v}">${l}</button>`).join('')}
-   </div></div>
-   <div class="tabpanel" role="tabpanel">${(CIOBODY[t]||qrBody)()}</div>
+   </div>
+   <div class="tabpanel" role="tabpanel">${(CIOBODY[t]||allBody)()}</div>
   </div>`;
 }
 
 /* ============================================================
    sheets
    ============================================================ */
+/* FUS-2 and FUS-4 on a staff screen: one banner above the question, naming the
+   exception and who carries it. The parent is told nothing in FUS-2, and the
+   rate in FUS-4, which is why this is staff only. */
+function scnBanner(k){
+  const fn=m(k.name.split(' ')[0]), sc=scnOf(k), L=roomLoad(k.room);
+  if(sc==='unsched') return `<div class="noterow"><span class="nr-i">${ic('cal','ic sm','currentColor','1.8')}</span>
+    <p><b>${fn} is not scheduled today.</b>
+     <span class="rcheck">${ic('check','ic sm','currentColor','2.6')}Ratio ${L.room.ratio} holds &middot; ${L.inn+1} of ${L.room.cap}</span></p></div>`;
+  if(sc==='early') return `<div class="noterow"><span class="nr-i">${ic('clock','ic sm','currentColor','1.8')}</span>
+    <p><b>${fn} is scheduled from ${k.from}.</b> Before care is billed to the family at the
+     ${k.rate} drop-in rate. ${m(F(k.fam).contact)} is told, and nothing is asked of this room.</p></div>`;
+  return '';
+}
 function sheet(kind,arg){
   const sh=$('#sheet');
   let html='', tall=false, form=false, full=false;
@@ -4458,6 +4630,7 @@ function sheet(kind,arg){
      <button class="sh-x" data-act="close" aria-label="Close">${ic('x','ic sm','var(--ink-2)','2.1')}</button>
      <div class="sh-kid"><span class="av lg">${m(k.ini)}${statusDot(k)}</span>
       <span class="rt"><b>${m(k.name)}</b><small>${roomName(k.room)} · ${k.status==='here'?'here since '+k.tin:k.status==='absent'?'absent today':'not checked in'}</small></span></div>
+     ${out?'':scnBanner(k)}
      <span class="flabel" style="display:flex;gap:8px;align-items:center;margin:0 2px 9px">
       ${out?'Who is collecting':'Who dropped off'} ${m(k.name.split(' ')[0])}? <em class="reqd">Required</em></span>
      <div class="card list roomy">
@@ -4471,6 +4644,46 @@ function sheet(kind,arg){
      </div>
      <button class="${out?'second':'primary'}" data-act="do${kind}:${arg}" style="width:100%;margin-top:14px">
       ${ic(out?'out':'in','ic','currentColor','1.8')}Check ${out?'out':'in'} ${m(k.name.split(' ')[0])}</button>`;
+  } else if(kind==='blocked'){
+    /* FUS-3 parent. One screen, and it says what happens next. The admin is
+       notified by the blocked attempt itself, so there is nothing to press. */
+    const k=K(arg), fn=m(k.name.split(' ')[0]);
+    html=`<span class="grab"></span>
+     <button class="sh-x" data-act="close" aria-label="Close">${ic('x','ic sm','var(--ink-2)','2.1')}</button>
+     <div class="sh-kid"><span class="av lg">${m(k.ini)}${statusDot(k)}</span>
+      <span class="rt"><b>${m(k.name)}</b><small>${roomName(k.room)} &middot; not checked in</small></span></div>
+     <div class="noterow neg" role="status"><span class="nr-i" aria-hidden="true">${ic('alert','ic sm','currentColor','1.8')}</span>
+      <p><b>We cannot check ${fn} in.</b> The admin has been notified. Please wait with ${fn}.</p></div>
+     <div class="card fieldset">
+      <div class="field"><span class="fl">Help phone</span>
+       <span class="fv accent">${ic('phone','ic sm','currentColor','1.8')}(901) 555&#8209;0100</span></div>
+     </div>
+     <button class="second" data-act="close" style="width:100%;margin-top:14px">Close</button>`;
+  } else if(kind==='ways'){
+    /* FUS-3 director. Three ways in, not a refusal, and a close icon that
+       records nothing. A way that cannot work is not shown: at licensed
+       capacity, adding staff opens no seat, so only the room move is offered. */
+    const k=K(arg), fn=m(k.name.split(' ')[0]), L=roomLoad(k.room);
+    const atCap=L.inn+1>L.room.cap;
+    const free=ROOMS.filter(r=>r.id!==k.room&&here(kidsIn(r.id))+1<=Number(r.ratio.split(':')[1])*(r.teachers||1)
+      &&kidsIn(r.id).length<r.cap).length;
+    const way=(g,t,sub,act)=>`<div class="row rad-row" data-act="${act}">
+      <span class="av">${ic(g,'ic sm','var(--ink-2)','1.8')}</span>
+      <span class="rt"><b>${t}</b><small>${sub}</small></span>
+      ${ic('chev','ic sm','var(--ink-3)')}</div>`;
+    tall=true;
+    html=`<span class="grab"></span>
+     <button class="sh-x" data-act="close" aria-label="Close">${ic('x','ic sm','var(--ink-2)','2.1')}</button>
+     <div class="sh-kid"><span class="av lg">${m(k.ini)}${statusDot(k)}</span>
+      <span class="rt"><b>${m(k.name)}</b><small>Unscheduled &middot; not checked in</small></span></div>
+     <div class="noterow warn" role="status"><span class="nr-i" aria-hidden="true">${ic('alert','ic sm','currentColor','1.8')}</span>
+      <p><b>${m(roomName(k.room))} is over ratio.</b> ${L.inn+1} children and ${L.staff} staff member, and the limit is ${L.room.ratio.replace(':',' to ')}.</p></div>
+     <span class="flabel">How do you want to check ${fn} in?</span>
+     <div class="card list roomy">
+      ${way('clock','Check in now','Fix it later',`wayin:${arg}`)}
+      ${free?way('room','Check in to another room',`${free} room${free===1?'':'s'} have space today`,`relocate:${arg}`):''}
+      ${atCap?'':way('users','Check in here, add staff','Two staff are free now',`waystaff:${arg}`)}
+     </div>`;
   } else if(kind==='health'){
     /* A signed-in parent is already identified, so they are never asked who is
        at the door. These two sheets are theirs alone: the staff pickup sheet
@@ -4489,6 +4702,9 @@ function sheet(kind,arg){
        const at=S.multi.indexOf(arg);
        return S.multi.length>1&&at>-1?` &middot; ${at+1} of ${S.multi.length}`:'';})()}</p>
      <div class="sbody2">
+      ${scnOf(k)==='early'?`<div class="noterow"><span class="nr-i">${ic('clock','ic sm','currentColor','1.8')}</span>
+        <p><b>${fn} is scheduled from ${k.from}.</b> Checking ${k.ini==='LC'?'her':'them'} in now bills before care at the
+         ${k.rate} drop-in rate. ${k.ini==='LC'?'She moves':'They move'} to standard care at ${k.from.replace(' AM','')}.</p></div>`:''}
       <div class="grp2">${Q.map((q,i)=>`<div class="grblock"><i>${q}</i>
         <div class="segpill2">
          <button class="sgp${S.hq[i]==='yes'?' on':''}" data-act="hqa:${i}:yes:${arg}">Yes</button>
@@ -4517,18 +4733,18 @@ function sheet(kind,arg){
     const firsts=S.multi.map(id=>K(id)).filter(Boolean).map(x=>m(x.name.split(' ')[0]));
     const who=many?firsts.slice(0,-1).join(', ')+' and '+firsts[firsts.length-1]:fn;
     const label=many?(firsts.length===2?'both':`all ${firsts.length}`):fn;
-    full=true;
     html=`<span class="grab"></span>
      <div class="sh-row fixed">
       ${out?'':`<button class="bk" data-act="${many?`hback:${arg}`:`checkin:${arg}`}" aria-label="Back to the health check">${ic('left','ic sm','var(--npds-gray-700)','2.2')}</button>`}
       <h3 class="sh-h flat">Sign to check ${out?'out':'in'} ${who}</h3>
       <button class="sh-x" data-act="close" aria-label="Close">${ic('x','ic sm','var(--ink-2)','2.1')}</button></div>
      <span class="flabel" style="margin:6px 2px 9px">${m(f.contact)} &middot; parent${out&&!many?` &middot; ${fn} has been in since ${k.tin}`:''}</span>
-     <div class="sigwrap tall"><canvas id="pad" width="640" height="560"></canvas>
+     <div class="sigwrap"><canvas id="pad" width="640" height="192"></canvas>
       <span class="sigh3${S.inSig?' gone':''}">${ic('pen','ic sm','var(--ink-3)','1.8')}Sign here</span>
       <button class="sigc2" data-act="clearsig">Clear</button></div>
+     <p class="sh-note" style="margin:10px 2px 0">Your signature is the record of who handed ${who} over, and when.</p>
      <div class="shfoot2" style="padding-top:16px">
-      <button class="${out?'second':'primary'}${S.inSig?'':' off'}" data-act="${
+      <button class="${out?'second':'primary'}" data-act="${
         S.inSig?(many?`domulti:${out?'out':'in'}`:`do${out?'checkout':'checkin'}:${arg}`):'nosig'}" style="width:100%">
        ${ic(out?'out':'in','ic','currentColor','1.8')}Check ${out?'out':'in'} ${label}</button></div>`;
   } else if(kind==='actions'){
@@ -5022,6 +5238,79 @@ function wirePad(){
 }
 function closeSheet(){$('#scrim').classList.remove('on');$('#sheet').classList.remove('on','tall','formsheet','full');}
 
+/* ---------------------------------------------------------------------------
+   FUS-11, the kiosk. A shared device in a doorway cannot look like a logged-in
+   app: no account, no navigation and no other family's names on screen. The
+   PIN says who you are, the list is the parent home's own list, and the sheets
+   after it are the parent's unchanged. Reached with ?kiosk=1.
+   --------------------------------------------------------------------------- */
+const KIOSK=new URLSearchParams(location.search).get('kiosk')==='1';
+function vKioskPin(){
+  const n=S.kpin.length;
+  const key=d=>`<button class="key" data-act="kpin:${d}">${d}</button>`;
+  return `<div class="kio-h"><span class="glyph">F</span><b>${m(CENTER.name)}</b>
+    <small>${CENTER.date} &middot; front entry kiosk</small></div>
+   <div class="body" style="gap:10px">
+    <p class="kiosk-note">Enter your PIN to check your children in or out.</p>
+    <div class="pinrow">${[0,1,2,3].map(i=>`<span class="pind${i<n?' on':''}"></span>`).join('')}</div>
+    <div class="keypad">
+     ${[1,2,3,4,5,6,7,8,9].map(key).join('')}
+     <button class="key fn" data-act="kpin:clear">Clear</button>${key(0)}
+     <button class="key fn" data-act="kpin:enter">Enter</button>
+    </div>
+   </div>`;
+}
+function vKioskFamily(){
+  const kids=myKids(), f=F(ROLE.fam);
+  const anyIn=kids.some(k=>k.status==='here');
+  return `<div class="kio-h"><span class="glyph">F</span><b>Hello, ${m(ROLE.who.split(' ')[0])}</b>
+    <small>${m(f.name)} family &middot; ${kids.length} children</small></div>
+   <div class="body">
+    <div class="card greet phero">
+     <div class="kidrows">
+      ${kids.length>1?`<div class="kidrow">
+        <span class="kr-t"><b>All</b><small>Both, in time order</small></span>
+        <button class="mini lbl ${anyIn?'sec':'pri'}" data-act="pall:${anyIn?'out':'in'}"
+         >${ic(anyIn?'out':'in','ic sm','currentColor','1.9')}Check ${anyIn?'out':'in'}</button>
+       </div>`:''}
+      ${kids.map(k=>{const inn=k.status==='here';
+       return `<div class="kidrow">
+        <span class="av">${m(k.ini)}${statusDot(k)}</span>
+        <span class="kr-t"><b>${m(k.name.split(' ')[0])}</b><small>${roomName(k.room)} &middot; ${
+          inn?'in since '+k.tin:'not in yet'}</small></span>
+        <button class="mini lbl ${inn?'sec':'pri'}" data-act="${inn?'checkout':'checkin'}:${k.id}"
+         >${ic(inn?'out':'in','ic sm','currentColor','1.9')}Check ${inn?'out':'in'}</button>
+       </div>`;}).join('')}
+     </div>
+    </div>
+    <div class="kiofoot"><button class="second" data-act="kexit">${ic('x','ic sm','currentColor','2.1')}Cancel</button></div>
+   </div>`;
+}
+
+/* ---------------------------------------------------------------------------
+   FUS-29, 30 and 32. Two controls, same component, anchored differently: the
+   role sits behind the avatar, the centre behind the centre name. Both confirm
+   before they act, because the tabs, the data and the money all change.
+   --------------------------------------------------------------------------- */
+const CENTRES=[{id:'cedar',name:'Cedar Ridge',sub:'12 rooms &middot; your home centre'},
+               {id:'acorns',name:'Little Acorns',sub:'Relief cover &middot; Tuesdays'}];
+const ROLEROWS=[['director','Director','Cedar Ridge &middot; every room'],
+                ['teacher','Teacher','Pre-K 4 &middot; your room'],
+                ['parent','Parent','Your own children']];
+function hmenu(kind){
+  const rows=kind==='role'
+    ? ROLEROWS.map(([id,n,sub])=>`<button class="row" data-act="askrole:${id}">
+        <span class="rt"><b>${n}</b><small>${sub}</small></span>
+        ${id===ROLE.id?ic('check','ic sm','var(--npds-blue-700)','2.4'):''}</button>`).join('')
+    : CENTRES.map(c=>`<button class="row" data-act="askctr:${c.id}">
+        <span class="rt"><b>${c.name}</b><small>${c.sub}</small></span>
+        ${c.name===CENTER.name?ic('check','ic sm','var(--npds-blue-700)','2.4'):''}</button>`).join('');
+  const foot=kind==='role'?`<div class="hm-foot"><button data-act="asklogout">
+     ${ic('out','ic sm','currentColor','1.9')}Log out</button></div>`:'';
+  return `<div class="hmenu" id="hmenu" style="${kind==='role'?'right:18px':'left:18px'};top:62px">
+    ${rows}${foot}</div>`;
+}
+
 /* ============================================================
    render + actions
    ============================================================ */
@@ -5093,7 +5382,9 @@ function tabs(){
   $('#tabs').classList.toggle('railmin',railMini);
   /* the centre, the day and who you are: the rail's head, not the page's */
   const brand=`<div class="navbrand"><span class="glyph">F</span>
-    <span class="nb-t"><b>${CAN.rooms==='one'?roomName(ROLE.room):CENTER.name}</b></span></div>`;
+    <span class="nb-t"><b class="has-caret" data-act="hmenu:ctr" role="button" tabindex="0"
+      aria-label="Change centre">${CAN.rooms==='one'?roomName(ROLE.room):CENTER.name}
+      ${ic('chev','ic sm caret','currentColor','2.4')}</b></span>${S.hmenu==='ctr'?hmenu('ctr'):''}</div>`;
   $('#tabs').innerHTML=brand+rail.map(row=>{
     if(row[0]==='sec') return `<span class="navsec">${railMini?'':row[1]}</span>`;
     const [kind,id,lbl,g]=row;
@@ -5115,6 +5406,15 @@ function render(keep){
   const app=$('#app');
   const prev=app.querySelector('.col-detail .body')||app.querySelector('.body');
   const y=keep&&prev?prev.scrollTop:0;
+  /* A kiosk has no tabs and no account, so it short-circuits the whole router.
+     Everything the parent taps after the PIN is the parent flow unchanged. */
+  if(KIOSK){
+    document.querySelector('.screen').classList.add('kiosk');
+    app.className='route enter';
+    app.innerHTML=S.kioskOpen?vKioskFamily():vKioskPin();
+    document.getElementById('tabs').innerHTML='';
+    return;
+  }
   let want=S.sub||S.tab;
   if(!allowed(want)){S.sub=null;S.arg=null;S.tab=TABS[0][0];want=S.tab;}
   const parent=SPLIT_PARENT[want];
@@ -5141,6 +5441,11 @@ function render(keep){
   const b=app.querySelector('.col-detail .body')||app.querySelector('.body');
   if(b&&y)b.scrollTop=y;
   tabs();
+  /* a scrolling pill keeps the tab you are on in view, so the selection is
+     never off the edge of its own bar */
+  const onTab=app.querySelector('.tabpill .tp.on');
+  if(onTab&&onTab.parentElement.scrollWidth>onTab.parentElement.clientWidth+1)
+    onTab.scrollIntoView({block:'nearest',inline:'nearest'});
   const q=$('#q');
   if(q){
     q.oninput=e=>{S.q=e.target.value;render(true);
@@ -5185,6 +5490,36 @@ function doAct(a){
       S.draft='';render();break;
 
     case 'railtog': railToggle();break;
+    /* the kiosk: four digits, then one family, then the parent's own sheets */
+    case 'kpin':
+      if(arg==='clear'){S.kpin='';render();break;}
+      if(arg==='enter'){if(S.kpin.length===4){S.kioskOpen=true;S.kpin='';}render();break;}
+      if(S.kpin.length<4)S.kpin+=arg;
+      if(S.kpin.length===4){S.kioskOpen=true;S.kpin='';}
+      render();break;
+    case 'kexit': S.kioskOpen=false;S.kpin='';closeSheet();render();break;
+    /* the header switchers */
+    case 'hmenu': S.hmenu=S.hmenu===arg?null:arg;render(true);break;
+    case 'askrole':{
+      if(arg===ROLE.id){S.hmenu=null;render(true);break;}
+      const to=ROLEROWS.find(r=>r[0]===arg);
+      S.hmenu=null;render(true);
+      confirmAsk({title:`Switch to your ${to[1].toLowerCase()} role?`,
+        body:'The tabs, the data and what you can do all change.',
+        label:'Switch role',act:`dorole:${arg}`});break;}
+    case 'dorole': location.search=`?role=${arg}&loggedin=1`;break;
+    case 'askctr':{
+      const c=CENTRES.find(x=>x.id===arg);
+      if(c.name===CENTER.name){S.hmenu=null;render(true);break;}
+      S.hmenu=null;render(true);
+      confirmAsk({title:`Move to ${c.name}?`,
+        body:'The roster, the children and the money all change with it.',
+        label:`Move to ${c.name}`,act:`doctr:${arg}`});break;}
+    case 'doctr':{const c=CENTRES.find(x=>x.id===arg);CENTER.name=c.name;
+      S.hmenu=null;render();toast(`You are now at <b>${c.name}</b>`);break;}
+    case 'asklogout': S.hmenu=null;render(true);
+      confirmAsk({title:'Log out?',body:'This device is shared, so you will be asked to log in again.',
+        label:'Log out',act:'logout'});break;
     case 'hometab': S.homeTab=arg;render();break;
     case 'acttab': S.actTab=arg;render();break;
     case 'searchtoggle': S.searchOpen=!S.searchOpen;if(!S.searchOpen)S.q='';render(true);break;
@@ -5309,6 +5644,18 @@ function doAct(a){
     case 'mask': S.mask=!S.mask;render(true);toast(S.mask?'Sensitive data hidden':'Data visible again');break;
 
     case 'checkin': case 'checkout':{const k=K(arg);
+      /* FUS-3. The room is at its limit and the child is not scheduled, so the
+         tap cannot simply proceed. A parent is told what happens next, a
+         teacher is given the one thing she can do, and a director is given the
+         three things only she can do. */
+      if(cmd==='checkin'&&isBlocked(k)){
+        if(ROLE.scope==='family'){sheet('blocked',arg);break;}
+        if(CAN.rooms==='one'){
+          const L=roomLoad(k.room);
+          confirmAsk({title:`We cannot check ${m(k.name.split(' ')[0])} in`,
+            body:`${m(roomName(k.room))} is over ratio. ${L.inn+1} children and ${L.staff} staff member, and the limit is ${L.room.ratio.replace(':',' to ')}.`,
+            label:'Notify the director',act:`soon:${CENTER.director} has been notified`});break;}
+        sheet('ways',arg);break;}
       S.pick=null; parseMark(cmd==='checkout'?'':k.tin);
       /* A parent is signed in, so there is nobody to identify. Their check-in is
          the health screen and a signature instead — staff keep the sheet above. */
@@ -5320,6 +5667,12 @@ function doAct(a){
         if(sigAt(true)){sheet('signout',arg);break;}
         doAct(`docheckout:${arg}`);break;}
       sheet(cmd,arg);break;}
+    /* FUS-3 director, the three ways out of the sheet */
+    case 'wayin':{const k=K(arg);parseMark('');doAct(`docheckin:${arg}`);
+      toast(`<b>${m(k.name)}</b> checked in ${markStr()} &middot; ${m(roomName(k.room))} over ratio`);break;}
+    case 'waystaff':{const r=ROOMS.find(x=>x.id===K(arg).room);if(r)r.teachers=(r.teachers||1)+1;
+      parseMark('');doAct(`docheckin:${arg}`);
+      toast(`<b>${m(K(arg).name)}</b> checked in &middot; ${m(r?r.name:'')} now has ${r?r.teachers:2} staff`);break;}
     case 'hqa':{const[i,v,id]=arg.split(':');S.hq[i]=v;sheet('health',id);break;}
     case 'tosign':{
       /* the last child's answers are still in S.hq, so bank them before the pad */
@@ -5335,11 +5688,13 @@ function doAct(a){
         k.health=Object.values(S.hq).includes('yes')?'flagged':'clear';
         k.signed=F(k.fam).contact; S.hq={}; S.inSig=false;
       }
-      closeSheet();toast(`<b>${k.name}</b> checked in at ${markStr()}`);render(true);break;}
+      closeSheet();toast(`<b>${k.name}</b> checked in at ${markStr()}`);render(true);
+      if(KIOSK)setTimeout(()=>{S.kioskOpen=false;S.kpin='';render();},10000);break;}
     case 'docheckout':{const k=K(arg);k.status='out';k.tout=markStr();
       k.collectedBy=(S.pick||F(k.fam).contact+' · parent').split(' · ')[0];
       if(ROLE.scope==='family'){k.signedOut=F(k.fam).contact;S.inSig=false;}
-      closeSheet();toast(`<b>${k.name}</b> checked out at ${markStr()}`);render(true);break;}
+      closeSheet();toast(`<b>${k.name}</b> checked out at ${markStr()}`);render(true);
+      if(KIOSK)setTimeout(()=>{S.kioskOpen=false;S.kpin='';render();},10000);break;}
     case 'doabsent':{const k=K(arg);closeSheet();
       confirmAsk({title:`Mark ${m(k.name)} absent?`,
         body:'This goes on the day\u2019s attendance record and their family can see it.',
@@ -5440,7 +5795,7 @@ function doAct(a){
       const first=[...compose.to][0];
       const who=(K(first)&&F(K(first).fam).contact)||(ST(first)&&ST(first).name)||roomName(first);
       THREADS.unshift({id:'t'+Date.now(),who:m(who),ini:(who||'?').slice(0,2).toUpperCase(),
-        scope:ST(first)?'staff':'family',sub:compose.subject||'From Dana',
+        scope:ST(first)?'staff':'family',sub:compose.subject||'From Rebecca',
         rid:K(first)?K(first).room:(ROOMS.find(r=>r.id===first)?first:'r-prek4'),
         unread:false,at:new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'}),
         msgs:[{d:'out',t:compose.body.trim(),at:new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'})}]});
@@ -5507,7 +5862,12 @@ function doAct(a){
     case 'ciotog':{CIO[arg]=!CIO[arg];
       toast(`${CIO[arg]?'On':'Off'} \u00b7 saved`);render(true);break;}
     case 'ciorad':{const [k,v]=arg.split(':');
-      CIO[k]=/^\d+$/.test(v)?+v:v; toast('Saved');render(true);break;}
+      CIO[k]=/^\d+$/.test(v)?+v:v;
+      /* picking how the code rotates means the code is required, and picking
+         when a signature is taken means one is taken */
+      if(k==='rot')CIO.qr=true;
+      if(k==='when')CIO.sig=true;
+      toast('Saved');render(true);break;}
     case 'logout': doLogout();break;
     case 'soon': toast(esc(arg));break;
   }
@@ -5515,6 +5875,9 @@ function doAct(a){
 
 document.addEventListener('click',e=>{
   const el=e.target.closest('[data-act]');
+  /* a menu closes on any tap that is not inside it or on its own control */
+  if(S.hmenu&&!e.target.closest('#hmenu')&&!(el&&/^hmenu:/.test(el.dataset.act))){
+    S.hmenu=null;render(true);}
   if(el){e.preventDefault();doAct(el.dataset.act);return;}
   if(e.target.id==='scrim') closeSheet();
 });
@@ -5556,11 +5919,16 @@ const GATE_EL=$('#gate');
 let gateStay=true;
 
 const TICK=ic('check','','#fff','3.2');
-function gateError(msg){
+function gateError(msg,only){
   $('#gbanner').innerHTML=msg?`<div class="fcm-banner" role="alert">
     <span class="bn-i">${ic('alert','ic sm','currentColor','1.8')}</span>
     <p class="bn-t">${esc(msg)}</p></div>`:'';
-  ['#guserbox','#gpwbox'].forEach(sel=>$(sel).classList.toggle('is-error',!!msg));
+  /* FUS-20 marks both fields, because saying which half was wrong tells you the
+     other half was right. FUS-25 marks the username alone, because the account
+     is the thing that does not exist. */
+  $('#guserbox').classList.toggle('is-error',!!msg);
+  $('#gpwbox').classList.toggle('is-error',!!msg&&only!=='user');
+  if($('.recover'))$('.recover').hidden=only==='user';
   ['#guser','#gpw'].forEach(sel=>{
     const el=$(sel);
     if(msg){el.setAttribute('aria-invalid','true');}else{el.removeAttribute('aria-invalid');}
@@ -5593,12 +5961,29 @@ function showGate(){
 }
 function doLogout(){ showGate(); }
 
+/* The username decides which login scenario you are in, so one prototype
+   carries them all. Anything not listed here is the ordinary path, FUS-19. */
+const ACCOUNTS=[
+  {match:/^(new|nobody|noone|unknown)/i, kind:'noaccount'},
+  {match:/^tara/i,  kind:'mfa',     to:'teacher'},
+  {match:/^maria/i, kind:'tworoles',to:'teacher'},
+  {match:/^james/i, kind:'twocentres',to:'teacher'}];
+/* Test / Test is the preview happy path for both staff roles, so it is
+   matched before anything else and always takes FUS-19. */
+const accountFor=u=>/^test$/i.test(u.trim())?{kind:'plain'}
+  :(ACCOUNTS.find(a=>a.match.test(u))||{kind:'plain'});
 function doLogin(){
   const u=($('#guser').value||'').trim(), pw=$('#gpw').value||'';
   if(!u||!pw){
     gateError('Enter your username or email and your password.');
     (!u?$('#guser'):$('#gpw')).focus();
     return;
+  }
+  /* FUS-25. Someone was told they have access and they do not. Saying
+     "incorrect password" would send them round password recovery forever. */
+  if(accountFor(u).kind==='noaccount'){
+    gateError('We cannot find an account for that username. Ask your centre to set one up.','user');
+    $('#guser').focus(); return;
   }
   gateError('');
   $('#gateform').hidden=true;
@@ -5607,13 +5992,75 @@ function doLogin(){
   GATE_EL.insertAdjacentHTML('beforeend',
     `<div class="gbusy" id="gbusy"><div class="gspin" aria-hidden="true"></div>
       <h1 class="auth-h" role="status" style="margin:0">Logging you in</h1></div>`);
+  const acc=accountFor(u);
   setTimeout(()=>{
     const b=$('#gbusy'); if(b)b.remove();
-    GATE_EL.hidden=true;
-    $('#app').classList.remove('behind-gate'); $('#tabs').classList.remove('behind-gate');
-    render();
-    toast(`Logged in as ${ROLE.label}`);
+    if(acc.kind==='mfa'){showMfa(u);return;}
+    /* FUS-31. Valid for two centres, and the app cannot guess, so the choice
+       comes after the password rather than before it. Nobody types a code. */
+    if(acc.kind==='twocentres'){showCentrePick(acc);return;}
+    landIn(acc);
   },900);
+}
+
+/* The end of every login path: the gate goes, the app draws, and the person is
+   told which role they landed in, because two homes can look alike. */
+function landIn(acc){
+  GATE_EL.hidden=true;
+  $('#app').classList.remove('behind-gate'); $('#tabs').classList.remove('behind-gate');
+  render();
+  toast(acc&&acc.kind==='tworoles'
+    ? `Logged in as ${ROLE.label}. Your family role is behind the avatar.`
+    : `Logged in as ${ROLE.label}`);
+}
+/* FUS-31. The one case that cannot honour "never pick a school at login": it
+   is asked after authenticating, and the last one is offered first next time. */
+function showCentrePick(acc){
+  GATE_EL.insertAdjacentHTML('beforeend',`<div class="gbusy" id="gctr" style="justify-content:flex-start">
+    <div class="card loginc" style="width:100%">
+     <h1 class="auth-h left" style="margin:0 0 8px">Which centre today?</h1>
+     <p class="gsub" style="margin:0 0 18px">Your login works at both. We will offer this one first next time.</p>
+     <div class="card list tight">
+      ${CENTRES.map(c=>`<button class="row" data-ctr="${c.id}">
+        <span class="av">${ic('house','ic sm','var(--ink-2)','1.8')}</span>
+        <span class="rt"><b>${c.name}</b><small>${c.sub}</small></span>
+        ${ic('chev','ic sm','var(--ink-3)')}</button>`).join('')}
+     </div>
+    </div></div>`);
+  $('#gctr').addEventListener('click',e=>{
+    const b=e.target.closest('[data-ctr]'); if(!b)return;
+    const c=CENTRES.find(x=>x.id===b.dataset.ctr);
+    CENTER.name=c.name; $('#gctr').remove(); landIn(acc);
+    toast(`Logged in at <b>${c.name}</b>`);
+  });
+}
+/* FUS-23. Six boxes, because a code is six characters and reads as six. */
+let mfaCode='';
+function showMfa(user){
+  mfaCode='';
+  GATE_EL.insertAdjacentHTML('beforeend',`<div class="gbusy" id="gmfa" style="justify-content:flex-start">
+    <div class="card loginc" style="width:100%">
+     <h1 class="auth-h left" style="margin:0 0 8px">Check your phone</h1>
+     <p class="gsub" style="margin:0 0 20px">We sent a six digit code to the number ending 4182.</p>
+     <div class="mfarow" id="mfarow">${[0,1,2,3,4,5].map(i=>
+       `<span class="mfab" data-i="${i}"></span>`).join('')}</div>
+     <button class="primary" id="mfago" style="width:100%;margin-top:22px">Verify</button>
+     <p class="gsub" id="mfanote" style="margin:14px 0 0">Resend the code in 30 seconds.</p>
+    </div></div>`);
+  const paint=()=>{[...document.querySelectorAll('.mfab')].forEach((b,i)=>{
+    b.textContent=mfaCode[i]||''; b.classList.toggle('on',i<mfaCode.length);});};
+  document.addEventListener('keydown',function onKey(e){
+    if(!$('#gmfa')){document.removeEventListener('keydown',onKey);return;}
+    if(/^[0-9]$/.test(e.key)&&mfaCode.length<6){mfaCode+=e.key;paint();}
+    if(e.key==='Backspace'){mfaCode=mfaCode.slice(0,-1);paint();}
+  });
+  $('#mfago').addEventListener('click',()=>{
+    if(mfaCode.length<6){
+      /* a wrong or short code says so without clearing what was typed */
+      $('#mfanote').textContent='That code is not right. Check the six digits and try again.';
+      return;}
+    $('#gmfa').remove(); landIn({kind:'mfa'});
+  });
 }
 
 if(GATE_EL){
@@ -5626,8 +6073,9 @@ if(GATE_EL){
     e.preventDefault();
     if(id==='guser'){$('#gpw').focus();}else{doLogin();}
   }));
-  /* ?loggedin=1 skips the gate, so a deep link into a screen still lands there */
-  if(new URLSearchParams(location.search).get('loggedin')!=='1') showGate();
+  /* ?loggedin=1 skips the gate, so a deep link into a screen still lands there.
+     A kiosk never sees it: the PIN is its whole identity. */
+  if(!KIOSK&&new URLSearchParams(location.search).get('loggedin')!=='1') showGate();
 }
 
 render();
