@@ -19,7 +19,7 @@
     --g1:#D3E4D3; --g2:#C6DCC8; --g3:#BAD3BC; --g4:#AECBB1;
     --cr:#DFE1CE; --cr2:#D8DEC9; --gl:#9FB8A0;
 
-    --ink:#2C312B; --ink-2:#57604F; --ink-3:#88917F;
+    --ink:#2C312B; --ink-2:#57604F; --ink-3:#646B5C;
     --line:rgba(44,49,43,.09);
     --card:rgba(255,255,255,.82);
     --present:#4E7263; --amber:#B08A56; --absent:#AAAEA3;
@@ -633,6 +633,24 @@
   .card.list .rowwrap .row+.row{border-top:0}
 .row.rowstack .cbx{align-self:center;margin-top:0}
 .row.rowstack .av{align-self:center;margin-top:0}
+/* Selecting draws every row as its own box, so the selected fill has edges
+   and does not flood the whole list. Same treatment as the picker options. */
+.optrow{display:flex;align-items:center;gap:12px;padding:13px 14px;border-radius:14px;width:100%;
+  background:rgba(255,255,255,.7);border:1px solid rgba(44,49,43,.26);text-align:left;
+  color:var(--ink);font-family:inherit;cursor:pointer}
+.optrow+.optrow{margin-top:8px}
+.optrow .av{width:38px;height:38px;font-size:12.5px;flex:none;align-self:center;margin-top:0}
+.optrow .rt{flex:1;min-width:0;display:flex;flex-direction:column}
+.optrow .rt b{font-size:15px;font-weight:550;letter-spacing:-.008em;line-height:1.25;
+  white-space:normal;overflow:visible}
+.optrow .rt small{font-size:12.5px;color:var(--ink-3);margin-top:3px;line-height:1.35;
+  white-space:normal;overflow:visible}
+.optrow.on{border:2px solid var(--npds-blue-600);padding:12px 13px;background:var(--npds-blue-100)}
+.card.list.selbox{padding:4px 14px 14px}
+.sb-links{display:flex;gap:16px;flex:none}
+.fallrow{display:flex;gap:16px;align-items:baseline;padding:2px 0 10px}
+.fallrow button{background:none;border:0;padding:4px 0;min-height:44px;font-family:inherit;
+  font-size:14px;font-weight:600;color:var(--npds-blue-700);cursor:pointer}
 /* ============================================================
   .sp-mid b{white-space:normal;overflow:visible;text-overflow:clip;font-size:13.5px}
 
@@ -887,10 +905,12 @@
   .grblock textarea::placeholder{color:#6E7568}
   .opts{display:flex;flex-direction:column;max-height:242px;overflow:auto;scrollbar-width:none}
   .opts::-webkit-scrollbar{display:none}
-  .opt{display:flex;align-items:center;gap:12px;min-height:48px;padding:4px 0;cursor:pointer;
-    border-bottom:1px solid var(--line);width:100%;background:none;border-left:0;border-right:0;
-    border-top:0;font-family:inherit;text-align:left}
-  .opt:last-child{border-bottom:0}
+  .opt{display:flex;align-items:center;gap:12px;min-height:48px;padding:11px 13px;cursor:pointer;
+    border:1px solid rgba(44,49,43,.26);border-radius:14px;width:100%;
+    background:rgba(255,255,255,.7);font-family:inherit;text-align:left}
+  .opt+.opt{margin-top:8px}
+  .opt.on{border:2px solid var(--npds-blue-600);padding:10px 12px;background:var(--npds-blue-100)}
+  .opts{padding:2px}
   .on2{flex:1;font-size:15px;color:var(--ink)}
   .on2 i{font-style:normal;font-size:13px;color:var(--ink-3);margin-left:7px}
   .segpill2{display:flex;background:rgba(44,49,43,.055);border-radius:999px;padding:5px;gap:3px}
@@ -1185,7 +1205,6 @@
   .fall{display:flex;align-items:center;gap:12px;width:100%;min-height:46px;padding:4px 0;
     border:0;border-bottom:1px solid var(--line);background:none;font-family:inherit;
     cursor:pointer;color:var(--npds-blue-700);font-size:14px;font-weight:600;text-align:left}
-  .fall-t{flex:1;font-weight:600}
   /* ===========================================================================
      RESPONSIVE
 
@@ -2586,10 +2605,11 @@ function fopts(list,isOn,act,searchable,allAct){
     <input id="ffq" value="${esc(S.ffq||'')}" placeholder="Search" autocomplete="off" aria-label="Search options">
     ${q?`<button class="fsx" data-act="ffqclear" aria-label="Clear">${ic('x','ic sm','var(--ink-3)','2')}</button>`:''}
    </div>`:''}
-   ${allAct?`<button class="fall" data-act="${allAct}:${every?'none':'all'}">
-     ${box(every)}<b class="fall-t">${every?'Deselect all':'Select all'}</b></button>`:''}
+   ${allAct?`<div class="fallrow">
+     <button data-act="${allAct}:all">Select all</button>
+     <button data-act="${allAct}:none">Clear all</button></div>`:''}
    <div class="opts" role="group">${rows.length?rows.map(o=>`
-    <button class="opt" data-act="${act}:${o[0]}" role="checkbox" aria-checked="${isOn(o[0])}">
+    <button class="opt${isOn(o[0])?' on':''}" data-act="${act}:${o[0]}" role="checkbox" aria-checked="${isOn(o[0])}">
      ${box(isOn(o[0]))}
      <span class="on2">${m(o[1])}${o[2]?`<i>${m(o[2])}</i>`:''}</span></button>`).join('')
    :'<div class="empty">Nothing matches.</div>'}</div>`;
@@ -2861,7 +2881,8 @@ function attRow(k){
     :'Not checked in';
   if(S.selecting){
     const on=S.sel.has(k.id);
-    return `<div class="row rowstack${on?' picked':''}" data-act="sel:${k.id}">
+    return `<div class="optrow${on?' on':''}" data-act="sel:${k.id}"
+     role="checkbox" aria-checked="${on}" tabindex="0">
      <span class="cbx${on?' on':''}">${on?ic('check','ic sm','#fff','2.6'):''}</span>
      <span class="av">${m(k.ini)}${statusDot(k)}</span>
      <span class="rt"><b>${m(k.name)}</b><small>${sub}</small></span>
@@ -3090,16 +3111,17 @@ function vAttendance(){
    ${S.selecting?'':datespine()}
    ${S.selecting?'':`<div class="tabpill">${chip('all','All',scope.length)}${chip('here','Here',cnt('here'))}${chip('out','Not in',cnt('out'))}${chip('absent','Absent',cnt('absent'))}</div>`}
    ${past?`<p class="hint">${ic('shield','ic sm','var(--ink-3)','1.8')}A past day is read-only. Reopen a closed register from Compliance.</p>`:''}
-   <div class="card list">${list.length?attBody(list):'<div class="empty">No children match.</div>'}</div>
+   <div class="card list${S.selecting?' selbox':''}">${list.length?attBody(list):'<div class="empty">No children match.</div>'}</div>
   </div>
   ${S.selecting?(()=>{const n=S.sel.size,on=n>0;return `<div class="selbar">
     <div class="sb-head"><b>${on?n+(n===1?' child selected':' children selected'):'No children selected'}</b>
-     <a href="#" data-act="${S.sel.size===list.length?'selnone':'selall'}">${S.sel.size===list.length?'Clear all':'Select all'}</a></div>
+     <span class="sb-links"><a href="#" data-act="selall">Select all</a>
+      <a href="#" data-act="selnone">Clear all</a></span></div>
     <div class="sb-acts">
-     <button class="primary sm${on?'':' off'}" data-act="${on?'bulksheet:in':'nosel'}">${ic('in','ic sm','currentColor','1.9')}Check in</button>
-     <button class="primary sm${on?'':' off'}" data-act="${on?'bulksheet:out':'nosel'}">${ic('out','ic sm','currentColor','1.9')}Check out</button>
-     <button class="second sm${on?'':' off'}" data-act="${on?'bulkabsent':'nosel'}">${ic('moon','ic sm','var(--npds-gray-700)','1.9')}Absent</button>
-     <button class="second sm${on?'':' off'}" data-act="${on?'sheet:relocate':'nosel'}">${ic('swap','ic sm','var(--npds-gray-700)','1.9')}Move</button>
+     <button class="primary sm" data-act="${on?'bulksheet:in':'nosel'}">${ic('in','ic sm','currentColor','1.9')}Check in</button>
+     <button class="primary sm" data-act="${on?'bulksheet:out':'nosel'}">${ic('out','ic sm','currentColor','1.9')}Check out</button>
+     <button class="second sm" data-act="${on?'bulkabsent':'nosel'}">${ic('moon','ic sm','var(--npds-gray-700)','1.9')}Absent</button>
+     <button class="second sm" data-act="${on?'sheet:relocate':'nosel'}">${ic('swap','ic sm','var(--npds-gray-700)','1.9')}Move</button>
     </div>
    </div>`;})():''}
   ${dock(list.length,scope.length,'child','children','Search children')}`;
@@ -4504,26 +4526,28 @@ const warnbox=t=>`<div class="warnbox"><span class="wb-i">${ic('alert','ic','cur
    are one card of rows with hairlines between them, the way every field card in
    the app reads. The rotation keeps a quiet header row, because three bare
    radios sitting under a switch do not say what they are choosing between. */
-/* A choice under a switch only means something while the switch is on, so with
-   the switch off nothing below it is selected. Choosing one turns the switch
-   back on, which is what the choice implies, rather than disabling the rows. */
+/* When the switch is off there is nothing to choose between, so the choices
+   are not there. They are not drawn greyed out: nothing in this product is
+   shown disabled, and a dimmed radio still reads as a thing you could press. */
 const qrBody=()=>
   scard([srow2({n:'Require a QR code',s:'Parents scan the room code.',on:CIO.qr,act:'ciotog:qr'}),
-         `<span class="lhead">How the code rotates</span>`,
+         ...(CIO.qr?[`<span class="lhead">How the code rotates</span>`,
          `<div role="radiogroup" aria-label="How the code rotates">
-           ${prow({n:'Every scan',on:CIO.qr&&CIO.rot===0,act:'ciorad:rot:0'})}
-           ${prow({n:'Every day',s:'Yesterday\u2019s stops overnight.',on:CIO.qr&&CIO.rot===1,act:'ciorad:rot:1'})}
-           ${prow({n:'Never',s:'One fixed code, printed once.',on:CIO.qr&&CIO.rot===2,act:'ciorad:rot:2'})}
-          </div>`])
- +(CIO.qr&&CIO.rot===2?warnbox('<b>A static code can be photographed.</b> A picture of it checks a child in from anywhere.'):'');
+           ${prow({n:'Every scan',on:CIO.rot===0,act:'ciorad:rot:0'})}
+           ${prow({n:'Every day',s:'Yesterday\u2019s stops overnight.',on:CIO.rot===1,act:'ciorad:rot:1'})}
+           ${prow({n:'Never',s:'One fixed code, printed once.',on:CIO.rot===2,act:'ciorad:rot:2'})}
+          </div>`]:[])])
+ +(!CIO.qr?`<p class="sh-note" style="margin:12px 2px 0">Parents check in without scanning anything.</p>`
+   :CIO.rot===2?warnbox('<b>A static code can be photographed.</b> A picture of it checks a child in from anywhere.'):'');
 
 const sigBody=()=>
   scard([srow2({n:'Require a signature',s:'Whoever drops off or collects signs on the device.',on:CIO.sig,act:'ciotog:sig'}),
-         `<span class="lhead">When it is taken</span>`,
+         ...(CIO.sig?[`<span class="lhead">When it is taken</span>`,
          `<div role="radiogroup" aria-label="When it is taken">
-           ${prow({n:'Check-in and check-out',s:'Both ends of the day.',on:CIO.sig&&CIO.when==='both',act:'ciorad:when:both'})}
-           ${prow({n:'Check-out only',s:'Collection is the one that has to be proved.',on:CIO.sig&&CIO.when==='out',act:'ciorad:when:out'})}
-          </div>`]);
+           ${prow({n:'Check-in and check-out',s:'Both ends of the day.',on:CIO.when==='both',act:'ciorad:when:both'})}
+           ${prow({n:'Check-out only',s:'Collection is the one that has to be proved.',on:CIO.when==='out',act:'ciorad:when:out'})}
+          </div>`]:[])])
+ +(CIO.sig?'':`<p class="sh-note" style="margin:12px 2px 0">Nobody signs, at either end of the day. Turn this on to choose when the signature is taken.</p>`);
 
 const ratioBody=()=>
   scard([prow({n:'Block it',s:'Nobody gets in who would put the room out of ratio.',on:CIO.ratio===0,act:'ciorad:ratio:0'}),
@@ -4628,7 +4652,7 @@ function sheet(kind,arg){
      <button class="sh-x" data-act="close" aria-label="Close">${ic('x','ic sm','var(--ink-2)','2.1')}</button>
      <div class="sh-kid"><span class="av lg">${m(k.ini)}${statusDot(k)}</span>
       <span class="rt"><b>${m(k.name)}</b><small>${roomName(k.room)} &middot; not checked in</small></span></div>
-     <div class="noterow neg"><span class="nr-i">${ic('alert','ic sm','currentColor','1.8')}</span>
+     <div class="noterow neg" role="status"><span class="nr-i" aria-hidden="true">${ic('alert','ic sm','currentColor','1.8')}</span>
       <p><b>We cannot check ${fn} in.</b> The admin has been notified. Please wait with ${fn}.</p></div>
      <div class="card fieldset">
       <div class="field"><span class="fl">Help phone</span>
@@ -4652,7 +4676,7 @@ function sheet(kind,arg){
      <button class="sh-x" data-act="close" aria-label="Close">${ic('x','ic sm','var(--ink-2)','2.1')}</button>
      <div class="sh-kid"><span class="av lg">${m(k.ini)}${statusDot(k)}</span>
       <span class="rt"><b>${m(k.name)}</b><small>Unscheduled &middot; not checked in</small></span></div>
-     <div class="noterow warn"><span class="nr-i">${ic('alert','ic sm','currentColor','1.8')}</span>
+     <div class="noterow warn" role="status"><span class="nr-i" aria-hidden="true">${ic('alert','ic sm','currentColor','1.8')}</span>
       <p><b>${m(roomName(k.room))} is over ratio.</b> ${L.inn+1} children and ${L.staff} staff member, and the limit is ${L.room.ratio.replace(':',' to ')}.</p></div>
      <span class="flabel">How do you want to check ${fn} in?</span>
      <div class="card list roomy">
@@ -4709,18 +4733,18 @@ function sheet(kind,arg){
     const firsts=S.multi.map(id=>K(id)).filter(Boolean).map(x=>m(x.name.split(' ')[0]));
     const who=many?firsts.slice(0,-1).join(', ')+' and '+firsts[firsts.length-1]:fn;
     const label=many?(firsts.length===2?'both':`all ${firsts.length}`):fn;
-    full=true;
     html=`<span class="grab"></span>
      <div class="sh-row fixed">
       ${out?'':`<button class="bk" data-act="${many?`hback:${arg}`:`checkin:${arg}`}" aria-label="Back to the health check">${ic('left','ic sm','var(--npds-gray-700)','2.2')}</button>`}
       <h3 class="sh-h flat">Sign to check ${out?'out':'in'} ${who}</h3>
       <button class="sh-x" data-act="close" aria-label="Close">${ic('x','ic sm','var(--ink-2)','2.1')}</button></div>
      <span class="flabel" style="margin:6px 2px 9px">${m(f.contact)} &middot; parent${out&&!many?` &middot; ${fn} has been in since ${k.tin}`:''}</span>
-     <div class="sigwrap tall"><canvas id="pad" width="640" height="560"></canvas>
+     <div class="sigwrap"><canvas id="pad" width="640" height="192"></canvas>
       <span class="sigh3${S.inSig?' gone':''}">${ic('pen','ic sm','var(--ink-3)','1.8')}Sign here</span>
       <button class="sigc2" data-act="clearsig">Clear</button></div>
+     <p class="sh-note" style="margin:10px 2px 0">Your signature is the record of who handed ${who} over, and when.</p>
      <div class="shfoot2" style="padding-top:16px">
-      <button class="${out?'second':'primary'}${S.inSig?'':' off'}" data-act="${
+      <button class="${out?'second':'primary'}" data-act="${
         S.inSig?(many?`domulti:${out?'out':'in'}`:`do${out?'checkout':'checkin'}:${arg}`):'nosig'}" style="width:100%">
        ${ic(out?'out':'in','ic','currentColor','1.8')}Check ${out?'out':'in'} ${label}</button></div>`;
   } else if(kind==='actions'){
