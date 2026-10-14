@@ -716,6 +716,27 @@
   .caret{width:14px;height:14px;flex:none;color:var(--ink-3);transform:rotate(90deg)}
   .navbrand,.head .ctr,.nb-t{position:relative}
 
+  /* the centre picker, as the login flow draws it: a label, a radio group,
+     a way to see the rest, and a Continue. Picking is not navigating, so the
+     rows carry a radio rather than a chevron. */
+  .gate h1.auth-h.left{text-align:left}
+  .pick-l{display:block;font-size:11.5px;line-height:1.5;color:#6E7568;margin:0 2px 8px}
+  .gr.pickrow{gap:12px;align-items:center;padding:8px 12px;cursor:pointer;width:100%;
+    background:none;border:0;font-family:inherit;text-align:left;min-height:56px}
+  .gr.pickrow.on{background:rgba(24,157,210,.08)}
+  .pk-g{flex:none;width:38px;height:38px;border-radius:12px;background:rgba(255,255,255,.5);
+    display:grid;place-items:center;font-family:Newsreader,Georgia,serif;font-size:17px;
+    color:var(--npds-blue-700);box-shadow:inset 0 0 0 1px rgba(44,49,43,.09)}
+  .pk-t{flex:1;min-width:0}
+  .pk-t b{display:block;font-size:15px;font-weight:550;letter-spacing:-.008em;color:var(--ink)}
+  .pk-t small{display:block;font-size:12.5px;line-height:1.5;color:var(--ink-2);margin-top:2px}
+  /* more centres than fit: the list scrolls in place rather than opening a
+     panel, which on a short phone has nowhere to open into */
+  .grp2.scrolls{max-height:238px;overflow-y:auto;overscroll-behavior:contain}
+  .grp2.scrolls::-webkit-scrollbar{width:0}
+  .showall{display:block;width:100%;text-align:center;font-size:13.5px;font-weight:550;
+    color:var(--npds-blue-700);background:none;border:0;font-family:inherit;min-height:44px;
+    margin-top:6px}
   .previewcred{margin:16px 0 0;font-size:13px;color:var(--ink-3)}
   .previewcred b{color:var(--ink-2);font-weight:600}
 
@@ -1968,8 +1989,8 @@ const ROOMS=[
 const KIDS=[
  {id:'c1',who:'Dad', name:'Jack Johnson',    ini:'JJ', age:'4 yr', room:'r-prek4',   fam:'f-johnson',    status:'out',    tin:null,      allergy:null,      subsidy:false, scn:'plain'},
  {id:'c2',who:'Mum', name:'Mateo Garcia',    ini:'MG', age:'3 yr', room:'r-prek3',   fam:'f-garcia',   status:'here',   tin:'8:05 AM', allergy:'Peanut',  subsidy:true},
- {id:'c3',who:'Grandma',note:'Sofia needs her inhaler before outside time. Mum will collect at 3.', name:'Sofia Rivera',    ini:'SR', age:'2 yr', room:'r-toddlerB',fam:'f-rivera',   status:'here',   tin:'7:48 AM', allergy:null,      subsidy:true},
- {id:'c4', name:'Jaylen Thompson', ini:'JT', age:'1 yr', room:'r-toddlerA',fam:'f-thompson', status:'absent', tin:null,      allergy:'Dairy',   subsidy:true},
+ {id:'c3',who:'Grandma', name:'Sofia Rivera',    ini:'SR', age:'2 yr', room:'r-toddlerB',fam:'f-rivera',   status:'here',   tin:'7:48 AM', allergy:null,      subsidy:true},
+ {id:'c4', name:'Jaylen Thompson', ini:'JT', age:'1 yr', room:'r-toddlerA',fam:'f-thompson', status:'out',    tin:null,      allergy:'Dairy',   subsidy:true},
  {id:'c5',who:'Mum', name:'Noah Schneider',  ini:'NS', age:'4 yr', room:'r-prek4',   fam:'f-schneider',     status:'here',   tin:'8:11 AM', allergy:null,      subsidy:false},
  {id:'c6',who:'Dad', name:'Noah Bennett',    ini:'NB', age:'5 yr', room:'r-kinder',  fam:'f-bennett',  status:'here',   tin:'7:55 AM', allergy:'Tree-nut',subsidy:false},
  {id:'c7',who:'Dad', name:'Lily Chen',       ini:'LC', age:'3 yr', room:'r-prek3',   fam:'f-chen',     status:'out',    tin:null,      allergy:null,      subsidy:false, scn:'early', from:'9:00 AM', rate:'$12.00'},
@@ -2071,7 +2092,10 @@ const THREADS=[
 /* The centre's check-in and check-out policy. A switch takes effect the instant
    it is pressed, so this is the only copy of it: the settings page reads and
    writes it, and the door reads it. */
-const CIO={qr:true,rot:1,sig:true,when:'both',ratio:0,late:true,unsched:true};
+/* Late and unscheduled start off: a centre that has just switched the app on
+   has not loosened anything yet, and it gives the director something to
+   actually change. */
+const CIO={qr:true,rot:1,sig:true,when:'both',ratio:0,late:false,unsched:false};
 /* The door reads the policy rather than hard-coding it, so FUS-13 (one tap out)
    and FUS-14 (a pad on the way out) are the same code at two settings. */
 const sigAt=out=>CIO.sig&&(CIO.when==='both'||(out&&CIO.when==='out'));
@@ -5357,6 +5381,12 @@ function vKioskFamily(){
    --------------------------------------------------------------------------- */
 const CENTRES=[{id:'cedar',name:'Cedar Ridge',sub:'12 rooms &middot; your home centre'},
                {id:'acorns',name:'Little Acorns',sub:'Relief cover &middot; Tuesdays'}];
+/* James's credential is good at seven. The picker offers the two he uses and
+   keeps the rest one tap away, rather than a list nobody reads. */
+const ALLCENTRES=[['L','cedar','Cedar Ridge','Toddlers A and B &middot; last used Friday'],
+ ['M','acorns','Little Acorns','Pre-K 3'],['O','oakfield','Oakfield','Infants'],
+ ['R','riverside','Riverside','Pre-K 4'],['S','stanne','Saint Anne','Toddlers B'],
+ ['W','westbrook','Westbrook','Infants and Toddlers'],['Y','yarrow','Yarrow Lane','Pre-K 3']];
 const ROLEROWS=[['director','Director','Cedar Ridge &middot; every room'],
                 ['teacher','Teacher','Pre-K 4 &middot; your room'],
                 ['parent','Parent','Your own children']];
@@ -6046,7 +6076,10 @@ const ACCOUNTS=[
   {match:/^(new|nobody|noone|unknown)/i, kind:'noaccount'},
   {match:/^tara/i,  kind:'mfa',     to:'teacher'},
   {match:/^maria/i, kind:'tworoles',to:'teacher'},
-  {match:/^james/i, kind:'twocentres',to:'teacher'}];
+  {match:/^james/i, kind:'twocentres',to:'teacher'},
+  /* One child, so the card has nothing to select between and check-in is a
+     single button. The Johnsons are the two child family. */
+  {match:/^test0?2$/i, kind:'onechild', fam:'f-thompson'}];
 /* Test / Test is the preview happy path for both staff roles, so it is
    matched before anything else and always takes FUS-19. */
 const accountFor=u=>/^test$/i.test(u.trim())?{kind:'plain'}
@@ -6073,6 +6106,12 @@ function doLogin(){
     `<div class="gbusy" id="gbusy"><div class="gspin" aria-hidden="true"></div>
       <h1 class="auth-h" role="status" style="margin:0">Logging you in</h1></div>`);
   const acc=accountFor(u);
+  /* a login that belongs to a different family re-points the parent role
+     before the app draws, so the first paint is already theirs */
+  if(acc.kind==='onechild'&&acc.fam){const f=FAMILIES.find(x=>x.id===acc.fam);
+    ROLES.parent.fam=acc.fam;
+    if(f){ROLES.parent.who=f.contact;
+      ROLES.parent.ini=f.contact.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();}}
   setTimeout(()=>{
     const b=$('#gbusy'); if(b)b.remove();
     if(acc.kind==='mfa'){showMfa(u);return;}
@@ -6096,22 +6135,37 @@ function landIn(acc){
 /* FUS-31. The one case that cannot honour "never pick a school at login": it
    is asked after authenticating, and the last one is offered first next time. */
 function showCentrePick(acc){
-  GATE_EL.insertAdjacentHTML('beforeend',`<div class="gbusy" id="gctr" style="justify-content:flex-start">
+  let pick='cedar', all=false;
+  const row=([g,id,name,sub])=>`<div class="grow"><button class="gr pickrow${pick===id?' on':''}"
+     role="radio" aria-checked="${pick===id}" data-ctr="${id}">
+     <span class="rad${pick===id?' on':''}"></span>
+     <span class="pk-g">${g}</span>
+     <span class="pk-t"><b>${name}</b><small>${sub}</small></span>
+    </button></div>`;
+  const draw=()=>{const list=all?ALLCENTRES:ALLCENTRES.slice(0,2);
+    $('#gctr').innerHTML=`<div class="brand"><span class="glyph">F</span><b>FACTS Childcare</b></div>
     <div class="card loginc" style="width:100%">
      <h1 class="auth-h left" style="margin:0 0 8px">Which centre today?</h1>
-     <p class="gsub" style="margin:0 0 18px">Your login works at both. We will offer this one first next time.</p>
-     <div class="card list tight">
-      ${CENTRES.map(c=>`<button class="row" data-ctr="${c.id}">
-        <span class="av">${ic('house','ic sm','var(--ink-2)','1.8')}</span>
-        <span class="rt"><b>${c.name}</b><small>${c.sub}</small></span>
-        ${ic('chev','ic sm','var(--ink-3)')}</button>`).join('')}
-     </div>
-    </div></div>`);
+     <p class="gsub" style="margin:0 0 18px">Your login works at all of them. Pick one to start;
+      you can switch later without logging out.</p>
+     <span class="pick-l">Centre</span>
+     <div class="grp2${all?' scrolls':''}" role="radiogroup" aria-label="Centre">${list.map(row).join('')}</div>
+     ${all?'':`<button class="showall" data-all="1">Show all ${ALLCENTRES.length} centres</button>`}
+     <button class="primary" data-go="1" style="width:100%;margin-top:14px">Continue</button>
+    </div>`;};
+  GATE_EL.insertAdjacentHTML('beforeend',
+    `<div class="gbusy" id="gctr" style="justify-content:flex-start">
+      <div class="brand"><span class="glyph">F</span><b>FACTS Childcare</b></div></div>`);
+  draw();
   $('#gctr').addEventListener('click',e=>{
-    const b=e.target.closest('[data-ctr]'); if(!b)return;
-    const c=CENTRES.find(x=>x.id===b.dataset.ctr);
-    CENTER.name=c.name; $('#gctr').remove(); landIn(acc);
-    toast(`Logged in at <b>${c.name}</b>`);
+    const r=e.target.closest('[data-ctr]');
+    if(r){pick=r.dataset.ctr;draw();return;}
+    if(e.target.closest('[data-all]')){all=true;draw();return;}
+    if(e.target.closest('[data-go]')){
+      const c=ALLCENTRES.find(x=>x[1]===pick);
+      CENTER.name=c[2]; $('#gctr').remove(); landIn(acc);
+      toast(`Logged in at <b>${c[2]}</b>`);
+    }
   });
 }
 /* FUS-23. Six boxes, because a code is six characters and reads as six. */
