@@ -5290,8 +5290,8 @@ function wirePad(){
     draft.sig=true;S.inSig=true;$('.sigh3')?.classList.add('gone');
     /* the check-in button is enabled in place: re-rendering the sheet here
        would clear the canvas the parent is still drawing on */
-    const b=$('#sheet .shfoot2 .off');
-    if(b&&S.pickArg){b.classList.remove('off');
+    const b=$('#sheet .shfoot2 .primary, #sheet .shfoot2 .second');
+    if(b&&S.pickArg&&b.dataset.act==='nosig'){
       const out=$('#sheet').dataset.kind==='signout';
       b.dataset.act=S.multi.length>1 ? `domulti:${out?'out':'in'}`
         : (out?'docheckout:':'docheckin:')+S.pickArg;}
@@ -5882,7 +5882,7 @@ function doAct(a){
     case 'clearsig':{const c=$('#pad'); if(c)c.getContext('2d').clearRect(0,0,c.width,c.height);
       draft.sig=false;S.inSig=false;$('.sigh3')?.classList.remove('gone');
       const kd=$('#sheet').dataset.kind, b=$('#sheet .shfoot2 .primary, #sheet .shfoot2 .second');
-      if(b&&(kd==='signin'||kd==='signout')){b.classList.add('off');b.dataset.act='nosig';}
+      if(b&&(kd==='signin'||kd==='signout'))b.dataset.act='nosig';
       break;}
     case 'ptype':{const keep=draft.type; draft=freshDraft(); draft.t=nowT();
       draft.type=arg; sheet('log'); break;}
