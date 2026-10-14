@@ -695,6 +695,11 @@
   .kiosk-note{margin:8px 0 0;text-align:center;font-size:13.5px;line-height:1.5;color:var(--ink-2)}
 
   /* ===== the two header switchers, FUS-29, 30 and 32 ===== */
+  /* The menu is drawn inside the header, and the header shares z-index 3 with
+     the body, which comes after it, so the body painted over the menu and
+     Log out could not be tapped. While a menu is open the header outranks the
+     body, and still sits under the scrim at 5 so a sheet covers it. */
+  .head:has(.hmenu),.topbar:has(.hmenu),.pagehead:has(.hmenu){z-index:4}
   .hmenu{position:absolute;z-index:30;min-width:244px;padding:6px;border-radius:18px;
     background:rgba(253,254,251,.98);backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);
     border:1px solid rgba(44,49,43,.1);box-shadow:0 22px 44px -20px rgba(38,52,36,.46)}
@@ -5920,7 +5925,12 @@ function doAct(a){
       toast(`Posted to ${n2} ${n2===1?'family':'families'}`);
       draft=freshDraft(); draft.t=nowT();
       render(true);break;}
-    case 'cfyes':{const f=pending;confirmClose();if(f)f();break;}
+    /* A confirm's act is either a function to run or an action string to
+       dispatch. It only ran functions, so Log out, Switch role, Move centre
+       and Notify the director all threw and did nothing. */
+    case 'cfyes':{const f=pending;confirmClose();
+      if(typeof f==='function')f(); else if(typeof f==='string'&&f)doAct(f);
+      break;}
     case 'cfno': confirmClose();break;
     case 'ciotab': S.cioTab=arg;render();break;
     case 'ciotog':{CIO[arg]=!CIO[arg];
