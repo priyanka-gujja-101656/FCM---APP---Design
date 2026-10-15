@@ -3145,7 +3145,7 @@ function vAttendanceWide(){
    </div>
    <div class="card table-card">
     <div class="tablebar">
-     <div class="tabpill">${chip('all','All',scope.length)}${chip('here','Here',cnt('here'))}
+     <div class="tabpill fill">${chip('all','All',scope.length)}${chip('here','Here',cnt('here'))}
       ${chip('out','Not in',cnt('out'))}${chip('absent','Absent',cnt('absent'))}</div>
      <div class="tablebar-r">
       ${searchbox('Search students')}
@@ -3198,7 +3198,7 @@ function vAttendance(){
        <button class="ghost tb-inline" data-act="selmode">Select</button>`)}
   <div class="body">
    ${S.selecting?'':datespine()}
-   ${S.selecting?'':`<div class="tabpill">${chip('all','All',scope.length)}${chip('here','Here',cnt('here'))}${chip('out','Not in',cnt('out'))}${chip('absent','Absent',cnt('absent'))}</div>`}
+   ${S.selecting?'':`<div class="tabpill fill">${chip('all','All',scope.length)}${chip('here','Here',cnt('here'))}${chip('out','Not in',cnt('out'))}${chip('absent','Absent',cnt('absent'))}</div>`}
    ${past?`<p class="hint">${ic('shield','ic sm','var(--ink-3)','1.8')}A past day is read-only. Reopen a closed register from Compliance.</p>`:''}
    <div class="card list${S.selecting?' selbox':''}">${list.length?attBody(list):'<div class="empty">No children match.</div>'}</div>
   </div>
@@ -3412,7 +3412,7 @@ function vMessagesWide(){
    </div>
    <div class="scopeband">
     <span class="scope-n">${m(CAN.rooms==='all'?'All rooms':roomName(ROLE.room))}<em>${scope.length}</em></span>
-    <div class="tabpill">${chip('all','All',scope.length)}${chip('family','Parents',n('family'))}${chip('staff','Staff',n('staff'))}</div>
+    <div class="tabpill fill">${chip('all','All',scope.length)}${chip('family','Parents',n('family'))}${chip('staff','Staff',n('staff'))}</div>
     <span class="band-r">${searchbox('Search messages')}</span>
    </div>
    <div class="card msgpanes">
@@ -3458,7 +3458,7 @@ function vMessages(){
   <div class="body">
    ${S.searchOpen?newbtn:''}
    ${par?'<div class="flabel">Inbox</div>'
-     :`<div class="tabpill">${chip('all','All',scope.length)}${chip('family','Parents',n('family'))}${chip('staff','Staff',n('staff'))}</div>`}
+     :`<div class="tabpill fill">${chip('all','All',scope.length)}${chip('family','Parents',n('family'))}${chip('staff','Staff',n('staff'))}</div>`}
    <div class="card list">${list.length?list.map(t=>{
      const w=par&&t.with?t.with:null;      /* who the viewer is talking to */
      return `<button class="row" data-act="thread:${t.id}">
@@ -5617,9 +5617,9 @@ function doAct(a){
       const c=CENTRES.find(x=>x.id===arg);
       if(c.name===CENTER.name){S.hmenu=null;render(true);break;}
       S.hmenu=null;render(true);
-      confirmAsk({title:`Move to ${c.name}?`,
-        body:'The roster, the children and the money all change with it.',
-        label:`Move to ${c.name}`,act:`doctr:${arg}`});break;}
+      confirmAsk({title:`Switch to ${c.name}?`,
+        body:`You will see ${c.name}\u2019s rooms, children and money instead. ${CENTER.name} stays exactly as it is.`,
+        label:'Switch centre',act:`doctr:${arg}`});break;}
     case 'doctr':{const c=CENTRES.find(x=>x.id===arg);CENTER.name=c.name;
       S.hmenu=null;render();toast(`You are now at <b>${c.name}</b>`);break;}
     case 'asklogout': S.hmenu=null;render(true);
