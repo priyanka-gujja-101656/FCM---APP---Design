@@ -1898,6 +1898,14 @@
        figures in one row. The phone stacks them two by two, which is right
        at 360 and wrong here. 948 is 900 plus the body's own 24px gutters. */
     .body.wide.homewide{max-width:948px}
+    /* the summary and the list are two different questions, so they are not
+       spaced like two rows of the same card */
+    .body.wide .card.combo+.card.tabcard{margin-top:10px}
+    .body.wide .whead.solo{justify-content:flex-end;padding-bottom:0}
+    .body.wide .pagehead{align-items:center}
+    .body.wide .wback{flex:none;margin-right:2px}
+    .navbrand .nb-d{display:block;font-size:11.5px;color:var(--ink-3);margin-top:2px}
+    .railmin .navbrand .nb-d{display:none}
     .body.wide .rowsplit.four{grid-template-columns:repeat(4,1fr)}
     /* the vertical rhythm H1 sets, measured off it rather than guessed:
        the bar has air above it as well as below, the four figures hang off
@@ -2588,11 +2596,18 @@ function toast(txt,kind){
 /* H1 keeps the centre, the day and who you are above the column even though
    the rail already names the centre: the rail's brand carries neither the
    date nor the person. Used by the wide home and the family's day. */
+/* The phone's top bar carries a back button on every page but home. The wide
+   pages had none: the rail could take you somewhere else, but nothing took
+   you back to where you came from. Same action, same icon, same place. */
+function wideBack(){
+  return `<button class="tb-btn wback" data-act="back" aria-label="Back">${ic('back','ic sm')}</button>`;
+}
+
 function wideHead(){
-  return `<div class="whead">
-   <span class="wctr"><span class="glyph2">F</span>
-    <span><b>${CAN.rooms==='one'?m(roomName(ROLE.room)):m(CENTER.name)}</b>
-     <small>${m(CENTER.date)} &middot; ${m(ROLE.who.split(' ')[0])}</small></span></span>
+  /* The centre, its mark and the day sit in the rail, which is the only place
+     they appear now: repeating them over the column said the same thing twice
+     on every page. What is left here is about you, not about the centre. */
+  return `<div class="whead solo">
    <span class="whr">${ROLE.scope==='family'?'':maskBtn()}
     <button class="avatar" data-act="hmenu:role" aria-label="Account and role">${ROLE.ini}</button>${S.hmenu==='role'?hmenu('role'):''}</span>
   </div>`;
@@ -2745,31 +2760,22 @@ function vHomeWide(n){
 
   /* the row the phone uses in a list, with the icon, the two lines and the
      one thing you would do about it */
-  const lrow=(icon,tone,t,s,go,act)=>`<button class="lrow" data-act="${act}">
-    <span class="ai ${tone}">${ic(icon,'ic','currentColor','1.8')}</span>
-    <span class="rt"><b>${t}</b><small>${s}</small></span>
-    <span class="linkb">${go}</span></button>`;
-
   const actRows=items.length
-    ? items.map(a=>lrow(a.icon,a.tone,a.t,a.s,a.go,a.act)).join('')
+    ? items.map(a=>`<button class="arow" data-act="${a.act}">
+       <span class="arow-i">${ic(a.icon,'ic sm',a.tone==='neg'?'var(--neg)':a.tone==='warn'?'var(--warn)':'var(--ink-2)','1.8')}</span>
+       <span class="arow-t"><b>${a.t}</b><small>${a.s}</small></span>
+       <span class="go">${ic('chev','ic sm','currentColor','1.9')}</span></button>`).join('')
     : '<div class="empty">Nothing needs you right now.</div>';
 
-  /* a teacher has one room, so the second tab is the children in it */
-  const kidRows=()=>KIDS.filter(k=>inRoom(k.room)).map(k=>lrow(
-    'child', k.status==='absent'?'warn':'',
-    m(k.name),
-    k.status==='in'?`Here since ${m(k.inAt||'')}`:k.status==='absent'?'Away today':'Not in yet',
-    'Open', `child:${k.id}`)).join('');
+  /* a teacher has one room, so the second tab is the children in it, drawn
+     with the register row the phone already uses */
+  const kidRows=()=>KIDS.filter(k=>inRoom(k.room)).map(k=>`<button class="arow" data-act="child:${k.id}">
+     <span class="arow-i">${ic('child','ic sm','var(--ink-2)','1.8')}</span>
+     <span class="arow-t"><b>${m(k.name)}</b><small>${k.status==='here'?`In at ${m(k.tin)}`
+       :k.status==='absent'?'Absent today':'Not checked in'}</small></span>
+     <span class="go">${ic('chev','ic sm','currentColor','1.9')}</span></button>`).join('');
 
-  const roomRows=ROOMS.map(r=>{
-    const kids=kidsIn(r.id), inr=here(kids), absent=kids.filter(k=>k.status==='absent').length;
-    const lead=STAFF.find(st=>st.room===r.name)
-      ||STAFF.find(st=>st.room.includes(r.name.replace(/ [AB]$/,'')))
-      ||STAFF.find(st=>st.room==='All rooms');
-    const sub=`${inr} of ${r.cap} seats used · ${m(lead.name)}`
-      +(absent?` · ${absent} absent`:'');
-    return lrow('room',absent?'warn':'',m(r.name),sub,'Open roster',`room:${r.id}`);
-  }).join('');
+  const roomRows=capAlert()+ROOMS.map(capLine2).join('');
 
   return `<div class="body wide homewide">
    ${wideHead()}
@@ -2813,10 +2819,10 @@ function vHomeWide(n){
 
    <div class="card tabcard">
     <div class="htabs">
-     <button class="htab${tab==='actions'?' on':''}" data-act="hometab:actions">Needs you<em>${items.length}</em></button>
+     <button class="htab${tab==='actions'?' on':''}" data-act="hometab:actions">Action items<em>${items.length}</em></button>
      <button class="htab${tab==='rooms'?' on':''}" data-act="hometab:rooms">${CAN.rooms==='all'
-       ?`Rooms right now<em>${ROOMS.length} rooms</em>`
-       :`My room right now<em>${n.tot} ${n.tot===1?'child':'children'}</em>`}</button>
+       ?`Room capacity<em>${here(KIDS)}/${KIDS.length}</em>`
+       :`My register<em>${n.tot} ${n.tot===1?'child':'children'}</em>`}</button>
     </div>
     <div class="tabbody">${tab==='actions'?actRows:(CAN.rooms==='all'?roomRows:kidRows())}</div>
    </div>
@@ -3551,8 +3557,8 @@ function vAttendanceWide(){
   const row=k=>{
     const on=S.sel.has(k.id);
     const act=k.status==='here'
-      ? `<button class="linkbtn" data-act="checkout:${k.id}">${ic('out','ic sm','currentColor','1.9')}Check out</button>`
-      : `<button class="linkbtn strong" data-act="checkin:${k.id}">${ic('in','ic sm','currentColor','1.9')}Check in</button>`;
+      ? `<button class="minilbl sec" data-act="checkout:${k.id}">${ic('out','ic sm','currentColor','1.9')}Check out</button>`
+      : `<button class="minilbl pri" data-act="checkin:${k.id}">${ic('in','ic sm','currentColor','1.9')}Check in</button>`;
     return `<tr class="${on?'picked2':''}">
      <td class="selcol" data-act="sel:${k.id}"><span class="cbx${on?' on':''}">${on?ic('check','ic sm','#fff','2.6'):''}</span></td>
      <td data-act="child:${k.id}"><span class="it">
@@ -3564,13 +3570,17 @@ function vAttendanceWide(){
        :scnOf(k)==='early'?`<span class="mute">${m(k.from)}</span>`:'<span class="mute">Not in</span>'}</td>
      <td class="with">${k.status==='here'&&k.who?m(k.who):'<span class="mute">&mdash;</span>'}</td>
      <td class="mute">${m(roomName(k.room))}</td>
-     <td>${k.note?`<span class="pillv info">Note</span>`:'<span class="mute">&mdash;</span>'}</td>
+     <td>${k.note?`<button class="notepill${S.openNote.has(k.id)?' on':''}" data-act="notepill:${k.id}"
+       aria-expanded="${S.openNote.has(k.id)}">Note${ic('chev','ic xs','currentColor','2.2')}</button>`
+       :'<span class="mute">&mdash;</span>'}</td>
      <td>${k.allergy?`<span class="pillv alg">${m(k.allergy)}</span>`:'<span class="mute">&mdash;</span>'}</td>
-     <td class="rt"><span class="rowacts">${act}
-       <button class="dotsb quiet" data-act="rowmenu:${k.id}" aria-label="More for ${k.name}">${ic('dots','ic','var(--ink-3)','1.9')}</button></span></td>
-    </tr>`;};
+     <td class="rt">${act}</td>
+    </tr>${k.note&&S.openNote.has(k.id)?`<tr class="noterowtr"><td colspan="8">
+     <div class="noterow"><span class="nr-i">${ic('doc','ic sm','currentColor','1.8')}</span>
+      <p>${m(k.note)}</p></div></td></tr>`:''}`;};
   return `<div class="body wide">
    <div class="pagehead">
+    ${wideBack()}
     <div>
      <h2 class="greet-h">Attendance</h2>
      <p class="page-s">${m(CAN.rooms==='all'?'All rooms':roomName(ROLE.room))} &middot; ${m(dayLabel(S.day))}</p>
@@ -3582,24 +3592,13 @@ function vAttendanceWide(){
       <button class="avatar" data-act="hmenu:role" aria-label="Account and role">${ROLE.ini}</button>${S.hmenu==='role'?hmenu('role'):''}</span>
     </div>
    </div>
-   <div class="scopeband">
-    <span class="scope-n">${m(CAN.rooms==='all'?'All rooms':roomName(ROLE.room))}<em>${scope.length}</em></span>
-    <span class="datebar">
-     <button class="sp-b" data-act="day:-1" aria-label="Previous day">${ic('left','ic sm')}</button>
-     <span class="d-lbl">${ic('cal','ic sm','var(--ink-3)')}${dayLabel(S.day)}</span>
-     <button class="sp-b${S.day>=0?' off':''}" data-act="${S.day>=0?'noop':'day:1'}" aria-label="Next day">${ic('right','ic sm')}</button>
-    </span>
-   </div>
    <div class="card table-card">
-    <div class="tablebar">
-     <div class="htabs">${chip('all','All',scope.length)}${chip('here','Here',cnt('here'))}
-      ${chip('out','Not in',cnt('out'))}${chip('absent','Absent',cnt('absent'))}</div>
-     <div class="tablebar-r">
-      <span class="tcount">${list.length} of ${scope.length}</span>
-      ${searchbox('Search children')}
-      <button class="second xs" data-act="sheet:filters">${ic('filter','ic sm','currentColor','2')}Filters${filterCount('attendance')?' ('+filterCount('attendance')+')':''}</button>
-      <button class="second xs" data-act="sheet:more">${ic('grid4','ic sm','currentColor','1.8')}Columns</button>
-     </div>
+    <div class="htabs">${chip('all','All',scope.length)}${chip('here','Here',cnt('here'))}
+     ${chip('out','Not in',cnt('out'))}${chip('absent','Absent',cnt('absent'))}</div>
+    <div class="tbar">
+     ${searchbox('Search children')}
+     <button class="second xs" data-act="sheet:filters">${ic('filter','ic sm','currentColor','2')}Filters${filterCount('attendance')?' ('+filterCount('attendance')+')':''}</button>
+     <span class="tcount">${list.length} of ${scope.length}</span>
     </div>
     ${S.sel.size?`<div class="bulkbar"><b>${S.sel.size} selected</b>
       <button class="second xs" data-act="bulkabsent">${ic('moon','ic sm','currentColor','1.9')}Mark absent</button>
@@ -3820,6 +3819,7 @@ function vActivitiesWide(){
   const fc=S.actFilter.size;
   return `<div class="body wide narrow">
    <div class="pagehead">
+    ${wideBack()}
     <div><h2 class="greet-h">Activities</h2></div>
     <div class="pageacts">
      <button class="primary q" data-act="sheet:posttype">${ic('plus','ic sm','var(--npds-blue-700)','1.9')}Post activity</button>
@@ -3881,6 +3881,7 @@ function vMessagesWide(){
   const chip=(id,lbl,c)=>`<button class="tp${(id==='all'?msgAll():S.msgSel.size===1&&S.msgSel.has(id))?' on':''}" data-act="msgs:${id}">${lbl} ${c}</button>`;
   return `<div class="body wide msgwide">
    <div class="pagehead">
+    ${wideBack()}
     <div><h2 class="greet-h">Messages</h2></div>
     <div class="pageacts">
      <button class="primary q" data-act="newmsg">${ic('plus','ic sm','var(--npds-blue-700)','1.9')}New message</button>
@@ -3985,6 +3986,7 @@ function vPeopleWide(){
   const mine=KIDS.filter(k=>inRoom(k.room));
   const head=(title,addLbl,addAct)=>`
    <div class="pagehead">
+    ${wideBack()}
     <div><h2 class="greet-h">${title}</h2></div>
     <div class="pageacts">
      ${addLbl?`<button class="primary q" data-act="${addAct}">${ic('plus','ic sm','var(--npds-blue-700)','1.9')}${addLbl}</button>`:''}
@@ -4489,6 +4491,7 @@ function vFinanceWide(){
   const mism=CLAIMS.reduce((n,c)=>n+c.mismatches.filter(x=>!S.resolved[x.id]).length,0);
   const head=(addLbl,addAct)=>`
    <div class="pagehead">
+    ${wideBack()}
     <div><h2 class="greet-h">Finance</h2></div>
     <div class="pageacts">
      <button class="primary q" data-act="${addAct}">${ic('plus','ic sm','var(--npds-blue-700)','1.9')}${addLbl}</button>
@@ -5652,6 +5655,7 @@ function vCheckinSettings(){
      in the column everything else uses. The controls are identical. */
   if(isRail()) return `<div class="body wide narrow">
    <div class="pagehead">
+    ${wideBack()}
     <div><h2 class="greet-h">Check-in and check-out</h2></div>
     <div class="pageacts"><span class="pagechrome">${maskBtn()}
      <button class="avatar" data-act="hmenu:role" aria-label="Account and role">${ROLE.ini}</button>${S.hmenu==='role'?hmenu('role'):''}</span></div>
@@ -7019,7 +7023,8 @@ function tabs(){
   const brand=`<div class="navbrand"><span class="glyph">F</span>
     <span class="nb-t"><b class="has-caret" data-act="hmenu:ctr" role="button" tabindex="0"
       aria-label="Change centre">${CAN.rooms==='one'?roomName(ROLE.room):CENTER.name}
-      ${ic('chev','ic sm caret','currentColor','2.4')}</b></span>${S.hmenu==='ctr'?hmenu('ctr'):''}</div>`;
+      ${ic('chev','ic sm caret','currentColor','2.4')}</b>
+     <small class="nb-d">${m(CENTER.date)}</small></span>${S.hmenu==='ctr'?hmenu('ctr'):''}</div>`;
   $('#tabs').innerHTML=brand+rail.map(row=>{
     if(row[0]==='sec') return `<span class="navsec">${railMini?'':row[1]}</span>`;
     const [kind,id,lbl,g]=row;
