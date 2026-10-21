@@ -1083,8 +1083,15 @@
   .clockpop{margin-top:12px;background:none;border:0;border-radius:18px;padding:0;animation:pop .18s ease}
   .cread{display:flex;align-items:center;gap:3px;justify-content:center;margin-bottom:8px;
     font-variant-numeric:tabular-nums}
-  .cread b{font-size:24px;font-weight:500;color:var(--ink-3);padding:3px 9px;border-radius:9px;cursor:pointer}
-  .cread b.on{color:var(--npds-blue-700);background:var(--npds-blue-100)}
+  /* the hour and the minute are fields, so a time can be typed as well as dialled */
+  .cread input{font-family:inherit;font-size:24px;font-weight:500;color:var(--ink-3);padding:3px 4px;
+    border-radius:9px;border:1px solid transparent;background:none;width:2.1ch;text-align:center;
+    font-variant-numeric:tabular-nums;-moz-appearance:textfield;appearance:textfield}
+  .cread input::-webkit-outer-spin-button,.cread input::-webkit-inner-spin-button{
+    -webkit-appearance:none;margin:0}
+  .cread input.on{color:var(--npds-blue-700);background:var(--npds-blue-100)}
+  .cread input:focus{outline:none;border-color:var(--npds-blue-500);background:var(--npds-blue-100);
+    color:var(--npds-blue-700)}
   .cread span{font-size:22px;color:var(--ink-3)}
   .apw{display:flex;gap:3px;margin-left:10px;padding:3px;border-radius:11px;background:rgba(44,49,43,.055)}
   .apw i{font-style:normal;font-size:12.5px;font-weight:600;color:var(--ink-3);padding:6px 10px;
@@ -2874,8 +2881,10 @@ function clockPop(which='mark'){
    return `<line class="tk${x%5?'':' big'}" x1="${120+Math.cos(a)*r1}" y1="${120+Math.sin(a)*r1}"
     x2="${120+Math.cos(a)*108}" y2="${120+Math.sin(a)*108}"/>`}).join('');
   return `<div class="clockpop">
-   <div class="cread"><b class="${mode==='h'?'on':''}" data-act="mcmode:h" role="button" tabindex="0" aria-label="Set the hour">${T.h}</b><span>:</span>
-    <b class="${mode==='m'?'on':''}" data-act="mcmode:m" role="button" tabindex="0" aria-label="Set the minutes">${t2(T.m)}</b>
+   <div class="cread"><input class="chh${mode==='h'?' on':''}" type="text" inputmode="numeric"
+     maxlength="2" value="${T.h}" aria-label="Hour"><span>:</span>
+    <input class="cmm${mode==='m'?' on':''}" type="text" inputmode="numeric"
+     maxlength="2" value="${t2(T.m)}" aria-label="Minutes">
     <span class="apw"><i class="${T.ap==='AM'?'on':''}" data-act="map:AM" role="button" tabindex="0">AM</i>
      <i class="${T.ap==='PM'?'on':''}" data-act="map:PM" role="button" tabindex="0">PM</i></span></div>
    <svg id="dial" viewBox="0 0 240 240" role="img" aria-label="Clock face, ${clkStr()}">
@@ -2902,6 +2911,40 @@ function wireDial(){
   /* let go on the hour and the dial moves on to the minutes by itself */
   dl.addEventListener('pointerup',()=>{down=false;
    if(clkMode()==='h'){setClkMode('m');repaintClock();}});
+
+  /* A time can be typed as well as dialled. Typing moves the hands only, never
+     the whole panel, so the field keeps the cursor while you are still in it. */
+  const hands=()=>{
+   const T=clkT(), ha=(T.h%12)*30+T.m*0.5, ma=T.m*6;
+   const hl=dl.querySelector('.hh'), ml=dl.querySelector('.mh');
+   if(hl){hl.setAttribute('x2',120+Math.cos((ha-90)*Math.PI/180)*54);
+    hl.setAttribute('y2',120+Math.sin((ha-90)*Math.PI/180)*54);}
+   if(ml){ml.setAttribute('x2',120+Math.cos((ma-90)*Math.PI/180)*82);
+    ml.setAttribute('y2',120+Math.sin((ma-90)*Math.PI/180)*82);}
+   dl.querySelectorAll('.cn').forEach((g,i)=>g.classList.toggle('on',(T.h%12||12)===i+1));
+   const fld=document.querySelector(CLK==='draft'
+    ?'.gr[data-act="dopen:time"] .gvv':'.gr[data-act="mclock"] .gvv');
+   if(fld)fld.textContent=clkStr();
+  };
+  const bind=(el,isHour)=>{
+   if(!el)return;
+   el.addEventListener('focus',()=>{setClkMode(isHour?'h':'m');
+    document.querySelectorAll('.cread input').forEach(o=>o.classList.remove('on'));
+    el.select();});
+   el.addEventListener('input',()=>{
+    const d=el.value.replace(/\D/g,'').slice(0,2);
+    if(d!==el.value)el.value=d;
+    if(!d)return;
+    const n=+d, T=clkT();
+    if(isHour){if(n>=1&&n<=12)T.h=n;} else if(n<=59)T.m=n;
+    hands();});
+   /* leaving the field tidies what was typed back to the stored time */
+   el.addEventListener('blur',()=>{const T=clkT();
+    el.value=isHour?String(T.h):t2(T.m); hands();});
+   el.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();el.blur();}});
+  };
+  bind(document.querySelector('.cread .chh'),true);
+  bind(document.querySelector('.cread .cmm'),false);
 }
 /* the same trick as the dial: swap the calendar alone, not the sheet around it */
 function repaintCal(){
@@ -5118,7 +5161,7 @@ function sheet(kind,arg){
         <span class="rr"><button class="mini lbl ${inn?'pri':'sec'}" data-act="${inn?'checkin':'checkout'}:${k.id}"
           aria-label="Check ${inn?'in':'out'} ${k.name}">${ic(inn?'in':'out','ic sm','currentColor','1.9')}Check ${inn?'in':'out'}</button></span>
        </div>`).join(''):`<div class="empty">${inn?'Everyone is checked in.':'Nobody left to check out.'}</div>`}</div>
-     <div class="sh-foot"><button class="second" data-act="bulkfrom" style="width:100%">${ic('listCheck','ic sm','var(--npds-gray-700)','1.8')}Bulk check in / out</button></div>`;
+     <div class="sh-foot"><button class="primary" data-act="bulkfrom" style="width:100%">${ic('listCheck','ic sm','var(--npds-blue-700)','1.8')}Bulk check in / out</button></div>`;
   } else if(kind==='posttype'){
     /* twelve tiles hug the bottom of the screen in the teacher app rather than
        filling it — full height left a third of the sheet empty */
@@ -5696,7 +5739,10 @@ function doAct(a){
     case 'selall': KIDS.filter(k=>inRoom(k.room)).forEach(k=>S.sel.add(k.id));render(true);break;
     case 'selnone': S.sel.clear();render(true);break;
     case 'nosel': toast('Tick a child first');break;
-    case 'bulkfrom': closeSheet();S.tab='rooms';S.sub='attendance';S.selecting=true;S.sel.clear();render();break;
+    /* bulk starts with everyone ticked: the common case is the whole room, and
+       unticking the one child who is not here beats ticking the other sixteen */
+    case 'bulkfrom': closeSheet();S.tab='rooms';S.sub='attendance';S.selecting=true;
+      S.sel.clear();KIDS.filter(k=>inRoom(k.room)).forEach(k=>S.sel.add(k.id));render();break;
     case 'bulksheet':{const n=S.sel.size; if(!n){toast('Tick a child first');break;}
       S.bulkDir=arg; parseMark(''); sheet('bulk'); break;}
     case 'dobulk':{const n=S.sel.size, out=S.bulkDir==='out', t=markStr();
