@@ -1841,6 +1841,55 @@
   @media (min-width:768px){
     .gate .authwrap{width:100%;max-width:452px;margin:0 auto;
       padding:64px 0 24px;justify-content:center}
+
+    /* ===== the wide home, drawn as H1 =====
+       The four separate figure cards and the table are gone. The centre and
+       the day sit above; the greeting, what needs you, the counts and the
+       four figures are one card; and the list under the tabs is the row the
+       phone already uses. The app's own tokens throughout, so the wide home
+       and the phone home cannot drift apart. */
+    .body.wide .whead{display:flex;align-items:center;justify-content:space-between;
+      gap:14px;padding:0 2px 2px}
+    .body.wide .wctr{display:flex;align-items:center;gap:10px}
+    .body.wide .wctr b{display:block;font-size:15px;font-weight:600;letter-spacing:-.01em}
+    .body.wide .wctr small{display:block;font-size:12.5px;color:var(--ink-2);margin-top:2px}
+    .body.wide .whr{display:flex;align-items:center;gap:10px;position:relative}
+    .body.wide .glyph2{width:34px;height:34px;border-radius:11px;flex:none;
+      background:rgba(255,255,255,.6);display:grid;place-items:center;
+      font-family:Newsreader,Georgia,serif;font-size:17px;color:var(--accent)}
+
+    .body.wide .card.combo{padding:22px 24px}
+    .body.wide .combo-top{display:flex;align-items:flex-start;gap:16px}
+    .body.wide .combo-top .gt{flex:1;min-width:0}
+    .body.wide .combo-top h2{font-family:Newsreader,Georgia,serif;font-weight:400;
+      font-size:25px;line-height:1.24;letter-spacing:-.015em;margin:0 0 9px}
+    .body.wide .combo-top p{margin:0;font-size:15px;color:var(--ink-2)}
+    .body.wide .combo-acts{display:flex;gap:9px;flex:none;align-items:center}
+    .body.wide .combo-acts .primary,.body.wide .combo-acts .second{
+      min-height:38px;font-size:13.5px;padding:0 15px;gap:7px;width:auto}
+    .body.wide .combo-nums{display:flex;align-items:flex-start;
+      justify-content:space-between;gap:12px;margin-top:20px;padding-top:18px;
+      border-top:1px solid var(--line)}
+
+    .body.wide .card.tabcard{padding:0;overflow:hidden}
+    .body.wide .tabcard .htabs{margin-top:0;padding:0 18px}
+    .body.wide .tabbody{padding:6px}
+    /* a row is a button, so it needs the reset the phone's rows get */
+    .body.wide .lrow{display:flex;align-items:center;gap:13px;padding:14px 12px;
+      width:100%;text-align:left;font:inherit;color:inherit;background:none;border:0}
+    .body.wide .lrow+.lrow{border-top:1px solid var(--line)}
+    .body.wide .ai{width:36px;height:36px;border-radius:999px;flex:none;display:grid;
+      place-items:center;background:rgba(255,255,255,.8);
+      box-shadow:inset 0 0 0 1px rgba(44,49,43,.06);color:var(--ink-2)}
+    .body.wide .ai svg{width:16px;height:16px}
+    .body.wide .ai.neg{color:var(--neg);background:rgba(155,74,62,.12);box-shadow:none}
+    .body.wide .ai.warn{color:var(--warn);background:rgba(176,138,86,.18);box-shadow:none}
+    .body.wide .linkb{flex:none;font-size:13px;font-weight:600;color:var(--npds-blue-700)}
+    /* H1 caps the home at a 900 column and centres it, and puts the four
+       figures in one row. The phone stacks them two by two, which is right
+       at 360 and wrong here. 948 is 900 plus the body's own 24px gutters. */
+    .body.wide.homewide{max-width:948px}
+    .body.wide .rowsplit.four{grid-template-columns:repeat(4,1fr)}
     /* the preview line is a child of the gate, not of the column, so on a
        wide screen it sat on the far left. It goes under the card, like L1. */
     .gate .previewcred{max-width:452px;margin-left:auto;margin-right:auto;
@@ -2652,83 +2701,82 @@ function vHome(){
   </div>`;
 }
 
-/* A wide screen shows at once what the phone asks you to open: the summary
-   card carries the greeting, what needs you sits beside it rather than behind
-   a button, and the rooms are a table instead of a sheet. Same numbers, same
-   wording, same components. */
+/* A wide screen shows at once what the phone asks you to open. Drawn as H1:
+   the centre and the day sit above, the greeting, what needs you, the counts
+   and the four figures are one card, and the list under the tabs is the row
+   the phone already uses rather than a table. Every number is computed, so
+   the wide home and the phone home can never disagree. */
 function vHomeWide(n){
   const items=actionItems();
-  const overdue=INVOICES.filter(i=>invStatus(i)==='overdue').length;
   const tab=S.homeTab||'actions';
-  /* a stat card: the label first, then the number, then what it is about */
-  const stat=(act,g,lbl,val,sub,tint,pct)=>`<button class="card stat" data-act="${act}">
-    <span class="stat-h"><span class="stat-lbl">${lbl}</span>
-     <span class="stat-i ${tint}">${ic(g,'ic','currentColor','1.75')}</span></span>
-    <span class="stat-v">${val}</span>
-    <span class="stat-bar"><i class="${tint}" style="width:${Math.max(2,Math.min(100,pct))}%"></i></span>
-    <span class="stat-s">${sub}</span></button>`;
+  const first=ROLE.who.split(' ')[0];
 
-  const actRows=items.map(a=>`<tr data-act="${a.act}">
-    <td><span class="it"><span class="it-i ${a.tone}">${ic(a.icon,'ic sm','currentColor','1.8')}</span>
-      <span class="it-t"><b>${a.t}</b><small>${a.s}</small></span></span></td>
-    <td><span class="pillv ${a.priTone||'mute'}">${a.pri||'Open'}</span></td>
-    <td class="mute">${a.area||''}</td>
-    <td class="rt"><span class="rowacts">
-      <button class="linkbtn" data-act="${a.act}">${a.go}</button>
-      <button class="dotsb quiet" data-act="soon:Snoozed until tomorrow" aria-label="Snooze ${a.t}">${ic('dots','ic','var(--ink-3)','1.9')}</button></span></td></tr>`).join('');
+  /* the row the phone uses in a list, with the icon, the two lines and the
+     one thing you would do about it */
+  const lrow=(icon,tone,t,s,go,act)=>`<button class="lrow" data-act="${act}">
+    <span class="ai ${tone}">${ic(icon,'ic','currentColor','1.8')}</span>
+    <span class="rt"><b>${t}</b><small>${s}</small></span>
+    <span class="linkb">${go}</span></button>`;
+
+  const actRows=items.length
+    ? items.map(a=>lrow(a.icon,a.tone,a.t,a.s,a.go,a.act)).join('')
+    : '<div class="empty">Nothing needs you right now.</div>';
 
   const roomRows=ROOMS.map(r=>{
     const kids=kidsIn(r.id), inr=here(kids), absent=kids.filter(k=>k.status==='absent').length;
     const lead=STAFF.find(st=>st.room===r.name)
       ||STAFF.find(st=>st.room.includes(r.name.replace(/ [AB]$/,'')))
       ||STAFF.find(st=>st.room==='All rooms');
-    const flag=absent?`<span class="pillv warn">${absent} absent</span>`
-      :kids.some(k=>k.allergy)?`<span class="pillv alg">${m(kids.find(k=>k.allergy).allergy)}</span>`
-      :kids.some(k=>k.note)?'<span class="pillv info">Note today</span>':'<span class="mute">Nothing</span>';
-    return `<tr data-act="room:${r.id}">
-      <td><span class="it"><span class="it-i">${ic('room','ic sm','currentColor','1.8')}</span>
-        <span class="it-t"><b>${r.name}</b><small>${inr} of ${r.cap} seats used · ${m(lead.name)}</small></span></span></td>
-      <td><span class="pillv">${r.ratio} met</span></td>
-      <td class="mute">${inr} in</td>
-      <td class="rt"><span class="rowacts">
-        <button class="linkbtn" data-act="room:${r.id}">Open roster</button></span></td></tr>`;}).join('');
+    const sub=`${inr} of ${r.cap} seats used · ${m(lead.name)}`
+      +(absent?` · ${absent} absent`:'');
+    return lrow('room',absent?'warn':'',m(r.name),sub,'Open roster',`room:${r.id}`);
+  }).join('');
 
-  return `<div class="body wide">
-   <div class="pagehead">
-    <div>
-     <h2 class="greet-h">Good morning, ${ROLE.who.split(' ')[0]}.</h2>
+  return `<div class="body wide homewide">
+   <div class="whead">
+    <span class="wctr"><span class="glyph2">F</span>
+     <span><b>${m(CENTER.name)}</b><small>${m(CENTER.date)} &middot; ${m(first)}</small></span></span>
+    <span class="whr">${maskBtn()}
+     <button class="avatar" data-act="hmenu:role" aria-label="Account and role">${ROLE.ini}</button>${S.hmenu==='role'?hmenu('role'):''}</span>
+   </div>
 
+   <div class="card combo">
+    <div class="combo-top">
+     <span class="gt">
+      <h2>Good morning, ${m(first)}.</h2>
+      <p><b>${items.length?`${items.length} thing${items.length===1?'':'s'} need${items.length===1?'s':''} you today.`:'Nothing needs you right now.'}</b></p>
+     </span>
+     <span class="combo-acts">
+      <button class="primary sm" data-act="sheet:inout">${ic('in','ic sm','var(--npds-blue-700)','1.9')}Check in / out</button>
+      <button class="second sm" data-act="sheet:posttype">${ic('pen','ic sm','var(--npds-gray-700)','1.9')}Post activity</button>
+     </span>
     </div>
-    <div class="pageacts">
-     <button class="primary q" data-act="sheet:inout">${ic('in','ic sm','var(--npds-blue-700)','1.9')}Check in / out</button>
-     <button class="linkbtn big" data-act="sheet:posttype">${ic('pen','ic sm','currentColor','1.9')}Post activity</button>
-     <span class="pagechrome">${maskBtn()}
-      <button class="avatar" data-act="hmenu:role" aria-label="Account and role">${ROLE.ini}</button>${S.hmenu==='role'?hmenu('role'):''}</span>
+    <div class="combo-nums">
+     <span><span class="pulse-count">${n.present} <em>of ${n.tot}</em></span>
+      <span class="pulse-label">In right now${n.abs?` &middot; ${n.abs} absent`:''}${n.notin?` &middot; ${n.notin} not in`:''}</span></span>
+     <span class="chip ${capAllOk()?'ok':'warn'}">${capAllOk()
+       ?'All rooms in ratio'
+       :`${capShort().length} ${capShort().length===1?'room needs':'rooms need'} cover`}</span>
+    </div>
+    <div class="bar">
+     ${n.present?`<i style="flex:${n.present};background:var(--present)"></i>`:''}
+     ${n.notin?`<i style="flex:${n.notin};background:var(--absent)"></i>`:''}
+     ${n.abs?`<i style="flex:${n.abs};background:var(--amber)"></i>`:''}
+    </div>
+    <div class="rowsplit four">
+     <button class="rs-b" data-act="go:compliance"><b>${tightestRatio()}</b><small>Staff ratio</small></button>
+     <button class="rs-b" data-act="go:accounts"><b>${m(money0(8400))}</b><small>Revenue</small></button>
+     <button class="rs-b" data-act="go:invoices"><b>${n.openInv.length}</b><small>Invoices open</small></button>
+     <button class="rs-b" data-act="go:students"><b>${n.tot}<em>/${licensedSeats()}</em></b><small>Enrolled</small></button>
     </div>
    </div>
-   <div class="statrow">
-    ${stat('go:attendance','child','Students today',`${n.present}<em>/${n.tot}</em>`,
-      n.notin?`${n.notin} not in yet`:n.abs?`${n.abs} absent`:'Everyone is in','ok',
-      Math.round(n.present/Math.max(n.tot,1)*100))}
-    ${stat('go:accounts','dollar','Collected',m(money0(3240)),'Jun 2026 · 78% of billed','ok',78)}
-    ${stat('go:invoices','receipt','Invoices',overdue,`${m(money0(outstanding()))} to collect`,'bad',
-      Math.round(overdue/Math.max(INVOICES.length,1)*100))}
-    ${stat('go:subsidy','bills','Subsidy',m(money0(1568)),'1 claim to reconcile','warn',
-      Math.round((CLAIMS.length-1)/Math.max(CLAIMS.length,1)*100))}
-   </div>
-   <div class="htabs">
-    <button class="htab${tab==='actions'?' on':''}" data-act="hometab:actions">Action items<em>${items.length}</em></button>
-    <button class="htab${tab==='rooms'?' on':''}" data-act="hometab:rooms">Room capacity<em>${n.present}/${n.tot}</em></button>
-   </div>
-   <div class="card table-card">
-    ${tab==='actions'
-      ? (items.length?`<table class="dtable">
-          <thead><tr><th>Item</th><th>Priority</th><th>Area</th><th class="rt">Actions</th></tr></thead>
-          <tbody>${actRows}</tbody></table>`
-        :'<div class="empty">Nothing needs you right now.</div>')
-      : `<table class="dtable">
-          <thead><tr><th>Room</th><th>Ratio</th><th>In</th><th class="rt">Actions</th></tr></thead>
-          <tbody>${roomRows}</tbody></table>`}
+
+   <div class="card tabcard">
+    <div class="htabs">
+     <button class="htab${tab==='actions'?' on':''}" data-act="hometab:actions">Needs you<em>${items.length}</em></button>
+     <button class="htab${tab==='rooms'?' on':''}" data-act="hometab:rooms">Rooms right now<em>${ROOMS.length} rooms</em></button>
+    </div>
+    <div class="tabbody">${tab==='actions'?actRows:roomRows}</div>
    </div>
   </div>`;
 }
