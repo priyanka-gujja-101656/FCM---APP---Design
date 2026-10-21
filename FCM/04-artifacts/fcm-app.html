@@ -1890,6 +1890,16 @@
        at 360 and wrong here. 948 is 900 plus the body's own 24px gutters. */
     .body.wide.homewide{max-width:948px}
     .body.wide .rowsplit.four{grid-template-columns:repeat(4,1fr)}
+    /* the vertical rhythm H1 sets, measured off it rather than guessed:
+       the bar has air above it as well as below, the four figures hang off
+       the bar's own margin instead of adding a second one, the heading is
+       the page's 27px, and the tab row keeps its 4px of lead. */
+    .body.wide .combo .bar{margin:16px 0}
+    .body.wide .combo .rowsplit{margin-top:0}
+    .body.wide .combo-top h2{font-size:27px;line-height:1.45;margin:0}
+    .body.wide .combo-top p{margin:24px 0 0}
+    .body.wide .tabcard .htabs{margin-top:0;padding:4px 22px 0}
+    .body.wide .tabcard .htab{min-height:46px}
     /* the preview line is a child of the gate, not of the column, so on a
        wide screen it sat on the far left. It goes under the card, like L1. */
     .gate .previewcred{max-width:452px;margin-left:auto;margin-right:auto;
