@@ -1922,8 +1922,10 @@
        the same edge and the same height rather than reading as a soft panel */
     .body.wide .pageacts .searchbox{width:260px;min-height:40px;height:40px;margin:0;flex:none;
       border:1px solid var(--npds-gray-500);background:rgba(255,255,255,.92)}
-    /* the tabs name what the table holds, so the table starts clear of them */
-    .body.wide .table-card .htabs{margin-bottom:14px}
+    /* the tabs name what the table holds. They need air above them as well as
+       below, and they line up with the table's own cells rather than sitting
+       4px off the card's edge. */
+    .body.wide .table-card .htabs{margin:18px 0 14px;padding:0 20px}
     /* a column heading you can sort by. The arrow only shows on the column
        that is doing the sorting, or under the pointer, so the row of headings
        does not turn into a row of arrows. */
