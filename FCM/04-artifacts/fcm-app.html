@@ -2175,9 +2175,26 @@ const ROLES={
          checkin:'own',bulk:false,post:false,signoff:false,enroll:false},
   }
 };
+/* Staying logged in. The gate used to come back on every load, which is not
+   what "Keep me logged in on this device" says. A session is written when you
+   log in with that ticked, and removed only when you log out: a reload, a new
+   tab or coming back tomorrow lands you where you were. Every call is wrapped
+   because storage throws in a private window, and a session that cannot be
+   read simply means the gate shows, which is the safe way round. */
+const SESSION='fcm-session';
+function readSession(){
+  try{const v=JSON.parse(localStorage.getItem(SESSION)||'null');
+    return v&&ROLES[v.role]?v:null;}catch(e){return null;}
+}
+function saveSession(role){try{localStorage.setItem(SESSION,JSON.stringify({role}));}catch(e){}}
+function clearSession(){try{localStorage.removeItem(SESSION);}catch(e){}}
+
 const roleFromUrl=()=>{
   const r=(new URLSearchParams(location.search).get('role')||'').toLowerCase();
-  return ROLES[r]?r:'director';
+  if(ROLES[r]) return r;
+  /* no role in the URL, so the one you last logged in as */
+  const sess=readSession();
+  return sess?sess.role:'director';
 };
 const ROLE=ROLES[roleFromUrl()];
 const CAN=ROLE.can;
@@ -7901,7 +7918,7 @@ function showGate(){
   setEye(false); setStay(true); gateError('');
   GATE_EL.hidden=false;
 }
-function doLogout(){ showGate(); }
+function doLogout(){ clearSession(); showGate(); }
 
 /* The username decides which login scenario you are in, so one prototype
    carries them all. Anything not listed here is the ordinary path, FUS-19. */
@@ -7958,6 +7975,8 @@ function doLogin(){
 /* The end of every login path: the gate goes, the app draws, and the person is
    told which role they landed in, because two homes can look alike. */
 function landIn(acc){
+  /* "Keep me logged in on this device" now means it */
+  if(gateStay) saveSession(ROLE.id); else clearSession();
   GATE_EL.hidden=true;
   $('#app').classList.remove('behind-gate'); $('#tabs').classList.remove('behind-gate');
   render();
@@ -8042,7 +8061,9 @@ if(GATE_EL){
   }));
   /* ?loggedin=1 skips the gate, so a deep link into a screen still lands there.
      A kiosk never sees it: the PIN is its whole identity. */
-  if(!KIOSK&&new URLSearchParams(location.search).get('loggedin')!=='1') showGate();
+  /* a kiosk is never logged in, ?loggedin=1 still skips the gate for a deep
+     link, and otherwise the gate shows only when there is no session */
+  if(!KIOSK&&new URLSearchParams(location.search).get('loggedin')!=='1'&&!readSession()) showGate();
 }
 
 render();
