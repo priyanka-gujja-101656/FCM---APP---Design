@@ -6282,7 +6282,7 @@ function sheet(kind,arg){
      <div class="sh-kid"><span class="av lg">${m(k.ini)}${statusDot(k)}</span>
       <span class="rt"><b>${m(k.name)}</b><small>${roomName(k.room)} · ${k.status==='here'?'in at '+k.tin:k.status==='absent'?'absent today':'not checked in'}</small></span></div>
      <div class="card list roomy">
-      ${item('moon','Mark away','For a day or a range, the family can see it',`away:${k.id}`)}
+      ${item('moon','Mark absent','For a day or a range, the family can see it',`away:${k.id}`)}
       ${item('swap','Move to another room','Checks the ratio before it moves',`relocate:${k.id}`)}
       ${item('pen',k.note?'Edit today\u2019s note':'Add a note for today','For today only',`note:${k.id}`)}
      </div>
@@ -6369,7 +6369,7 @@ function sheet(kind,arg){
     const mine=ROLE.scope==='family';
     html=`<span class="grab"></span>
      <div class="sh-row fixed">
-      <h3 class="sh-h flat">${mine?'Report an absence':'Mark away'}</h3>
+      <h3 class="sh-h flat">${mine?'Report an absence':'Mark absent'}</h3>
       <button class="sh-x" data-act="close" aria-label="Close">${ic('x','ic sm','var(--ink-2)','2.1')}</button></div>
      <p class="sh-sub">${m(k.name)} &middot; ${days} ${days===1?'day':'days'}</p>
      <div class="sbody2">
@@ -6383,7 +6383,7 @@ function sheet(kind,arg){
         : `This goes on the register for ${days===1?'the day':'every day in the range'}, and ${m(k.name.split(' ')[0])}&rsquo;s family can see it.`}</p>
      </div>
      <div class="shfoot2"><button class="primary" data-act="awsend">
-      ${ic('moon','ic','currentColor','1.8')}${mine?'Tell the centre':'Mark away'}</button></div>`;
+      ${ic('moon','ic','currentColor','1.8')}${mine?'Tell the centre':'Mark absent'}</button></div>`;
   } else if(kind==='flag'){
     /* UC-ATT-10. Flagged, not blocked: the admin may proceed, and whichever
        way they go it is recorded with their name. */
