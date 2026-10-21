@@ -1919,6 +1919,21 @@
     .body.wide .tbar{display:flex;align-items:center;gap:12px;
       padding:12px 18px;border-bottom:1px solid var(--line)}
     .body.wide .pageacts .searchbox{width:260px;min-height:40px;margin:0;flex:none}
+    /* a column heading you can sort by. The arrow only shows on the column
+       that is doing the sorting, or under the pointer, so the row of headings
+       does not turn into a row of arrows. */
+    .body.wide th .sortbtn{display:inline-flex;align-items:center;gap:5px;font:inherit;
+      font-size:10px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;
+      color:var(--ink-3);background:none;border:0;padding:0;cursor:pointer;min-height:24px}
+    .body.wide th .sortarw{opacity:0;transform:rotate(90deg)}
+    .body.wide th .sortbtn:hover{color:var(--ink-2)}
+    .body.wide th .sortbtn:hover .sortarw{opacity:.45}
+    .body.wide th .sortbtn.on{color:var(--ink)}
+    .body.wide th .sortbtn.on .sortarw{opacity:1;color:var(--npds-blue-700)}
+    .body.wide th[aria-sort="descending"] .sortarw{transform:rotate(-90deg)}
+    @media (prefers-reduced-motion:no-preference){
+      .body.wide th .sortarw{transition:opacity .15s ease}
+    }
     .body.wide .htabs .tcount{margin-left:auto;align-self:center;padding-bottom:4px}
     .body.wide .tcount{margin-left:auto;font-size:12.5px;color:var(--ink-2);white-space:nowrap}
     .body.wide .minilbl{display:inline-flex;align-items:center;gap:7px;min-height:36px;
@@ -1933,7 +1948,10 @@
     .body.wide .pagehead > div:not(.pageacts){margin-right:auto;min-width:0}
     /* the page's heading lines up with Home in the rail beside it, rather
        than starting a row lower than the nav it sits next to */
-    .body.wide .pagehead{padding-top:24px}
+    .body.wide .pagehead{padding-top:24px;gap:14px}
+    /* a subtitle belongs to its title, so it sits under it rather than a
+       line away from it */
+    .body.wide .page-s{margin-top:2px}
     .body.wide .rowsplit.four{grid-template-columns:repeat(4,1fr)}
     /* the vertical rhythm H1 sets, measured off it rather than guessed:
        the bar has air above it as well as below, the four figures hang off
@@ -3568,8 +3586,11 @@ function visibleInvoices(){
 function vAttendanceWide(){
   const scope=KIDS.filter(k=>inRoom(k.room));
   const q=S.q.trim().toLowerCase();
+  const sc=S.attSort||{col:'name',dir:'asc'};
+  const key=ATT_SORT[sc.col]||ATT_SORT.name, dir=sc.dir==='desc'?-1:1;
   const list=scope.filter(k=>(!q||k.name.toLowerCase().includes(q))&&attMatch(k))
-    .slice().sort((a,b)=>a.name.localeCompare(b.name));
+    .slice().sort((a,b)=>{const x=key(a),y=key(b);
+      return (x<y?-1:x>y?1:0)*dir || a.name.localeCompare(b.name);});
   const cnt=st=>scope.filter(k=>k.status===st).length;
   const alg=scope.filter(k=>k.allergy).length;
   const allSel=list.length&&list.every(k=>S.sel.has(k.id));
@@ -3628,8 +3649,12 @@ function vAttendanceWide(){
     <table class="dtable att">
      <thead><tr>
       <th class="selcol" data-act="${allSel?'selnone':'selall'}"><span class="cbx${allSel?' on':''}">${allSel?ic('check','ic sm','#fff','2.6'):''}</span></th>
-      <th class="c-stu">Child</th><th class="c-tm">Time</th><th class="c-with">With</th>
-      <th class="c-room">Room</th><th class="c-note">Note</th><th class="c-alg">Allergy</th>
+      ${(()=>{const th=(col,lbl,cls)=>`<th class="${cls}" aria-sort="${
+        sc.col===col?(sc.dir==='asc'?'ascending':'descending'):'none'}">
+        <button class="sortbtn${sc.col===col?' on':''}" data-act="attsort:${col}"
+         aria-label="Sort by ${lbl}">${lbl}${ic('chev','ic xs sortarw','currentColor','2.6')}</button></th>`;
+        return th('name','Child','c-stu')+th('time','Time','c-tm')+th('with','With','c-with')
+          +th('room','Room','c-room')+th('note','Note','c-note')+th('allergy','Allergy','c-alg');})()}
       <th class="c-act rt">Action</th>
      </tr></thead>
      <tbody>${list.length?list.map(row).join(''):'<tr><td colspan="8"><div class="empty">No children match.</div></td></tr>'}</tbody>
@@ -5047,6 +5072,16 @@ const TO={from:3,to:4,reason:'Personal',note:'',open:null};
 const TO_WHY=['Personal','Sick','Family','Holiday','Appointment','Other'];
 /* UC-ATT-04. The same shape as the staff request, because it is the same
    question: which days, and why. One day is a range of one. */
+/* Which column the wide register is sorted by, and which way. A phone has
+   one column and no room for this, so it is a desktop idea only. */
+const ATT_SORT={
+  name:k=>k.name.toLowerCase(),
+  time:k=>k.status==='here'?mins(k.tin):k.status==='absent'?100000:90000,
+  with:k=>(k.who||'\uffff').toLowerCase(),
+  room:k=>roomName(k.room).toLowerCase(),
+  note:k=>k.note?0:1,
+  allergy:k=>(k.allergy||'\uffff').toLowerCase(),
+};
 const AW={kid:null,from:0,to:0,reason:'Sick',open:null,mOff:0};
 const AW_WHY=['Sick','Appointment','Holiday','Family','Other'];
 function awCal(which){
@@ -7293,6 +7328,10 @@ function doAct(a){
     /* UC-ATT-04 */
     case 'away': closeSheet();AW.kid=arg;AW.from=0;AW.to=0;AW.reason='Sick';AW.open=null;AW.mOff=0;
       sheet('away',arg);break;
+    /* the same column twice turns the order round; a new one starts at A to Z */
+    case 'attsort':{const c=S.attSort||{col:'name',dir:'asc'};
+      S.attSort=c.col===arg?{col:arg,dir:c.dir==='asc'?'desc':'asc'}:{col:arg,dir:'asc'};
+      render();break;}
     case 'awopen': AW.open=AW.open===arg?null:arg;AW.mOff=0;sheet('away',AW.kid);break;
     case 'awmon': AW.mOff=(AW.mOff||0)+(+arg);sheet('away',AW.kid);break;
     case 'awreason': AW.reason=arg;AW.open=null;sheet('away',AW.kid);break;
