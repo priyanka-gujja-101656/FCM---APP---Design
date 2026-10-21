@@ -1839,6 +1839,12 @@
      column would otherwise get, leaving the card at its content width.
      Nothing new is drawn and the illustration behind it is untouched. */
   @media (min-width:768px){
+    /* the wide illustration. The phone's is a tall crop of the same scene;
+       stretched across a desktop its hills flatten out, so a landscape cut
+       of the same artwork is served instead. Position and size are inherited
+       from the rule above, only the picture changes. */
+    .screen,.screen.kiosk{background-image:url("fcm-app-bg-wide.webp")}
+
     .gate .authwrap{width:100%;max-width:452px;margin:0 auto;
       padding:64px 0 24px;justify-content:center}
 
