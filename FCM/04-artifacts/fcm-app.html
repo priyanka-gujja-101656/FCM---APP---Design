@@ -1084,9 +1084,12 @@
   .cread{display:flex;align-items:center;gap:3px;justify-content:center;margin-bottom:8px;
     font-variant-numeric:tabular-nums}
   /* the hour and the minute are fields, so a time can be typed as well as dialled */
-  .cread input{font-family:inherit;font-size:24px;font-weight:500;color:var(--ink-3);padding:3px 4px;
-    border-radius:9px;border:1px solid transparent;background:none;width:2.1ch;text-align:center;
-    font-variant-numeric:tabular-nums;-moz-appearance:textfield;appearance:textfield}
+  /* wide enough for two digits plus its own padding and border, or the second
+     digit of a minute like 01 is clipped */
+  .cread input{font-family:inherit;font-size:24px;font-weight:500;color:var(--ink-3);padding:3px 6px;
+    border-radius:9px;border:1px solid transparent;background:none;text-align:center;
+    width:calc(2ch + 18px);font-variant-numeric:tabular-nums;
+    -moz-appearance:textfield;appearance:textfield}
   .cread input::-webkit-outer-spin-button,.cread input::-webkit-inner-spin-button{
     -webkit-appearance:none;margin:0}
   .cread input.on{color:var(--npds-blue-700);background:var(--npds-blue-100)}
