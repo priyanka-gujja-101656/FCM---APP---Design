@@ -1777,6 +1777,14 @@
   .body.setpage{gap:8px}
   .logout{width:100%;margin-top:0}
 
+
+  /* ===== public build only =====
+     The sky, the sun and the hills arrive as one illustration instead of the
+     drawn layers, so the scene SVG and its glow step aside. Sits at the end of
+     the sheet so it also beats the kiosk screen's own gradient. */
+  .screen,.screen.kiosk{
+    background:url("fcm-app-bg.webp") center top / cover no-repeat,var(--sky-1)}
+  .scene,.glow{display:none}
 </style>
 </head>
 <body>
