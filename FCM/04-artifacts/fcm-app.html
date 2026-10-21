@@ -1910,10 +1910,11 @@
        specific and says block, so the caret was landing on its own line
        under the centre's name. Same trap the top bar's title hit. */
     .nb-t b.has-caret{display:inline-flex;align-items:center;gap:6px}
-    /* The centre menu is 244px wide and the rail is 212 and scrolls, so the
-       menu was being cut off 62px short of its own right edge. Inside the
-       rail it takes the rail's width instead; its second lines already wrap. */
-    #tabs .hmenu{min-width:0;left:6px;right:6px;width:auto}
+    /* The rail scrolls, so anything absolute inside it is clipped at its
+       edge. The centre menu is wider than the rail on purpose, so it is
+       taken out of that box and laid over the page instead. */
+    #tabs .hmenu{position:fixed;left:16px;top:104px;right:auto;
+      min-width:284px;width:max-content;max-width:340px}
     /* The capacity row is the phone's, and on a phone its three lines sit in
        328px. Given 886 it stretched to a 828px track with a line of its own,
        which is mostly empty. Same three parts, laid out across instead of
@@ -1942,6 +1943,9 @@
     /* the title keeps the free space, or it centres between the back button
        and the actions */
     .body.wide .pagehead > div:not(.pageacts){margin-right:auto;min-width:0}
+    /* the page's heading lines up with Home in the rail beside it, rather
+       than starting a row lower than the nav it sits next to */
+    .body.wide .pagehead{padding-top:24px}
     .body.wide .rowsplit.four{grid-template-columns:repeat(4,1fr)}
     /* the vertical rhythm H1 sets, measured off it rather than guessed:
        the bar has air above it as well as below, the four figures hang off
@@ -2189,7 +2193,7 @@ const KIDS=[
  {id:'c1',who:'Dad', name:'Jack Johnson',    ini:'JJ', age:'4 yr', room:'r-prek4',   fam:'f-johnson',    status:'out',    tin:null,      allergy:null,      subsidy:false, scn:'plain'},
  {id:'c2',who:'Mum', name:'Mateo Garcia',    ini:'MG', age:'3 yr', room:'r-prek3',   fam:'f-garcia',   status:'here',   tin:'8:05 AM', allergy:'Peanut',  subsidy:true},
  {id:'c3',who:'Grandma', name:'Sofia Rivera',    ini:'SR', age:'2 yr', room:'r-toddlerB',fam:'f-rivera',   status:'here',   tin:'7:48 AM', allergy:null,      subsidy:true},
- {id:'c4', name:'Jaylen Thompson', ini:'JT', age:'1 yr', room:'r-toddlerA',fam:'f-thompson', status:'out',    tin:null,      allergy:'Dairy',   subsidy:true},
+ {id:'c4', name:'Jaylen Thompson', ini:'JT', age:'1 yr', room:'r-toddlerA',fam:'f-thompson', status:'absent', tin:null,      allergy:'Dairy',   subsidy:true},
  {id:'c5',who:'Mum', name:'Noah Schneider',  ini:'NS', age:'4 yr', room:'r-prek4',   fam:'f-schneider',     status:'here',   tin:'8:11 AM', allergy:null,      subsidy:false},
  {id:'c6',who:'Dad', name:'Noah Bennett',    ini:'NB', age:'5 yr', room:'r-kinder',  fam:'f-bennett',  status:'here',   tin:'7:55 AM', allergy:'Tree-nut',subsidy:false},
  {id:'c7',who:'Dad', name:'Lily Chen',       ini:'LC', age:'3 yr', room:'r-prek3',   fam:'f-chen',     status:'out',    tin:null,      allergy:null,      subsidy:false, scn:'early', from:'9:00 AM', rate:'$12.00'},
@@ -3610,30 +3614,32 @@ function vAttendanceWide(){
        aria-expanded="${S.openNote.has(k.id)}">Note${ic('chev','ic xs','currentColor','2.2')}</button>`
        :'<span class="mute">&mdash;</span>'}</td>
      <td>${k.allergy?`<span class="pillv alg">${m(k.allergy)}</span>`:'<span class="mute">&mdash;</span>'}</td>
-     <td class="rt">${act}</td>
+     <td class="rt"><span class="rowacts">${act}
+       <button class="dotsb quiet" data-act="rowmenu:${k.id}" aria-label="More for ${k.name}">${ic('dots','ic','var(--ink-3)','1.9')}</button></span></td>
     </tr>${k.note&&S.openNote.has(k.id)?`<tr class="noterowtr"><td colspan="8">
      <div class="noterow"><span class="nr-i">${ic('doc','ic sm','currentColor','1.8')}</span>
       <p>${m(k.note)}</p></div></td></tr>`:''}`;};
   return `<div class="body wide">
-   ${wideHead()}
    <div class="pagehead">
     ${wideBack()}
     <div>
      <h2 class="greet-h">Attendance</h2>
-     <p class="page-s">${m(CAN.rooms==='all'?'All rooms':roomName(ROLE.room))} &middot; ${m(CENTER.date)}</p>
+     <p class="page-s">${m(CAN.rooms==='all'?'All rooms':roomName(ROLE.room))}</p>
     </div>
     <div class="pageacts">
-     <button class="primary q" data-act="${S.sel.size?'bulksheet:in':'sheet:inout'}">${ic('in','ic sm','var(--npds-blue-700)','1.9')}Check in / out${S.sel.size?` · ${S.sel.size}`:''}</button>
+     ${S.sel.size?`<button class="primary q" data-act="bulksheet:in">${ic('in','ic sm','var(--npds-blue-700)','1.9')}Check in / out · ${S.sel.size}</button>`:''}
      <button class="second q" data-act="sheet:print">${ic('print','ic sm','var(--npds-gray-700)','1.9')}Print</button>
+     <span class="pagechrome">${maskBtn()}
+      <button class="avatar" data-act="hmenu:role" aria-label="Account and role">${ROLE.ini}</button>${S.hmenu==='role'?hmenu('role'):''}</span>
     </div>
    </div>
    <div class="card table-card">
     <div class="htabs">${chip('all','All',scope.length)}${chip('here','Here',cnt('here'))}
      ${chip('out','Not in',cnt('out'))}${chip('absent','Absent',cnt('absent'))}</div>
     <div class="tbar">
+     <span class="tcount">${list.length} of ${scope.length}</span>
      ${searchbox('Search children')}
      <button class="second xs" data-act="sheet:filters">${ic('filter','ic sm','currentColor','2')}Filters${filterCount('attendance')?' ('+filterCount('attendance')+')':''}</button>
-     <span class="tcount">${list.length} of ${scope.length}</span>
     </div>
     ${S.sel.size?`<div class="bulkbar"><b>${S.sel.size} selected</b>
       <button class="second xs" data-act="bulkabsent">${ic('moon','ic sm','currentColor','1.9')}Mark absent</button>
@@ -3853,12 +3859,13 @@ function vActivitiesWide(){
     &&(!q||(a.title+' '+a.body+' '+a.kid+' '+TY[a.type].label).toLowerCase().includes(q)));
   const fc=S.actFilter.size;
   return `<div class="body wide narrow">
-   ${wideHead()}
    <div class="pagehead">
     ${wideBack()}
     <div><h2 class="greet-h">Activities</h2></div>
     <div class="pageacts">
      <button class="primary q" data-act="sheet:posttype">${ic('plus','ic sm','var(--npds-blue-700)','1.9')}Post activity</button>
+     <span class="pagechrome">${maskBtn()}
+      <button class="avatar" data-act="hmenu:role" aria-label="Account and role">${ROLE.ini}</button>${S.hmenu==='role'?hmenu('role'):''}</span>
     </div>
    </div>
    <div class="scopeband">
@@ -3914,13 +3921,14 @@ function vMessagesWide(){
   const open=list.find(t=>t.id===S.arg)||list[0];
   const chip=(id,lbl,c)=>`<button class="tp${(id==='all'?msgAll():S.msgSel.size===1&&S.msgSel.has(id))?' on':''}" data-act="msgs:${id}">${lbl} ${c}</button>`;
   return `<div class="body wide msgwide">
-   ${wideHead()}
    <div class="pagehead">
     ${wideBack()}
     <div><h2 class="greet-h">Messages</h2></div>
     <div class="pageacts">
      <button class="primary q" data-act="newmsg">${ic('plus','ic sm','var(--npds-blue-700)','1.9')}New message</button>
      <button class="second q" data-act="soon:Templates">${ic('doc','ic sm','var(--npds-gray-700)','1.9')}Templates</button>
+     <span class="pagechrome">${maskBtn()}
+      <button class="avatar" data-act="hmenu:role" aria-label="Account and role">${ROLE.ini}</button>${S.hmenu==='role'?hmenu('role'):''}</span>
     </div>
    </div>
    <div class="scopeband">
@@ -4018,12 +4026,13 @@ function vPeopleWide(){
     :(S.sub==='staff'||S.sub==='staffm')?'staff':'students';
   const mine=KIDS.filter(k=>inRoom(k.room));
   const head=(title,addLbl,addAct)=>`
-   ${wideHead()}
    <div class="pagehead">
     ${wideBack()}
     <div><h2 class="greet-h">${title}</h2></div>
     <div class="pageacts">
      ${addLbl?`<button class="primary q" data-act="${addAct}">${ic('plus','ic sm','var(--npds-blue-700)','1.9')}${addLbl}</button>`:''}
+     <span class="pagechrome">${maskBtn()}
+      <button class="avatar" data-act="hmenu:role" aria-label="Account and role">${ROLE.ini}</button>${S.hmenu==='role'?hmenu('role'):''}</span>
     </div>
    </div>`;
   const tabs=CAN.rooms==='all'?`<div class="htabs">
@@ -4522,13 +4531,14 @@ function vFinanceWide(){
   const od=INVOICES.filter(i=>invStatus(i)==='overdue').length;
   const mism=CLAIMS.reduce((n,c)=>n+c.mismatches.filter(x=>!S.resolved[x.id]).length,0);
   const head=(addLbl,addAct)=>`
-   ${wideHead()}
    <div class="pagehead">
     ${wideBack()}
     <div><h2 class="greet-h">Finance</h2></div>
     <div class="pageacts">
      <button class="primary q" data-act="${addAct}">${ic('plus','ic sm','var(--npds-blue-700)','1.9')}${addLbl}</button>
      <button class="second q" data-act="sheet:print">${ic('doc','ic sm','var(--npds-gray-700)','1.9')}Export</button>
+     <span class="pagechrome">${maskBtn()}
+      <button class="avatar" data-act="hmenu:role" aria-label="Account and role">${ROLE.ini}</button>${S.hmenu==='role'?hmenu('role'):''}</span>
     </div>
    </div>`;
   const tabs=`<div class="htabs">
@@ -5685,7 +5695,6 @@ function vCheckinSettings(){
   /* On a desktop the four settings are the page's own tabs, and the panel sits
      in the column everything else uses. The controls are identical. */
   if(isRail()) return `<div class="body wide narrow">
-   ${wideHead()}
    <div class="pagehead">
     ${wideBack()}
     <div><h2 class="greet-h">Check-in and check-out</h2></div>
