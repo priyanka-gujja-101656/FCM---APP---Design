@@ -1495,12 +1495,15 @@
     .dtable.att col{}
     .dtable.att th.selcol,.dtable.att td.selcol{width:52px;padding:12px 0 12px 20px;text-align:left;
       vertical-align:middle;line-height:1}
-    .dtable.att .c-stu{width:30%}
+    /* T1's columns: when and with whom are their own cells now, so the
+       widths are shared out again. Status is gone: the time cell says it. */
+    .dtable.att .c-stu{width:26%}
+    .dtable.att .c-tm{width:11%}
+    .dtable.att .c-with{width:10%}
     .dtable.att .c-room{width:13%}
-    .dtable.att .c-st{width:12%}
+    .dtable.att .c-note{width:9%}
     .dtable.att .c-alg{width:13%}
-    .dtable.att .c-note{width:12%}
-    .dtable.att .c-act{width:24%}
+    .dtable.att .c-act{width:18%}
     .body.wide .rowacts button{white-space:nowrap}
     .body.wide .cbx{width:20px;height:20px;min-width:20px;border-radius:6px!important;flex:none;
       box-shadow:inset 0 0 0 1.6px var(--npds-gray-500);background:transparent;
@@ -2582,6 +2585,19 @@ function toast(txt,kind){
 }
 
 /* ---------- chrome ---------- */
+/* H1 keeps the centre, the day and who you are above the column even though
+   the rail already names the centre: the rail's brand carries neither the
+   date nor the person. Used by the wide home and the family's day. */
+function wideHead(){
+  return `<div class="whead">
+   <span class="wctr"><span class="glyph2">F</span>
+    <span><b>${CAN.rooms==='one'?m(roomName(ROLE.room)):m(CENTER.name)}</b>
+     <small>${m(CENTER.date)} &middot; ${m(ROLE.who.split(' ')[0])}</small></span></span>
+   <span class="whr">${ROLE.scope==='family'?'':maskBtn()}
+    <button class="avatar" data-act="hmenu:role" aria-label="Account and role">${ROLE.ini}</button>${S.hmenu==='role'?hmenu('role'):''}</span>
+  </div>`;
+}
+
 function homehead(){
   return `<div class="head">
    <div class="ctr">
@@ -2666,7 +2682,7 @@ function vHome(){
 
   const abs=mine.filter(k=>k.status==='absent').length;
   const notin=tot-present-abs;
-  if(isRail()&&CAN.rooms==='all') return vHomeWide({present,tot,abs,notin,openInv});
+  if(isRail()&&CAN.rooms!=='none') return vHomeWide({present,tot,abs,notin,openInv});
   return `${homehead()}<div class="body low">
    <div class="card greet">
     <h2>Good morning, ${ROLE.who.split(' ')[0]}.</h2>
@@ -2738,6 +2754,13 @@ function vHomeWide(n){
     ? items.map(a=>lrow(a.icon,a.tone,a.t,a.s,a.go,a.act)).join('')
     : '<div class="empty">Nothing needs you right now.</div>';
 
+  /* a teacher has one room, so the second tab is the children in it */
+  const kidRows=()=>KIDS.filter(k=>inRoom(k.room)).map(k=>lrow(
+    'child', k.status==='absent'?'warn':'',
+    m(k.name),
+    k.status==='in'?`Here since ${m(k.inAt||'')}`:k.status==='absent'?'Away today':'Not in yet',
+    'Open', `child:${k.id}`)).join('');
+
   const roomRows=ROOMS.map(r=>{
     const kids=kidsIn(r.id), inr=here(kids), absent=kids.filter(k=>k.status==='absent').length;
     const lead=STAFF.find(st=>st.room===r.name)
@@ -2749,12 +2772,7 @@ function vHomeWide(n){
   }).join('');
 
   return `<div class="body wide homewide">
-   <div class="whead">
-    <span class="wctr"><span class="glyph2">F</span>
-     <span><b>${m(CENTER.name)}</b><small>${m(CENTER.date)} &middot; ${m(first)}</small></span></span>
-    <span class="whr">${maskBtn()}
-     <button class="avatar" data-act="hmenu:role" aria-label="Account and role">${ROLE.ini}</button>${S.hmenu==='role'?hmenu('role'):''}</span>
-   </div>
+   ${wideHead()}
 
    <div class="card combo">
     <div class="combo-top">
@@ -2779,20 +2797,28 @@ function vHomeWide(n){
      ${n.notin?`<i style="flex:${n.notin};background:var(--absent)"></i>`:''}
      ${n.abs?`<i style="flex:${n.abs};background:var(--amber)"></i>`:''}
     </div>
-    <div class="rowsplit four">
-     <button class="rs-b" data-act="go:compliance"><b>${tightestRatio()}</b><small>Staff ratio</small></button>
-     <button class="rs-b" data-act="go:accounts"><b>${m(money0(8400))}</b><small>Revenue</small></button>
-     <button class="rs-b" data-act="go:invoices"><b>${n.openInv.length}</b><small>Invoices open</small></button>
-     <button class="rs-b" data-act="go:students"><b>${n.tot}<em>/${licensedSeats()}</em></b><small>Enrolled</small></button>
-    </div>
+    ${(()=>{const t=CAN.rooms==='all'?[
+      `<button class="rs-b" data-act="go:compliance"><b>${tightestRatio()}</b><small>Staff ratio</small></button>`,
+      `<button class="rs-b" data-act="go:accounts"><b>${m(money0(8400))}</b><small>Revenue</small></button>`,
+      `<button class="rs-b" data-act="go:invoices"><b>${n.openInv.length}</b><small>Invoices open</small></button>`,
+      `<button class="rs-b" data-act="go:students"><b>${n.tot}<em>/${licensedSeats()}</em></b><small>Enrolled</small></button>`,
+    ]:[
+      `<button class="rs-b" data-act="go:compliance"><b>${tightestRatio()}</b><small>Staff ratio</small></button>`,
+      `<button class="rs-b" data-act="go:students"><b>${n.tot}</b><small>In my room</small></button>`,
+      `<button class="rs-b" data-act="go:activities"><b>${visibleActivities().length}</b><small>Posted today</small></button>`,
+      `<button class="rs-b" data-act="go:messages"><b>${unreadCount()}</b><small>Unread</small></button>`,
+    ];
+      return `<div class="rowsplit four">${t.join('')}</div>`;})()}
    </div>
 
    <div class="card tabcard">
     <div class="htabs">
      <button class="htab${tab==='actions'?' on':''}" data-act="hometab:actions">Needs you<em>${items.length}</em></button>
-     <button class="htab${tab==='rooms'?' on':''}" data-act="hometab:rooms">Rooms right now<em>${ROOMS.length} rooms</em></button>
+     <button class="htab${tab==='rooms'?' on':''}" data-act="hometab:rooms">${CAN.rooms==='all'
+       ?`Rooms right now<em>${ROOMS.length} rooms</em>`
+       :`My room right now<em>${n.tot} ${n.tot===1?'child':'children'}</em>`}</button>
     </div>
-    <div class="tabbody">${tab==='actions'?actRows:roomRows}</div>
+    <div class="tabbody">${tab==='actions'?actRows:(CAN.rooms==='all'?roomRows:kidRows())}</div>
    </div>
   </div>`;
 }
@@ -3520,8 +3546,8 @@ function vAttendanceWide(){
   const cnt=st=>scope.filter(k=>k.status===st).length;
   const alg=scope.filter(k=>k.allergy).length;
   const allSel=list.length&&list.every(k=>S.sel.has(k.id));
-  const chip=(id,lbl,n)=>`<button class="tp${(id==='all'?attAll():S.attSel.size===1&&S.attSel.has(id))?' on':''}"
-    data-act="att:${id}">${lbl} ${n}</button>`;
+  const chip=(id,lbl,n)=>`<button class="htab${(id==='all'?attAll():S.attSel.size===1&&S.attSel.has(id))?' on':''}"
+    data-act="att:${id}">${lbl}<em>${n}</em></button>`;
   const row=k=>{
     const on=S.sel.has(k.id);
     const act=k.status==='here'
@@ -3531,15 +3557,15 @@ function vAttendanceWide(){
      <td class="selcol" data-act="sel:${k.id}"><span class="cbx${on?' on':''}">${on?ic('check','ic sm','#fff','2.6'):''}</span></td>
      <td data-act="child:${k.id}"><span class="it">
        <span class="av">${m(k.ini)}${statusDot(k)}</span>
-       <span class="it-t"><b>${m(k.name)}</b><small>${k.status==='here'?`in ${k.tin}${k.who?' · with '+m(k.who):''}`
-         :k.status==='absent'?'Marked absent'
-         :scnOf(k)==='unsched'||scnOf(k)==='blocked'?'Not scheduled today'
-         :scnOf(k)==='early'?`Scheduled ${k.from}`:'Not checked in'}</small></span></span></td>
+       <span class="it-t"><b>${m(k.name)}</b></span></span></td>
+     <td class="num">${k.status==='here'?m(k.tin)
+       :k.status==='absent'?'<span class="mute">Absent</span>'
+       :scnOf(k)==='unsched'||scnOf(k)==='blocked'?'<span class="mute">Not scheduled</span>'
+       :scnOf(k)==='early'?`<span class="mute">${m(k.from)}</span>`:'<span class="mute">Not in</span>'}</td>
+     <td class="with">${k.status==='here'&&k.who?m(k.who):'<span class="mute">&mdash;</span>'}</td>
      <td class="mute">${m(roomName(k.room))}</td>
-     <td><span class="pillv ${k.status==='here'?'':k.status==='absent'?'warn':'mute'}">${
-       k.status==='here'?'Present':k.status==='absent'?'Absent':'Not in'}</span></td>
-     <td>${k.allergy?`<span class="pillv alg">${m(k.allergy)}</span>`:'<span class="mute">None</span>'}</td>
-     <td>${k.note?`<span class="pillv info">Note today</span>`:'<span class="mute">None</span>'}</td>
+     <td>${k.note?`<span class="pillv info">Note</span>`:'<span class="mute">&mdash;</span>'}</td>
+     <td>${k.allergy?`<span class="pillv alg">${m(k.allergy)}</span>`:'<span class="mute">&mdash;</span>'}</td>
      <td class="rt"><span class="rowacts">${act}
        <button class="dotsb quiet" data-act="rowmenu:${k.id}" aria-label="More for ${k.name}">${ic('dots','ic','var(--ink-3)','1.9')}</button></span></td>
     </tr>`;};
@@ -3547,7 +3573,7 @@ function vAttendanceWide(){
    <div class="pagehead">
     <div>
      <h2 class="greet-h">Attendance</h2>
-
+     <p class="page-s">${m(CAN.rooms==='all'?'All rooms':roomName(ROLE.room))} &middot; ${m(dayLabel(S.day))}</p>
     </div>
     <div class="pageacts">
      <button class="primary q" data-act="${S.sel.size?'bulksheet:in':'sheet:inout'}">${ic('in','ic sm','var(--npds-blue-700)','1.9')}Check in / out${S.sel.size?` · ${S.sel.size}`:''}</button>
@@ -3564,17 +3590,13 @@ function vAttendanceWide(){
      <button class="sp-b${S.day>=0?' off':''}" data-act="${S.day>=0?'noop':'day:1'}" aria-label="Next day">${ic('right','ic sm')}</button>
     </span>
    </div>
-   <div class="statrow three">
-    <div class="card stat tight"><span class="stat-lbl">Present</span><span class="stat-v" style="color:var(--present)">${m(cnt('here'))}</span></div>
-    <div class="card stat tight"><span class="stat-lbl">Not in</span><span class="stat-v" style="color:${cnt('out')?'var(--neg)':'inherit'}">${m(cnt('out'))}</span></div>
-    <div class="card stat tight"><span class="stat-lbl">Allergies</span><span class="stat-v" style="color:${alg?'var(--warn)':'inherit'}">${m(alg)}</span></div>
-   </div>
    <div class="card table-card">
     <div class="tablebar">
-     <div class="tabpill fill">${chip('all','All',scope.length)}${chip('here','Here',cnt('here'))}
+     <div class="htabs">${chip('all','All',scope.length)}${chip('here','Here',cnt('here'))}
       ${chip('out','Not in',cnt('out'))}${chip('absent','Absent',cnt('absent'))}</div>
      <div class="tablebar-r">
-      ${searchbox('Search students')}
+      <span class="tcount">${list.length} of ${scope.length}</span>
+      ${searchbox('Search children')}
       <button class="second xs" data-act="sheet:filters">${ic('filter','ic sm','currentColor','2')}Filters${filterCount('attendance')?' ('+filterCount('attendance')+')':''}</button>
       <button class="second xs" data-act="sheet:more">${ic('grid4','ic sm','currentColor','1.8')}Columns</button>
      </div>
@@ -3586,10 +3608,11 @@ function vAttendanceWide(){
     <table class="dtable att">
      <thead><tr>
       <th class="selcol" data-act="${allSel?'selnone':'selall'}"><span class="cbx${allSel?' on':''}">${allSel?ic('check','ic sm','#fff','2.6'):''}</span></th>
-      <th class="c-stu">Student</th><th class="c-room">Room</th><th class="c-st">Status</th>
-      <th class="c-alg">Allergy</th><th class="c-note">Note</th><th class="c-act rt">Actions</th>
+      <th class="c-stu">Child</th><th class="c-tm">Time</th><th class="c-with">With</th>
+      <th class="c-room">Room</th><th class="c-note">Note</th><th class="c-alg">Allergy</th>
+      <th class="c-act rt">Action</th>
      </tr></thead>
-     <tbody>${list.length?list.map(row).join(''):'<tr><td colspan="7"><div class="empty">No children match.</div></td></tr>'}</tbody>
+     <tbody>${list.length?list.map(row).join(''):'<tr><td colspan="8"><div class="empty">No children match.</div></td></tr>'}</tbody>
     </table>
    </div>
   </div>`;
@@ -3717,7 +3740,7 @@ function vParentDay(){
   const chip=(id,icon,label)=>`<button class="qr ${f===id?'tinted':'muted'}" data-act="pfilter:${id}"
     aria-pressed="${f===id}">
     <i class="qri">${ic(icon,'ic',f===id?'var(--npds-blue-700)':'var(--npds-gray-700)','1.75')}</i>${label}</button>`;
-  return `${homehead()}<div class="body low">
+  return `${isRail()?wideHead():homehead()}<div class="body low">
    ${(()=>{
     /* One card does both jobs: it says how they are, and it is how you move
        between them. Collapsed it is a single line; open it is the door. */
@@ -4811,6 +4834,10 @@ function vTeacherHome(){
   const h=here(mine), a=mine.filter(k=>k.status==='absent').length;
   const ni=mine.filter(k=>k.status!=='here'&&k.status!=='absent').length;
   const tot=mine.length;
+  /* H1 gives the teacher the same wide home the director gets, counted over
+     their own room. The phone keeps the greeting it already has. */
+  if(isRail()) return vHomeWide({present:h,tot,abs:a,notin:ni,
+    openInv:visibleInvoices().filter(i=>invStatus(i)!=='paid')});
   const room=ROOMS.find(r=>r.id===ROLE.room);
   const line=ni>0?`Good morning, ${ROLE.who.split(' ')[0]}.<br>Your room is all set!`
                  :`All set, ${ROLE.who.split(' ')[0]}.<br>Everyone is here.`;
@@ -6936,6 +6963,34 @@ const RAIL={
     ['go','accounts','Accounts','card'],
     ['go','invoices','Invoices','receipt'],
     ['go','subsidy','Subsidy claims','bills'],
+    ['tab','more','More','grid4']
+  ],
+  /* H1 gives the teacher and the family a rail too. Each keeps its own list:
+     the teacher's is their room, the family's is their children and their
+     account. Two labels differ from the mock because the app has no such
+     page: the teacher's Incidents is My schedule, which is what their More
+     actually offers, and the family's child section is My children, because
+     this family has two. */
+  teacher:[
+    ['tab','home','Home','house'],
+    ['sec','My room'],
+    ['tab','attendance','Attendance','in'],
+    ['tab','activities','Activities','listCheck'],
+    ['tab','messages','Messages','chat'],
+    ['go','students','Students','child'],
+    ['sec','More'],
+    ['go','myschedule','My schedule','cal'],
+    ['tab','more','More','grid4']
+  ],
+  parent:[
+    ['tab','activities','Today','house'],
+    ['sec','My children'],
+    ['go','myattendance','Attendance','in'],
+    ['tab','messages','Messages','chat'],
+    ['family','f-johnson','My children','child'],
+    ['sec','Account'],
+    ['acct','f-johnson','Billing','card'],
+    ['tab','reports','Reports','doc'],
     ['tab','more','More','grid4']
   ]
 };
