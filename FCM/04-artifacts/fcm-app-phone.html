@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>FCM on a phone</title>
+<style>
+  /* A phone frame around the prototype, for showing it on a laptop in a call.
+     The app itself is untouched: it runs in the iframe at phone width, so it
+     lays out exactly as it would in someone's hand. */
+  :root{color-scheme:light}
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{margin:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    gap:14px;overflow:hidden;
+    background:#F1F0EC;
+    background-image:radial-gradient(circle,#D5D3CB 1.1px,transparent 1.1px);
+    background-size:22px 22px;background-position:-11px -11px;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif}
+
+  .stage{display:grid;place-items:center;transform-origin:center center}
+
+  /* the handset: a dark bezel with a rounded screen cut out of it */
+  .phone{position:relative;width:390px;height:844px;border-radius:54px;
+    background:#1C1D1A;padding:13px;
+    box-shadow:0 1px 0 2px #373934 inset, 0 28px 60px rgba(28,29,26,.30),
+      0 6px 18px rgba(28,29,26,.18)}
+  .screen{position:relative;width:100%;height:100%;border-radius:42px;overflow:hidden;
+    background:#FDFCF9}
+  .screen iframe{display:block;width:100%;height:100%;border:0}
+
+  /* the pill at the top and the bar at the bottom, drawn over the app */
+  .notch{position:absolute;top:11px;left:50%;transform:translateX(-50%);
+    width:108px;height:30px;border-radius:999px;background:#1C1D1A;z-index:2;pointer-events:none}
+  .home{position:absolute;bottom:9px;left:50%;transform:translateX(-50%);
+    width:138px;height:5px;border-radius:999px;background:rgba(28,29,26,.30);
+    z-index:2;pointer-events:none}
+
+  .hint{margin:0;text-align:center;flex:0 0 auto;
+    font-size:11.5px;letter-spacing:.09em;text-transform:uppercase;color:#8C8A80}
+  .hint a{color:#53789A;text-decoration:none;border-bottom:1px solid currentColor}
+  @media (max-height:700px){.hint{display:none}}
+</style>
+</head>
+<body>
+
+<div class="stage" id="stage">
+  <div class="phone">
+    <div class="notch"></div>
+    <div class="screen">
+      <iframe id="app" title="FCM prototype" allow="clipboard-write"></iframe>
+    </div>
+    <div class="home"></div>
+  </div>
+</div>
+
+<p class="hint">Prototype &middot; <a id="full" href="fcm-app.html">open without the frame</a></p>
+
+<script>
+  /* Whatever is on this page's address goes through to the app, so
+     ?role=director and ?role=parent&loggedin=1 behave as they always have. */
+  var qs = location.search || '?role=director';
+  document.getElementById('app').src = 'fcm-app.html' + qs;
+  document.getElementById('full').href = 'fcm-app.html' + qs;
+
+  /* On a short laptop screen the handset scales down rather than being cut off. */
+  var stage = document.getElementById('stage');
+  function fit(){
+    var s = Math.min(1, (window.innerHeight - 90) / 844, (window.innerWidth - 32) / 390);
+    stage.style.transform = 'scale(' + s + ')';
+  }
+  fit();
+  window.addEventListener('resize', fit);
+</script>
+
+</body>
+</html>
