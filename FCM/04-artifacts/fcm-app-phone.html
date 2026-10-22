@@ -29,9 +29,7 @@
     background:#FDFCF9}
   .screen iframe{display:block;width:100%;height:100%;border:0}
 
-  /* the pill at the top and the bar at the bottom, drawn over the app */
-  .notch{position:absolute;top:11px;left:50%;transform:translateX(-50%);
-    width:108px;height:30px;border-radius:999px;background:#1C1D1A;z-index:2;pointer-events:none}
+  /* No pill at the top: the app draws its own header there and the pill covered it. */
   .home{position:absolute;bottom:9px;left:50%;transform:translateX(-50%);
     width:138px;height:5px;border-radius:999px;background:rgba(28,29,26,.30);
     z-index:2;pointer-events:none}
@@ -46,7 +44,6 @@
 
 <div class="stage" id="stage">
   <div class="phone">
-    <div class="notch"></div>
     <div class="screen">
       <iframe id="app" title="FCM prototype" allow="clipboard-write"></iframe>
     </div>
