@@ -2048,13 +2048,24 @@
       border:1px solid var(--npds-gray-500);color:var(--npds-gray-700)}
     /* the title keeps the free space, or it centres between the back button
        and the actions */
-    .body.wide .pagehead > div:not(.pageacts){margin-right:auto;min-width:200px;flex:1 1 200px}
+    .body.wide .pagehead > div:not(.pageacts){margin-right:auto;min-width:180px;flex:0 1 auto}
+  /* The title keeps a floor so the actions cannot squeeze it to nothing, but it
+     does not grow into the free space either: that space belongs to the search
+     field, which shrinks so the whole header stays on one line. Before this the
+     title took everything, the search could not give any width back, and the
+     actions were pushed onto a second row with the back arrow stranded above. */
   /* The title block had min-width:0 and no basis, so it was the only thing in
      the row that could shrink and the actions squeezed it to nothing: every
      word of "The plan, as of Mon, Jun 22" wrapped onto its own line. A real
      basis gives it a floor, and the row wraps the actions underneath instead of
      crushing the title. */
-  .pagehead{flex-wrap:wrap}
+  .pagehead{flex-wrap:wrap;row-gap:4px}
+  /* When the actions do not fit beside the title they take a row of their own.
+     Two things make that read as a deliberate second row rather than a mistake:
+     the back arrow lines up with the title's first line instead of floating
+     beside the subtitle, and the actions span the full width. */
+  .pagehead > .tb-btn{align-self:flex-start;margin-top:2px}
+  .pagehead > .pageacts{flex:1 1 auto}
     /* the page's heading lines up with Home in the rail beside it, rather
        than starting a row lower than the nav it sits next to */
     .body.wide .pagehead{padding-top:24px;gap:14px}
