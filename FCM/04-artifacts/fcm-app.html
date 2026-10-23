@@ -7194,10 +7194,15 @@ const allowed=v=>!GATE[v]||GATE[v]();
    what was a row inside Rooms, People or Finance is a destination of its own.
    The hub pages still exist for the phone; the rail simply does not need them. */
 const RAIL={
+  /* Scheduling sits beside the register, because the plan and the day are the
+     same six rooms read two ways. The four things that were behind More come
+     out under Centre: on a rail there is room for them, and More named none of
+     them. */
   director:[
     ['tab','home','Home','house'],
     ['sec','Rooms'],
     ['go','attendance','Attendance','in'],
+    ['go','capacity','Scheduling','cal'],
     ['go','activities','Activities','listCheck'],
     ['go','messages','Messages','chat'],
     ['sec','People'],
@@ -7208,7 +7213,11 @@ const RAIL={
     ['go','accounts','Accounts','card'],
     ['go','invoices','Invoices','receipt'],
     ['go','subsidy','Subsidy claims','bills'],
-    ['tab','more','More','grid4']
+    ['sec','Centre'],
+    ['go','compliance','Compliance','shield'],
+    ['go','reports','Reports','chart'],
+    ['go','assistant','Virtual assistant','sparkle'],
+    ['go','settings','Settings','gear']
   ],
   /* H1 gives the teacher and the family a rail too. Each keeps its own list:
      the teacher's is their room, the family's is their children and their
