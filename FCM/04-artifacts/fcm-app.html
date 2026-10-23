@@ -1790,6 +1790,24 @@
     background:rgba(176,138,86,.15);margin:12px 0 0;flex:none}
   .warnbox .wb-i{flex:none;color:var(--warn);margin-top:1px}
   .warnbox p{margin:0;font-size:13px;line-height:1.5;color:var(--ink)}
+  /* The band: the card's own width, flat and rounded, with the warning glyph
+     and no divider, sitting above the card it belongs to. role="status"
+     announces it when a choice brings it up, and the control that brought it
+     up points at it, so it is read with that control. */
+  .band{display:flex;align-items:flex-start;gap:10px;padding:13px 15px;border-radius:14px;
+    background:rgba(44,49,43,.06);margin:0 0 12px;flex:none}
+  .band .bn-i{flex:none;color:var(--ink-2);margin-top:1px}
+  .band.warn{background:rgba(176,138,86,.18)}
+  .band.warn .bn-i{color:var(--warn)}
+  .band p{margin:0;flex:1;min-width:0;font-size:13px;line-height:1.5;color:var(--ink)}
+  .tabpanel .band{margin:0 0 14px;padding:15px 16px}
+  /* Who should be notified sits inside the card it belongs to, with no rule
+     between it and the switch, so the two read as one setting. */
+  .scard > .optwrap{border-top:0;margin-top:-2px;padding:0 14px 14px}
+  .optwrap .lhead{display:block;padding:4px 2px 8px}
+  .optwrap .optrow+.optrow{margin-top:8px}
+  .tabpanel .optwrap{padding:0 18px 18px}
+  .tabpanel .optwrap .lhead{padding:6px 2px 10px}
   .tabwrap{flex:none;overflow-x:auto;margin:0 -18px;padding:8px 18px 0;scrollbar-width:none}
   .tabwrap::-webkit-scrollbar{height:0}
   .tabwrap .tabpill{width:max-content}
@@ -2521,10 +2539,13 @@ const THREADS=[
 /* Late and unscheduled start off: a centre that has just switched the app on
    has not loosened anything yet, and it gives the director something to
    actually change. */
-const CIO={qr:true,rot:1,sig:true,when:'both',ratio:0,late:false,unsched:false};
+const CIO={qr:true,rot:1,sig:true,health:true,hq:[true,true,true],ratio:true,
+  late:false,unsched:false,
+  /* who is told when a rule is bent, one list per rule */
+  not:{ratio:{dir:true,teach:false},late:{dir:true,teach:false},unsched:{dir:true,teach:false}}};
 /* The door reads the policy rather than hard-coding it, so FUS-13 (one tap out)
    and FUS-14 (a pad on the way out) are the same code at two settings. */
-const sigAt=out=>CIO.sig&&(CIO.when==='both'||(out&&CIO.when==='out'));
+const sigAt=out=>CIO.sig;
 
 /* ---------------------------------------------------------------------------
    The door scenarios from the feature set. A child carries the state, so the
@@ -2545,7 +2566,7 @@ function roomLoad(r){
 /* FUS-3 only blocks while the room really is at its limit and the centre's
    ratio setting says to block. Allow all scheduled lets it through, because
    the child being unscheduled is the other half of the reason. */
-const isBlocked=k=>scnOf(k)==='blocked'&&CIO.ratio===0&&roomLoad(k.room).full;
+const isBlocked=k=>scnOf(k)==='blocked'&&CIO.ratio&&roomLoad(k.room).full;
 const S={kpin:'',kioskOpen:false,hmenu:null,tab:(ROLES[roleFromUrl()].tabs[0][0]),sub:null,arg:null,stack:[],cioTab:'all',q:'',mask:false,moveTo:null,relArg:null,finArg:null,voided:{},selecting:false,pselecting:false,psel:new Set(),sel:new Set(),openNote:new Set(),pick:null,pickArg:null,searchOpen:false,day:0,actFilter:new Set(),
   homeTab:'actions',invFilter:'all',subTab:'mismatches',
   /* Filters hold sets now, not single values. Empty means no filter, which is
@@ -3850,28 +3871,28 @@ function vParentDay(){
     const summary=inn===kids.length?`All in · ${kids.map(k=>first(k)+' '+k.tin.replace(/ ?[AP]M/,'')).join(' · ')}`
       :kids.map(k=>`${first(k)} ${st(k)}`).join(' · ');
     const psel=S.pselecting&&kids.length>1;
-    return `<div class="card greet phero${open?'':' shut'}${psel?' selecting':''}">
-    <button class="phead" data-act="pcollapse" aria-expanded="${open}">
+    /* One card, one button, whatever the family size. The per-child rows and
+       the Select link have gone: who is going in is asked inside the flow, so
+       the card is one line and the parent has one thing to press. The button
+       follows the children, so a card where everyone is in offers the way out
+       instead. */
+    const anyOut=kids.some(k=>k.status!=='here');
+    const one=kids.length===1;
+    const act=anyOut?(one?`checkin:${kids[0].id}`:'pwho'):(one?`checkout:${kids[0].id}`:'pwhoout');
+    const label=anyOut?(one?`Check ${first(kids[0])} in`:'Check in')
+                      :(one?`Check ${first(kids[0])} out`:'Check out');
+    return `<div class="card greet phero${psel?' selecting':' shut'}">
+    <div class="phead">
      <span class="avstack">${kids.map(k=>`<span class="av">${m(k.ini)}${statusDot(k)}</span>`).join('')}</span>
      <span class="ph-t"><h2>${well}</h2><small>${summary}</small></span>
-     <span class="rch${open?' up':''}">${ic('chev','ic sm','var(--npds-blue-700)','2.4')}</span>
-    </button>
-    ${open&&psel?`<div class="kidrows boxed">
+    </div>
+    ${psel?`<div class="kidrows boxed">
      ${pselHead()}
      ${kids.map(k=>pselRow(k)).join('')}
-    </div>`:''}
-    ${open&&!psel?`<div class="kidrows">
-     ${kids.length>1?`<div class="krhead"><span>${kids.length} children</span>
-       <button class="ph-sel" data-act="pselmode">Select</button></div>`:''}
-     ${kids.map(k=>{
-      return `<div class="kidrow">
-      ${kids.length>1?'':`<span class="av">${m(k.ini)}${statusDot(k)}</span>`}
-      <span class="kr-t"><b>${first(k)}</b><small>${roomName(k.room)} · ${st(k)}</small></span>
-      ${k.status==='here'
-        ? `<button class="mini lbl sec" data-act="checkout:${k.id}" aria-label="Check out ${k.name}">${ic('out','ic sm','currentColor','1.9')}Check out</button>`
-        : `<button class="mini lbl pri" data-act="checkin:${k.id}" aria-label="Check in ${k.name}">${ic('in','ic sm','currentColor','1.9')}Check in</button>`}
-     </div>`;}).join('')}
-    </div>`:''}
+    </div>`:`<div class="kidrows" style="padding-top:0">
+     <button class="primary sm" style="width:100%" data-act="${act}">${
+       ic(anyOut?'in':'out','ic sm','currentColor','1.9')}${label}</button>
+    </div>`}
    </div>`;})()}
 
    <div class="qrrow pqr">
@@ -5818,14 +5839,13 @@ function vSettings(){
       <span class="rt"><b>${n}</b><small>${sub}</small></span>
       ${ic('chev','ic sm','var(--ink-3)')}</button>`).join('')}
    </div>
-   <button class="second logout" data-act="logout">Log out</button>
   </div>`;
 }
 
 /* ============================================================
-   PA-2. Check-in and check-out: four settings, nine controls. They cannot all
-   sit on one screen, so each one is a tab and the page shows the setting you
-   are on. It is the page People and Finance already use, so there is nothing
+   PA-2. Check-in and check-out: five settings and their controls. They cannot
+   all sit on one screen, so each one is a tab and the page shows the setting
+   you are on. It is the page People and Finance already use, so there is nothing
    new to learn. It lands on QR code.
 
    NOTHING SAVES. A switch takes effect the instant it is pressed, and these
@@ -5835,13 +5855,15 @@ function vSettings(){
    The controls are named apart from the page that holds them: a tab panel is a
    container, not a component, and the thing being designed is what is inside it.
    ============================================================ */
-const sw=on=>`<span class="fcm-switch" role="switch" aria-checked="${!!on}"></span>`;
+const sw=(on,name,desc)=>`<span class="fcm-switch" role="switch" aria-checked="${!!on}"${
+  name?` aria-label="${name}"`:''}${desc?` aria-describedby="${desc}"`:''}></span>`;
 /* two lines and a switch */
 const srow2=o=>`<button class="srow two" data-act="${o.act}">
-  <span class="st"><b>${o.n}</b><small>${o.s}</small></span>${sw(o.on)}</button>`;
+  <span class="st"><b>${o.n}</b><small>${o.s}</small></span>${sw(o.on,o.n,o.desc)}</button>`;
 /* No dimmed state. Nothing in this product is drawn disabled: a control a
    director cannot use is a note, not a control, so it does not appear. */
-const prow=o=>`<button class="prow" role="radio" aria-checked="${!!o.on}" data-act="${o.act}">
+const prow=o=>`<button class="prow" role="radio" aria-checked="${!!o.on}" data-act="${o.act}"${
+  o.desc?` aria-describedby="${o.desc}"`:''}>
   <span class="rad${o.on?' on':''}"></span>
   <span class="pt"><b>${o.n}</b>${o.s?`<small>${o.s}</small>`:''}</span></button>`;
 /* a card of rows. Pass a label and the card becomes the radiogroup its prows
@@ -5856,35 +5878,82 @@ const warnbox=t=>`<div class="warnbox"><span class="wb-i">${ic('alert','ic','cur
 /* When the switch is off there is nothing to choose between, so the choices
    are not there. They are not drawn greyed out: nothing in this product is
    shown disabled, and a dimmed radio still reads as a thing you could press. */
+/* a health question is a checkbox and not a radio: a centre can ask all three */
+const crow=(n,i)=>`<button class="prow" role="checkbox" aria-checked="${!!CIO.hq[i]}" data-act="ciohq:${i}">
+  <span class="cbx${CIO.hq[i]?' on':''}">${CIO.hq[i]?ic('check','ic sm','#fff','2.6'):''}</span>
+  <span class="pt"><b>${n}</b></span></button>`;
+/* Who should be notified: the boxed row the register and the parent card
+   select with, so a chosen name is unmistakable, wrapped so the group has no
+   rule between it and the switch it belongs to. */
+const nrow=(rule,key,n)=>{const on=CIO.not[rule][key];
+  return `<div class="optrow${on?' on':''}" role="checkbox" aria-checked="${on}" data-act="cionot:${rule}:${key}">
+   <span class="cbx${on?' on':''}">${on?ic('check','ic sm','#fff','2.6'):''}</span>
+   <span class="kr-t"><b>${n}</b></span></div>`;};
+const notify=rule=>`<div class="optwrap"><span class="lhead">Who should be notified?</span>
+  ${nrow(rule,'dir','Director')}${nrow(rule,'teach','Room teacher')}</div>`;
+/* The band: the card's own width, above the card it belongs to. role="status"
+   announces it when a choice brings it up, and the control that brought it up
+   points at it with aria-describedby. */
+const band=(t,bid)=>`<div class="band warn" role="status"${bid?` id="${bid}"`:''}>
+  <span class="bn-i">${ic('alert','ic sm','currentColor','1.9')}</span><p>${t}</p></div>`;
+
 const qrBody=()=>
-  scard([srow2({n:'Require a QR code',s:'Parents scan the room code.',on:CIO.qr,act:'ciotog:qr'}),
+  (CIO.qr&&CIO.rot===2?band('A fixed code can be photographed and used from anywhere. Your licence '
+    +'may require a code that rotates.','bn-qr'):'')
+ +scard([srow2({n:'Require a QR code',s:'Parents scan a code at the centre to check in',on:CIO.qr,act:'ciotog:qr'}),
          ...(CIO.qr?[`<span class="lhead">How the code rotates</span>`,
          `<div role="radiogroup" aria-label="How the code rotates">
-           ${prow({n:'Every scan',on:CIO.rot===0,act:'ciorad:rot:0'})}
-           ${prow({n:'Every day',s:'Yesterday\u2019s stops overnight.',on:CIO.rot===1,act:'ciorad:rot:1'})}
-           ${prow({n:'Never',s:'One fixed code, printed once.',on:CIO.rot===2,act:'ciorad:rot:2'})}
-          </div>`]:[])])
- +(!CIO.qr?`<p class="sh-note" style="margin:12px 2px 0">Parents check in without scanning anything.</p>`
-   :CIO.rot===2?warnbox('<b>A static code can be photographed.</b> A picture of it checks a child in from anywhere.'):'');
+           ${prow({n:'Every scan',s:'A new code after every scan',on:CIO.rot===0,act:'ciorad:rot:0'})}
+           ${prow({n:'Every day',s:'A new code each morning',on:CIO.rot===1,act:'ciorad:rot:1'})}
+           ${prow({n:'Never',s:'One code forever',on:CIO.rot===2,act:'ciorad:rot:2',desc:CIO.rot===2?'bn-qr':null})}
+          </div>`]:[])]);
 
+/* One switch, off or on, both ends of the day. There is no check-out only
+   choice: the requirement does not ask for one, and a signature that proves
+   collection but not handover proves half the day. */
 const sigBody=()=>
-  scard([srow2({n:'Require a signature',s:'Whoever drops off or collects signs on the device.',on:CIO.sig,act:'ciotog:sig'}),
-         ...(CIO.sig?[`<span class="lhead">When it is taken</span>`,
-         `<div role="radiogroup" aria-label="When it is taken">
-           ${prow({n:'Check-in and check-out',s:'Both ends of the day.',on:CIO.when==='both',act:'ciorad:when:both'})}
-           ${prow({n:'Check-out only',s:'Collection is the one that has to be proved.',on:CIO.when==='out',act:'ciorad:when:out'})}
-          </div>`]:[])])
- +(CIO.sig?'':`<p class="sh-note" style="margin:12px 2px 0">Nobody signs, at either end of the day. Turn this on to choose when the signature is taken.</p>`);
+  (CIO.sig?band('If a signature cannot be collected, the check-in goes through and it is captured '
+    +'later in the Signature Module.','bn-sig')
+   :band('The authorized contact is still recorded at both ends of the day. Only the '
+    +'signature image is not taken.','bn-sigoff'))
+ +scard([srow2({n:'Require a signature',
+                s:'Parent signature is taken at check-in and check-out',on:CIO.sig,
+                act:'ciotog:sig',desc:CIO.sig?'bn-sig':'bn-sigoff'})]);
 
+/* The health screen is asked at check-in and never at collection. All three
+   questions are checkboxes, because a centre can ask any of them. */
+const healthBody=()=>
+  scard([srow2({n:'Require a health screen',
+                s:'Parent needs to confirm health screening during check in',on:CIO.health,
+                act:'ciotog:health'}),
+         ...(CIO.health?[`<span class="lhead">What is asked</span>`,
+           crow('Any fever in the last 24 hours?',0),
+           crow('Any new cough, sore throat, vomiting or diarrhea?',1),
+           crow('Any medication given today the room should know about?',2)]:[])]);
+
+/* Two rules is a yes or no, so it is a switch like the other four. The third
+   rule, the one based on staff in the room, is not drawn at all: a control
+   nobody can choose is a note to us, not a setting for a director, and
+   nothing in this product is shown disabled. */
 const ratioBody=()=>
-  scard([prow({n:'Block it',s:'Nobody gets in who would put the room out of ratio.',on:CIO.ratio===0,act:'ciorad:ratio:0'}),
-         prow({n:'Allow all scheduled',s:'Anyone booked for today gets in. You are told after.',on:CIO.ratio===1,act:'ciorad:ratio:1'})],
-        'Ratio at check-in');
+  scard([srow2({n:'Require a ratio check',
+                s:'A child cannot check in if the room would go over ratio',on:CIO.ratio,
+                act:'ciotog:ratio'}),
+         ...(CIO.ratio?[notify('ratio')]:[])]);
 
+/* late and unscheduled are the two arrivals, each with the notify list the
+   page asks for: who is told when one happens. */
 const arrBody=()=>
-  scard([srow2({n:'Allow late arrivals',s:'Off, a parent cannot finish check-in after 9:00 AM.',on:CIO.late,act:'ciotog:late'}),
-         srow2({n:'Allow unscheduled arrivals',s:'A child not booked for today can still be checked in.',on:CIO.unsched,act:'ciotog:unsched'})])
- +(CIO.late?'':warnbox('A late parent will see <b>\u201cCheck-in is closed. We have notified the staff, please wait.\u201d</b> and staff finish it.'));
+  (!CIO.late?band('A parent arriving after 9:00 AM sees &ldquo;Check-in is closed. We have told '
+    +'the staff, please wait.&rdquo;','bn-arr')
+   :!CIO.unsched?band('A parent of a child not booked for today sees &ldquo;Not scheduled for this '
+    +'day. We have told the staff, please wait.&rdquo;','bn-uns'):'')
+ +scard([srow2({n:'Allow late arrivals',s:'A parent can check in after 9:00 AM',on:CIO.late,
+                act:'ciotog:late',desc:CIO.late?null:'bn-arr'}),
+         ...(CIO.late?[notify('late')]:[]),
+         srow2({n:'Allow unscheduled arrivals',s:'A child not booked for today can check in',
+                on:CIO.unsched,act:'ciotog:unsched',desc:CIO.unsched?null:'bn-uns'}),
+         ...(CIO.unsched?[notify('unsched')]:[])]);
 
 /* The tab carries the SHORT label, the way the feature set writes it: QR, not
    QR code, and Ratio, not Ratio at check-in. The long name is the setting's
@@ -5896,15 +5965,17 @@ const allRow=(tab,n,sub,val)=>`<button class="arow2" data-act="ciotab:${tab}">
   <span class="at"><b>${n}</b><small>${sub}</small></span>
   <span class="av2">${val}${ic('chev','ic sm','currentColor','2')}</span></button>`;
 const allBody=()=>scard([
-  allRow('qr','QR code',CIO.qr?(CIO.rot===0?'New code every scan':CIO.rot===1?'A new code every day':'One fixed code, printed once'):'Parents are not asked to scan',CIO.qr?'On':'Off'),
-  allRow('sig','Signature',CIO.sig?(CIO.when==='both'?'Taken at check-in and check-out':'Taken at check-out only'):'Nobody signs',CIO.sig?'On':'Off'),
-  allRow('ratio','Ratio at check-in',CIO.ratio===0?'Nobody gets in who would break it':'Anyone booked for today gets in',CIO.ratio===0?'Blocked':'Scheduled'),
-  allRow('arr','Arrivals',[CIO.late?'Late':'',CIO.unsched?'unscheduled':''].filter(Boolean).join(' and ')
-    ? `${[CIO.late?'Late':'',CIO.unsched?'unscheduled':''].filter(Boolean).join(' and ')} allowed` : 'Neither is allowed',
+  allRow('qr','QR code',CIO.qr?(CIO.rot===0?'New code for every scan':CIO.rot===1?'A new code each morning':'One code forever'):'Parents are not asked to scan',CIO.qr?'On':'Off'),
+  allRow('sig','Signature',CIO.sig?'Taken at check-in and check-out':'Parent signature is not required',CIO.sig?'On':'Off'),
+  allRow('health','Health screen',CIO.health?`${CIO.hq.filter(Boolean).length} questions at check-in`:'No health screen is asked',CIO.health?'On':'Off'),
+  allRow('ratio','Ratio',CIO.ratio?'A room cannot go over ratio':'Ratio check is not required',CIO.ratio?'On':'Off'),
+  allRow('arr','Arrivals',CIO.late&&CIO.unsched?'Late arrivals and unscheduled arrivals are allowed'
+    :CIO.late?'Late arrivals are allowed':CIO.unsched?'Unscheduled arrivals are allowed':'Neither is allowed',
     CIO.late||CIO.unsched?'On':'Off')]);
 
-const CIOTABS=[['all','All'],['qr','QR'],['sig','Signature'],['ratio','Ratio'],['arr','Arrivals']];
-const CIOBODY={all:allBody,qr:qrBody,sig:sigBody,ratio:ratioBody,arr:arrBody};
+const CIOTABS=[['all','All'],['qr','QR'],['sig','Signature'],['health','Health'],
+               ['ratio','Ratio'],['arr','Arrivals']];
+const CIOBODY={all:allBody,qr:qrBody,sig:sigBody,health:healthBody,ratio:ratioBody,arr:arrBody};
 function vCheckinSettings(){
   const t=S.cioTab;
   /* On a desktop the four settings are the page's own tabs, and the panel sits
@@ -7653,6 +7724,12 @@ function doAct(a){
       render(true);break;
     /* a parent doing both children at once gets the same bulk sheet and the
        same clock a director does — scoped to their own */
+    /* Several children, so the card asks who before it checks anyone in. The
+       picker opens with everyone who can go that way already ticked. */
+    case 'pwho': case 'pwhoout':
+      S.pselecting=true;S.psel.clear();
+      myKids().forEach(k=>{if(cmd==='pwho'?k.status!=='here':k.status==='here')S.psel.add(k.id);});
+      render();break;
     case 'pselmode': S.pselecting=true;S.psel.clear();render();break;
     case 'pselall': myKids().forEach(k=>S.psel.add(k.id));render();break;
     case 'pselnone': S.psel.clear();render();break;
@@ -8002,12 +8079,14 @@ function doAct(a){
     case 'ciotab': S.cioTab=arg;render();break;
     case 'ciotog':{CIO[arg]=!CIO[arg];
       toast(`${CIO[arg]?'On':'Off'} \u00b7 saved`);render(true);break;}
+    case 'ciohq':{CIO.hq[+arg]=!CIO.hq[+arg];toast('Saved');render(true);break;}
+    case 'cionot':{const [rule,who]=arg.split(':');
+      CIO.not[rule][who]=!CIO.not[rule][who];toast('Saved');render(true);break;}
     case 'ciorad':{const [k,v]=arg.split(':');
       CIO[k]=/^\d+$/.test(v)?+v:v;
       /* picking how the code rotates means the code is required, and picking
          when a signature is taken means one is taken */
       if(k==='rot')CIO.qr=true;
-      if(k==='when')CIO.sig=true;
       toast('Saved');render(true);break;}
     case 'logout': doLogout();break;
     case 'soon': toast(esc(arg));break;
