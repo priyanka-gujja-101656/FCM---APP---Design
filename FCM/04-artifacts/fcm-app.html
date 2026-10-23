@@ -4998,8 +4998,12 @@ function vTeacherHome(){
 function vMore(){
   /* each group renders only if the role can reach something inside it, so no
      role is ever shown a heading over an empty card */
-  const grp=(label,rows)=>{const r=rows.filter(Boolean).join('');
-    return r?`${label?`<div class="flabel">${label}</div>`:''}<div class="card list tight hub">${r}</div>`:'';};
+  /* One card per destination, the way People does it: each of these opens a
+     different part of the product, so stacking them inside one card made four
+     unrelated places read as one list. */
+  const grp=(label,rows)=>{const r=rows.filter(Boolean);
+    return r.length?`${label?`<div class="flabel">${label}</div>`:''}${
+      r.map(x=>`<div class="card list tight hub">${x}</div>`).join('')}`:'';};
   return `${homehead()}<div class="body low">
    ${grp(ROLE.scope==='family'?'My family':CAN.rooms==='all'?'':'My room',[
 
