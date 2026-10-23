@@ -1681,11 +1681,12 @@
   }
 
   @media (max-width:1199px){
-    /* The account belongs beside the page title, not trailing the search field
-       a row below it. It sits inside the actions group in the markup, so flex
-       order cannot lift it out; pinning it to the top right of the header does,
-       and only where the header is two rows. Hide stays with the actions. */
-    .pagehead .pagechrome .avatar{position:absolute;top:20px;right:2px}
+    /* The account and Hide belong beside the page title, not trailing the
+       search field a row below it. They are one element in the markup and sit
+       inside the actions group, so flex order cannot lift them out; pinning
+       them to the top right of the header does, and only where the header is
+       two rows. */
+    .pagehead .pagechrome{position:absolute;top:20px;right:2px}
     /* Pinning the account took it out of the flow, which freed enough width for
        everything else to fold back onto one row and sit underneath it. The
        actions take a row of their own so the two never meet. */
