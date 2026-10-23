@@ -488,6 +488,14 @@
   .tb-title{font-size:17px;letter-spacing:-.014em}
   .tb-sub{font-size:12.5px;margin-top:3px}
   .ghost.tb-inline{min-height:34px;padding:7px 15px;font-size:13.5px;margin:0;width:auto}
+  /* Filters as an icon: only the word goes. The count stays as a dot, so a
+     live filter is still visible without opening the sheet. */
+  .ghost.tb-icon{position:relative;width:36px;min-height:36px;height:36px;padding:0;margin:0;
+    border-radius:999px;display:grid;place-items:center;flex:none}
+  .ghost.tb-icon .tb-dot{position:absolute;top:-3px;right:-3px;min-width:16px;height:16px;
+    border-radius:999px;background:var(--npds-blue-600);color:#fff;font-style:normal;
+    font-size:10px;font-weight:650;display:grid;place-items:center;padding:0 4px}
+  .avatar.tb-av{width:36px;height:36px;font-size:12.5px;flex:none;margin-left:2px}
 
   .head{padding:18px 20px 2px}
   .room-name{font-size:15.5px}
@@ -896,6 +904,14 @@
   .dotsb{width:26px;height:32px;margin-right:-4px}
   /* measured against the teacher app, element by element */
   .ghost.tb-inline{min-height:34px;padding:7px 15px;font-size:13.5px;margin:0;width:auto}
+  /* Filters as an icon: only the word goes. The count stays as a dot, so a
+     live filter is still visible without opening the sheet. */
+  .ghost.tb-icon{position:relative;width:36px;min-height:36px;height:36px;padding:0;margin:0;
+    border-radius:999px;display:grid;place-items:center;flex:none}
+  .ghost.tb-icon .tb-dot{position:absolute;top:-3px;right:-3px;min-width:16px;height:16px;
+    border-radius:999px;background:var(--npds-blue-600);color:#fff;font-style:normal;
+    font-size:10px;font-weight:650;display:grid;place-items:center;padding:0 4px}
+  .avatar.tb-av{width:36px;height:36px;font-size:12.5px;flex:none;margin-left:2px}
   .spine{gap:6px}
   .sp-b{width:38px;height:38px;min-height:38px}
   .sp-f{height:38px;min-height:38px}
@@ -2762,11 +2778,17 @@ function maskBtn(){
   return `<button class="tb-txt" data-act="mask" aria-label="${S.mask?'Show data':'Hide data'}">
     ${ic(S.mask?'eye':'eyeoff','ic sm','currentColor','1.8')}${S.mask?'View':'Hide'}</button>`;
 }
+function tbAvatar(){
+  return `<button class="avatar tb-av" data-act="hmenu:role"
+   aria-label="Account and role">${ROLE.ini}</button>${S.hmenu==='role'?hmenu('role'):''}`;
+}
+/* Switching role and logging out live behind the avatar, so it belongs on
+   every page rather than on Home alone. The kiosk has no account. */
 function topbar(title,sub,right){
   return `<div class="topbar">
    <button class="tb-btn" data-act="back" aria-label="Back">${ic('back','ic sm')}</button>
    <span class="tb-mid"><b class="tb-title">${title}</b>${sub?`<small class="tb-sub">${sub}</small>`:''}</span>
-   <span class="tb-right">${right||''}</span>
+   <span class="tb-right">${right||''}${tbAvatar()}</span>
   </div>`;
 }
 function searchbox(ph){
@@ -3208,6 +3230,11 @@ function filterSheet(title,fields,count,n){
    <button class="sh-x" data-act="close" aria-label="Close">${ic('x','ic sm','var(--ink-2)','2.1')}</button>
    <h3 class="sh-h">${title}</h3>
    ${fields}
+   ${(()=>{const mk=S.sub==='attendance'
+      ?['sheet:more','Bulk select, temporary changes and printing']
+      :S.sub==='capacity'?['sheet:schmore','Add a room, upcoming changes and printing']:null;
+     return mk?`<button class="sh-opt" data-act="${mk[0]}"><b>More actions</b>
+       <small>${mk[1]}</small></button>`:'';})()}
    <div class="fbtns">
     <button class="primary" data-act="close">${ic('filter','ic sm','currentColor','1.9')}Apply filters</button>
     ${count?`<button class="ghost" data-act="clearfilters">Clear all</button>`:''}
@@ -3231,7 +3258,9 @@ const inFilters=()=>{const sh=$('#sheet');
     ['filters','pafilter','schfilter'].includes(sh.dataset.kind));};
 function filtersBtn(screen){
   const c=filterCount(screen);
-  return `<button class="ghost tb-inline" data-act="sheet:filters">Filters${c?' ('+c+')':''}</button>`;
+  return `<button class="ghost tb-icon${c?' on':''}" data-act="sheet:filters"
+   aria-label="Filters${c?', '+c+' applied':''}">${ic('filter','ic sm','currentColor','2')}${
+   c?`<em class="tb-dot">${c}</em>`:''}</button>`;
 }
 /* activity palette: pastel ring and tint, never the interactive blue */
 const PAL={incident:['#F4E3DE','#9A4B39'],accident:['#F4E3DE','#9A4B39'],
@@ -3813,7 +3842,7 @@ function vAttendance(){
    S.selecting
     ? `<button class="ghost tb-inline" data-act="selmode">Cancel</button>`
     : CAN.staff
-    ? `${searchBtn()}${filtersBtn('attendance')}<button class="dotsb" data-act="sheet:more" aria-label="More actions">${ic('dots','ic','var(--ink-3)','1.9')}</button>`
+    ? `${searchBtn()}${filtersBtn('attendance')}`
     : `${searchBtn()}<button class="tb-btn" data-act="sheet:print" aria-label="Print attendance">${ic('print','ic sm')}</button>
        <button class="ghost tb-inline" data-act="selmode">Select</button>`)}
   <div class="body">
@@ -5622,7 +5651,9 @@ function vCapacity(){
      and the subtitle says which one you are in. */
   const tabs='';
   const schSub=`the plan &middot; ${who==='classes'?'classes':who==='children'?'children':'staff'}`;
-  const schFilt=`<button class="ghost tb-inline" data-act="sheet:schfilter">Filters${who==='classes'?'':' (1)'}</button>`;
+  const schFilt=`<button class="ghost tb-icon${who==='classes'?'':' on'}" data-act="sheet:schfilter"
+   aria-label="Filters${who==='classes'?'':', 1 applied'}">${ic('filter','ic sm','currentColor','2')}${
+   who==='classes'?'':'<em class="tb-dot">1</em>'}</button>`;
   /* UC-SCH-04 and 05 live on a child, so the plan has to list children */
   if(who==='children'){
     const kids=KIDS.slice().sort((a,b)=>secName(a).localeCompare(secName(b))||a.name.localeCompare(b.name));
@@ -5635,7 +5666,7 @@ function vCapacity(){
          ${k.tempRoom?`<span class="tagrow"><span class="alg info">${ic('swap','ic sm','currentColor','2')}In ${m(roomName(k.tempRoom))} today</span></span>`:''}</span>
         ${ic('chev','ic sm','var(--ink-3)')}</button>`;});
     return `${topbar('Scheduling',schSub,
-      schFilt+`<button class="dotsb" data-act="sheet:schmore" aria-label="More actions">${ic('dots','ic','var(--ink-3)','1.9')}</button>`)}
+      schFilt)}
     <div class="body">${planBand()}
      <div class="flabel">${KIDS.length} children in the plan</div>
      <div class="card list">${out}</div></div>`;
@@ -5643,7 +5674,7 @@ function vCapacity(){
   /* UC-SCH-06 and 07 live on a staff member */
   if(who==='staff'){
     return `${topbar('Scheduling',schSub,
-      schFilt+`<button class="dotsb" data-act="sheet:schmore" aria-label="More actions">${ic('dots','ic','var(--ink-3)','1.9')}</button>`)}
+      schFilt)}
     <div class="body">${planBand()}
      <div class="flabel">${STAFF.length} staff in the plan</div>
      <div class="card list">${STAFF.map(x=>`
@@ -5657,7 +5688,7 @@ function vCapacity(){
       ${ic('plus','ic','currentColor','1.9')}Add staff</button></div>`;
   }
   return `${topbar('Scheduling',schSub,
-    schFilt+`<button class="dotsb" data-act="sheet:schmore" aria-label="More actions">${ic('dots','ic','var(--ink-3)','1.9')}</button>`)}
+    schFilt)}
   <div class="body">
    ${planBand()}
    ${ROOMS.length?`
