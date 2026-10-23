@@ -1491,6 +1491,17 @@
     .dtable.att .c-note{width:9%}
     .dtable.att .c-alg{width:13%}
     .dtable.att .c-act{width:16%}
+    /* Scheduling is not the register: five columns, not seven, so it sets its
+       own widths instead of inheriting ones tuned for a different table. */
+    .dtable.att.sch .c-stu{width:34%}
+    .dtable.att.sch .c-room{width:17%}
+    .dtable.att.sch .c-st{width:11%}
+    .dtable.att.sch .c-alg{width:24%}
+    .dtable.att.sch .c-act{width:14%}
+    .dtable.att.sch td{padding:16px}
+    .dtable.att.sch .it-t .pillv{margin-top:7px;display:inline-block;white-space:normal}
+    /* the house target, so a row action is the same size as one on a card */
+    .dtable.att.sch .mini.lbl,.dtable.att.sch .linkbtn{min-height:44px}
     /* the capacity bar the phone's row carries, in the column that owns it */
     .capcell{display:block}
     .capcell b{display:block;font-variant-numeric:tabular-nums}
@@ -5574,26 +5585,27 @@ function vCapacityWide(){
    ${schHead('Add a room','sheet:addroom','Search rooms')}
    <div class="card table-card">
     ${schTabs(who,list.length,ROOMS.length)}
-    <table class="dtable att">
+    <table class="dtable att sch">
      <thead><tr><th class="c-stu">Room</th><th class="c-room">Enrolled</th>
       <th class="c-st">Ratio</th><th class="c-alg">Lead</th>
-      <th class="c-note">Upcoming</th><th class="c-act rt">Action</th></tr></thead>
+      <th class="c-act rt">Action</th></tr></thead>
      <tbody>${list.length?list.map(r=>{const up=upFor(r.id), open=r.cap-r.en,
        lead=planLead(r), none=lead==='Nobody assigned';
+       /* What is coming is about the room, so it rides under the room name
+          where "8 places open" already lives, and it says what the change is
+          rather than only that there is one. That drops the table to five
+          columns and gives every one of them room. */
        return `<tr data-act="planroom:${r.id}">
         <td><span class="it-t"><b>${m(r.name)}</b><small>${m(open)} ${
-          open===1?'place':'places'} open</small></span></td>
+          open===1?'place':'places'} open</small>${up.length
+          ?`<span class="pillv info">${m(up[0].what)}</span>`:''}</span></td>
         <td><span class="capcell"><b>${m(r.en)} of ${m(r.cap)}</b>
           <span class="track"><i style="width:${Math.max(Math.round(r.en/r.cap*100),4)}%"></i></span></span></td>
         <td class="mute">${m(r.ratio)}</td>
-        <td>${none?'<span class="pillv neg">Nobody assigned</span>'
+        <td>${none?`<button class="linkbtn" data-act="cover:${r.id}">Assign a lead</button>`
           :`<span class="mute">${m(lead)}</span>`}</td>
-        <td>${up.length?`<span class="pillv info">Upcoming</span>
-          <small class="upsub">${m(up[0].what)}</small>`:'<span class="mute">None</span>'}</td>
-        <td class="rt"><span class="rowacts">
-          ${none?`<button class="linkbtn" data-act="cover:${r.id}">Assign a lead</button>`:''}
-          <button class="linkbtn" data-act="planroom:${r.id}">Open</button></span></td></tr>`;}).join('')
-      :'<tr><td colspan="6"><div class="empty">No room matches.</div></td></tr>'}</tbody>
+        <td class="rt"><button class="mini lbl sec" data-act="planroom:${r.id}">Open</button></td></tr>`;}).join('')
+      :'<tr><td colspan="5"><div class="empty">No room matches.</div></td></tr>'}</tbody>
     </table>
    </div>
   </div>`;
