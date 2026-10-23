@@ -1681,6 +1681,17 @@
   }
 
   @media (max-width:1199px){
+    /* The account belongs beside the page title, not trailing the search field
+       a row below it. It sits inside the actions group in the markup, so flex
+       order cannot lift it out; pinning it to the top right of the header does,
+       and only where the header is two rows. Hide stays with the actions. */
+    .pagehead .pagechrome .avatar{position:absolute;top:20px;right:2px}
+    /* Pinning the account took it out of the flow, which freed enough width for
+       everything else to fold back onto one row and sit underneath it. The
+       actions take a row of their own so the two never meet. */
+    .body.wide .pagehead .pageacts{flex:1 1 100%}
+  }
+  @media (max-width:1199px){
     /* Note and Allergy are the thinnest columns and are empty on most rows.
        Dropping them below 1200 is what lets the rest fit an iPad without
        scrolling sideways. The header carries a class but the body cells do not,
@@ -2059,13 +2070,12 @@
      word of "The plan, as of Mon, Jun 22" wrapped onto its own line. A real
      basis gives it a floor, and the row wraps the actions underneath instead of
      crushing the title. */
-  .pagehead{flex-wrap:wrap;row-gap:4px}
+  .pagehead{flex-wrap:wrap;row-gap:4px;position:relative}
   /* When the actions do not fit beside the title they take a row of their own.
      Two things make that read as a deliberate second row rather than a mistake:
      the back arrow lines up with the title's first line instead of floating
      beside the subtitle, and the actions span the full width. */
   .pagehead > .tb-btn{align-self:flex-start;margin-top:2px}
-  .pagehead > .pageacts{flex:1 1 auto}
     /* the page's heading lines up with Home in the rail beside it, rather
        than starting a row lower than the nav it sits next to */
     .body.wide .pagehead{padding-top:24px;gap:14px}
