@@ -1324,7 +1324,7 @@
      =========================================================================== */
   .shellwrap{display:contents}
 
-  @media (min-width:768px){
+  @media (min-width:1024px){
     body{overflow:hidden}
     /* The desktop ground is one image, so the hand drawn scene layers step
        aside; the phone and the tablet keep the gradient and the SVG. */
@@ -1890,7 +1890,7 @@
      width:100% is needed because margin:0 auto turns off the stretch the
      column would otherwise get, leaving the card at its content width.
      Nothing new is drawn and the illustration behind it is untouched. */
-  @media (min-width:768px){
+  @media (min-width:1024px){
     /* the wide illustration. The phone's is a tall crop of the same scene;
        stretched across a desktop its hills flatten out, so a landscape cut
        of the same artwork is served instead. Position and size are inherited
@@ -7383,7 +7383,7 @@ const RAIL={
     ['tab','more','More','grid4']
   ]
 };
-const isRail=()=>window.matchMedia('(min-width:768px)').matches;
+const isRail=()=>window.matchMedia('(min-width:1024px)').matches;
 /* The rail collapses to its icons. The choice is the user's, so it is kept. */
 let railMini=(()=>{try{return localStorage.getItem('fcm-rail')==='mini';}catch(e){return false;}})();
 function railToggle(){railMini=!railMini;
