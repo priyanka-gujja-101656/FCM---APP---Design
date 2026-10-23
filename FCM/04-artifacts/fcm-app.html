@@ -1491,6 +1491,11 @@
     .dtable.att .c-note{width:9%}
     .dtable.att .c-alg{width:13%}
     .dtable.att .c-act{width:16%}
+    /* the capacity bar the phone's row carries, in the column that owns it */
+    .capcell{display:block}
+    .capcell b{display:block;font-variant-numeric:tabular-nums}
+    .capcell .track{display:block;width:88px;margin-top:5px}
+    .upsub{display:block;font-size:11.5px;color:var(--ink-3);margin-top:4px}
     .body.wide .rowacts button{white-space:nowrap}
     .body.wide .cbx{width:20px;height:20px;min-width:20px;border-radius:6px!important;flex:none;
       box-shadow:inset 0 0 0 1.6px var(--npds-gray-500);background:transparent;
@@ -1926,6 +1931,22 @@
        below, and they line up with the table's own cells rather than sitting
        4px off the card's edge. */
     .body.wide .table-card .htabs{margin:18px 0 14px;padding:0 20px}
+    /* Settings as two cards: the sections, and the section you are in. The
+       rows inside keep .scard, which draws the hairlines between them, and
+       lose only the card they sit on, so this is one card and not two. */
+    .body.wide .twocol{display:flex;gap:18px;width:100%;min-width:0;align-items:flex-start;margin-top:14px}
+    .body.wide .setcard{width:268px;flex:none;padding:8px}
+    .body.wide .setrow{display:block;width:100%;text-align:left;border:0;background:none;font:inherit;
+      padding:11px 12px;border-radius:12px;color:var(--ink)}
+    .body.wide .setrow+.setrow{margin-top:2px}
+    .body.wide .setrow-t b{display:block;font-size:14px;font-weight:550;letter-spacing:-.005em}
+    .body.wide .setrow-t small{display:block;font-size:12px;color:var(--ink-3);margin-top:2px;
+      white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .body.wide .setrow.on{background:var(--npds-blue-100)}
+    .body.wide .setrow.on .setrow-t b{color:var(--npds-blue-700);font-weight:600}
+    .body.wide .setbig{flex:1;min-width:0;align-self:flex-start;padding:4px 6px}
+    .body.wide .setbig-b{padding:0 14px 14px}
+    .body.wide .setbig .card.scard{background:none;box-shadow:none;border:0}
     /* a column heading you can sort by. The arrow only shows on the column
        that is doing the sorting, or under the pointer, so the row of headings
        does not turn into a row of arrows. */
@@ -3607,6 +3628,15 @@ function visibleInvoices(){
   return CAN.money?INVOICES:[];
 }
 
+
+/* One bar, carrying what the phone's bar carries. Check in is the filled
+   button; everything else is an outline. */
+const bulkBar = n => `<div class="bulkbar"><b>${n} selected</b>
+  <button class="primary xs" data-act="bulksheet:in">${ic('in','ic sm','currentColor','1.9')}Check in</button>
+  <button class="second xs" data-act="bulksheet:out">${ic('out','ic sm','currentColor','1.9')}Check out</button>
+  <button class="second xs" data-act="bulkabsent">${ic('moon','ic sm','currentColor','1.9')}Mark absent</button>
+  <button class="second xs" data-act="sheet:relocate">${ic('swap','ic sm','currentColor','1.9')}Move room</button>
+  <button class="second xs" data-act="selnone">Clear</button></div>`;
 function vAttendanceWide(){
   const scope=KIDS.filter(k=>inRoom(k.room));
   const q=S.q.trim().toLowerCase();
@@ -3622,7 +3652,10 @@ function vAttendanceWide(){
     data-act="att:${id}">${lbl}<em>${n}</em></button>`;
   const row=k=>{
     const on=S.sel.has(k.id);
-    const act=k.status==='here'
+    /* One child's button next to a bar acting on all of them reads as a choice
+       between the two, so while a selection is live the bar is the only way to
+       check anyone in or out. */
+    const act=S.sel.size?'':k.status==='here'
       ? `<button class="minilbl sec" data-act="checkout:${k.id}">${ic('out','ic sm','currentColor','1.9')}Check out</button>`
       : `<button class="minilbl pri" data-act="checkin:${k.id}">${ic('in','ic sm','currentColor','1.9')}Check in</button>`;
     return `<tr class="${on?'picked2':''}">
@@ -3653,7 +3686,6 @@ function vAttendanceWide(){
      <p class="page-s">${m(CAN.rooms==='all'?'All rooms':roomName(ROLE.room))}</p>
     </div>
     <div class="pageacts">
-     ${S.sel.size?`<button class="primary q" data-act="bulksheet:in">${ic('in','ic sm','var(--npds-blue-700)','1.9')}Check in / out · ${S.sel.size}</button>`:''}
      ${searchbox('Search children')}
      <button class="second q" data-act="sheet:filters">${ic('filter','ic sm','var(--npds-gray-700)','2')}Filters${filterCount('attendance')?' ('+filterCount('attendance')+')':''}</button>
      <button class="second q" data-act="sheet:print">${ic('print','ic sm','var(--npds-gray-700)','1.9')}Print</button>
@@ -3666,10 +3698,7 @@ function vAttendanceWide(){
      ${chip('out','Not in',cnt('out'))}${chip('absent','Absent',cnt('absent'))}
      <span class="tcount">${list.length} of ${scope.length}</span></div>
 
-    ${S.sel.size?`<div class="bulkbar"><b>${S.sel.size} selected</b>
-      <button class="second xs" data-act="bulkabsent">${ic('moon','ic sm','currentColor','1.9')}Mark absent</button>
-      <button class="second xs" data-act="sheet:relocate">${ic('swap','ic sm','currentColor','1.9')}Move room</button>
-      <button class="second xs" data-act="selnone">Clear</button></div>`:''}
+    ${S.sel.size?bulkBar(S.sel.size):''}
     <table class="dtable att">
      <thead><tr>
       <th class="selcol" data-act="${allSel?'selnone':'selall'}"><span class="cbx${allSel?' on':''}">${allSel?ic('check','ic sm','#fff','2.6'):''}</span></th>
@@ -5413,7 +5442,123 @@ const planBand=()=>`<div class="spine">
   <button class="sp-b" data-act="noop" aria-label="Previous">${ic('left','ic')}</button>
   <span class="sp-mid">${ic('cal','ic sm','var(--ink-3)')}<b>Plan as of ${CENTER.date}</b></span>
   <button class="sp-b" data-act="noop" aria-label="Next">${ic('right','ic')}</button></div>`;
+
+/* ---------------------------------------------------------------------------
+   SCHEDULING, WIDE. Classes, Children and Staff are a scope, not three pages,
+   so on the rail they are the card's tabs rather than a line inside Filters.
+   The columns are the same facts the phone's rows carry, given a column each
+   because there is room for one.
+   --------------------------------------------------------------------------- */
+function schHead(addLbl, addAct, ph){
+  return `<div class="pagehead">
+   ${wideBack()}
+   <div>
+    <h2 class="greet-h">Scheduling</h2>
+    <p class="page-s">The plan &middot; as of ${CENTER.date}</p>
+   </div>
+   <div class="pageacts">
+    ${addLbl?`<button class="primary q" data-act="${addAct}">${ic('plus','ic sm','var(--npds-blue-700)','1.9')}${addLbl}</button>`:''}
+    ${searchbox(ph)}
+    <button class="second q" data-act="sheet:schfilter">${ic('filter','ic sm','var(--npds-gray-700)','2')}Filters</button>
+    <span class="pagechrome">${maskBtn()}
+     <button class="avatar" data-act="hmenu:role" aria-label="Account and role">${ROLE.ini}</button>${S.hmenu==='role'?hmenu('role'):''}</span>
+   </div>
+  </div>`;
+}
+function schTabs(who, shown, total){
+  const t=(id,lbl,n)=>`<button class="htab${who===id?' on':''}" role="tab"
+    aria-selected="${who===id}" data-act="schtab:${id}">${lbl}<em>${n}</em></button>`;
+  return `<div class="htabs" role="tablist">${t('classes','Classes',ROOMS.length)}${
+    t('children','Children',KIDS.length)}${t('staff','Staff',STAFF.length)}
+   <span class="tcount">${shown} of ${total}</span></div>`;
+}
+function vCapacityWide(){
+  const who=S.schTab||'classes';
+  const q=S.q.trim().toLowerCase();
+
+  if(who==='children'){
+    const list=KIDS.filter(k=>!q||k.name.toLowerCase().includes(q))
+      .slice().sort((a,b)=>secName(a).localeCompare(secName(b))||a.name.localeCompare(b.name));
+    return `<div class="body wide">
+     ${schHead('','','Search children')}
+     <div class="card table-card">
+      ${schTabs(who,list.length,KIDS.length)}
+      <table class="dtable att">
+       <thead><tr><th class="c-stu">Child</th><th class="c-room">Age</th>
+        <th class="c-st">Class</th>
+        <th class="c-note">Change</th><th class="c-act rt">Action</th></tr></thead>
+       <tbody>${list.length?list.map(k=>`<tr data-act="plankid:${k.id}">
+         <td><span class="it"><span class="av">${m(k.ini)}</span>
+           <span class="it-t"><b>${m(k.name)}</b></span></span></td>
+         <td class="mute">${m(k.age)}</td>
+         <td class="mute">${m(secName(k))}</td>
+         <td>${k.tempRoom?`<span class="pillv info">In ${m(roomName(k.tempRoom))} today</span>`
+           :'<span class="mute">None</span>'}</td>
+         <td class="rt"><span class="rowacts">
+           <button class="linkbtn" data-act="plankid:${k.id}">Open</button></span></td></tr>`).join('')
+        :'<tr><td colspan="5"><div class="empty">No children match.</div></td></tr>'}</tbody>
+      </table>
+     </div>
+    </div>`;
+  }
+
+  if(who==='staff'){
+    const list=STAFF.filter(x=>!q||x.name.toLowerCase().includes(q)||x.role.toLowerCase().includes(q));
+    return `<div class="body wide">
+     ${schHead('Add staff','sheet:addstaff','Search staff')}
+     <div class="card table-card">
+      ${schTabs(who,list.length,STAFF.length)}
+      <table class="dtable att">
+       <thead><tr><th class="c-stu">Staff</th><th class="c-room">Role</th>
+        <th class="c-st">Rooms</th><th class="c-alg">Shift</th>
+        <th class="c-note">Flag</th><th class="c-act rt">Action</th></tr></thead>
+       <tbody>${list.length?list.map(x=>`<tr data-act="planstaff:${x.id}">
+         <td><span class="it"><span class="av">${m(x.ini)}</span>
+           <span class="it-t"><b>${m(x.name)}</b></span></span></td>
+         <td class="mute">${m(x.role)}</td>
+         <td class="mute">${x.rid.length?m(x.rid.map(roomName).join(' and ')):'No room'}</td>
+         <td class="mute">${x.shift?m(x.shift):'Not set'}</td>
+         <td>${x.flag?`<span class="pillv neg">${m(x.flag.rule)}</span>`
+           :'<span class="mute">None</span>'}</td>
+         <td class="rt"><span class="rowacts">
+           <button class="linkbtn" data-act="planstaff:${x.id}">Open</button></span></td></tr>`).join('')
+        :'<tr><td colspan="6"><div class="empty">No staff match.</div></td></tr>'}</tbody>
+      </table>
+     </div>
+    </div>`;
+  }
+
+  const list=ROOMS.filter(r=>!q||r.name.toLowerCase().includes(q));
+  return `<div class="body wide">
+   ${schHead('Add a room','sheet:addroom','Search rooms')}
+   <div class="card table-card">
+    ${schTabs(who,list.length,ROOMS.length)}
+    <table class="dtable att">
+     <thead><tr><th class="c-stu">Room</th><th class="c-room">Enrolled</th>
+      <th class="c-st">Ratio</th><th class="c-alg">Lead</th>
+      <th class="c-note">Upcoming</th><th class="c-act rt">Action</th></tr></thead>
+     <tbody>${list.length?list.map(r=>{const up=upFor(r.id), open=r.cap-r.en,
+       lead=planLead(r), none=lead==='Nobody assigned';
+       return `<tr data-act="planroom:${r.id}">
+        <td><span class="it-t"><b>${m(r.name)}</b><small>${m(open)} ${
+          open===1?'place':'places'} open</small></span></td>
+        <td><span class="capcell"><b>${m(r.en)} of ${m(r.cap)}</b>
+          <span class="track"><i style="width:${Math.max(Math.round(r.en/r.cap*100),4)}%"></i></span></span></td>
+        <td class="mute">${m(r.ratio)}</td>
+        <td>${none?'<span class="pillv neg">Nobody assigned</span>'
+          :`<span class="mute">${m(lead)}</span>`}</td>
+        <td>${up.length?`<span class="pillv info">Upcoming</span>
+          <small class="upsub">${m(up[0].what)}</small>`:'<span class="mute">None</span>'}</td>
+        <td class="rt"><span class="rowacts">
+          ${none?`<button class="linkbtn" data-act="cover:${r.id}">Assign a lead</button>`:''}
+          <button class="linkbtn" data-act="planroom:${r.id}">Open</button></span></td></tr>`;}).join('')
+      :'<tr><td colspan="6"><div class="empty">No room matches.</div></td></tr>'}</tbody>
+    </table>
+   </div>
+  </div>`;
+}
 function vCapacity(){
+  if(isRail()) return vCapacityWide();
   const f=S.capFilter||'all';
   const list=ROOMS.filter(r=>f==='short'?upFor(r.id).length:true);
   const chip=(id,lbl,n)=>`<button class="tp${f===id?' on':''}" data-act="capf:${id}">${lbl} ${n}</button>`;
@@ -5635,6 +5780,30 @@ function vSettings(){
    ['FACTS SIS','Connected \u00b7 last sync 6:02 AM','sync',''],
    ['Roles and access','4 staff accounts','badge',''],
    ['Privacy','Masking, consent and sensitive data','shield','']];
+  /* On a rail the list and the setting you are on fit side by side, so the
+     page is two cards rather than two screens. Only Check-in and check-out is
+     built, so it is the one that opens; the other five behave as they do on
+     the phone. */
+  if(isRail()) return `<div class="body wide">
+   <div class="pagehead">
+    ${wideBack()}
+    <div><h2 class="greet-h">Settings</h2><p class="page-s">${rows[0][0]}</p></div>
+    <div class="pageacts"><span class="pagechrome">${maskBtn()}
+     <button class="avatar" data-act="hmenu:role" aria-label="Account and role">${ROLE.ini}</button>${S.hmenu==='role'?hmenu('role'):''}</span></div>
+   </div>
+   <div class="twocol">
+    <div class="card setcard">
+     ${rows.map(([n,sub,g,act],i)=>`<button class="setrow${i===0?' on':''}"
+       data-act="${i===0?'go:cio':(act||`soon:${n} settings`)}">
+       <span class="setrow-t"><b>${n}</b><small>${sub}</small></span></button>`).join('')}
+    </div>
+    <div class="card table-card setbig">
+     <div class="htabs" role="tablist">${CIOTABS.map(([v,l])=>`<button class="htab${S.cioTab===v?' on':''}"
+       role="tab" aria-selected="${S.cioTab===v}" data-act="ciotab:${v}">${l}</button>`).join('')}</div>
+     <div class="setbig-b"><div class="tabpanel" role="tabpanel">${(CIOBODY[S.cioTab]||allBody)()}</div></div>
+    </div>
+   </div>
+  </div>`;
   return `${topbar('Settings',CENTER.name)}<div class="body setpage">
    <div class="card list tight">
     ${rows.map(([n,sub,g,act],i)=>`<button class="row${i===0?' isnew':''}" data-act="${act||`soon:${n} settings`}">
@@ -5733,17 +5902,9 @@ function vCheckinSettings(){
   const t=S.cioTab;
   /* On a desktop the four settings are the page's own tabs, and the panel sits
      in the column everything else uses. The controls are identical. */
-  if(isRail()) return `<div class="body wide narrow">
-   <div class="pagehead">
-    ${wideBack()}
-    <div><h2 class="greet-h">Check-in and check-out</h2></div>
-    <div class="pageacts"><span class="pagechrome">${maskBtn()}
-     <button class="avatar" data-act="hmenu:role" aria-label="Account and role">${ROLE.ini}</button>${S.hmenu==='role'?hmenu('role'):''}</span></div>
-   </div>
-   <div class="htabs">${CIOTABS.map(([v,l])=>`<button class="htab${t===v?' on':''}" role="tab"
-     aria-selected="${t===v}" data-act="ciotab:${v}">${l}</button>`).join('')}</div>
-   <div class="tabpanel" role="tabpanel">${(CIOBODY[t]||allBody)()}</div>
-  </div>`;
+  /* On a rail this setting lives inside the two-card Settings page, so there
+     is one place it can be, not two. */
+  if(isRail()) return vSettings();
   return `${topbar('Check-in and check-out',CENTER.name)}<div class="body">
    <div class="tabpill scrollpill" role="tablist">
     ${CIOTABS.map(([v,l])=>`<button class="tp${t===v?' on':''}" role="tab" aria-selected="${t===v}"
