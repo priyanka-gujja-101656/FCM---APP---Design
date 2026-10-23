@@ -3976,15 +3976,12 @@ function vParentDay(){
     const act=anyOut?(one?`checkin:${kids[0].id}`:'pwho'):(one?`checkout:${kids[0].id}`:'pwhoout');
     const label=anyOut?(one?`Check ${first(kids[0])} in`:'Check in')
                       :(one?`Check ${first(kids[0])} out`:'Check out');
-    return `<div class="card greet phero${psel?' selecting':' shut'}">
+    return `<div class="card greet phero shut">
     <div class="phead">
      <span class="avstack">${kids.map(k=>`<span class="av">${m(k.ini)}${statusDot(k)}</span>`).join('')}</span>
      <span class="ph-t"><h2>${well}</h2><small>${summary}</small></span>
     </div>
-    ${psel?`<div class="kidrows boxed">
-     ${pselHead()}
-     ${kids.map(k=>pselRow(k)).join('')}
-    </div>`:`<div class="kidrows" style="padding-top:0">
+    ${`<div class="kidrows" style="padding-top:0">
      <button class="primary sm" style="width:100%" data-act="${act}">${
        ic(anyOut?'in':'out','ic sm','currentColor','1.9')}${label}</button>
     </div>`}
@@ -4000,7 +3997,7 @@ function vParentDay(){
    <div class="feedhd"><b>${everyone?'The day so far':who+"'s day so far"}</b>
     <span>${list.length} ${list.length===1?'entry':'entries'}</span></div>
    <div class="pfeed">${list.length?list.map(pcard).join(''):'<div class="empty">Nothing posted in this view yet.</div>'}</div>
-  </div>${S.pselecting&&kids.length>1&&S.psel.size?pselBar():''}`;
+  </div>`;
 }
 /* the parent's card: the staff card plus the category a parent recognises, and
    an acknowledgement where the centre needs to know it was seen */
@@ -6114,6 +6111,24 @@ function scnBanner(k){
 function sheet(kind,arg){
   const sh=$('#sheet');
   let html='', tall=false, form=false, full=false, warm=false;
+  if(kind==='pwho'||kind==='pwhoout'){
+    /* Who are you checking in: the step that replaced the card's select mode.
+       Everyone who can go that way starts ticked, so the common case is one
+       press and the exception is a single untick. The rows are the register's
+       own boxed rows. */
+    const out=kind==='pwhoout';
+    const kids=myKids().filter(k=>out?k.status==='here':k.status!=='here');
+    const n=S.psel.size;
+    html=`<span class="grab"></span>
+      <button class="sh-x" data-act="close" aria-label="Close">${ic('x','ic sm','var(--ink-2)','2.1')}</button>
+      <h3 class="sh-h">Who are you checking ${out?'out':'in'}?</h3>
+      <p class="sh-sub">${kids.length===2?'Both are':'All are'} picked. Untick anyone staying ${out?'longer':'home'}.</p>
+      ${pselHead()}
+      <div class="kidrows boxed">${kids.map(k=>pselRow(k)).join('')}</div>
+      <button class="primary" style="width:100%" data-act="pbulk:${out?'out':'in'}">${
+        ic(out?'out':'in','ic sm','currentColor','1.9')}Continue with ${n}</button>`;
+    form=true;
+  }
   if(kind==='checkin'||kind==='checkout'){
     /* the teacher app's pickup sheet, unchanged: who, then the time, then one button */
     const k=K(arg), out=kind==='checkout';
@@ -7830,13 +7845,14 @@ function doAct(a){
     /* Several children, so the card asks who before it checks anyone in. The
        picker opens with everyone who can go that way already ticked. */
     case 'pwho': case 'pwhoout':
-      S.pselecting=true;S.psel.clear();
+      S.pwhoKind=cmd;S.pselecting=true;S.psel.clear();
       myKids().forEach(k=>{if(cmd==='pwho'?k.status!=='here':k.status==='here')S.psel.add(k.id);});
-      render();break;
+      sheet(cmd);break;
     case 'pselmode': S.pselecting=true;S.psel.clear();render();break;
-    case 'pselall': myKids().forEach(k=>S.psel.add(k.id));render();break;
-    case 'pselnone': S.psel.clear();render();break;
-    case 'psel': S.psel.has(arg)?S.psel.delete(arg):S.psel.add(arg);render();break;
+    case 'pselall': myKids().forEach(k=>S.psel.add(k.id));sheet(S.pwhoKind||'pwho');break;
+    case 'pselnone': S.psel.clear();sheet(S.pwhoKind||'pwho');break;
+    case 'psel': S.psel.has(arg)?S.psel.delete(arg):S.psel.add(arg);
+      S.pselecting?sheet(S.pwhoKind||'pwho'):render();break;
     case 'pbulk':{const out=arg==='out';
       const q=[...S.psel].map(id=>K(id)).filter(Boolean).filter(k=>out?k.status==='here':k.status!=='here');
       if(!q.length){toast(out?'Nobody selected is checked in':'Everyone selected is already in');break;}
