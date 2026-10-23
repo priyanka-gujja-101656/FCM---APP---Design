@@ -1517,7 +1517,12 @@
     .dtable.att.sch td{padding:16px}
     .dtable.att.sch .it-t .pillv{margin-top:7px;display:inline-block;white-space:normal}
     /* the house target, so a row action is the same size as one on a card */
-    .dtable.att.sch .mini.lbl,.dtable.att.sch .linkbtn{min-height:44px}
+    .dtable.att.sch .mini.lbl,.dtable.att.sch .linkbtn{min-height:36px;height:36px}
+  /* Open is one short word, so a pill at its natural width is nearly as tall as
+     it is wide and the two round ends almost meet. A floor on the width keeps a
+     straight section in the middle, and 36px matches the register's buttons
+     instead of the 44 this table used to set on its own. */
+  .dtable.att.sch .mini.lbl{min-width:84px;justify-content:center}
     /* the capacity bar the phone's row carries, in the column that owns it */
     .capcell{display:block}
     .capcell b{display:block;font-variant-numeric:tabular-nums}
@@ -2043,7 +2048,13 @@
       border:1px solid var(--npds-gray-500);color:var(--npds-gray-700)}
     /* the title keeps the free space, or it centres between the back button
        and the actions */
-    .body.wide .pagehead > div:not(.pageacts){margin-right:auto;min-width:0}
+    .body.wide .pagehead > div:not(.pageacts){margin-right:auto;min-width:200px;flex:1 1 200px}
+  /* The title block had min-width:0 and no basis, so it was the only thing in
+     the row that could shrink and the actions squeezed it to nothing: every
+     word of "The plan, as of Mon, Jun 22" wrapped onto its own line. A real
+     basis gives it a floor, and the row wraps the actions underneath instead of
+     crushing the title. */
+  .pagehead{flex-wrap:wrap}
     /* the page's heading lines up with Home in the rail beside it, rather
        than starting a row lower than the nav it sits next to */
     .body.wide .pagehead{padding-top:24px;gap:14px}
