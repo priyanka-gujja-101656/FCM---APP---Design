@@ -1804,10 +1804,19 @@
   /* Who should be notified sits inside the card it belongs to, with no rule
      between it and the switch, so the two read as one setting. */
   .scard > .optwrap{border-top:0;margin-top:-2px;padding:0 14px 14px}
-  .optwrap .lhead{display:block;padding:4px 2px 8px}
-  .optwrap .optrow+.optrow{margin-top:8px}
   .tabpanel .optwrap{padding:0 18px 18px}
-  .tabpanel .optwrap .lhead{padding:6px 2px 10px}
+  /* one bordered list: the question and both names inside it, a hairline
+     between the rows, and nothing drawn around the chosen one but its box */
+  .optwrap .optgrp{border:1px solid var(--line);border-radius:14px;
+    background:rgba(255,255,255,.62);overflow:hidden}
+  /* .tabpanel .lhead is two classes and later in the sheet, so this needs
+     three to beat it rather than relying on order */
+  .optwrap .optgrp .lhead{display:block;padding:13px 15px 9px;font-size:13px;font-weight:400;
+    letter-spacing:0;text-transform:none;color:var(--ink-3)}
+  .optwrap .optrow{border:0;border-radius:0;background:none;margin:0;padding:13px 15px}
+  .optwrap .optrow+.optrow{margin-top:0;border-top:1px solid var(--line)}
+  .optwrap .optrow.on{border:0;background:none;padding:13px 15px}
+  .optwrap .optrow .kr-t b{font-weight:500}
   .tabwrap{flex:none;overflow-x:auto;margin:0 -18px;padding:8px 18px 0;scrollbar-width:none}
   .tabwrap::-webkit-scrollbar{height:0}
   .tabwrap .tabpill{width:max-content}
@@ -5893,8 +5902,9 @@ const nrow=(rule,key,n)=>{const on=CIO.not[rule][key];
   return `<div class="optrow${on?' on':''}" role="checkbox" aria-checked="${on}" data-act="cionot:${rule}:${key}">
    <span class="cbx${on?' on':''}">${on?ic('check','ic sm','#fff','2.6'):''}</span>
    <span class="kr-t"><b>${n}</b></span></div>`;};
-const notify=rule=>`<div class="optwrap"><span class="lhead">Who should be notified?</span>
-  ${nrow(rule,'dir','Director')}${nrow(rule,'teach','Room teacher')}</div>`;
+const notify=rule=>`<div class="optwrap"><div class="optgrp" role="group"
+   aria-label="Who should be notified"><span class="lhead">Who should be notified?</span>
+  ${nrow(rule,'dir','Director')}${nrow(rule,'teach','Room teacher')}</div></div>`;
 /* The band: the card's own width, above the card it belongs to. role="status"
    announces it when a choice brings it up, and the control that brought it up
    points at it with aria-describedby. */
