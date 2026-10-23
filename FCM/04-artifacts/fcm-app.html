@@ -1506,7 +1506,7 @@
     .dtable.att .c-room{width:13%}
     .dtable.att .c-note{width:9%}
     .dtable.att .c-alg{width:13%}
-    .dtable.att .c-act{width:16%}
+    .dtable.att .c-act{width:180px  /* Fixed, not a share. The button and its overflow dots need 177px, and a     percentage gave them 120 at tablet width, so the button was cut off. */}
     /* Scheduling is not the register: five columns, not seven, so it sets its
        own widths instead of inheriting ones tuned for a different table. */
     .dtable.att.sch .c-stu{width:34%}
@@ -1633,7 +1633,12 @@
       color:var(--npds-blue-700);font-weight:550;display:inline-flex;align-items:center}
     .body.wide .act{align-items:center}
     .body.wide .act-t small{white-space:normal}
-    .table-card{overflow:hidden;padding:4px 6px}
+    .table-card{overflow-x:auto;overflow-y:hidden;padding:4px 6px;-webkit-overflow-scrolling:touch}
+  /* A table may want more width than the card gives it. It scrolls inside the
+     card instead of being clipped, so the last column is always reachable.
+     Before this the card hid the overflow and the action buttons could not be
+     reached at any width. */
+  .dtable{min-width:600px}
     .dtable{border-collapse:collapse;width:100%;font-size:12.5px}
     .dtable th{text-align:left;font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);
       font-weight:600;padding:12px 14px;border-bottom:1px solid var(--line);white-space:nowrap}
@@ -1670,6 +1675,14 @@
 
   }
 
+  @media (max-width:1199px){
+    /* Note and Allergy are the thinnest columns and are empty on most rows.
+       Dropping them below 1200 is what lets the rest fit an iPad without
+       scrolling sideways. The header carries a class but the body cells do not,
+       so both are matched by column number. */
+    .dtable.att th:nth-child(6),.dtable.att td:nth-child(6),
+    .dtable.att th:nth-child(7),.dtable.att td:nth-child(7){display:none}
+  }
   @media (min-width:1100px){
     .body{max-width:880px}
     .topbar,.head{max-width:880px}
