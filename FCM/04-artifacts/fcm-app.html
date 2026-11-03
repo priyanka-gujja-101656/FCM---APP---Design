@@ -687,6 +687,12 @@
   .body{padding:10px 16px 20px}
   .body.low{padding-top:30px}
   /* nav */
+  /* an overlay the size of the window, with no filter and no overflow, so the
+     menu positions against the window rather than against the rail and
+     nothing clips it. It lets clicks through except on the menu itself. */
+  #menuportal{position:fixed;inset:0;z-index:60;pointer-events:none}
+  #menuportal:empty{display:none}
+  #menuportal>*{pointer-events:auto}
   .nav{position:relative;z-index:4;flex:none;background:rgba(253,254,251,.84);
     backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);border-top:1px solid rgba(255,255,255,.6);
     padding:13px 8px calc(20px + env(safe-area-inset-bottom));display:grid;
@@ -2134,6 +2140,7 @@
   <div id="app" class="route"></div>
 
   <nav class="nav" id="tabs"></nav>
+  <div id="menuportal"></div>
 
   <div class="scrim" id="scrim"></div>
   <div class="sheet" id="sheet"></div>
@@ -7470,7 +7477,10 @@ function tabs(){
     <span class="nb-t"><b class="has-caret" data-act="hmenu:ctr" role="button" tabindex="0"
       aria-label="Change centre">${CAN.rooms==='one'?roomName(ROLE.room):CENTER.name}
       ${ic('chev','ic sm caret','currentColor','2.4')}</b>
-     <small class="nb-d">${m(CENTER.date)}</small></span>${S.hmenu==='ctr'?hmenu('ctr'):''}</div>`;
+     <small class="nb-d">${m(CENTER.date)}</small></span></div>`;
+  /* the menu is written outside the rail, or the rail's filter and its
+     scrolling would clip it at 212px */
+  $('#menuportal').innerHTML=S.hmenu==='ctr'?hmenu('ctr'):'';
   $('#tabs').innerHTML=brand+rail.map(row=>{
     if(row[0]==='sec') return `<span class="navsec">${railMini?'':row[1]}</span>`;
     const [kind,id,lbl,g]=row;
