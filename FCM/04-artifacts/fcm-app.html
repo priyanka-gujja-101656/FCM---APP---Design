@@ -1353,7 +1353,10 @@
       grid-auto-flow:row;display:flex}
     .nav a{flex-direction:row;justify-content:flex-start;gap:12px;min-height:42px;
       padding:0 12px;border-radius:12px;font-size:var(--d-name);font-weight:500;color:var(--ink-2)}
-    .nav a:hover{background:rgba(255,255,255,.5)}
+    /* Hover fills the same rounded pill the current item uses, inset from the
+       rail's edges, never the full width. Never on the item you are already
+       on. Matches Daybreak's side rail. */
+    .nav a:hover:not(.on){background:#f0f1f2;color:var(--ink)}
     .nav a.on{background:var(--npds-blue-100);font-weight:600}
     /* the icon carries its own tile, so the rail reads by symbol before word */
     .nav a .ic{width:26px;height:26px;padding:4px;border-radius:9px;
