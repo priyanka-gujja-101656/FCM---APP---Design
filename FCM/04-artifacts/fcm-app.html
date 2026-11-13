@@ -1556,6 +1556,9 @@
     .body.wide .datebar{display:inline-flex;align-items:center;gap:4px;border-radius:999px;padding:3px;
       border:1px solid var(--npds-gray-500);background:rgba(255,255,255,.88)}
     .body.wide .datebar .sp-b{width:32px;height:32px;min-height:32px;border:0;background:none}
+    /* the parent's day control is the phone's spine; on a wide column it was
+       throwing its arrows to either edge, so it keeps its own width */
+    .body.low .spine{max-width:320px;margin-left:auto;margin-right:auto}
     .body.wide .datebar .d-lbl{display:inline-flex;align-items:center;gap:8px;padding:0 10px;
       font-size:var(--d-td);font-weight:550;font-variant-numeric:tabular-nums}
     .body.wide .statrow.three{grid-template-columns:repeat(3,1fr)}
@@ -7954,11 +7957,15 @@ const RAIL={
     ['go','myschedule','My schedule','cal'],
     ['tab','more','More','grid4']
   ],
+  /* The rail follows the tab bar: Home is the door and what is waiting,
+     Activities is the day. Reports keeps its rail entry, since a desktop rail
+     has room for it even though the phone's tab bar does not. */
   parent:[
-    ['tab','activities','Today','house'],
+    ['tab','home','Home','house'],
+    ['tab','activities','Activities','pen'],
+    ['tab','messages','Messages','chat'],
     ['sec','My children'],
     ['go','myattendance','Attendance','in'],
-    ['tab','messages','Messages','chat'],
     ['family','f-johnson','My children','child'],
     ['sec','Account'],
     ['acct','f-johnson','Billing','card'],
