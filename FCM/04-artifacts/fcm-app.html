@@ -1559,6 +1559,12 @@
     /* the parent's day control is the phone's spine; on a wide column it was
        throwing its arrows to either edge, so it keeps its own width */
     .body.low .spine{max-width:320px;margin-left:auto;margin-right:auto}
+    /* On a phone the pill spans the column, so its tabs share the width. In a
+       desktop band it is one control among several and has only the room left
+       over: three tabs at 51px each ran "Parents 5" into "Staff 1". Here it
+       sizes to its labels instead. */
+    .body.wide .scopeband .tabpill.fill{width:auto;flex:none}
+    .body.wide .scopeband .tabpill.fill .tp{flex:0 0 auto;padding-left:15px;padding-right:15px}
     .body.wide .datebar .d-lbl{display:inline-flex;align-items:center;gap:8px;padding:0 10px;
       font-size:var(--d-td);font-weight:550;font-variant-numeric:tabular-nums}
     .body.wide .statrow.three{grid-template-columns:repeat(3,1fr)}
