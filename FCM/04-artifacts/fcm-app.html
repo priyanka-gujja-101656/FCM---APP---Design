@@ -75,6 +75,8 @@
   .glyph{width:34px;height:34px;border-radius:11px;background:rgba(255,255,255,.6);display:grid;place-items:center;
     font-family:Newsreader,Georgia,serif;font-size:17px;color:var(--accent);flex:none}
   .ctr-name{display:block;font-size:14px;font-weight:600;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  /* the switcher is a control, so it carries the 24px a tap target needs */
+  .ctr-name.has-caret{display:inline-flex;align-items:center;min-height:24px}
   .ctr-sub{display:block;font-size:11px;color:var(--ink-2);margin-top:2px}
   .hr{display:flex;align-items:center;gap:8px;flex:none}
   .avatar{width:34px;height:34px;border-radius:50%;background:var(--accent);color:#fff;font-size:12px;
@@ -273,7 +275,8 @@
   .daymark{text-align:center;font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3)}
   .bub{max-width:82%;padding:12px 15px;border-radius:19px;font-size:13px;line-height:1.5}
   .bub p{margin:0}
-  .bub .bt{display:block;font-size:10px;margin-top:7px;opacity:.75;font-variant-numeric:tabular-nums}
+  /* .95, not .75: at .75 the time read 3.42:1 on the blue bubble */
+  .bub .bt{display:block;font-size:10px;margin-top:7px;opacity:.95;font-variant-numeric:tabular-nums}
   .bub.in{align-self:flex-start;background:rgba(255,255,255,.78);border-bottom-left-radius:7px;color:var(--ink)}
   .bub.out{align-self:flex-end;background:var(--npds-blue-600);color:#fff;border-bottom-right-radius:7px}
   .composer{position:relative;z-index:4;flex:none;display:flex;gap:10px;align-items:center;padding:10px 16px 14px}
@@ -450,6 +453,45 @@
     font-family:inherit;color:var(--ink);
     box-shadow:0 14px 30px -20px rgba(40,55,38,.42);transition:transform .12s ease}
   .pcard:active{transform:scale(.985)}
+  /* the reaction row: the family's own, and the count everyone reads */
+  /* the reactions sit on the footer line, beside the category tag */
+  .rxrow{display:inline-flex;gap:6px;align-items:center}
+  .pc-f{flex-wrap:wrap;row-gap:8px}
+  .rx{display:inline-flex;align-items:center;gap:5px;min-height:32px;min-width:32px;padding:0 9px;
+    border-radius:999px;justify-content:center;
+    border:1px solid rgba(44,49,43,.16);background:rgba(255,255,255,.6);cursor:pointer;
+    font-family:inherit;font-size:12.5px;font-weight:600;color:var(--ink-2)}
+  .rx.on{border-color:var(--npds-blue-500);background:var(--npds-blue-100);color:var(--npds-blue-700)}
+  .rx b{font-weight:700;font-variant-numeric:tabular-nums}
+  /* the check-in card, one row instead of a 214px block with a QR row under it */
+  .cirow{display:flex;align-items:center;gap:11px;padding:11px 13px;min-height:72px}
+  .cirow .ci-t{flex:1 1 auto;min-width:92px;display:flex;flex-direction:column}
+  .cirow .mini.lbl{flex:none}
+  .cirow .ci-t b{font-size:14.5px;font-weight:600}
+  .cirow .ci-t small{font-size:12px;color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .cirow .avstack{flex:none}
+  /* option 3's stream: what kind of thing each entry is */
+  /* a post, rather than a log line: the author is the face on it */
+  .pcard.post .pc-h{align-items:center}
+  .pcard.post .pav.sm{width:28px;height:28px;border-radius:9px;display:grid;place-items:center;flex:none}
+  .pcard.post .pc-b{font-size:14.5px;line-height:1.5}
+  .pc-right{display:inline-flex;align-items:center;gap:8px;margin-left:auto}
+  .todolist{flex:none}
+  .tdisc{width:38px;height:38px;border-radius:50%;flex:none;display:grid;place-items:center;
+    background:var(--npds-blue-100)}
+  .tdisc.warn{background:rgba(176,138,86,.18)}
+  .row.todo2{display:flex;align-items:center;gap:12px;padding:13px 12px}
+  .row.todo2+.row.todo2{border-top:1px solid var(--line)}
+  .row.todo2 .td-t{flex:1;min-width:0}
+  .row.todo2 .td-t b{display:block;font-size:14px;font-weight:600;line-height:1.3}
+  /* the second line wraps rather than truncating: at 200% zoom an ellipsis
+     ate the due date, which is the part that matters */
+  .row.todo2 .td-t small{display:block;font-size:11.5px;color:var(--ink-2);margin-top:2px}
+  .row.todo2 .mini.lbl{flex:none}
+  .strm{display:inline-flex;align-items:center;gap:6px;font-size:10.5px;font-weight:700;
+    letter-spacing:.07em;text-transform:uppercase;color:var(--ink-2)}
+  /* dose, route and witness read under the narrative, not as part of it */
+  .pc-b.mute{color:var(--ink-2)}
   .pc-h{display:flex;align-items:flex-start;gap:12px}
   .pav{width:44px;height:44px;border-radius:999px;flex:none;display:grid;place-items:center}
   .pav svg{width:21px;height:21px}
@@ -463,6 +505,8 @@
   .ptag{display:inline-flex;align-items:center;height:28px;padding:0 12px;border-radius:999px;
     font-size:12.5px;font-weight:500;white-space:nowrap}
   .phrow{display:flex;gap:9px;margin-top:12px}
+  /* in the feed the photo is the body, so it is bigger than a thumbnail strip */
+  .pcard.post .phrow.big .phb{aspect-ratio:auto;height:104px}
   .phb{flex:1;aspect-ratio:1;border-radius:12px;border:1px dashed #CDD2D8;
     display:grid;place-items:center;background:rgba(255,255,255,.5)}
   .phb.more{font-size:14px;font-weight:600;color:var(--ink-2)}
@@ -1002,10 +1046,15 @@
   .grblock{border-top:1px solid rgba(44,49,43,.09);padding:11px 13px 13px}
   .grp2>.grblock:first-child{border-top:0}
   .grblock>i{font-style:normal;display:block;font-size:11.5px;color:#6E7568;margin-bottom:6px}
-  .grblock>i em{font-style:normal;color:#8D958A}
-  .grblock textarea{width:100%;border:0;background:none;outline:none;resize:none;font-family:inherit;
+  /* 'optional' was #8D958A, 3.09:1 on the sheet. #6F776A clears 4.5:1 and still
+     reads as the quieter half of the label. */
+  .grblock>i em{font-style:normal;color:#6F776A}
+  .grblock textarea,.grblock input{width:100%;border:0;background:none;outline:none;resize:none;font-family:inherit;
     font-size:15px;line-height:1.5;color:var(--ink)}
-  .grblock textarea::placeholder{color:#6E7568}
+  /* a one-line field is only as tall as its text, which leaves it under the
+     24px a tap target needs, so it is padded to the row height the rest use */
+  .grblock input{min-height:30px;padding:0}
+  .grblock textarea::placeholder,.grblock input::placeholder{color:#6E7568}
   .opts{display:flex;flex-direction:column;max-height:242px;overflow:auto;scrollbar-width:none}
   .opts::-webkit-scrollbar{display:none}
   .opt{display:flex;align-items:center;gap:12px;min-height:48px;padding:11px 13px;cursor:pointer;
@@ -1016,6 +1065,13 @@
   .opts{padding:2px}
   .on2{flex:1;font-size:15px;color:var(--ink)}
   .on2 i{font-style:normal;font-size:13px;color:var(--ink-3);margin-left:7px}
+  /* In Messages the subline is a person's name, as long as the child's, so it
+     takes its own line instead of wrapping unevenly beside it. The rows hold
+     their height and the panel scrolls, or a long list squashes them. #6E7568
+     reads 4.22:1 on a selected row's blue, so the compose panel darkens it. */
+  #sheet[data-kind="compose"] .on2 i{display:block;margin-left:0;margin-top:2px;
+    font-size:12px;color:#666D60;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  #sheet[data-kind="compose"] .gpanel .opt{flex:none}
   .segpill2{display:flex;background:rgba(44,49,43,.055);border-radius:999px;padding:5px;gap:3px}
   /* 10px of side padding so no label can sit against its own edge, and the
      selected pill is 5px off the track rather than 4 */
@@ -1053,6 +1109,9 @@
   .ophd{margin:10px 0 2px;font-size:10.5px;font-weight:600;letter-spacing:.09em;
     text-transform:uppercase;color:var(--ink-3)}
   .cfoot2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px}
+  /* a footer with two buttons stacks them, as every other sheet does */
+  .shfoot2.stacked{display:flex;flex-direction:column;gap:9px}
+  .shfoot2.stacked .primary,.shfoot2.stacked .second{width:100%;margin:0}
   .cfoot2 .primary,.cfoot2 .second{margin:0;width:100%}
   .opt.tall2{align-items:flex-start;padding:10px 2px;min-height:0}
   .opt.tall2 .on2{display:block;line-height:1.3;font-size:14.5px}
@@ -1793,10 +1852,13 @@
   .stay{display:flex;align-items:center;gap:12px;font-size:13.5px;line-height:1.5;
     color:var(--text-muted);background:none;border:0;font-family:inherit;text-align:left;
     padding:0;cursor:pointer;width:100%;min-height:44px;margin-top:-11px;margin-bottom:-11px}
-  .cb{width:21px;height:21px;border-radius:6px;flex:none;display:grid;place-items:center;
+  /* These two tokens live on .gate alone, so unscoped they left every checkbox
+     in the app with no border and no fill when ticked: the recipient list, the
+     health screen, all of them. The login card keeps its own version. */
+  .gate .cb{width:21px;height:21px;border-radius:6px;flex:none;display:grid;place-items:center;
     box-shadow:inset 0 0 0 1.5px var(--border-check);background:#fff}
-  .cb.on{background:var(--action-fill);box-shadow:none}
-  .cb svg{width:13px;height:13px}
+  .gate .cb.on{background:var(--action-fill);box-shadow:none}
+  .gate .cb svg{width:13px;height:13px}
   .card.loginc .stackgrp + *:not(.stayband){margin-top:16px}
   .recover{display:flex;margin:16px -16px -16px;padding:0 16px;
     border-top:1px solid var(--border-hairline)}
@@ -2204,6 +2266,8 @@
 
 /* ---------- icons ---------- */
 const I={
+tree:'<path d="M12 21v-4"/><path d="M12 17 7.5 12.5h2.2L6 8.6h2L12 4l4 4.6h2l-3.7 3.9h2.2Z"/>',
+blocks:'<rect x="3.5" y="12.5" width="7.5" height="7.5" rx="1.4"/><rect x="13" y="12.5" width="7.5" height="7.5" rx="1.4"/><rect x="8.2" y="4" width="7.5" height="7.5" rx="1.4"/>',
 person:'<circle cx="12" cy="8" r="3.4"/><path d="M5 20a7 7 0 0 1 14 0"/>',
 chev:'<path d="M9 6l6 6-6 6"/>',
 filter:'<path d="M4 6h16M7 12h10M10 18h4"/>',
@@ -2214,6 +2278,9 @@ clip:'<path d="M20 11.5 12 19.5a4.5 4.5 0 0 1-6.4-6.4l8-8a3 3 0 0 1 4.3 4.3l-8 8
 diaper:'<path d="M4 5h16v5a9 9 0 0 1-8 9 9 9 0 0 1-8-9Z"/><path d="M8 12h8"/>',
 pill:'<rect x="2.6" y="8.6" width="18.8" height="6.8" rx="3.4" transform="rotate(-45 12 12)"/><path d="M8.5 8.5 15.5 15.5"/>',
 flag:'<path d="M5 21V4h9l-1 3 1 3H5"/><path d="M14 4h5v6h-5"/>',
+scan:'<path d="M4 8V5.5A1.5 1.5 0 0 1 5.5 4H8"/><path d="M16 4h2.5A1.5 1.5 0 0 1 20 5.5V8"/><path d="M20 16v2.5a1.5 1.5 0 0 1-1.5 1.5H16"/><path d="M8 20H5.5A1.5 1.5 0 0 1 4 18.5V16"/><path d="M4 12h16"/>',
+heart:'<path d="M12 20s-7.2-4.4-7.2-9.4A4.1 4.1 0 0 1 12 8.2a4.1 4.1 0 0 1 7.2 2.4C19.2 15.6 12 20 12 20Z"/>',
+thumb:'<path d="M7 21V10l4.4-7a2 2 0 0 1 2.9 2.4L13 10h5.4a2 2 0 0 1 2 2.4l-1.3 6.2A2 2 0 0 1 17 21Z"/><path d="M7 10H4v11h3"/>',
 smile:'<circle cx="12" cy="12" r="9"/><path d="M8.5 14.5a4.5 4.5 0 0 0 7 0"/><path d="M9 9.5h.01M15 9.5h.01"/>',
 bandage:'<rect x="2.5" y="8.5" width="19" height="7" rx="3.5" transform="rotate(-45 12 12)"/><path d="M11 11h.01M13 13h.01M13 11h.01M11 13h.01"/>',
 swap:'<path d="M4 8h13l-3-3M20 16H7l3 3"/>',
@@ -2368,10 +2435,10 @@ const KIDS=[
  {id:'c17',who:'Mum',name:'Nora Petrov',     ini:'NP', age:'1 yr', room:'r-toddlerB',fam:'f-petrov',   status:'here',   tin:'8:14 AM', allergy:null,      subsidy:false}];
 
 const FAMILIES=[
- {id:'f-johnson',   name:'Johnson',  contact:'Mike Johnson',    phone:'(901) 555-0181', email:'m.johnson@email.com',    address:'1241 Poplar Ave, Memphis, TN 38104', balance:0,   autopay:true},
- {id:'f-garcia',  name:'Garcia',   contact:'Maria Garcia',   phone:'(901) 555-0192', email:'garcia.fam@email.com', address:'2310 Highland St, Memphis, TN 38111',balance:145, autopay:false},
+ {id:'f-johnson',   contacts:[{n:'Mike Johnson',r:'Father',p:true},{n:'Sarah Johnson',r:'Mother',p:true}],name:'Johnson',  contact:'Mike Johnson',    phone:'(901) 555-0181', email:'m.johnson@email.com',    address:'1241 Poplar Ave, Memphis, TN 38104', balance:0,   autopay:true},
+ {id:'f-garcia',  contacts:[{n:'Maria Garcia',r:'Mother',p:true},{n:'Luis Garcia',r:'Father',p:true},{n:'Rosa Garcia',r:'Grandmother',p:false}],name:'Garcia',   contact:'Maria Garcia',   phone:'(901) 555-0192', email:'garcia.fam@email.com', address:'2310 Highland St, Memphis, TN 38111',balance:145, autopay:false},
  {id:'f-rivera',  name:'Rivera',   contact:'Carlos Rivera',  phone:'(901) 555-0203', email:'rivera@email.com',     address:'8401 Houston Levee, Cordova, TN 38018',balance:0, autopay:true},
- {id:'f-thompson',name:'Thompson', contact:'Kim Thompson',   phone:'(901) 555-0214', email:'thompson.k@email.com', address:'',                                  balance:320, autopay:false},
+ {id:'f-thompson',contacts:[{n:'Kim Thompson',r:'Mother',p:true},{n:'Andre Thompson',r:'Father',p:true},{n:'Linda Ward',r:'Grandmother',p:true}],name:'Thompson', contact:'Kim Thompson',   phone:'(901) 555-0214', email:'thompson.k@email.com', address:'',                                  balance:320, autopay:false},
  {id:'f-schneider',    name:'Schneider',contact:'Kristen Schneider',       phone:'(901) 555-0225', email:'k.schneider@email.com', address:'',                                  balance:0,   autopay:true},
  {id:'f-bennett', name:'Bennett',  contact:'Kyle Bennett',   phone:'(901) 555-0236', email:'k.bennett@email.com',  address:'',                                  balance:0,   autopay:true},
  {id:'f-chen',    name:'Chen',     contact:'Wei Chen',       phone:'(901) 555-0247', email:'chen.family@email.com',address:'',                                  balance:0,   autopay:false},
@@ -2624,6 +2691,123 @@ const THREADS=[
   msgs:[{d:'in',t:'Jaylen will be out today, he has a low fever.',at:'7:15 AM'},
         {d:'out',t:'Thank you for letting us know. He is marked absent for today.',at:'7:22 AM'}]}];
 
+
+/* ---------------------------------------------------------------------------
+   MESSAGING. The sender picks a recipient and the recipient decides the type,
+   so there is no type menu anywhere. Linear: Messages, UC-MSG-01 to 21.
+   --------------------------------------------------------------------------- */
+const MTYPE={note:'Note',msg:'Message',group:'Group Message',class:'Class Message',ann:'Announcement'};
+/* a staff member's room is a name, a child's is an id, and one teacher can
+   hold two rooms, as "Toddlers A/B" does */
+function staffInRoom(sroom,rid){
+  const r=ROOMS.find(x=>x.id===rid);
+  if(!r||!sroom) return false;
+  if(sroom==='All rooms') return true;
+  return sroom.split('/').map(x=>x.trim()).some(x=>x===r.name||r.name.endsWith(x));
+}
+/* Who is with a child at this moment, from the live schedule, so a Note
+   follows a room move and reaches cover. If nobody is, the director does. */
+function withChild(k){
+  const kid=typeof k==='string'?K(k):k;
+  if(!kid) return [];
+  const on=STAFF.filter(s=>s.id!=='s1'&&staffInRoom(s.room,kid.room));
+  return on.length?on:[ST('s1')];
+}
+/* Every child needs one primary contact, and only primary contacts receive
+   what staff send to a family. A Message is the exception: it is addressed. */
+/* Everyone marked primary on a family. A family with no list falls back to
+   the single contact the seed carried. */
+function contactsOf(fid){
+  const f=F(fid); if(!f) return [];
+  return (f.contacts||[{n:f.contact,r:'Contact',p:true}]).filter(c=>c.p);
+}
+function primaryOf(kid){ return contactsOf(kid.fam).map(c=>c.n); }
+const mStatus=t=>t.st||'read';
+
+/* What the current choice has made, in one place: the label on the row, the
+   sentence under it, the button, and who it will reach. */
+/* "Thompson" is a surname; the recipient is the household */
+function famLabel(fid){
+  const f=F(fid); if(!f) return 'The family';
+  const n=f.name||f.contact.split(' ').pop();
+  return /^The /.test(n)?n:('The '+n+(/s$/.test(n)?'':'s'));
+}
+/* the one child, when exactly one is picked, since the audience controls only
+   make sense for a single family */
+function soleKid(){ return compose.kids.size===1&&!String([...compose.kids][0]).startsWith('f:')
+  ?K([...compose.kids][0]):null; }
+function composeAboutLabel(){
+  const c=compose, fam=ROLE.scope==='family';
+  if(!fam){
+    if(!c.rooms.size) return 'Pick a classroom first';
+    const all=composeKids();
+    if(all.length&&c.kids.size===all.length)
+      /* the Room row right above says the full name, so this one does too */
+      return c.rooms.size===1?`Everyone in ${roomName([...c.rooms][0])}`
+        :`Everyone, ${all.length} children`;
+    if(!c.kids.size) return 'Choose';
+    if(c.kids.size===1) return m(K([...c.kids][0]).name);
+    return `${c.kids.size} children`;
+  }
+  const n=c.kids.size;
+  if(!n) return 'Choose';
+  const names=[...c.kids].map(id=>K(id)).filter(Boolean).map(k=>m(k.name.split(' ')[0]));
+  if(n===1) return m(K([...c.kids][0]).name);
+  if(n===2) return names.join(' and ');
+  return `${n} children`;
+}
+/* A Note is not a Messages type any more: it lives on the register. What is
+   left is a Message to a person, a Group Message to a household, a Class
+   Message to a room, and an Announcement. */
+/* Sarah, or Sarah and James, or Sarah, James and Maria. */
+function joinNames(n){ return n.length<2?n[0]||''
+  :n.slice(0,-1).join(', ')+' and '+n[n.length-1]; }
+function composeAudience(){
+  const c=compose, fam=ROLE.scope==='family';
+  if(fam){
+    const kids=[...c.kids].map(id=>K(id)).filter(Boolean);
+    if(!kids.length) return {btn:'Send',type:null};
+    if(c.aud==='teacher'){
+      /* two children can be in two rooms, so "their teacher" is whoever is with
+         each of them, and the button names them rather than guessing one */
+      const names=[...new Set(kids.flatMap(k=>withChild(k).map(x=>m(x.name.split(' ')[0]))))];
+      if(!names.length) return {btn:'Send to their teacher',type:'msg'};
+      return {btn:'Send to '+joinNames(names),type:names.length>1?'group':'msg'};}
+    if(c.aud==='dir') return {btn:'Send to '+m(CENTER.director.split(' ')[0]),type:'msg'};
+    const rooms=[...new Set(kids.map(k=>k.room))];
+    return {btn:rooms.length>1?`Send to ${rooms.length} rooms`:'Send to the room',type:'class'};
+  }
+  const kids=[...c.kids].map(id=>K(id)).filter(Boolean);
+  if(!c.rooms.size||!kids.length) return {btn:'Send',type:null};
+  const fids=new Set(kids.map(k=>k.fam));
+  /* Everyone in the classrooms picked is an announcement to those classes, or
+     to the facility when every classroom is picked. A subset is not: that is a
+     message to the families you chose. */
+  const whole=composeKids().length>0&&c.kids.size===composeKids().length&&fids.size>1;
+  /* One child can be narrowed to particular contacts. Several children reach
+     each family's primary contact, so the button counts families. */
+  if(c.kids.size===1){
+    const t=composeSel().length;
+    return {btn:`Send to ${t} ${t===1?'person':'people'}`,type:t===1?'msg':'group'};}
+  return {btn:`Send to ${fids.size} ${fids.size===1?'family':'families'}`,
+    type:whole?'ann':'group'};
+}
+
+const ST_LBL={unread:'Unread',read:'Read',replied:'Replied',answered:'Answered',sent:'Sent'};
+const ST_CLS={unread:'info',read:'mute',replied:'',answered:'',sent:'mute'};
+/* older threads predate the model, so they are read into it once */
+THREADS.forEach(t=>{
+  if(!t.type) t.type=t.scope==='staff'?'msg':'note';
+  if(!t.st){
+    const mine=t.msgs.some(x=>x.d==='out'), theirs=t.msgs.some(x=>x.d==='in');
+    t.st=t.unread?'unread':(mine&&theirs?'replied':'read');
+  }
+  if(!t.about&&t.sub){
+    const k=KIDS.find(x=>t.sub.includes(x.name));
+    if(k) t.about=k.id;
+  }
+});
+
 /* ---------- state ---------- */
 /* The centre's check-in and check-out policy. A switch takes effect the instant
    it is pressed, so this is the only copy of it: the settings page reads and
@@ -2659,7 +2843,7 @@ function roomLoad(r){
    ratio setting says to block. Allow all scheduled lets it through, because
    the child being unscheduled is the other half of the reason. */
 const isBlocked=k=>scnOf(k)==='blocked'&&CIO.ratio&&roomLoad(k.room).full;
-const S={kpin:'',kioskOpen:false,hmenu:null,tab:(ROLES[roleFromUrl()].tabs[0][0]),sub:null,arg:null,stack:[],cioTab:'all',q:'',mask:false,moveTo:null,relArg:null,finArg:null,voided:{},selecting:false,pselecting:false,psel:new Set(),sel:new Set(),openNote:new Set(),pick:null,pickArg:null,searchOpen:false,day:0,actFilter:new Set(),
+const S={kpin:'',kioskOpen:false,hmenu:null,tab:(roleFromUrl()==='parent'?'home':ROLES[roleFromUrl()].tabs[0][0]),sub:null,arg:null,stack:[],cioTab:'all',q:'',mask:false,moveTo:null,relArg:null,finArg:null,voided:{},selecting:false,pselecting:false,psel:new Set(),sel:new Set(),openNote:new Set(),pick:null,pickArg:null,searchOpen:false,day:0,actFilter:new Set(),
   homeTab:'actions',invFilter:'all',subTab:'mismatches',
   /* Filters hold sets now, not single values. Empty means no filter, which is
      the same as everything — so "nothing ticked" and "all ticked" agree. */
@@ -2685,8 +2869,10 @@ const F=id=>FAMILIES.find(f=>f.id===id);
 const ST=id=>STAFF.find(s=>s.id===id);
 const IN=id=>INVOICES.find(i=>i.id===id);
 const CL=id=>CLAIMS.find(c=>c.id===id);
-const roomName=id=>{const r=ROOMS.find(x=>x.id===id);return r?r.name:'—';};
-const roomShort=id=>{const r=ROOMS.find(x=>x.id===id);return r?(r.short||r.name):'—';};
+/* "No room" rather than a dash: the copy rules allow no em dash anywhere, and
+   a dash tells a reader nothing anyway. */
+const roomName=id=>{const r=ROOMS.find(x=>x.id===id);return r?r.name:'No room';};
+const roomShort=id=>{const r=ROOMS.find(x=>x.id===id);return r?(r.short||r.name):'No room';};
 const kidsIn=id=>KIDS.filter(k=>k.room===id);
 const kidsOf=fid=>KIDS.filter(k=>k.fam===fid);
 const here=list=>list.filter(k=>k.status==='here').length;
@@ -3223,7 +3409,7 @@ function datespine(){
   return `<div class="spine">
    <button class="sp-b" data-act="day:-1" aria-label="Previous day">${ic('left','ic')}</button>
    <span class="sp-mid">${ic('cal','ic sm','var(--ink-3)')}<b>${dayLabel(S.day)}</b></span>
-   <button class="sp-b${S.day>=0?' off':''}" data-act="${S.day>=0?'noop':'day:1'}" aria-label="Next day">${ic('right','ic')}</button>
+   <button class="sp-b" data-act="day:1" aria-label="Next day">${ic('right','ic')}</button>
   </div>`;
 }
 /* Every one of the three day screens gets the same Filters button, and room is
@@ -3321,7 +3507,8 @@ function filtersBtn(screen){
 /* activity palette: pastel ring and tint, never the interactive blue */
 const PAL={incident:['#F4E3DE','#9A4B39'],accident:['#F4E3DE','#9A4B39'],
   behavior:['#F4E3DE','#9A4B39'],medication:['#F4E3DE','#9A4B39'],
-  meal:['#F6EBD9','#8A6A3C'],toilet:['#F6EBD9','#8A6A3C'],
+  /* #8A6A3C read 4.23:1 on this chip; #74582F clears 4.5 */
+  meal:['#F6EBD9','#74582F'],toilet:['#F6EBD9','#74582F'],
   nap:['#E4EBF3','#4A6480'],mood:['#E4EBF3','#4A6480'],
   photo:['#E4EEE7','#3F6354'],kudos:['#E4EEE7','#3F6354'],note:['#E4EEE7','#3F6354'],
   observation:['#E4EEE7','#3F6354']};
@@ -3329,16 +3516,24 @@ const pal=t=>PAL[t]||['rgba(44,49,43,.055)','var(--ink-2)'];
 const TY={incident:{label:'Incident',icon:'alert'},accident:{label:'Accident',icon:'bandage'},
   behavior:{label:'Behavior',icon:'flag'},medication:{label:'Medication',icon:'pill'},
   meal:{label:'Food',icon:'meal'},toilet:{label:'Toilet',icon:'diaper'},
-  nap:{label:'Nap',icon:'zzz'},mood:{label:'Mood',icon:'smile'},
+  nap:{label:'Nap',icon:'zzz'},learning:{label:'Learning',icon:'blocks'},
+  outdoor:{label:'Outdoor play',icon:'tree'},
   photo:{label:'Photo',icon:'img'},kudos:{label:'Kudos',icon:'star'},
-  note:{label:'Observation',icon:'book'},observation:{label:'Note',icon:'doc'}};
+  note:{label:'Observation',icon:'book'},
+  /* older posts carry the retired types, so they still read correctly */
+  mood:{label:'Mood',icon:'smile'},observation:{label:'Observation',icon:'book'}};
 const QUICK=[['photo','Photo'],['meal','Food'],['nap','Nap'],['incident','Incident']];
 /* the teacher's grid of activity types */
 const POST_TYPES=[
   ['note','Observation','book'],['meal','Food','meal'],['nap','Nap','zzz'],
-  ['toilet','Toilet','diaper'],['observation','Note','doc'],['kudos','Kudos','star'],
-  ['medication','Medication','pill'],['behavior','Behavior','flag'],['mood','Mood','smile'],
+  ['toilet','Toilet','diaper'],['learning','Learning','blocks'],['outdoor','Outdoor play','tree'],
+  ['medication','Medication','pill'],['behavior','Behavior','flag'],['kudos','Kudos','star'],
   ['accident','Accident','bandage'],['incident','Incident','alert'],['photo','Photo / Video','camera']];
+/* Learning carries its kind the way Food carries the meal, so circle time and
+   art do not each need a tile of their own. */
+const LEARN_KINDS=['Circle time','Art and crafts','Language and literacy','Maths and numbers',
+  'Science and nature','Music and movement','Dramatic play','Free play','Story time',
+  'Group games','One to one'];
 /* A director posts across rooms, so the room is the first thing the form asks. */
 const TEMPLATES=[
  {id:'t1',name:'Pickup reminder',body:'Hi [Family Name], a quick reminder that [Child Name] needs collecting by [Time] today.'},
@@ -3352,7 +3547,12 @@ const VOID_REASONS=['Issued in error','Duplicate','Family withdrew','Replaced by
 let fin={amount:'',method:'Card',reason:CREDIT_REASONS[0],lines:[],open:null};
 const nextInvId=()=>'inv-'+String(INVOICES.length+12).padStart(3,'0');
 function invBalance(i){ return invTotal(i)-(i.paid||0); }
-let compose={to:new Set(),subject:'',body:'',att:false,open:null,room:null};
+/* About is who it is for, Who sees it is the audience that follows from it.
+   The type is never chosen, it is read off the pair. */
+/* Children is a set: a parent may pick more than one of their own, and staff
+   may pick a few in a room. Everyone in the room is its own flag, because it
+   is an announcement rather than a pile of notes. */
+let compose=freshCompose();
 function toLabel(){
   const n=compose.to.size;
   if(!n) return 'Choose who';
@@ -3366,7 +3566,8 @@ function toLabel(){
    their draft starts in it with everyone already picked. A director is asked. */
 function freshDraft(){
   const d={type:'note',rooms:new Set(),picked:new Set(),open:null,det:'',vis:'parents',sig:false,
-    off:0,mOff:0,t:{h:7,m:32,ap:'AM'},cmode:'h',meal:'Lunch',qty:''};
+    off:0,mOff:0,t:{h:7,m:32,ap:'AM'},cmode:'h',meal:'Lunch',qty:'',kind:'',
+    dose:'',route:'',witness:'',att:false};
   if(CAN.rooms==='one'){d.rooms.add(ROLE.room);kidsIn(ROLE.room).forEach(k=>d.picked.add(k.id));}
   return d;
 }
@@ -3374,6 +3575,16 @@ let draft=freshDraft();
 /* the children a draft can reach: whoever is in the rooms it has chosen, and
    never outside what the role can see */
 function draftKids(){ return KIDS.filter(k=>draft.rooms.has(k.room)&&inRoom(k.room)); }
+/* The sheet is re-rendered on every tap, so anything typed into it has to be
+   read back first or it is lost: the details box, the dose, and the note each
+   child has of their own. */
+function stashLog(){
+  const d=$('#det'); if(d)draft.det=d.value;
+  const dz=$('#dose'); if(dz)draft.dose=dz.value;
+}
+const ROUTES=['By mouth','Topical','Inhaled','Eye or ear','Other'];
+/* The witness is a second pair of eyes, so it is never the person logging it. */
+function witnessList(){ return STAFF.filter(x=>x.ini!==ROLE.ini).map(x=>x.name); }
 function draftCount(){ return draft.picked.size; }
 function draftRoomLabel(){
   if(!draft.rooms.size) return 'Choose';
@@ -3557,13 +3768,16 @@ function acard(a){
   const[f,i]=pal(a.type), t=TY[a.type];
   const thumb=`<span class="phb">${ic('img','ic','#B6BBC2','1.6')}</span>`;
   const thumbs=a.photos?`<div class="phrow">${thumb.repeat(3)}<span class="phb more">+5</span></div>`:'';
-  const act=a.review?`<button class="mini lbl" data-act="review:${a.id}">Review</button>`
-    :a.photos?`<button class="mini lbl" data-act="soon:Opening the album">${ic('camera','ic sm','currentColor','1.8')}View all</button>`:'';
+  /* The card is the button, and these said the same thing again inside it,
+     which is a control nested in a control. They are the card's own label now. */
+  const act=a.review?`<span class="mini lbl">Review</span>`
+    :a.photos?`<span class="mini lbl">${ic('camera','ic sm','currentColor','1.8')}View all</span>`:'';
   return `<div class="pcard" role="button" tabindex="0" data-act="${a.review?'review:'+a.id:'soon:'+a.title}">
     <div class="pc-h"><span class="pav" style="background:${f}">${ic(t.icon,'ic',i,'1.7')}</span>
      <span class="pc-t"><b>${m(a.kid==='Room'?'Whole room':a.kid)}</b><small>${a.room} · ${a.by}</small></span>
      <span class="pc-w">${a.at}</span></div>
     ${thumbs}<p class="pc-b">${a.body}</p>
+    ${a.meta?`<p class="pc-b mute">${a.meta}</p>`:''}
     <div class="pc-f"><span class="pc-tags"><span class="ptag" style="background:${f};color:${i}">${t.label}</span>
      ${a.review?'<span class="ptag" style="background:rgba(176,138,86,.2);color:var(--warn)">Needs sign-off</span>':''}</span>${act}</div>
    </div>`;
@@ -3745,11 +3959,30 @@ function visibleActivities(){
 /* A parent sees the threads they are part of; staff threads are not theirs. */
 function visibleThreads(){
   if(ROLE.scope==='family'){
-    const f=F(ROLE.fam);
-    return THREADS.filter(t=>t.scope==='family'&&f&&t.who===f.contact);
+    const f=F(ROLE.fam), mine=new Set(myKids().map(k=>k.id));
+    return THREADS.filter(t=>t.scope==='family'&&
+      ((f&&t.who===f.contact)||(t.about&&mine.has(t.about))));
   }
-  if(ROLE.scope==='room') return THREADS.filter(t=>!t.rid||inRoom(t.rid));
+  /* A Note or a Class Message is read off the live schedule, so cover and a
+     room move change who sees it. A Message stays with the person it names,
+     which is why it keeps the room it was sent from. */
+  if(ROLE.scope==='room') return THREADS.filter(t=>!threadRoom(t)||inRoom(threadRoom(t)));
   return THREADS;
+}
+/* the group a thread belongs to in the family's list: the child it is about,
+   then the person, then the room, then what came from the centre */
+/* Which room a thread is in now. A Note is about a child, so it follows that
+   child between rooms and sessions; anything else stays where it was sent. */
+function threadRoom(t){
+  if(t.type==='msg') return t.rid;
+  const k=t.about&&K(t.about);
+  return k?k.room:t.rid;
+}
+function msgGroup(t){
+  if(t.about&&K(t.about)) return m(K(t.about).name.split(' ')[0]);
+  if(t.type==='class') return 'Rooms';
+  if(t.type==='ann'||t.type==='group') return 'From the centre';
+  return 'People';
 }
 /* Money: a director sees the centre's, a parent sees their own, a teacher none. */
 function visibleInvoices(){
@@ -3796,12 +4029,12 @@ function vAttendanceWide(){
        :k.status==='absent'?'<span class="mute">Absent</span>'
        :scnOf(k)==='unsched'||scnOf(k)==='blocked'?'<span class="mute">Not scheduled</span>'
        :scnOf(k)==='early'?`<span class="mute">${m(k.from)}</span>`:'<span class="mute">Not in</span>'}</td>
-     <td class="with">${k.status==='here'&&k.who?m(k.who):'<span class="mute">&mdash;</span>'}</td>
+     <td class="with">${k.status==='here'&&k.who?m(k.who):'<span class="mute">None</span>'}</td>
      <td class="mute">${m(roomName(k.room))}</td>
      <td>${k.note?`<button class="notepill${S.openNote.has(k.id)?' on':''}" data-act="notepill:${k.id}"
        aria-expanded="${S.openNote.has(k.id)}">Note${ic('chev','ic xs','currentColor','2.2')}</button>`
-       :'<span class="mute">&mdash;</span>'}</td>
-     <td>${k.allergy?`<span class="pillv alg">${m(k.allergy)}</span>`:'<span class="mute">&mdash;</span>'}</td>
+       :'<span class="mute">None</span>'}</td>
+     <td>${k.allergy?`<span class="pillv alg">${m(k.allergy)}</span>`:'<span class="mute">None</span>'}</td>
      <td class="rt"><span class="rowacts">${act}
        <button class="dotsb quiet" data-act="rowmenu:${k.id}" aria-label="More for ${k.name}">${ic('dots','ic','var(--ink-3)','1.9')}</button></span></td>
     </tr>${k.note&&S.openNote.has(k.id)?`<tr class="noterowtr"><td colspan="8">
@@ -4009,6 +4242,92 @@ function vParentDay(){
    <div class="pfeed">${list.length?list.map(pcard).join(''):'<div class="empty">Nothing posted in this view yet.</div>'}</div>
   </div>`;
 }
+/* ============================================================
+   PARENT HOME AND ACTIVITIES
+   The door and what is waiting live on Home; Activities is its own
+   tab and reads as a feed. Staff screens are untouched.
+   ============================================================ */
+const PFEED=ROLE.id==='parent';
+S.react=S.react||{};          /* id -> the reaction this family left */
+const REACTIONS=[['up','thumb'],['love','heart']];
+/* A seeded count so the row is not always empty on a first look. */
+const RBASE={a1:{love:2},a3:{love:1,up:1},a5:{love:4,up:2},a6:{up:3}};
+function rCount(id,kind){
+  const base=(RBASE[id]||{})[kind]||0;
+  return base+(S.react[id]===kind?1:0);
+}
+/* The family's own reaction. One at a time, tapping the same one takes it off,
+   and staff read the counts rather than who left them. */
+function reactRow(a){
+  return `<span class="rxrow" role="group" aria-label="React to this">
+   ${REACTIONS.map(([kind,icon])=>{const on=S.react[a.id]===kind, n=rCount(a.id,kind);
+     return `<button class="rx${on?' on':''}" data-act="react:${a.id}:${kind}"
+       aria-pressed="${on}" aria-label="${kind==='love'?'Love':'Like'}${n?', '+n:''}">
+      ${ic(icon,'ic sm',on?'var(--npds-blue-700)':'var(--ink-3)','1.9')}${n?`<b>${n}</b>`:''}</button>`;}).join('')}
+  </span>`;
+}
+function pHeroCard(){
+  const kids=myKids(); if(!kids.length) return '';
+  const first=k=>m(k.name.split(' ')[0]);
+  const st=k=>k.status==='here'?'in at '+k.tin:k.status==='absent'?'absent today':'not in yet';
+  const everyone=kids.length>1;
+  const who=everyone?kids.map(first).join(' and '):first(kids[0]);
+  const inn=kids.filter(k=>k.status==='here').length;
+  const summary=inn===kids.length
+    ?`All in \u00b7 ${kids.map(k=>first(k)+' '+k.tin.replace(/ ?[AP]M/,'')).join(' \u00b7 ')}`
+    :kids.map(k=>`${first(k)} ${st(k)}`).join(' \u00b7 ');
+  const anyOut=kids.some(k=>k.status!=='here'), one=kids.length===1;
+  const act=anyOut?(one?`checkin:${kids[0].id}`:'pwho'):(one?`checkout:${kids[0].id}`:'pwhoout');
+  const label=anyOut?(one?`Check ${first(kids[0])} in`:'Check in')
+                    :(one?`Check ${first(kids[0])} out`:'Check out');
+  return `<div class="card greet phero shut">
+   <div class="phead">
+    <span class="avstack">${kids.map(k=>`<span class="av">${m(k.ini)}${statusDot(k)}</span>`).join('')}</span>
+    <span class="ph-t"><h2>All is well with ${who}</h2><small>${summary}</small></span>
+   </div>
+   <div class="kidrows" style="padding-top:0">
+    <button class="primary sm" style="width:100%" data-act="${act}">${
+      ic(anyOut?'in':'out','ic sm','currentColor','1.9')}${label}</button>
+   </div>
+  </div>`;
+}
+/* Anything still waiting on the family, counted once so a badge can read it. */
+/* Only the things a parent has to act on: an accident or an incident to
+   acknowledge, a medication to acknowledge, and money owed. Checking in has
+   its own card above, and a message is a message. One line each. */
+function pTodos(){
+  const out=[];
+  const fn=x=>m(String(x).split(' ')[0]);
+  visibleActivities().filter(a=>NEEDS_ACK(a)&&!S.ack[a.id]).forEach(a=>out.push({
+    icon:a.type==='medication'?'pill':'alert',tone:'warn',
+    t:`${TY[a.type].label} for ${fn(a.kid)}`,
+    when:`${a.at} \u00b7 ${fn(a.by)}`,act:`ack:${a.id}`,go:'Acknowledge'}));
+  const bal=balOf(ROLE.fam);
+  if(bal>0) out.push({icon:'dollar',tone:'',t:`${money(bal)} due`,
+    when:'Due Jun 15',act:'go:acct',go:'Pay'});
+  return out;
+}
+/* A round tinted disc, the way an activity card marks its own kind: amber for
+   anything to acknowledge, blue for money. */
+function tdisc(a){
+  return `<span class="tdisc ${a.tone}">${ic(a.icon,'ic sm',a.tone==='warn'?'var(--warn)':'var(--npds-blue-700)','1.9')}</span>`;
+}
+function pTodoList(){
+  const items=pTodos();
+  if(!items.length) return `<div class="card list"><div class="empty">Nothing needs you right now.</div></div>`;
+  return `<div class="card list todolist">${items.map(a=>`<div class="row todo2">
+    ${tdisc(a)}
+    <span class="td-t"><b>${a.t}</b><small>${a.when||''}</small></span>
+    <button class="mini lbl pri" data-act="${a.act}">${a.go}</button>
+   </div>`).join('')}</div>`;
+}
+function pChips(){
+  const f=S.pfilter||'all';
+  const chip=(id,icon,label)=>`<button class="qr ${f===id?'tinted':'muted'}" data-act="pfilter:${id}"
+    aria-pressed="${f===id}"><i class="qri">${ic(icon,'ic',f===id?'var(--npds-blue-700)':'var(--npds-gray-700)','1.75')}</i>${label}</button>`;
+  return `<div class="qrrow pqr">${chip('all','listCheck','All')}${chip('photos','camera','Photos')}
+   ${chip('meals','meal','Meals')}${chip('sleep','zzz','Sleep')}</div>`;
+}
 /* the parent's card: the staff card plus the category a parent recognises, and
    an acknowledgement where the centre needs to know it was seen */
 function pcard(a){
@@ -4023,13 +4342,92 @@ function pcard(a){
      <span class="pc-w">${a.at}</span></div>
     ${a.photos?`<div class="phrow">${thumb.repeat(3)}<span class="phb more">+5</span></div>`:''}
     <p class="pc-b">${a.body}</p>
+    ${a.meta?`<p class="pc-b mute">${a.meta}</p>`:''}
     <div class="pc-f">
      <span class="pc-tags">${ack?(done
        ? `<span class="ptag" style="background:rgba(78,114,99,.16);color:var(--present)">${ic('check','ic sm','var(--present)','2.4')}Acknowledged</span>`
        : `<button class="mini lbl pri" data-act="ack:${a.id}">Acknowledge</button>`):''}</span>
-     <span class="ptag" style="background:${f};color:${i}">${cat}</span>
+     <span class="pc-right">${PFEED&&!ack?reactRow(a):''}
+      <span class="ptag" style="background:${f};color:${i}">${cat}</span></span>
     </div>
    </div>`;
+}
+/* ---- the three options, each built from the pieces above ---- */
+function pFeedList(){
+  const list=visibleActivities().filter(a=>{
+    const f=S.pfilter||'all'; if(f==='all') return true;
+    if(f==='photos') return a.photos||a.type==='photo';
+    if(f==='meals') return a.type==='meal';
+    if(f==='sleep') return a.type==='nap';
+    return true;});
+  return list;
+}
+function pFeed(){
+  const list=pFeedList();
+  return `${pChips()}
+   <div class="pfeed">${list.length?list.map(pcard).join('')
+     :'<div class="empty">Nothing posted on this day.</div>'}</div>`;
+}
+/* Option 3 reads as a feed rather than a log: the person who wrote it is the
+   face on the post, the photo is the body, and the bar underneath carries the
+   reactions and a way to say something back. */
+function pPost(a){
+  const [f,i]=pal(a.type), t=TY[a.type], cat=PARENT_CAT[a.type]||t.label;
+  const ack=NEEDS_ACK(a), done=S.ack[a.id];
+  const thumb=`<span class="phb">${ic('img','ic','#B6BBC2','1.6')}</span>`;
+  return `<div class="pcard post">
+   <div class="pc-h">
+    <span class="pav" style="background:${f}">${ic(t.icon,'ic',i,'1.7')}</span>
+    <span class="pc-t"><b>${m(a.title.split('\u00b7')[0].trim())}</b>
+     <small>${m(a.kid==='Room'?'Whole room':a.kid.split(' ')[0])} &middot; ${m(a.room)} &middot; ${m(a.by)}</small></span>
+    <span class="pc-w">${a.at}</span></div>
+   <p class="pc-b">${a.body}</p>
+   ${a.meta?`<p class="pc-b mute">${a.meta}</p>`:''}
+   ${a.photos?`<div class="phrow big">${thumb.repeat(3)}<span class="phb more">+5</span></div>`:''}
+   <div class="pc-f">
+    ${ack?(done?`<span class="ptag" style="background:rgba(78,114,99,.16);color:var(--present)">${ic('check','ic sm','var(--present)','2.4')}Acknowledged</span>`
+      :`<button class="mini lbl pri" data-act="ack:${a.id}">Acknowledge</button>`):''}
+    <span class="pc-right">${ack?'':reactRow(a)}
+     <span class="ptag" style="background:${f};color:${i}">${cat}</span></span>
+   </div>
+  </div>`;
+}
+function pStream(){
+  const acts=pFeedList().map(a=>({k:'activity',at:a.at,html:pPost(a)}));
+  const msgs=((S.pfilter||'all')==='all'?visibleThreads():[]).map(t=>{
+    const last=t.msgs[t.msgs.length-1], w=t.with||{name:t.who,role:t.sub};
+    return {k:t.type==='ann'?'From the centre':'Message',at:t.at,
+      html:`<div class="pcard post" role="button" tabindex="0" data-act="thread:${t.id}">
+       <div class="pc-h">
+        <span class="av">${m(w.name.split(' ').map(x=>x[0]).join('').slice(0,2))}</span>
+        <span class="pc-t"><b>${m(w.name)}</b><small>${m(w.role||'')} &middot; ${t.at}</small></span>
+        <span class="pav sm" style="background:var(--npds-blue-100)">${ic('chat','ic sm','var(--npds-blue-700)','1.7')}</span></div>
+       <p class="pc-b">${m(last.t)}</p>
+       <div class="pc-f"><span class="pc-right">
+        <span class="mini lbl">${ic('chat','ic sm','currentColor','1.9')}Reply</span>
+        <span class="ptag" style="background:var(--npds-blue-100);color:var(--npds-blue-700)">${
+          t.type==='ann'?'Announcement':'Message'}</span></span></div></div>`};});
+  const all=[...acts,...msgs];
+  return `${pChips()}
+   <div class="pfeed">${all.length?all.map(x=>x.html).join('')
+     :'<div class="empty">Nothing on this day.</div>'}</div>`;
+}
+function vPOpt(){
+  const feed=PFEED?pStream():pFeed();
+  const todos=pTodos().length;
+  /* Option 1 and 3: Home is the door and what is waiting; Activities is its
+     own tab. Option 2: one page, with the two as a pill. */
+  if(S.tab==='home'){
+    return `${homehead()}<div class="body low">
+     ${pHeroCard()}
+     <div class="feedhd"><b>Needs you</b><span>${todos} ${todos===1?'item':'items'}</span></div>
+     ${pTodoList()}
+    </div>`;
+  }
+  return `${homehead()}<div class="body low">
+   ${datespine()}
+   ${feed}
+  </div>`;
 }
 /* Activities on a desktop: the base app's anatomy, our components. Page header,
    scope band, two tabs, then the feed across the width in two columns. */
@@ -4057,7 +4455,7 @@ function vActivitiesWide(){
     <span class="datebar">
      <button class="sp-b" data-act="day:-1" aria-label="Previous day">${ic('left','ic sm')}</button>
      <span class="d-lbl">${ic('cal','ic sm','var(--ink-3)')}${dayLabel(S.day)}</span>
-     <button class="sp-b${S.day>=0?' off':''}" data-act="${S.day>=0?'noop':'day:1'}" aria-label="Next day">${ic('right','ic sm')}</button>
+     <button class="sp-b" data-act="day:1" aria-label="Next day">${ic('right','ic sm')}</button>
     </span>
     <span class="band-r">
      ${searchbox('Search activities')}
@@ -4162,15 +4560,26 @@ function vMessages(){
    `${searchBtn()}${par?'':filtersBtn('messages')}`)}
   <div class="body">
    ${S.searchOpen?newbtn:''}
-   ${par?'<div class="flabel">Inbox</div>'
+   ${par?''
      :`<div class="tabpill fill">${chip('all','All',scope.length)}${chip('family','Parents',n('family'))}${chip('staff','Staff',n('staff'))}</div>`}
-   <div class="card list">${list.length?list.map(t=>{
-     const w=par&&t.with?t.with:null;      /* who the viewer is talking to */
-     return `<button class="row" data-act="thread:${t.id}">
-     <span class="av">${m(w?w.ini:t.ini)}${t.unread?'<i class="unreaddot"></i>':''}</span>
-     <span class="rt"><b>${m(w?w.name:t.who)}</b><small>${m(w?w.role:t.sub)} · “${m(t.msgs[t.msgs.length-1].t)}”</small></span>
-     <span class="rr"><span class="tm mute">${t.at}</span></span></button>`;}).join('')
-    :'<div class="empty">No messages match.</div>'}</div>
+   ${(()=>{
+     if(!list.length) return '<div class="card list"><div class="empty">No messages match.</div></div>';
+     const mrow=t=>{
+       const w=par&&t.with?t.with:null;   /* who the viewer is talking to */
+       const st=mStatus(t);
+       return `<button class="row" data-act="thread:${t.id}">
+        <span class="av">${m(w?w.ini:t.ini)}${st==='unread'?'<i class="unreaddot"></i>':''}</span>
+        <span class="rt"><b>${m(w?w.name:t.who)}</b><small>${m(w?w.role:t.sub)} · “${m(t.msgs[t.msgs.length-1].t)}”</small></span>
+        <span class="rr">${st==='read'?`<span class="tm mute">${t.at}</span>`
+          :`<span class="pillv ${ST_CLS[st]||''}">${ST_LBL[st]||''}</span>`}</span></button>`;};
+     /* A parent with two children needs to know which child a thread is about,
+        so the list is grouped the way the spec reads: child, person, room,
+        then what came from the centre. Staff keep one list. */
+     if(!par) return `<div class="card list">${list.map(mrow).join('')}</div>`;
+     const order=[...new Set(list.map(msgGroup))];
+     return order.map(g=>`<div class="flabel">${g}</div>
+       <div class="card list">${list.filter(t=>msgGroup(t)===g).map(mrow).join('')}</div>`).join('');
+   })()}
    ${par?'<p class="hint">Replies always reach the room. Your full history stays searchable.</p>':''}
   </div>
   ${S.searchOpen?'':`<div class="fabdock">${newbtn}</div>`}
@@ -4569,7 +4978,7 @@ function vFamily(){
       <span class="pillv ${on?'':'mute'}">${on?'On':'Off'}</span></div>`;
     panel=`<div class="card fieldset">${fr('Autopay',f.autopay?'Enrolled':'Not enrolled',f.autopay?'ok':'')
       +fr('Payment method',d.card?m(d.card):'None on file',d.card?'':'neg')
-      +fr('Charges on',f.autopay?'1st of the month':'—')}</div>`
+      +fr('Charges on',f.autopay?'1st of the month':'Not set')}</div>`
      +`<button class="second" data-act="soon:${f.autopay?'Change the card on file':'Enrol '+f.name+' in autopay'}" style="width:100%">
        ${f.autopay?'Change payment method':'Enable autopay'}</button>`
      +secl('Notifications')
@@ -5899,7 +6308,7 @@ function answerFor(q){
   if(s.includes('staff')||s.includes('cert')||s.includes('credential'))
     return `${alertTotal()} credential alerts. Maria Lopez's state cert and first aid both expired Jul 2025 — she is the one to handle first.`;
   if(s.includes('attendance')||s.includes('here')||s.includes('present'))
-    return `${here(KIDS)} of ${KIDS.length} children are in. Jaylen Thompson is out — his mother messaged about a low fever.`;
+    return `${here(KIDS)} of ${KIDS.length} children are in. Jaylen Thompson is out, his mother messaged about a low fever.`;
   return `I can answer on attendance, billing, subsidy claims, staffing and compliance for ${CENTER.name}. Ask about any of those.`;
 }
 function vSettings(){
@@ -6447,60 +6856,92 @@ function sheet(kind,arg){
       <span style="flex:1"><b>Both</b><small>Email and a message</small></span></button>`;
   } else if(kind==='compose'){
     full=true; form=true;
-    const c=compose;
-    const line=(id,name,sub)=>{const on=c.to.has(id);
-      return `<button class="opt" data-act="cto:${id}">
-       <span class="cb${on?' on':''}">${on?ic('check','ic sm','#FFFDFA','2.8'):''}</span>
-       <span class="on2">${name}${sub?`<i>${sub}</i>`:''}</span></button>`;};
-    /* Who you may write to is who you may see. A parent writes to their own
-       child's room or to the office — never to another family, and never to a
-       staff list. A teacher writes within their room and to the director. */
-    const toPanel=ROLE.scope==='family'
-     ? `<div class="opts">
-      <p class="ophd">Your children's rooms</p>
-      ${myRooms().map(r=>line(r,roomName(r),'Room team')).join('')}
-      <p class="ophd">The office</p>
-      ${line('office','Front Desk','Billing, forms and hours')}
-      ${line('dir',CENTER.director,'Director')}
-     </div>`
-     : `<div class="opts">
-      <p class="ophd">${CAN.rooms==='all'?'Whole rooms':'My room'}</p>
-      ${ROOMS.filter(r=>inRoom(r.id)).map(r=>line(r.id,r.name,kidsIn(r.id).length+' children')).join('')}
-      <p class="ophd">Families</p>
-      ${myKids().map(k=>line(k.id,m(k.name),m(F(k.fam).contact))).join('')}
-      ${CAN.staff?`<p class="ophd">Staff</p>
-      ${STAFF.filter(x=>x.id!=='s1').map(x=>line(x.id,x.name,x.role)).join('')}`
-      :`<p class="ophd">The office</p>${line('dir',CENTER.director,'Director')}`}
-     </div>`;
+    const c=compose, fam=ROLE.scope==='family';
+    /* A Note about a child lives on the register, not here, so a child is not
+       a recipient in Messages. Staff address a family, a room or the centre;
+       a parent addresses their room, a teacher or the director. */
+    const box=(id,name,sub,on)=>`<button class="opt" data-act="cabout:${id}"
+      role="checkbox" aria-checked="${on}">
+      <span class="cb${on?' on':''}">${on?ic('check','ic sm','#FFFDFA','2.8'):''}</span>
+      <span class="on2">${name}${sub?`<i>${sub}</i>`:''}</span></button>`;
+    /* the same control the activity sheet and the filters use */
+    const myRooms=ROOMS.filter(r=>inRoom(r.id));
+    const roomPanel=fopts(myRooms.map(r=>[r.id,r.name,`${kidsIn(r.id).length} enrolled`]),
+      v=>c.rooms.has(v),'croomm',myRooms.length>5,'croomall');
+    const ckids=composeKids();
+    const aboutPanel=fam
+     ? `<div class="opts" role="group">${myKids().map(k=>
+         box(k.id,m(k.name),roomName(k.room),c.kids.has(k.id))).join('')}</div>`
+     : !c.rooms.size ? '<div class="opts"><div class="empty">Pick a classroom first.</div></div>'
+     /* the row names the primary contact only; the rest of the family's
+        contacts are in Select, under Who sees it */
+     : fopts(ckids.map(k=>[k.id,m(k.name),
+         m(primaryOf(k)[0]||'No primary contact')
+         +(c.rooms.size>1?' · '+roomShort(k.room):'')]),
+       v=>c.kids.has(v),'ckidm',ckids.length>5,'ckidall');
+    /* narrowing the contacts only makes sense for one child's family */
+    const seg=(()=>{
+      /* A family with two children had no control at all, so it could only ever
+         reach the room. The choice is the same whatever is picked. */
+      if(fam) return c.kids.size
+        ? [['room','Their room',c.aud!=='teacher'&&c.aud!=='dir'],
+           ['teacher','Their teacher',c.aud==='teacher'],
+           ['dir','Director',c.aud==='dir']] : '';
+      /* Narrowing is for one child. Pick several and it goes to each family's
+         primary contact, which is what the row already says it will do. */
+      const one=c.kids.size===1&&K([...c.kids][0]);
+      return one&&contactsOf(one.fam).length>1
+        ?[['all','Everyone on it',c.aud!=='pick'],['pick','Select',c.aud==='pick']]:'';
+    })();
+    const sent=composeAudience();
     html=`<span class="grab"></span>
-     <div class="sh-row fixed"><h3 class="sh-h flat">New message</h3>
+     <div class="sh-row fixed">
+      <span class="tdot" style="background:var(--npds-blue-100)">${ic('chat','ic','var(--npds-blue-700)','1.7')}</span>
+      <h3 class="sh-h flat">New message</h3>
       <button class="sh-x" data-act="close" aria-label="Close">${ic('x','ic sm','var(--ink-2)','2.1')}</button></div>
      <div class="sbody2">
       <div class="grp2">
-       ${grow('copen:to','To',toLabel(),c.open==='to',!c.to.size,toPanel)}
-       <div class="grow"><div class="gr combo${c.open==='tpl'?' on':''}">
-         <i>Subject</i>
+       ${fam||CAN.rooms==='one'?'':grow('copen:room','Room',composeRoomLabel(),
+          c.open==='room',!c.rooms.size,roomPanel)}
+       ${grow('copen:about',fam?'Children':'For',composeAboutLabel(),c.open==='about',
+          !c.kids.size,aboutPanel)}
+       <div class="grow"><div class="gr combo${!fam&&c.open==='tpl'?' on':''}"><i>Subject</i>
          <input class="gvin" id="csub" type="text" value="${esc(c.subject).replace(/"/g,'&quot;')}"
-           placeholder="What is this about?">
-         <span class="rch${c.open==='tpl'?' up':''}" data-act="copen:tpl" role="button" tabindex="0"
-           aria-label="Pick a template">${ic('chev','ic sm','var(--npds-blue-700)','2.4')}</span></div>
-        ${c.open==='tpl'?`<div class="gpanel"><div class="opts">
-          ${TEMPLATES.map(t=>`<button class="opt tall2" data-act="usetpl:${t.id}">
+           placeholder="Optional">
+         ${fam?'':`<span class="rch${c.open==='tpl'?' up':''}" data-act="copen:tpl" role="button" tabindex="0"
+           aria-label="Pick a template">${ic('chev','ic sm','var(--npds-blue-700)','2.4')}</span>`}</div>
+        ${!fam&&c.open==='tpl'?`<div class="gpanel"><div class="opts" role="radiogroup">
+          ${TEMPLATES.map(t=>`<button class="opt tall2" data-act="usetpl:${t.id}"
+            role="radio" aria-checked="${c.subject===t.name}">
             <span class="on2">${t.name}<i>${t.body.slice(0,46)}</i></span>
-            ${c.subject===t.name?ic('check','ic sm','var(--npds-blue-700)','2.6'):''}</button>`).join('')}</div></div>`:''}
+            ${c.subject===t.name?ic('check','ic sm','var(--npds-blue-700)','2.6'):''}</button>`).join('')}
+         </div></div>`:''}
        </div>
       </div>
       <div class="grp2">
        <div class="grblock"><i>Message</i>
-        <textarea id="cbody" rows="8" placeholder="Write your message">${esc(c.body)}</textarea>
+        <textarea id="cbody" rows="4" placeholder="What would you like to say?">${esc(c.body)}</textarea>
         <div class="inatt2">${c.att
-         ?`<span class="attchip">${ic('clip','ic sm','var(--npds-blue-700)','1.9')}Today\u2019s photo
+         ?`<span class="attchip">${ic('clip','ic sm','var(--npds-blue-700)','1.9')}Today’s photo
            <b data-act="cdetach">${ic('x','ic sm','var(--npds-blue-700)','2.4')}</b></span>`
          :`<button class="attlink" data-act="cattach">${ic('clip','ic sm','var(--npds-blue-700)','1.9')}Attach a photo</button>`}</div></div>
       </div>
+      ${seg?`<div class="grp2"><div class="grblock"><i>Who sees it</i>
+        <div class="segpill2">${seg.map(([v,l,on])=>
+          `<button class="sgp${on?' on':''}" data-act="caud:${v}">${l}</button>`).join('')}</div>
+        ${c.aud==='pick'?`<div class="opts" role="group" style="margin-top:10px">
+          ${composeContacts().map(ct=>{const on=c.sel?c.sel.has(ct.key):true;
+            return `<button class="opt" data-act="ctoggle:${encodeURIComponent(ct.key)}"
+              role="checkbox" aria-checked="${on}">
+             <span class="cb${on?' on':''}">${on?ic('check','ic sm','#FFFDFA','2.8'):''}</span>
+             <span class="on2">${m(ct.n)}<i>${ct.r==='Contact'?'Primary contact':ct.r}</i></span>
+            </button>`;}).join('')}
+         </div>`:''}
+       </div></div>`:''}
      </div>
-     <div class="shfoot2 cfoot2"><button class="second" data-act="savedraft">Save as a draft</button>
-      <button class="primary" data-act="sendmsg">${ic('send','ic','currentColor','1.8')}Send</button></div>`;
+     <div class="shfoot2 stacked">
+      <button class="primary" data-act="sendmsg">${ic('send','ic','currentColor','1.8')}${sent.btn}</button>
+      <button class="second" data-act="savedraft">Save as a draft</button></div>`;
   } else if(kind==='bulk'){
     /* a bulk mark needs a time as much as a single one does — same dial */
     const cnt=S.sel.size, out=S.bulkDir==='out';
@@ -6568,6 +7009,8 @@ function sheet(kind,arg){
     const roomPanel=fopts(ROOMS.filter(r=>inRoom(r.id)).map(r=>[r.id,r.name,`${kidsIn(r.id).length} enrolled`]),
       v=>draft.rooms.has(v),'droomm',ROOMS.filter(r=>inRoom(r.id)).length>5,'droomall');
     const isFood=draft.type==='meal';  /* the director's id for Food */
+    const isLearn=draft.type==='learning';
+    const isMed=draft.type==='medication';
     const kidPanel=draft.rooms.size
       ? fopts(draftKids().map(k=>[k.id,k.name,`${k.age} · ${roomShort(k.room)}`]),
           v=>draft.picked.has(v),'dkidm',draftKids().length>5,'dkidall')
@@ -6591,9 +7034,25 @@ function sheet(kind,arg){
        ${grow('dopen:meal','Meal',draft.meal,draft.open==='meal',false,optPanel(MEALS,draft.meal,'dmeal'))}
        ${grow('dopen:qty','Quantity',draft.qty||'Choose',draft.open==='qty',!draft.qty,optPanel(qtySet(),draft.qty,'dqty'))}
       </div>`:''}
+      ${isLearn?`<div class="grp2">
+       ${grow('dopen:kind','Kind',draft.kind||'Choose',draft.open==='kind',!draft.kind,
+         optPanel(LEARN_KINDS,draft.kind,'dkind'))}
+      </div>`:''}
+      ${isMed?`<div class="grp2">
+       <div class="grblock"><i>Dose</i>
+        <input id="dose" value="${esc(draft.dose)}" placeholder="5 ml" autocomplete="off"></div>
+       ${grow('dopen:route','Route',draft.route||'Choose',draft.open==='route',!draft.route,
+         optPanel(ROUTES,draft.route,'droute'))}
+       ${grow('dopen:wit','Witness',draft.witness||'Choose',draft.open==='wit',!draft.witness,
+         optPanel(witnessList(),draft.witness,'dwit'))}
+      </div>`:''}
       <div class="grp2">
        <div class="grblock"><i>Details <em>optional</em></i>
-        <textarea id="det" rows="3" placeholder="Anything the family should know.">${esc(draft.det)}</textarea></div>
+        <textarea id="det" rows="3" placeholder="Anything the family should know.">${esc(draft.det)}</textarea>
+        <div class="inatt2">${draft.att
+         ?`<span class="attchip">${ic('clip','ic sm','var(--npds-blue-700)','1.9')}1 attached
+           <b data-act="ddetach" role="button" tabindex="0" aria-label="Remove the attachment">${ic('x','ic sm','var(--npds-blue-700)','2.4')}</b></span>`
+         :`<button class="attlink" data-act="dattach">${ic('clip','ic sm','var(--npds-blue-700)','1.9')}Attach a photo or video</button>`}</div></div>
       </div>
       <div class="grp2">
        <div class="grblock"><i>Signature</i>
@@ -7258,6 +7717,51 @@ function sheet(kind,arg){
   $('#scrim').classList.add('on');
   sh.classList.add('on');
 }
+/* Messages picks its recipients the way Post an activity picks its children:
+   several classrooms, then the children inside them, each with the contact the
+   message will actually reach. The two sheets now share the same control. */
+function freshCompose(open){
+  const c={rooms:new Set(),kids:new Set(),aud:null,sel:null,subject:'',body:'',att:false,
+    open:open||null};
+  /* A teacher has one classroom, so there is nothing to choose: it is picked
+     for them with its children, exactly as Post an activity does. */
+  if(CAN.rooms==='one'){c.rooms.add(ROLE.room);kidsIn(ROLE.room).forEach(k=>c.kids.add(k.id));}
+  return c;
+}
+/* The row the sheet opens on: the first one this person actually chooses. */
+function composeFirstRow(){ return (ROLE.scope==='family'||CAN.rooms==='one')?'about':'room'; }
+function composeKids(){ return KIDS.filter(k=>compose.rooms.has(k.room)&&inRoom(k.room)); }
+function composeRoomLabel(){
+  if(!compose.rooms.size) return 'Choose';
+  if(composeIsEveryone()) return 'The whole centre';
+  if(compose.rooms.size===1) return roomName([...compose.rooms][0]);
+  return `${compose.rooms.size} classrooms`;
+}
+/* every classroom, and every child in them: that is an announcement */
+function composeIsEveryone(){
+  const rooms=ROOMS.filter(r=>inRoom(r.id));
+  return CAN.rooms==='all' && compose.rooms.size===rooms.length
+    && composeKids().length>0 && compose.kids.size===composeKids().length;
+}
+/* Who a message to these children actually reaches: every primary contact of
+   every family picked, each one keyed by family so two households with the
+   same first name cannot cancel each other out. */
+function composeContacts(){
+  const seen=new Set(), out=[];
+  [...compose.kids].map(id=>K(id)).filter(Boolean).forEach(k=>
+    contactsOf(k.fam).forEach(c=>{
+      const key=k.fam+'::'+c.n;
+      if(seen.has(key)) return; seen.add(key);
+      out.push({key,n:c.n,r:c.r,fam:k.fam});}));
+  return out;
+}
+/* the ones actually ticked, which is all of them until Select narrows it */
+function composeSel(){
+  const all=composeContacts();
+  if(compose.aud!=='pick'||!compose.sel) return all;
+  const kept=all.filter(c=>compose.sel.has(c.key));
+  return kept.length?kept:all;
+}
 function stashCompose(){
   const su=$('#csub'), bo=$('#cbody');
   if(su)compose.subject=su.value; if(bo)compose.body=bo.value;
@@ -7368,10 +7872,18 @@ function hmenu(kind){
 /* ============================================================
    render + actions
    ============================================================ */
-const TABS=ROLE.tabs;
+/* Option 1 and 3 add Home and drop Reports, which already lives under More.
+   Option 2 keeps one page, so the bar is unchanged apart from Reports. */
+const TABS=PFEED
+  ? [['home','Home','house'],['activities','Activities','pen'],
+     ['messages','Messages','chat'],['more','More','grid4']]
+  : ROLE.tabs;
 /* Every view the system has. What a role may reach is decided by GATE below. */
-const V={home:vHome,rooms:vRooms,people:vPeople,finance:vFinance,more:vMore,
-  room:vRoom,attendance:vAttendance,activities:vActivities,messages:vMessages,thread:vThread,
+const V={home:(PFEED)?vPOpt:vHome,
+  rooms:vRooms,people:vPeople,finance:vFinance,more:vMore,
+  room:vRoom,attendance:vAttendance,
+  activities:(PFEED)?vPOpt:vActivities,
+  messages:vMessages,thread:vThread,
   students:vStudents,child:vChild,families:vFamilies,family:vFamily,staff:vStaff,staffm:vStaffDetail,
   accounts:vAccounts,acct:vAccount,invoices:vInvoices,inv:vInvoice,subsidy:vSubsidy,claim:vClaim,
   myschedule:vMySchedule,myattendance:vMyAttendance,capacity:vCapacity,
@@ -7461,13 +7973,18 @@ function railToggle(){railMini=!railMini;
   try{localStorage.setItem('fcm-rail',railMini?'mini':'full');}catch(e){}
   render();}
 function tabs(){
-  const unread=THREADS.filter(t=>t.unread).length;
+  /* The count was every thread in the centre, which a parent is not party to,
+     and it was pinned to the Rooms tab, which only the director has. It is the
+     viewer's own unread now, on whichever tab leads to their messages. */
+  const unread=visibleThreads().filter(t=>mStatus(t)==='unread').length;
   const rail=isRail()&&RAIL[ROLE.id];
   if(!rail){
     const head=isRail()?`<div class="navbrand"><span class="glyph">F</span>
       <span class="nb-t"><b>${CAN.rooms==='one'?roomName(ROLE.room):CENTER.name}</b></span></div>`:'';
+    const msgTab=TABS.some(x=>x[0]==='messages')?'messages':'home';
     $('#tabs').innerHTML=head+TABS.map(([id,lbl,g])=>{
-      const b=(id==='rooms'&&unread)?`<span class="badge">${unread}</span>`:'';
+      const b=(id===msgTab&&unread)
+        ?`<span class="badge" aria-label="${unread} unread">${unread}</span>`:'';
       return `<a href="#" class="${S.tab===id?'on':''}" data-act="tab:${id}">${b}${ic(g)}${lbl}</a>`;
     }).join('');
     return;
@@ -7488,7 +8005,8 @@ function tabs(){
     if(row[0]==='sec') return `<span class="navsec">${railMini?'':row[1]}</span>`;
     const [kind,id,lbl,g]=row;
     const on=kind==='tab'?(!S.sub&&S.tab===id):here===id;
-    const b=(id==='messages'&&unread)?`<span class="badge">${unread}</span>`:'';
+    const b=(id==='messages'&&unread)
+      ?`<span class="badge" aria-label="${unread} unread">${unread}</span>`:'';
     return `<a href="#" class="${on?'on':''}" data-act="${kind}:${id}" title="${lbl}">${ic(g)}<span class="navlbl">${lbl}</span>${b}</a>`;
   }).join('')
   +`<button class="railtog" data-act="railtog" aria-label="${railMini?'Expand':'Collapse'} the menu">
@@ -7773,7 +8291,7 @@ function doAct(a){
     case 'inv': S.sub='inv';S.arg=arg;render();break;
     case 'claim': S.sub='claim';S.arg=arg;S.subTab='mismatches';render();break;
     case 'thread': S.sub='thread';S.arg=arg;
-      {const t=THREADS.find(x=>x.id===arg); if(t)t.unread=false;}
+      {const t=THREADS.find(x=>x.id===arg); if(t){t.unread=false; if(t.st==='unread')t.st='read';}}
       S.draft='';render();break;
 
     case 'railtog': railToggle();break;
@@ -7811,7 +8329,11 @@ function doAct(a){
     case 'acttab': S.actTab=arg;render();break;
     case 'searchtoggle': S.searchOpen=!S.searchOpen;if(!S.searchOpen)S.q='';render(true);break;
     case 'searchclose': S.searchOpen=false;S.q='';render(true);break;
-    case 'day': S.day=Math.min(0,S.day+Number(arg));render(true);break;
+    /* Today is the last day there is. The button stays live and says so, rather
+       than sitting dimmed, which is what the rest of the app does too. */
+    case 'day':{const n=Math.min(0,S.day+Number(arg));
+      if(n===S.day){toast('Today is the latest day','warn');break;}
+      S.day=n;render(true);break;}
     case 'rowmenu': sheet('rowmenu',arg);break;
     case 'attwho': if(arg==='staff'&&!CAN.staff){toast('Not available for your role');break;}
       S.attWho=arg;S.q='';S.searchOpen=false;
@@ -7900,8 +8422,12 @@ function doAct(a){
       toast(`<b>${firsts.slice(0,-1).join(', ')} and ${firsts[firsts.length-1]}</b> checked ${out?'out':'in'} at ${t}`);
       render(true);break;}
     case 'pfilter': S.pfilter=arg;render(true);break;
+    case 'ptab': S.ptab=arg;render(true);break;
+    /* one reaction per family per activity, and tapping it again takes it off */
+    case 'react':{const [id,kind]=arg.split(':');
+      S.react[id]=S.react[id]===kind?null:kind; render(true);break;}
     case 'ack':{S.ack[arg]=true;const a=ACTIVITIES.find(x=>x.id===arg);
-      toast(`Thank you — the room knows you saw ${a?m(a.title.split('·')[0].trim().toLowerCase()):'it'}`);render(true);break;}
+      toast(`Thank you, the room knows you saw ${a?m(a.title.split('·')[0].trim().toLowerCase()):'it'}`);render(true);break;}
     case 'dir': S.dir=arg;sheet('inout');break;
     case 'pk': S.pick=arg;sheet($('#sheet').dataset.kind||'checkout',S.pickArg);break;
     case 'mclock': CLK='mark';S.markOpen=!S.markOpen;sheet($('#sheet').dataset.kind||'checkout',S.pickArg);
@@ -8125,27 +8651,69 @@ function doAct(a){
     case 'sendinv': S.finArg=arg;sheet('sendinv',arg);break;
     case 'dosendinv': closeSheet();
       toast(arg==='email'?'Invoice emailed':arg==='app'?'Invoice sent in the app':'Invoice emailed and sent in the app');break;
-    case 'newmsg': compose={to:new Set(),subject:'',body:'',att:false,open:'to',room:null};sheet('compose');break;
+    case 'newmsg': compose=freshCompose(composeFirstRow());sheet('compose');break;
     case 'copen': stashCompose();compose.open=compose.open===arg?null:arg;sheet('compose');break;
-    case 'cto': stashCompose();compose.to.has(arg)?compose.to.delete(arg):compose.to.add(arg);sheet('compose');break;
-    case 'usetpl':{stashCompose();const t=TEMPLATES.find(x=>x.id===arg);
+    /* adding a classroom brings its children with it, and removing one takes
+       them away again, exactly as Post an activity does */
+    case 'croomm':{stashCompose();compose.sel=null;
+      if(compose.rooms.has(arg)){compose.rooms.delete(arg);
+        kidsIn(arg).forEach(k=>compose.kids.delete(k.id));}
+      else {compose.rooms.add(arg); kidsIn(arg).forEach(k=>compose.kids.add(k.id));}
+      sheet('compose');break;}
+    case 'croomall':{stashCompose();compose.sel=null;
+      compose.rooms.clear();compose.kids.clear();
+      if(arg==='all')ROOMS.filter(r=>inRoom(r.id)).forEach(r=>{
+        compose.rooms.add(r.id);kidsIn(r.id).forEach(k=>compose.kids.add(k.id));});
+      sheet('compose');break;}
+    case 'ckidm': stashCompose();compose.sel=null;
+      compose.kids.has(arg)?compose.kids.delete(arg):compose.kids.add(arg);
+      sheet('compose');break;
+    case 'ckidall': stashCompose();compose.sel=null;compose.kids.clear();
+      if(arg==='all')composeKids().forEach(k=>compose.kids.add(k.id));
+      sheet('compose');break;
+    /* a family picks children of their own, so it stays a plain toggle */
+    case 'cabout':{stashCompose();compose.sel=null;
+      compose.kids.has(arg)?compose.kids.delete(arg):compose.kids.add(arg);
+      sheet('compose');break;}
+    case 'caud': stashCompose();compose.aud=arg;
+      if(arg==='pick'&&!compose.sel)
+        compose.sel=new Set(composeContacts().map(x=>x.key));
+      sheet('compose');break;
+    case 'ctoggle':{stashCompose();const nm=decodeURIComponent(arg);
+      if(!compose.sel)compose.sel=new Set();
+      /* never leave it empty: unticking the last one puts it back */
+      if(compose.sel.has(nm)&&compose.sel.size>1)compose.sel.delete(nm); else compose.sel.add(nm);
+      sheet('compose');break;}
+
+    /* the templates are written in the centre's voice, so they are staff's */
+    case 'usetpl':{if(ROLE.scope==='family')break;
+      stashCompose();const t=TEMPLATES.find(x=>x.id===arg);
       compose.subject=t.name;compose.body=t.body;compose.open=null;sheet('compose');break;}
     case 'cattach': stashCompose();compose.att=true;compose.open=null;sheet('compose');break;
     case 'cdetach': stashCompose();compose.att=false;sheet('compose');break;
     case 'savedraft': stashCompose();closeSheet();toast('Saved as a draft');break;
     case 'sendmsg':{stashCompose();
-      if(!compose.to.size){toast('Choose who this is for');break;}
-      if(!compose.body.trim()){toast('Write a message first');break;}
-      const n2=compose.to.size;
-      const first=[...compose.to][0];
-      const who=(K(first)&&F(K(first).fam).contact)||(ST(first)&&ST(first).name)||roomName(first);
-      THREADS.unshift({id:'t'+Date.now(),who:m(who),ini:(who||'?').slice(0,2).toUpperCase(),
-        scope:ST(first)?'staff':'family',sub:compose.subject||'From Rebecca',
-        rid:K(first)?K(first).room:(ROOMS.find(r=>r.id===first)?first:'r-prek4'),
-        unread:false,at:new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'}),
-        msgs:[{d:'out',t:compose.body.trim(),at:new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'})}]});
-      closeSheet();toast(`Sent to ${n2} ${n2===1?'recipient':'recipients'}`);
-      compose={to:new Set(),subject:'',body:'',att:false,open:null,room:null};
+      const au=composeAudience(), fam2=ROLE.scope==='family';
+      if(!fam2&&CAN.rooms==='all'&&!compose.rooms.size){toast('Choose a classroom first','warn');break;}
+      if(!compose.kids.size){toast('Choose who this is for','warn');break;}
+      if(!compose.body.trim()){toast('Write a message first','warn');break;}
+      const now=new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'}),
+            body=compose.body.trim(),
+            subj=compose.subject?' · '+compose.subject:'';
+      const add=(lbl,rid)=>{
+        const ini=String(lbl).split(/\s+/).filter(Boolean).slice(0,2).map(w=>w[0]).join('').toUpperCase();
+        THREADS.unshift({id:'t'+Date.now()+Math.random().toString(36).slice(2,5),who:lbl,ini:ini||'?',
+          scope:'family',type:au.type,st:'sent',about:K(lbl)?null:null,
+          sub:`${MTYPE[au.type]||'Message'}${subj}`,rid:rid||null,unread:false,at:now,
+          msgs:[{d:'out',t:body,at:now}]});
+      };
+      /* several children means several threads, not a new kind of thing */
+      if(!fam2&&composeIsEveryone()) add('Every family',null);
+      else [...compose.kids].forEach(id=>{
+        const k=K(id); if(!k) return;
+        add(m(k.name),k.room); THREADS[0].about=k.id;});
+      closeSheet();toast(au.btn.replace(/^Send to/,'Sent to'));
+      compose=freshCompose(composeFirstRow());
       render(true);break;}
     case 'clearsig':{const c=$('#pad'); if(c)c.getContext('2d').clearRect(0,0,c.width,c.height);
       draft.sig=false;S.inSig=false;$('.sigh3')?.classList.remove('gone');
@@ -8154,7 +8722,7 @@ function doAct(a){
       break;}
     case 'ptype':{const keep=draft.type; draft=freshDraft(); draft.t=nowT();
       draft.type=arg; sheet('log'); break;}
-    case 'dopen':{const d=$('#det'); if(d)draft.det=d.value;
+    case 'dopen':{stashLog();
       draft.open=draft.open===arg?null:arg;S.ffq='';
       if(draft.open==='time'){CLK='draft';draft.cmode='h';}
       if(draft.open==='date')draft.mOff=0;
@@ -8163,6 +8731,13 @@ function doAct(a){
     case 'cmon': draft.mOff=(draft.mOff||0)+(+arg);repaintCal();break;
     case 'dmeal': draft.meal=arg;draft.qty='';draft.open='qty';sheet('log');break;
     case 'dqty': draft.qty=arg;draft.open=null;sheet('log');break;
+    case 'dkind': draft.kind=arg;draft.open=null;sheet('log');break;
+    /* The feed already draws thumbnails, so an activity could carry photos and
+       there was no way to add one: the Photo tile posted without a photo. */
+    case 'dattach': stashLog();draft.att=true;draft.open=null;sheet('log');break;
+    case 'ddetach': stashLog();draft.att=false;sheet('log');break;
+    case 'droute': stashLog(); draft.route=arg;draft.open=null;sheet('log');break;
+    case 'dwit': stashLog(); draft.witness=arg;draft.open=null;sheet('log');break;
     /* adding a room brings its children with it, which is what "post to the room"
        meant before, and removing one takes them away again */
     case 'droomm':{
@@ -8180,11 +8755,11 @@ function doAct(a){
     case 'dkidall': draft.picked.clear();
       if(arg==='all')draftKids().forEach(k=>draft.picked.add(k.id));
       sheet('log');break;
-    case 'dvis':{const d=$('#det'); if(d)draft.det=d.value; draft.vis=arg;sheet('log');break;}
-    case 'dopost':{const d=$('#det'); if(d)draft.det=d.value;
+    case 'dvis': stashLog(); draft.vis=arg;sheet('log');break;
+    case 'dopost':{stashLog();
       const ty=POST_TYPES.find(x=>x[0]===draft.type);
       const n2=draftCount();
-      if(!draft.rooms.size||!n2){toast('Pick a classroom and who it is for');break;}
+      if(!draft.rooms.size||!n2){toast('Pick a classroom and who it is for','warn');break;}
       /* one entry per classroom, so each room's feed reads as its own day */
       const picked=[...draft.picked].map(id=>K(id)).filter(Boolean);
       [...draft.rooms].forEach(rid=>{
@@ -8195,7 +8770,12 @@ function doAct(a){
         ini:ROLE.ini,type:draft.type,icon:ty[2],title:ty[1],by:ROLE.who,
         room:roomName(rid),rid:rid,
         at:timeStr(),on:dateStr(),
-        review:false,body:draft.det||`${ty[1]} logged for ${whoLabel().toLowerCase()}.`});
+        review:false,body:draft.det||`${ty[1]} logged for ${whoLabel().toLowerCase()}.`,
+        kids:inRm.map(k=>k.id),
+        photos:draft.att||undefined,
+        meta:[draft.kind,draft.meal&&draft.type==='meal'?`${draft.meal} \u00b7 ${draft.qty||'not recorded'}`:'',
+              draft.dose&&`${draft.dose}${draft.route?' \u00b7 '+draft.route:''}`,
+              draft.witness&&`Witnessed by ${draft.witness}`].filter(Boolean).join(' \u00b7 ')});
       });
       closeSheet();
       toast(`Posted to ${n2} ${n2===1?'family':'families'}`);
@@ -8235,6 +8815,14 @@ document.addEventListener('click',e=>{
 });
 document.addEventListener('keydown',e=>{if(e.key!=='Escape')return;
   if($('#confirmwrap')){confirmClose();return;} closeSheet();});
+/* Anything drawn as a button but built from a div was reachable by Tab and did
+   nothing when you pressed Enter: the activity cards and the centre switcher.
+   A real button handles this itself, so only the stand-ins are wired here. */
+document.addEventListener('keydown',e=>{
+  if(e.key!=='Enter'&&e.key!==' ') return;
+  const el=e.target.closest?.('[role="button"][data-act]');
+  if(!el||el.tagName==='BUTTON'||el.tagName==='A') return;
+  e.preventDefault(); doAct(el.dataset.act);});
 
 /* clock */
 (function clock(){
