@@ -4064,6 +4064,10 @@ function vAttendanceWide(){
       <button class="avatar" data-act="hmenu:role" aria-label="Account and role">${ROLE.ini}</button>${S.hmenu==='role'?hmenu('role'):''}</span>
     </div>
    </div>
+   <div class="scopeband">
+    <span class="scope-n">${m(CAN.rooms==='all'?'All rooms':roomName(ROLE.room))}<em>${scope.length}</em></span>
+    ${datespine()}
+   </div>
    <div class="card table-card">
     <div class="htabs">${chip('all','All',scope.length)}${chip('here','Here',cnt('here'))}
      ${chip('out','Not in',cnt('out'))}${chip('absent','Absent',cnt('absent'))}
@@ -4461,11 +4465,7 @@ function vActivitiesWide(){
    </div>
    <div class="scopeband">
     <span class="scope-n">${m(CAN.rooms==='all'?'All rooms':roomName(ROLE.room))}<em>${KIDS.filter(k=>inRoom(k.room)).length}</em></span>
-    <span class="datebar">
-     <button class="sp-b" data-act="day:-1" aria-label="Previous day">${ic('left','ic sm')}</button>
-     <span class="d-lbl">${ic('cal','ic sm','var(--ink-3)')}${dayLabel(S.day)}</span>
-     <button class="sp-b" data-act="day:1" aria-label="Next day">${ic('right','ic sm')}</button>
-    </span>
+    ${datespine()}
     <span class="band-r">
      ${searchbox('Search activities')}
      <button class="second xs${fc?' on':''}" data-act="sheet:filters">${ic('filter','ic sm','currentColor','2')}Filters${fc?' ('+fc+')':''}</button>
@@ -4524,6 +4524,7 @@ function vMessagesWide(){
    </div>
    <div class="scopeband">
     <span class="scope-n">${m(CAN.rooms==='all'?'All rooms':roomName(ROLE.room))}<em>${scope.length}</em></span>
+    ${datespine()}
     <div class="tabpill fill">${chip('all','All',scope.length)}${chip('family','Parents',n('family'))}${chip('staff','Staff',n('staff'))}</div>
     <span class="band-r">${searchbox('Search messages')}</span>
    </div>
@@ -4569,6 +4570,7 @@ function vMessages(){
    `${searchBtn()}${par?'':filtersBtn('messages')}`)}
   <div class="body">
    ${S.searchOpen?newbtn:''}
+   ${datespine()}
    ${par?''
      :`<div class="tabpill fill">${chip('all','All',scope.length)}${chip('family','Parents',n('family'))}${chip('staff','Staff',n('staff'))}</div>`}
    ${(()=>{
@@ -6181,6 +6183,7 @@ function vCapacity(){
 }
 function vScheduling(){
   return `${topbar('Scheduling','Week of Jun 22 · all rooms')}<div class="body">
+   ${datespine()}
    <div class="card list tight">
     ${ROOMS.map(r=>{const kids=kidsIn(r.id);
      const staff=STAFF.filter(s=>s.room.includes(r.name.replace(/ [AB]$/,'')));
