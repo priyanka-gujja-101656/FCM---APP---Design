@@ -1558,7 +1558,9 @@
     .body.wide .datebar .sp-b{width:32px;height:32px;min-height:32px;border:0;background:none}
     /* the parent's day control is the phone's spine; on a wide column it was
        throwing its arrows to either edge, so it keeps its own width */
-    .body.low .spine{max-width:320px;margin-left:auto;margin-right:auto}
+    /* loose in a column the spine threw its arrows to either edge; in a band
+       it sits with the filters, so only a loose one is capped */
+    .body > .spine{max-width:320px;margin-left:auto;margin-right:auto}
     /* On a phone the pill spans the column, so its tabs share the width. In a
        desktop band it is one control among several and has only the room left
        over: three tabs at 51px each ran "Parents 5" into "Staff 1". Here it
@@ -6181,11 +6183,9 @@ function vCapacity(){
   ${ROOMS.length?`<div class="fabdock"><button class="primary" data-act="sheet:addroom">
     ${ic('plus','ic','currentColor','1.9')}Add a room</button></div>`:''}`;
 }
-function vScheduling(){
-  return `${topbar('Scheduling','Week of Jun 22 · all rooms')}<div class="body">
-   ${datespine()}
-   <div class="card list tight">
-    ${ROOMS.map(r=>{const kids=kidsIn(r.id);
+/* The room list, so the phone and the desktop draw the same thing. */
+function schedRooms(){
+  return `${ROOMS.map(r=>{const kids=kidsIn(r.id);
      const staff=STAFF.filter(s=>s.room.includes(r.name.replace(/ [AB]$/,'')));
      const short=staff.length===0;
      return `<div class="cap">
@@ -6194,8 +6194,32 @@ function vScheduling(){
        <span>${staff.length?staff.map(s=>s.name).join(', '):'No lead assigned'}</span>
        <span>${short?'<b style="color:var(--warn)">Needs cover</b>':'Covered'}</span>
       </div>
-     </div>`;}).join('')}
+     </div>`;}).join('')}`;
+}
+function vScheduling(){
+  if(isRail()) return `<div class="body wide narrow">
+   <div class="pagehead">
+    ${wideBack()}
+    <div><h2 class="greet-h">Scheduling</h2>
+     <p class="page-s">Week of Jun 22 &middot; all rooms</p></div>
+    <div class="pageacts"><span class="pagechrome">${maskBtn()}
+     <button class="avatar" data-act="hmenu:role" aria-label="Account and role">${ROLE.ini}</button>${S.hmenu==='role'?hmenu('role'):''}</span></div>
    </div>
+   <div class="scopeband">
+    <span class="scope-n">All rooms<em>${ROOMS.length}</em></span>
+    ${datespine()}
+   </div>
+   <div class="card list tight">${schedRooms()}</div>
+   <div class="flabel">This week</div>
+   <div class="card fieldset">
+    <div class="field"><span class="fl">Open shifts</span><span class="fv"><span>1 &middot; Thu PM, Infants</span></span></div>
+    <div class="field"><span class="fl">Time-off requests</span><span class="fv"><span>None</span></span></div>
+    <div class="field"><span class="fl">Ratio exceptions</span><span class="fv ok"><span>None this week</span></span></div>
+   </div>
+  </div>`;
+  return `${topbar('Scheduling','Week of Jun 22 · all rooms')}<div class="body">
+   ${datespine()}
+   <div class="card list tight">${schedRooms()}</div>
    <div class="flabel">This week</div>
    <div class="card fieldset">
     <div class="field"><span class="fl">Open shifts</span><span class="fv"><span>1 · Thu PM, Infants</span></span></div>
