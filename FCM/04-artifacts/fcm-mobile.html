@@ -65,7 +65,10 @@
     var scale=Math.min(1, availH/h, availW/w);
     screen.style.width=w+'px'; screen.style.height=h+'px';
     screen.style.transform='scale('+scale+')'; screen.style.transformOrigin='top left';
-    phone.style.width=(w*scale+24)+'px'; phone.style.height=(h*scale+24)+'px';
+    var cs=getComputedStyle(phone);
+    var padX=parseFloat(cs.paddingLeft)+parseFloat(cs.paddingRight);
+    var padY=parseFloat(cs.paddingTop)+parseFloat(cs.paddingBottom);
+    phone.style.width=(w*scale+padX)+'px'; phone.style.height=(h*scale+padY)+'px';
     phone.style.overflow='hidden';
     document.getElementById('size').textContent=w+' by '+h+(scale<1?'  ·  shown at '+Math.round(scale*100)+'%':'');
     var src='fcm-app.html?role='+role+'&loggedin=1';

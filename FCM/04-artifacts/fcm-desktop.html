@@ -65,12 +65,19 @@
         device=document.getElementById('device'), app=document.getElementById('app');
     /* the frame keeps the real pixel size and is scaled down to fit, so the
        app lays out exactly as it would on that screen */
-    var avail=Math.min(window.innerWidth-80, 1600), scale=Math.min(1, avail/w);
+    var avail=Math.min(window.innerWidth-120, 1600);
+    var availH=window.innerHeight-200;
+    var scale=Math.min(1, avail/w, availH/h);
     screen.style.width=w+'px'; screen.style.height=h+'px';
     screen.style.transform='scale('+scale+')'; screen.style.transformOrigin='top left';
-    device.style.width=(w*scale)+'px'; device.style.height=(h*scale)+'px';
-    device.style.overflow='hidden';
     device.classList.toggle('tablet', w<=1024);
+    /* the scaled screen no longer reports its own size, so the frame is told
+       what to be: the screen plus its own bezel, or the bottom edge is cut */
+    var cs=getComputedStyle(device);
+    var padX=parseFloat(cs.paddingLeft)+parseFloat(cs.paddingRight);
+    var padY=parseFloat(cs.paddingTop)+parseFloat(cs.paddingBottom);
+    device.style.width=(w*scale+padX)+'px'; device.style.height=(h*scale+padY)+'px';
+    device.style.overflow='hidden';
     document.getElementById('stand').style.display=w<=1024?'none':'block';
     document.getElementById('size').textContent=w+' by '+h+(scale<1?'  ·  shown at '+Math.round(scale*100)+'%':'');
     var src='fcm-app.html?role='+role+'&loggedin=1';
