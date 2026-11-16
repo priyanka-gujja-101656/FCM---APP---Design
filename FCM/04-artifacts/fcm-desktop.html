@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>FCM · desktop and tablet</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+<style>
+  :root{color-scheme:light;--ink:#2C312B;--ink-2:#5D6655;--line:rgba(44,49,43,.12);
+    --blue:#037aa7;--blue-on:#056488;--blue-100:#E6F3FB;--bg:#F4F1E9}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font:15px/1.5 Inter,-apple-system,BlinkMacSystemFont,sans-serif}
+  header{display:flex;flex-wrap:wrap;align-items:center;gap:14px;padding:16px 20px;
+    border-bottom:1px solid var(--line);background:#FFFDFA;position:sticky;top:0;z-index:5}
+  h1{font-size:15px;font-weight:650;margin:0 12px 0 0;letter-spacing:-.01em}
+  .grp{display:flex;align-items:center;gap:7px}
+  .grp b{font-size:11px;font-weight:650;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-2)}
+  button{font:inherit;font-size:13.5px;font-weight:550;color:var(--ink-2);cursor:pointer;
+    min-height:36px;padding:0 14px;border-radius:999px;border:1px solid var(--line);background:#fff}
+  button:hover{border-color:rgba(44,49,43,.3)}
+  button[aria-pressed="true"]{background:var(--blue-100);border-color:var(--blue);color:var(--blue-on);font-weight:650}
+  button:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+  .note{margin-left:auto;font-size:12.5px;color:var(--ink-2)}
+  main{display:flex;justify-content:center;padding:28px 20px 40px}
+  .device{background:#1F2420;border-radius:18px;padding:14px 14px 18px;
+    box-shadow:0 30px 60px -30px rgba(20,30,18,.5);max-width:100%}
+  .device.tablet{border-radius:26px;padding:18px}
+  .screen{background:#FCF3D6;border-radius:8px;overflow:hidden;display:block}
+  .device.tablet .screen{border-radius:14px}
+  iframe{display:block;border:0;width:100%;height:100%;background:#FCF3D6}
+  .stand{width:120px;height:10px;border-radius:0 0 8px 8px;background:#1F2420;margin:0 auto;opacity:.5}
+  .size{text-align:center;font-size:12px;color:var(--ink-2);margin-top:10px}
+</style>
+<header>
+  <h1>FACTS Childcare Management</h1>
+  <div class="grp"><b>Role</b>
+    <button data-role="director" aria-pressed="true">Director</button>
+    <button data-role="teacher" aria-pressed="false">Teacher</button>
+    <button data-role="parent" aria-pressed="false">Parent</button>
+  </div>
+  <div class="grp"><b>Screen</b>
+    <button data-w="1440" aria-pressed="true">Desktop</button>
+    <button data-w="1180" aria-pressed="false">Laptop</button>
+    <button data-w="1024" aria-pressed="false">Tablet landscape</button>
+    <button data-w="820" aria-pressed="false">Tablet portrait</button>
+  </div>
+  <span class="note">Scaled to fit your window. The app itself is live.</span>
+</header>
+<main>
+  <div>
+    <div class="device" id="device">
+      <div class="screen" id="screen"><iframe id="app" title="FCM, desktop and tablet"></iframe></div>
+    </div>
+    <div class="stand" id="stand"></div>
+    <p class="size" id="size"></p>
+  </div>
+</main>
+<script>
+  var role='director', w=1440;
+  var SIZES={1440:900,1180:820,1024:768,820:1180};
+  function paint(){
+    var h=SIZES[w], screen=document.getElementById('screen'),
+        device=document.getElementById('device'), app=document.getElementById('app');
+    /* the frame keeps the real pixel size and is scaled down to fit, so the
+       app lays out exactly as it would on that screen */
+    var avail=Math.min(window.innerWidth-80, 1600), scale=Math.min(1, avail/w);
+    screen.style.width=w+'px'; screen.style.height=h+'px';
+    screen.style.transform='scale('+scale+')'; screen.style.transformOrigin='top left';
+    device.style.width=(w*scale)+'px'; device.style.height=(h*scale)+'px';
+    device.style.overflow='hidden';
+    device.classList.toggle('tablet', w<=1024);
+    document.getElementById('stand').style.display=w<=1024?'none':'block';
+    document.getElementById('size').textContent=w+' by '+h+(scale<1?'  ·  shown at '+Math.round(scale*100)+'%':'');
+    var src='fcm-app.html?role='+role+'&loggedin=1';
+    if(app.getAttribute('data-src')!==src){app.setAttribute('data-src',src); app.src=src;}
+  }
+  document.querySelectorAll('[data-role]').forEach(function(b){
+    b.onclick=function(){role=b.dataset.role;
+      document.querySelectorAll('[data-role]').forEach(function(x){x.setAttribute('aria-pressed', String(x===b));});
+      document.getElementById('app').removeAttribute('data-src'); paint();};});
+  document.querySelectorAll('[data-w]').forEach(function(b){
+    b.onclick=function(){w=+b.dataset.w;
+      document.querySelectorAll('[data-w]').forEach(function(x){x.setAttribute('aria-pressed', String(x===b));});
+      paint();};});
+  window.addEventListener('resize', paint);
+  paint();
+</script>
