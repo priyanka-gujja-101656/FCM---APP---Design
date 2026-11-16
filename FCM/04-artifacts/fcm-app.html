@@ -1549,6 +1549,8 @@
     .stat-s{display:block;font-size:13px;color:var(--ink-2)}
     /* attendance on a desktop: scope band, three numbers, one table */
     .body.wide .scopeband{display:flex;align-items:center;gap:12px;flex:none;padding:0 2px}
+    /* in a band the tabs sit on the line, with no rule under the whole row */
+    .body.wide .scopeband .htabs{border-bottom:0;margin-top:0;gap:22px;flex:none}
     .scope-n{display:inline-flex;align-items:center;gap:10px;min-height:40px;padding:0 16px;border-radius:999px;
       border:1px solid var(--npds-gray-500);background:rgba(255,255,255,.88);font-size:var(--d-td);font-weight:550}
     .scope-n em{font-style:normal;font-size:12px;font-weight:700;color:var(--npds-blue-700);
@@ -1759,6 +1761,16 @@
 
   }
 
+  @media (min-width:1200px){
+    /* The account and Hide belong beside the page title at every desktop
+       width, not only the narrow ones. A page with one more action, like Add
+       a room on Scheduling, wrapped its actions and took them down too. The
+       actions reserve the width the pinned pair occupies. */
+    .body.wide .pagehead .pagechrome{position:absolute;top:20px;right:2px}
+    /* the pinned pair is 159px with its divider, so the actions reserve that
+       plus the row's own gap or the last one slides under them */
+    .body.wide .pagehead .pageacts{padding-right:176px}
+  }
   @media (max-width:1199px){
     /* The account and Hide belong beside the page title, not trailing the
        search field a row below it. They are one element in the markup and sit
@@ -4512,7 +4524,9 @@ function vMessagesWide(){
     &&(!q||(t.who+' '+t.sub+' '+t.msgs.map(x=>x.t).join(' ')).toLowerCase().includes(q)));
   const unread=scope.filter(t=>t.unread).length;
   const open=list.find(t=>t.id===S.arg)||list[0];
-  const chip=(id,lbl,c)=>`<button class="tp${(id==='all'?msgAll():S.msgSel.size===1&&S.msgSel.has(id))?' on':''}" data-act="msgs:${id}">${lbl} ${c}</button>`;
+  const chip=(id,lbl,c)=>{const on=id==='all'?msgAll():S.msgSel.size===1&&S.msgSel.has(id);
+    return `<button class="htab${on?' on':''}" role="tab" aria-selected="${on}"
+     data-act="msgs:${id}">${lbl}<em>${c}</em></button>`;};
   return `<div class="body wide msgwide">
    <div class="pagehead">
     ${wideBack()}
@@ -4527,7 +4541,7 @@ function vMessagesWide(){
    <div class="scopeband">
     <span class="scope-n">${m(CAN.rooms==='all'?'All rooms':roomName(ROLE.room))}<em>${scope.length}</em></span>
     ${datespine()}
-    <div class="tabpill fill">${chip('all','All',scope.length)}${chip('family','Parents',n('family'))}${chip('staff','Staff',n('staff'))}</div>
+    <div class="htabs" role="tablist">${chip('all','All',scope.length)}${chip('family','Parents',n('family'))}${chip('staff','Staff',n('staff'))}</div>
     <span class="band-r">${searchbox('Search messages')}</span>
    </div>
    <div class="card msgpanes">
